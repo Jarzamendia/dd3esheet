@@ -6,14 +6,20 @@
         <title>eSheet</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% load bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
     </head>
     <body>
 
-        {% include 'navbar.html' %}
 
-        {% block content%}
 
-        {% endblock %}
+        <div class="container">
+
+            {% include 'navbar.html' %}
+             
+            {% block content %}
+            {% endblock %}
 
     </body>
 </html>
