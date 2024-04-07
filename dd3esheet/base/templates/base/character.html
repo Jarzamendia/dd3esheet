@@ -1,0 +1,61 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div> 
+
+    <div id='Name'><h1>{{character.Name}}<h1></div>
+    
+    <hr>
+    <h2>Description</h2>
+    <div id='Description'>
+        <p>Name: {{characterDescription.Name}}</p>
+        <p>Player: {{characterDescription.Player}}</p>
+        <p>Class: {{characterDescription.Class}}</p>
+        <p>Level: {{characterDescription.Level}}</p>
+        <p>Race: {{characterDescription.Race}}</p>
+        <p>Alignment: {{characterDescription.Alignment}}</p>
+        <p>Deity: {{characterDescription.Deity}}</p>
+        <p>Size: {{characterDescription.Size}}</p>
+        <p>Age: {{characterDescription.Age}}</p>
+        <p>Sex: {{characterDescription.Sex}}</p>
+        <p>Heigth: {{characterDescription.Heigth}}</p>
+        <p>Weight: {{characterDescription.Weight}}</p>
+        <p>Eye: {{characterDescription.Eye}}</p>
+        <p>Hair: {{characterDescription.Hair}}</p>
+        <p>Skin: {{characterDescription.Skin}}</p>
+    </div>
+
+    <hr>
+
+    <h2>Stats</h2>
+    <div>
+        <p>Strength {{characterStats.Strength}}</p>
+        <p>Dexterity {{characterStats.Dexterity}}</p>
+        <p>Constitution {{characterStats.Constitution}}</p>
+        <p>Intelligence {{characterStats.Intelligence}}</p>
+        <p>Wisdom {{characterStats.Wisdom}}</p>
+        <p>Charisma {{characterStats.Charisma}}</p>
+        <p>StrengthStatMod {{characterStats.StrengthStatMod}}</p>
+        <p>DexterityStatMod {{characterStats.DexterityStatMod}}</p>
+        <p>ConstitutionStatMod {{characterStats.ConstitutionStatMod}}</p>
+        <p>IntelligenceStatMod {{characterStats.IntelligenceStatMod}}</p>
+        <p>WisdomStatMod {{characterStats.WisdomStatMod}}</p>
+        <p>CharismaStatMod {{characterStats.CharismaStatMod}}</p>
+        <p>StrengthTemp {{characterStats.StrengthTemp}}</p>
+        <p>DexterityTemp {{characterStats.DexterityTemp}}</p>
+        <p>ConstitutionTemp {{characterStats.ConstitutionTemp}}</p>
+        <p>IntelligenceTemp {{characterStats.IntelligenceTemp}}</p>
+        <p>WisdomTemp {{characterStats.WisdomTemp}}</p>
+        <p>CharismaTemp {{characterStats.CharismaTemp}}</p>
+        <p>StrengthModTemp {{characterStats.StrengthModTemp}}</p>
+        <p>DexterityModTemp {{characterStats.DexterityModTemp}}</p>
+        <p>ConstitutionModTemp {{characterStats.ConstitutionModTemp}}</p>
+        <p>IntelligenceModTemp {{characterStats.IntelligenceModTemp}}</p>
+        <p>WisdomModTemp {{characterStats.WisdomModTemp}}</p>
+        <p>CharismaModTemp {{characterStats.CharismaModTemp}}</p>
+    </div>
+
+</div>
+
+{% endblock %}
