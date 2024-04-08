@@ -9,12 +9,25 @@
         {% load bootstrap5 %}
         {% bootstrap_css %}
         {% bootstrap_javascript %}
+        <style>
+            .yellow {
+                background-color: yellow;
+              }
+
+            input {
+                width: 100%;
+                background-color: #fcfcfc;
+                border: 0;
+                border-bottom: 2px solid lightgrey;
+                padding: 10px;
+            }
+        </style>
     </head>
     <body>
 
 
 
-        <div class="container">
+        <div class="container-fluid">
 
             {% include 'navbar.html' %}
              
