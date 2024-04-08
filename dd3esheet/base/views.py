@@ -16,10 +16,12 @@ def character(request, pk):
     character = Character.objects.get(id=pk)
     characterDesc = CharacterDescription.objects.get(Character=character.id)
     characterStats = CharacterStats.objects.get(Character=character.id)
+    characterStatus = CharacterStatus.objects.get(Character=character.id)
     context = {
             'character': character,
             'characterDescription': characterDesc,
             'characterStats': characterStats,
+            'characterStatus': characterStatus,
             }
     return render(request, "base/character.html", context)
 
