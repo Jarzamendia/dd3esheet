@@ -14,3 +14,6 @@ Depois de entrar no container:
 
 Para criar um super user:
 - python manage.py createsuperuser
+
+### Acessando o ambiente admin
+- Acessar localhost:8000/admin
