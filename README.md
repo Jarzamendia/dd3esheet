@@ -11,3 +11,6 @@ Depois de entrar no container:
 
 - python manage.py makemigrations
 - python manage.py migrate
+
+Para criar um super user:
+- python manage.py createsuperuser
