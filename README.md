@@ -4,9 +4,10 @@
 Python: 3.12.2
 
 ### Rodando o ambiente
-docker-compose up
-docker-compose exec web bash
+- docker-compose up
+- docker-compose exec web bash
 
 Depois de entrar no container:
-python manage.py makemigrations
-python manage.py migrate
+
+- python manage.py makemigrations
+- python manage.py migrate
