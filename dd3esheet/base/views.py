@@ -1,9 +1,6 @@
 from django.shortcuts import render, redirect
-from .models import Character, CharacterDescription, CharacterStats, CharacterStatus, CharacterSavingThrows
-from .models import  CharacterAttackModifiers, CharacterWeapon, CharacterSkillGraduation, CharacterSkill
-from .models import  CharacterArmor, CharacterShield, CharacterProtectionItem, CharacterOtherItem, CharacterOtherItemObs
-from .models import  CharacterMoney, CharacterFeat, CharacterAbility, CharacterSpell, CharacterSpellSave
-from .models import  CharacterArcaneSpellFailCheck, CharacterMagicConditionalModifiers, CharacterMagicDayUse, CharacterLanguages
+# from .models import Character, CharacterDescription, CharacterStats, CharacterStatus, CharacterSavingThrows
+from .models import Character, CharacterStats, CharacterWeapon
 from .forms import CharacterForm
 
 skillList = ['Appraise', 'Balance', 'Bluff', 'Climb', 'Concentration', 'Craft', 'DecipherScript', 'Diplomacy', 'DisableDevice', 'Disguise', 'EscapeArtist', 'Forgery', 'GatherInformation', 'HandleAnimal', 'Heal', 'Hide', 'Intimidate', 'Jump' , 'Knowledge', 'Listen', 'MoveSilently', 'OpenLock', 'Perform', 'Profession', 'Ride', 'Search', 'SenseMotive', 'SleightofHand', 'Spellcraft', 'Spot', 'Survival', 'Swim', 'Tumble', 'UseMagicDevice', 'UseRope']
@@ -14,14 +11,14 @@ def home(request):
 
 def character(request, pk):
     character = Character.objects.get(id=pk)
-    characterDesc = CharacterDescription.objects.get(Character=character.id)
     characterStats = CharacterStats.objects.get(Character=character.id)
-    characterStatus = CharacterStatus.objects.get(Character=character.id)
+    characterWeapons = CharacterWeapon.objects.filter(Character=character.id)
+
+    # characterStatus = CharacterStatus.objects.get(Character=character.id)
     context = {
             'character': character,
-            'characterDescription': characterDesc,
             'characterStats': characterStats,
-            'characterStatus': characterStatus,
+            'characterWeapons': characterWeapons,
             }
     return render(request, "base/character.html", context)
 

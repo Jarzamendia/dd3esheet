@@ -2,42 +2,46 @@
 
 {% block content %}
 
-<form method="post" name="characterDescriptionForm"> 
+{% for characterWeapon in characterWeapons %}
+    <p>{{characterWeapon}}</p>
+{% endfor %}
 
-    <div class="row bg1" id="characterDescription">
+<form method="post" name="characterForm"> 
+
+    <div class="row bg1" id="character">
             <div class="col-sm-5">
 
                 <div class="row">
-                    <div class="col-sm-12"><input type="text" id="fname" name="fname" value="{{characterDescription.Name}}"/><br>Nome do Personagem</div>
+                    <div class="col-sm-12"><input type="text" id="fname" name="fname" value="{{character.Name}}"/><br>Nome do Personagem</div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-12"><input type="text" id="fname" name="fname" value="{{characterDescription.Class}} - {{characterDescription.Level}}" /><br>Classe e Nivel</div>
+                    <div class="col-sm-12"><input type="text" id="fname" name="fname" value="{{character.Class}} - {{character.Level}}" /><br>Classe e Nivel</div>
                 </div>
 
                 <div class="row">
-                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{characterDescription.Size}}" /><br>Tamanho</div>
-                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{characterDescription.Age}}" /><br>Idade</div>
-                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{characterDescription.Sex}}" /><br>Sexo</div>
-                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{characterDescription.Heigth}}" /><br>Altura</div>
+                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{character.Size}}" /><br>Tamanho</div>
+                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{character.Age}}" /><br>Idade</div>
+                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{character.Sex}}" /><br>Sexo</div>
+                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{character.Heigth}}" /><br>Altura</div>
                 </div>
 
             </div>
 
             <div class="col-sm-5">
                 <div class="row">
-                    <div class="col-sm-12"><input type="text" id="fname" name="fname value="{{characterDescription.PlayerName}}"" /><br>Jogador</div>
+                    <div class="col-sm-12"><input type="text" id="fname" name="fname" value="{{character.User}}" /><br>Jogador</div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-4"><input type="text" id="fname" name="fname" value="{{characterDescription.Race}}"/><br>Raça</div>
-                    <div class="col-sm-4"><input type="text" id="fname" name="fname" value="{{characterDescription.Alignment}}"/><br>Tendência</div>
-                    <div class="col-sm-4"><input type="text" id="fname" name="fname" value="{{characterDescription.Deity}}"/><br>Divindade</div>
+                    <div class="col-sm-4"><input type="text" id="fname" name="fname" value="{{character.Race}}"/><br>Raça</div>
+                    <div class="col-sm-4"><input type="text" id="fname" name="fname" value="{{character.Alignment}}"/><br>Tendência</div>
+                    <div class="col-sm-4"><input type="text" id="fname" name="fname" value="{{character.Deity}}"/><br>Divindade</div>
                 </div>
 
                 <div class="row">
-                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{characterDescription.Weight}}"/><br>Peso</div>
-                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{characterDescription.Eye}}"/><br>Olhos</div>
-                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{characterDescription.Hair}}"/><br>Cabelos</div>
-                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{characterDescription.Skin}}"/><br>Pele</div>
+                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{character.Weight}}"/><br>Peso</div>
+                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{character.Eye}}"/><br>Olhos</div>
+                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{character.Hair}}"/><br>Cabelos</div>
+                    <div class="col-sm-3"><input type="text" id="fname" name="fname" value="{{character.Skin}}"/><br>Pele</div>
                 </div>
             </div>
 
