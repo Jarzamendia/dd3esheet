@@ -7,7 +7,7 @@ from .models import CharacterStats
 # from .models import CharacterAttackModifiers
 from .models import CharacterWeapon
 # from .models import CharacterSkillGraduation
-# from .models import CharacterSkill
+from .models import CharacterSkill
 # from .models import CharacterArmor
 # from .models import CharacterShield
 # from .models import CharacterProtectionItem
@@ -30,7 +30,7 @@ admin.site.register(CharacterStats)
 # admin.site.register(CharacterAttackModifiers)
 admin.site.register(CharacterWeapon)
 # admin.site.register(CharacterSkillGraduation)
-# admin.site.register(CharacterSkill)
+admin.site.register(CharacterSkill)
 # admin.site.register(CharacterArmor)
 # admin.site.register(CharacterShield)
 # admin.site.register(CharacterProtectionItem)

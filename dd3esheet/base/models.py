@@ -121,7 +121,9 @@ class CharacterSkillGraduation(models.Model):
     OtherClassMaxGraduation = models.IntegerField(default=0, null=True, blank=True)
 
 class CharacterSkill(models.Model):
-    SkillIsActive = models.BinaryField(default=0, null=True, blank=True)
+    Character       = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    SkillIsActive = models.BooleanField(default=False, null=True, blank=True)
     SkillName       = models.CharField(max_length=200, null=True, blank=True)
     SkillAbility    = models.IntegerField(default=0, null=True, blank=True)
     SkillModifier   = models.IntegerField(default=0, null=True, blank=True)

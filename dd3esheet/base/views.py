@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
-# from .models import Character, CharacterDescription, CharacterStats, CharacterStatus, CharacterSavingThrows
-from .models import Character, CharacterStats, CharacterWeapon
+from .models import Character, CharacterStats, CharacterStatus,CharacterSavingThrows, CharacterAttackModifiers, CharacterSkillGraduation, CharacterSkill, CharacterWeapon
+from .models import CharacterArmor, CharacterShield, CharacterProtectionItem, CharacterOtherItem
+from .models import CharacterOtherItemObs, CharacterMoney, CharacterFeat, Ability
+from .models import CharacterSpell, CharacterSpellSave, CharacterArcaneSpellFailCheck
+from .models import CharacterMagicConditionalModifiers,CharacterMagicDayUse, CharacterLanguages
 from .forms import CharacterForm, CharacterStatsForm
-
-skillList = ['Appraise', 'Balance', 'Bluff', 'Climb', 'Concentration', 'Craft', 'DecipherScript', 'Diplomacy', 'DisableDevice', 'Disguise', 'EscapeArtist', 'Forgery', 'GatherInformation', 'HandleAnimal', 'Heal', 'Hide', 'Intimidate', 'Jump' , 'Knowledge', 'Listen', 'MoveSilently', 'OpenLock', 'Perform', 'Profession', 'Ride', 'Search', 'SenseMotive', 'SleightofHand', 'Spellcraft', 'Spot', 'Survival', 'Swim', 'Tumble', 'UseMagicDevice', 'UseRope']
 
 def home(request):
     characters = Character.objects.all()
@@ -20,6 +21,38 @@ def character(request, pk):
             'characterWeapons': characterWeapons,
             }
     return render(request, "base/character.html", context)
+
+def createCharacterWithDefaults(request):
+
+    skillList = ['Appraise', 'Balance', 'Bluff', 'Climb', 'Concentration', 'Craft', 'DecipherScript', 'Diplomacy', 'DisableDevice', 'Disguise', 'EscapeArtist', 'Forgery', 'GatherInformation', 'HandleAnimal', 'Heal', 'Hide', 'Intimidate', 'Jump' , 'Knowledge', 'Listen', 'MoveSilently', 'OpenLock', 'Perform', 'Profession', 'Ride', 'Search', 'SenseMotive', 'SleightofHand', 'Spellcraft', 'Spot', 'Survival', 'Swim', 'Tumble', 'UseMagicDevice', 'UseRope']
+
+    if request.method == 'POST':
+
+        characterForm = CharacterForm(request.POST)
+
+        if characterForm.is_valid():
+            character = characterForm.save()
+            CharacterStats(Character = character).save()
+            CharacterStatus(Character = character).save()
+            CharacterSavingThrows(Character = character).save()
+            CharacterAttackModifiers(Character = character).save()
+            CharacterSkillGraduation(Character = character).save()
+            CharacterOtherItemObs(Character = character).save()
+            CharacterMoney(Character = character).save()
+            CharacterSpellSave(Character = character).save()
+            CharacterArcaneSpellFailCheck(Character = character).save()
+            CharacterMagicConditionalModifiers(Character = character).save()
+
+            for skill in skillList:
+                CharacterSkill(Character = character, SkillName = skill).save()
+
+            return redirect('home')
+    
+    characterForm = CharacterForm()
+
+    context = { 'characterForm': characterForm}
+    
+    return render(request, 'base/character_form2.html', context)
 
 def createCharacter(request):
     if request.method == 'POST':
@@ -44,7 +77,10 @@ def createCharacter(request):
 
 def updateCharacter(request, pk):
     character = Character.objects.get(id=pk)
+
+    characterStats = CharacterStats.objects.filter(Character=character.id)
     form = CharacterForm(instance=character)
+
     context = {'form': form}
 
     if request.method == 'POST':
