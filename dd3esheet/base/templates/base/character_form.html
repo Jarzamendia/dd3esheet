@@ -4,10 +4,12 @@
 
 <div>
 
-    <form method="POST" action="" >
+    <form method="POST" action="." >
         {% csrf_token %}
         <h4>Character</h4>
-        {{form.as_p}}
+        {{characterForm.as_p}}
+        <h4>Character Stats</h4>
+        {{characterStatsForm.as_p}}
         <input type="submit" value="Submit"/>
     </form>
 
