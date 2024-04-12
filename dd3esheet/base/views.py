@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 # from .models import Character, CharacterDescription, CharacterStats, CharacterStatus, CharacterSavingThrows
 from .models import Character, CharacterStats, CharacterWeapon
-from .forms import CharacterForm
+from .forms import CharacterForm, CharacterStatsForm
 
 skillList = ['Appraise', 'Balance', 'Bluff', 'Climb', 'Concentration', 'Craft', 'DecipherScript', 'Diplomacy', 'DisableDevice', 'Disguise', 'EscapeArtist', 'Forgery', 'GatherInformation', 'HandleAnimal', 'Heal', 'Hide', 'Intimidate', 'Jump' , 'Knowledge', 'Listen', 'MoveSilently', 'OpenLock', 'Perform', 'Profession', 'Ride', 'Search', 'SenseMotive', 'SleightofHand', 'Spellcraft', 'Spot', 'Survival', 'Swim', 'Tumble', 'UseMagicDevice', 'UseRope']
 
@@ -14,7 +14,6 @@ def character(request, pk):
     characterStats = CharacterStats.objects.get(Character=character.id)
     characterWeapons = CharacterWeapon.objects.filter(Character=character.id)
 
-    # characterStatus = CharacterStatus.objects.get(Character=character.id)
     context = {
             'character': character,
             'characterStats': characterStats,
@@ -24,15 +23,22 @@ def character(request, pk):
 
 def createCharacter(request):
     if request.method == 'POST':
-        form = CharacterForm(request.POST)
+        characterForm = CharacterForm(request.POST)
+        characterStatsForm = CharacterStatsForm(request.POST)
 
-        if form.is_valid():
-            form.save()
+        if characterForm.is_valid() and characterStatsForm.is_valid():
+            character = characterForm.save()
+            characterStats = characterStatsForm.save(commit=False)
+            characterStats.Character = character
+            characterStatsForm.save()
             return redirect('home')
+    
+    characterForm = CharacterForm()
+    characterStatsForm = CharacterStatsForm()
 
-    form = CharacterForm()
-
-    context = { 'form': form}
+    context = { 'characterForm': characterForm,
+                'characterStatsForm': characterStatsForm
+            }
     
     return render(request, 'base/character_form.html', context)
 
