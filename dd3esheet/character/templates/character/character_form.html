@@ -1,0 +1,18 @@
+{% extends "main.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div>
+
+    <form method="POST" action="." >
+        {% csrf_token %}
+        <h4>Character</h4>
+        {{characterForm.as_p}}
+        <input type="submit" value="Submit"/>
+        
+    </form>
+
+</div>
+
+{% endblock %}
