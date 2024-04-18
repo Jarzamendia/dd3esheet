@@ -1,0 +1,9 @@
+{% block characterForm %}
+
+<form method="POST" hx-post="{% url 'character' character.id %}" hx-target="#characterForm" hx-push-url="true" id=characterForm>
+    {% csrf_token %}
+    {{characterForm}}
+    <input type="submit" value="Submit"/>
+</form>
+
+{% endblock %}
