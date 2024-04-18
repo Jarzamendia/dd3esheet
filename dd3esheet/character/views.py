@@ -10,15 +10,21 @@ def home(request):
 def character(request, pk):
 
     character = Character.objects.get(id=pk)
-
+    
     if request.method == 'POST':
 
         if request.htmx:
 
             if request.htmx.target == 'characterForm':
+                
+                print("characterForm")
+
                 characterForm = CharacterForm(request.POST, instance=character)
+  
                 if characterForm.is_valid():
+  
                     print("valid")
+
                     character = characterForm.save()
 
                     context = {
@@ -29,8 +35,15 @@ def character(request, pk):
                     return render(request, "character/partials/character_description.html", context)
 
             if request.htmx.target == 'characterStatsForm':
+
+                print("characterStatsForm")
+
                 characterStatsForm = CharacterStatsForm(request.POST, instance=character)
+
                 if characterStatsForm.is_valid():
+
+                    print("valid")
+                    
                     character = characterStatsForm.save()
 
                     context = {
@@ -52,13 +65,17 @@ def character(request, pk):
 
 def createCharacter(request):
 
+    print("createCharacter")
+
     skillList = ['Appraise', 'Balance', 'Bluff', 'Climb', 'Concentration', 'Craft', 'DecipherScript', 'Diplomacy', 'DisableDevice', 'Disguise', 'EscapeArtist', 'Forgery', 'GatherInformation', 'HandleAnimal', 'Heal', 'Hide', 'Intimidate', 'Jump' , 'Knowledge', 'Listen', 'MoveSilently', 'OpenLock', 'Perform', 'Profession', 'Ride', 'Search', 'SenseMotive', 'SleightofHand', 'Spellcraft', 'Spot', 'Survival', 'Swim', 'Tumble', 'UseMagicDevice', 'UseRope']
 
     if request.method == 'POST':
+        print("POST")
 
-        characterForm = CharacterForm(request.POST)
+        characterForm = newCharacterForm(request.POST)
 
         if characterForm.is_valid():
+            print("Valid")
             character = characterForm.save()
             CharacterStats(Character = character).save()
             CharacterStatus(Character = character).save()
