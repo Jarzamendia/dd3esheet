@@ -17,3 +17,13 @@ Para criar um super user:
 
 ### Acessando o ambiente admin
 - Acessar localhost:8000/admin
+
+
+
+## Criando models a partir de uma tabela pronta.
+
+Depois de criar a tabela no settings.py, rode o seguinte comando:
+
+```
+python manage.py inspectdb --database sdr
+```

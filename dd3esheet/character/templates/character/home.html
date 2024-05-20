@@ -10,7 +10,6 @@
 
     <div>
         {% for character in characters %}
-            <a href="{% url 'update-character' character.id %}">Edit</a>
             <a href="{% url 'delete-character' character.id %}">Delete</a>
             <span>@{{character.Name}}</span>
             <div>
