@@ -1,0 +1,16 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Spells</h1>
+
+<div>
+    {% for spell in spells %}
+        
+    <a href="{% url 'spell' spell.id %}"> <p>{{spell.name}}</p></a>
+    <p>{{spell.short_description}}</p>
+
+    {% endfor %}
+</div>
+
+{% endblock %}
