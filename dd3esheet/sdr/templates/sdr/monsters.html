@@ -1,0 +1,24 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Monsters</h1>
+
+<form method="get">
+    {{ filtered_monsters.form.as_p}}
+    <input type="submit" class="btn btn-primary" value="Submit">
+</form>
+
+<br>
+
+{% for monster in filtered_monsters.qs %}
+<div>
+
+    <a href="{% url 'monster' monster.id %}"> <p>{{monster.name}}</p></a>
+
+</div>
+
+{% endfor %}
+
+
+{% endblock %}

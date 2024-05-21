@@ -4,13 +4,23 @@
 
 <h1>Spells</h1>
 
-<div>
-    {% for spell in spells %}
-        
-    <a href="{% url 'spell' spell.id %}"> <p>{{spell.name}}</p></a>
-    <p>{{spell.short_description}}</p>
+<form method="get">
+    {{ filtered_spells.form.as_p}}
+    <input type="submit" class="btn btn-primary" value="Submit">
+</form>
 
-    {% endfor %}
+<br>
+
+{% for spell in filtered_spells.qs %}
+<div>
+
+    <a href="{% url 'spell' spell.id %}"> <p>{{spell.name}}</p></a>
+    
+    {{spell.short_description}}
+
 </div>
+
+{% endfor %}
+
 
 {% endblock %}

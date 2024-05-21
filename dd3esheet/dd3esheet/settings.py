@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap5',
     'django_htmx',
+    'django_filters',
     'character.apps.CharacterConfig',
     'sdr.apps.SdrConfig',
 ]

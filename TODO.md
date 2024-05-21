@@ -1,0 +1,1 @@
+- Criar tabelas de invocar monstros.
