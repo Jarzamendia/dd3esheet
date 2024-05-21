@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'bootstrap5',
     'django_htmx',
     'django_filters',
+    'home.apps.HomeConfig',
     'character.apps.CharacterConfig',
     'sdr.apps.SdrConfig',
 ]

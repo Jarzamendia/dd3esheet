@@ -6,14 +6,14 @@
 
 <div>
 
-    <a href="{% url 'create-character' %}">Create Character</a>
+    <a href="{% url 'character:create-character' %}">Create Character</a>
 
     <div>
         {% for character in characters %}
-            <a href="{% url 'delete-character' character.id %}">Delete</a>
+            <a href="{% url 'character:delete-character' character.id %}">Delete</a>
             <span>@{{character.Name}}</span>
             <div>
-                <h5>{{character.id}} -- <a href="{% url 'character' character.id %}">{{character.Name}}</a></h5>
+                <h5>{{character.id}} -- <a href="{% url 'character:character' character.id %}">{{character.Name}}</a></h5>
             </div>
         {% endfor %}
     </div>

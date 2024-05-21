@@ -14,7 +14,7 @@
 {% for spell in filtered_spells.qs %}
 <div>
 
-    <a href="{% url 'spell' spell.id %}"> <p>{{spell.name}}</p></a>
+    <a href="{% url 'sdr:spell' spell.id %}"> <p>{{spell.name}}</p></a>
     
     {{spell.short_description}}
 
