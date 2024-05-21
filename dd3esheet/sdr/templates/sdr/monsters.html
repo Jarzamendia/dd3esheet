@@ -14,7 +14,7 @@
 {% for monster in filtered_monsters.qs %}
 <div>
 
-    <a href="{% url 'monster' monster.id %}"> <p>{{monster.name}}</p></a>
+    <a href="{% url 'sdr:monster' monster.id %}"> <p>{{monster.name}}</p></a>
 
 </div>
 

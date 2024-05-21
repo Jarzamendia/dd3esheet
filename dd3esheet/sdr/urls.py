@@ -1,11 +1,12 @@
 from django.urls import path
 from . import views
 
+app_name = 'sdr'
+
 urlpatterns = [
-    path("", views.home, name="home"),
-    path("sdr/spells", views.spells, name="spells"),
-    path("sdr/spell/<str:pk>", views.spell, name="spell"),
-    path("sdr/monsters", views.monsters, name="monsters"),
-    path("sdr/monster/<str:pk>", views.monster, name="monster"),
+    path("spells", views.spells, name="spells"),
+    path("spell/<str:pk>", views.spell, name="spell"),
+    path("monsters", views.monsters, name="monsters"),
+    path("monster/<str:pk>", views.monster, name="monster"),
 
 ]
