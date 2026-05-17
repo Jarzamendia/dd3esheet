@@ -138,3 +138,7 @@ GitHub.sublime-settings
 .history
 
 .idea
+
+# Agent workspace (planos, prompts e arquivos auxiliares de IA)
+.agents/
+.claude/
