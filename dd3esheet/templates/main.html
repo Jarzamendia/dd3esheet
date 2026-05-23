@@ -27,6 +27,8 @@
         </a>
         <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
            href="{% url 'character:home' %}">Minhas Fichas</a>
+        <a class="nav-link {% if request.resolver_match.app_name == 'sdr' %}active{% endif %}"
+           href="{% url 'sdr:home' %}">Referência</a>
         <span class="spacer"></span>
         {% url 'logout' as logout_url %}
         {% url 'login' as login_url %}
