@@ -1,0 +1,41 @@
+{% extends "main.html" %}
+
+{% block title %}Entrar — Codex de Fichas{% endblock %}
+
+{% block content %}
+<main class="sheet sheet--narrow">
+    <header style="text-align:center; padding:10px 4px 18px; border-bottom:3px double var(--rule-line); margin-bottom:18px;">
+        <div class="brand-swords">⚔ &nbsp;━━━━━&nbsp; ⚔</div>
+        <div class="brand-sub">Codex de Fichas · D&amp;D 3.5</div>
+        <h1 class="brand-title" style="font-size:28px;">Entrar</h1>
+    </header>
+
+    <form method="post" style="display:grid; gap:12px; max-width:340px; margin:0 auto;">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger" role="alert" style="font-family:var(--font-serif); font-size:14px;">
+            Usuário ou senha inválidos.
+        </div>
+        {% endif %}
+        <div>
+            <label style="font-family:var(--font-ui); font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft);">
+                Usuário
+            </label>
+            <input class="paper-input" type="text" name="username" autofocus autocomplete="username"
+                   value="{{ form.username.value|default:'' }}"
+                   style="width:100%; margin-top:4px;">
+        </div>
+        <div>
+            <label style="font-family:var(--font-ui); font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft);">
+                Senha
+            </label>
+            <input class="paper-input" type="password" name="password" autocomplete="current-password"
+                   style="width:100%; margin-top:4px;">
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+            <button type="submit" class="btn-paper btn-paper--primary">Entrar →</button>
+        </div>
+    </form>
+</main>
+{% endblock %}

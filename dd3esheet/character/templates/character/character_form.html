@@ -1,18 +1,23 @@
 {% extends "main.html" %}
 {% load crispy_forms_tags %}
 
+{% block title %}Nova Ficha — Codex{% endblock %}
+
 {% block content %}
+<main class="sheet sheet--narrow">
+    <header style="text-align:center; padding:10px 4px 18px; border-bottom:3px double var(--rule-line); margin-bottom:18px;">
+        <div class="brand-sub">Codex de Fichas · D&amp;D 3.5</div>
+        <h1 class="brand-title" style="font-size:28px;">Nova Ficha</h1>
+    </header>
 
-<div>
-
-    <form method="POST" action="." >
+    <form method="post" style="display:grid; gap:12px;">
         {% csrf_token %}
-        <h4>Character</h4>
-        {{characterForm.as_p}}
-        <input type="submit" value="Submit"/>
-        
+        {{ form.Name|as_crispy_field }}
+        {{ form.Description|as_crispy_field }}
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
+            <a href="{% url 'character:home' %}" class="btn-paper">← Cancelar</a>
+            <button type="submit" class="btn-paper btn-paper--primary">⚔ Criar e abrir ficha</button>
+        </div>
     </form>
-
-</div>
-
+</main>
 {% endblock %}

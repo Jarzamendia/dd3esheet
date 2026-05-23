@@ -137,6 +137,39 @@ body.sheet-body {
     border-bottom-style: dashed;
 }
 
+/* input/select que herdam a aparência de .field-slot (edição inline HTMX) */
+input.field-slot,
+select.field-slot {
+    border: none;
+    border-bottom: var(--rule-w) solid var(--rule-line);
+    background: transparent;
+    width: 100%;
+    font: inherit;
+    color: var(--rubric);
+    padding: 2px 6px 1px;
+    min-height: 22px;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+}
+input.field-slot:focus,
+select.field-slot:focus {
+    outline: 1px dashed var(--rubric);
+    outline-offset: 2px;
+    background: rgba(255,255,255,0.6);
+}
+.field-slot--tall.field-slot,
+input.field-slot--tall,
+select.field-slot--tall {
+    min-height: 28px;
+    font-size: 17px;
+}
+.field-slot--center.field-slot,
+input.field-slot--center,
+select.field-slot--center {
+    text-align: center;
+}
+
 /* "input" inline editável para forms HTMX (estilo Bootstrap-friendly) */
 input.field-input,
 select.field-input {

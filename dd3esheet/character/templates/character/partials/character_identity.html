@@ -1,70 +1,114 @@
 {% comment %}
 partial: character_identity.html
-ID HTMX: #characterIdentityForm (Fase 2: crispy + endpoint)
+ID HTMX: #characterIdentityForm
 {% endcomment %}
-<form id="characterIdentityForm" class="id-block">
+<form id="characterIdentityForm"
+      class="id-block"
+      hx-post="{% url 'character:character' character.pk %}"
+      hx-target="#characterIdentityForm"
+      hx-swap="outerHTML"
+      hx-trigger="change delay:300ms">
+    {% csrf_token %}
 
     <div class="id-fields">
         <div class="field" style="grid-column: span 7;">
-            <div class="field-slot field-slot--tall">{{ character.Name|default:"" }}</div>
+            <input class="field-slot field-slot--tall" name="Name"
+                   value="{{ character.Name|default:'' }}">
             <span class="label">Nome do Personagem</span>
+            {% if characterIdentityForm.Name.errors %}
+            <span class="field-error">{{ characterIdentityForm.Name.errors|join:", " }}</span>
+            {% endif %}
         </div>
         <div class="field" style="grid-column: span 5;">
-            <div class="field-slot field-slot--tall">{{ character.user.username|default:"" }}</div>
+            <div class="field-slot field-slot--tall">{{ character.User.username|default:'' }}</div>
             <span class="label">Jogador</span>
         </div>
 
         <div class="field" style="grid-column: span 5;">
-            <div class="field-slot">{{ character.Class|default:"" }}</div>
+            <select class="field-slot" name="Class">
+                {% for val, label in characterIdentityForm.fields.Class.widget.choices %}
+                <option value="{{ val }}"{% if character.Class == val %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
             <span class="label">Classe</span>
         </div>
         <div class="field" style="grid-column: span 2;">
-            <div class="field-slot field-slot--center">{{ character.Level|default:"" }}</div>
+            <input class="field-slot field-slot--center" name="Level" type="text"
+                   value="{{ character.Level|default:'' }}">
             <span class="label">Nível</span>
         </div>
         <div class="field" style="grid-column: span 2;">
-            <div class="field-slot">{{ character.Race|default:"" }}</div>
+            <select class="field-slot" name="Race">
+                {% for val, label in characterIdentityForm.fields.Race.widget.choices %}
+                <option value="{{ val }}"{% if character.Race == val %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
             <span class="label">Raça</span>
         </div>
         <div class="field" style="grid-column: span 3;">
-            <div class="field-slot">{{ character.Alignment|default:"" }}</div>
+            <select class="field-slot" name="Alignment">
+                {% for val, label in characterIdentityForm.fields.Alignment.widget.choices %}
+                <option value="{{ val }}"{% if character.Alignment == val %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
             <span class="label">Tendência</span>
+            {% if characterIdentityForm.Alignment.errors %}
+            <span class="field-error">{{ characterIdentityForm.Alignment.errors|join:", " }}</span>
+            {% endif %}
         </div>
 
         <div class="field" style="grid-column: span 2;">
-            <div class="field-slot">{{ character.Size|default:"" }}</div>
+            <select class="field-slot" name="Size">
+                {% for val, label in characterIdentityForm.fields.Size.widget.choices %}
+                <option value="{{ val }}"{% if character.Size == val %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
             <span class="label">Tamanho</span>
         </div>
         <div class="field" style="grid-column: span 1;">
-            <div class="field-slot field-slot--center">{{ character.Age|default:"" }}</div>
+            <input class="field-slot field-slot--center" name="Age" type="text"
+                   value="{{ character.Age|default:'' }}">
             <span class="label">Idade</span>
         </div>
         <div class="field" style="grid-column: span 2;">
-            <div class="field-slot">{{ character.Sex|default:"" }}</div>
+            <input class="field-slot" name="Sex" type="text"
+                   value="{{ character.Sex|default:'' }}">
             <span class="label">Sexo</span>
         </div>
         <div class="field" style="grid-column: span 1;">
-            <div class="field-slot field-slot--center">{{ character.Heigth|default:"" }}</div>
+            <input class="field-slot field-slot--center" name="Heigth" type="text"
+                   value="{{ character.Heigth|default:'' }}">
             <span class="label">Altura</span>
         </div>
         <div class="field" style="grid-column: span 1;">
-            <div class="field-slot field-slot--center">{{ character.Weight|default:"" }}</div>
+            <input class="field-slot field-slot--center" name="Weight" type="text"
+                   value="{{ character.Weight|default:'' }}">
             <span class="label">Peso</span>
         </div>
         <div class="field" style="grid-column: span 1;">
-            <div class="field-slot field-slot--center">{{ character.Eye|default:"" }}</div>
+            <input class="field-slot field-slot--center" name="Eye" type="text"
+                   value="{{ character.Eye|default:'' }}">
             <span class="label">Olhos</span>
         </div>
         <div class="field" style="grid-column: span 1;">
-            <div class="field-slot field-slot--center">{{ character.Hair|default:"" }}</div>
+            <input class="field-slot field-slot--center" name="Hair" type="text"
+                   value="{{ character.Hair|default:'' }}">
             <span class="label">Cabelos</span>
         </div>
         <div class="field" style="grid-column: span 1;">
-            <div class="field-slot field-slot--center">{{ character.Skin|default:"" }}</div>
+            <input class="field-slot field-slot--center" name="Skin" type="text"
+                   value="{{ character.Skin|default:'' }}">
             <span class="label">Pele</span>
         </div>
         <div class="field" style="grid-column: span 2;">
-            <div class="field-slot">{{ character.Deity|default:"" }}</div>
+            <input class="field-slot" name="Deity" type="text"
+                   list="deity-suggestions"
+                   value="{{ character.Deity|default:'' }}">
+            <datalist id="deity-suggestions">
+                {% for name, _align in deity_suggestions %}
+                <option value="{{ name }}">
+                {% endfor %}
+            </datalist>
             <span class="label">Divindade</span>
         </div>
     </div>
