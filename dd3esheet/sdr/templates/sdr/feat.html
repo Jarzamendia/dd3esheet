@@ -1,0 +1,31 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>{{ feat.name }}{% if feat.type %} <small class="text-muted">[{{ feat.type }}]</small>{% endif %}</h1>
+
+{% if feat.prerequisite %}
+<h2>Pré-requisito</h2>
+<p>{{ feat.prerequisite }}</p>
+{% endif %}
+
+{% if feat.benefit %}
+<h2>Benefício</h2>
+<p>{{ feat.benefit }}</p>
+{% endif %}
+
+{% if feat.normal %}
+<h2>Normal</h2>
+<p>{{ feat.normal }}</p>
+{% endif %}
+
+{% if feat.special %}
+<h2>Especial</h2>
+<p>{{ feat.special }}</p>
+{% endif %}
+
+{% if feat.full_text %}
+{{ feat.full_text|safe }}
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Perícias</h1>
+
+<form method="get">
+    {{ filtered_skills.form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Filtrar">
+</form>
+
+<br>
+
+{% for skill in filtered_skills.qs %}
+<div>
+    <a href="{% url 'sdr:skill' skill.id %}"><p>{{ skill.name }}</p></a>
+    <small>
+        Atributo: {{ skill.key_ability }}
+        {% if skill.trained == "Yes" %} | Somente treinado{% endif %}
+        {% if skill.armor_check == "Yes" %} | Penalidade de armadura{% endif %}
+    </small>
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>{{ equipment.name }}</h1>
+
+<table class="table table-sm">
+    <tbody>
+        {% if equipment.category %}<tr><th>Categoria</th><td>{{ equipment.category }}</td></tr>{% endif %}
+        {% if equipment.subcategory %}<tr><th>Subcategoria</th><td>{{ equipment.subcategory }}</td></tr>{% endif %}
+        {% if equipment.type %}<tr><th>Tipo</th><td>{{ equipment.type }}</td></tr>{% endif %}
+        {% if equipment.cost %}<tr><th>Custo</th><td>{{ equipment.cost }}</td></tr>{% endif %}
+        {% if equipment.weight %}<tr><th>Peso</th><td>{{ equipment.weight }}</td></tr>{% endif %}
+        {% if equipment.dmg_s %}<tr><th>Dano (S)</th><td>{{ equipment.dmg_s }}</td></tr>{% endif %}
+        {% if equipment.dmg_m %}<tr><th>Dano (M)</th><td>{{ equipment.dmg_m }}</td></tr>{% endif %}
+        {% if equipment.critical %}<tr><th>Crítico</th><td>{{ equipment.critical }}</td></tr>{% endif %}
+        {% if equipment.range_increment %}<tr><th>Alcance</th><td>{{ equipment.range_increment }}</td></tr>{% endif %}
+        {% if equipment.armor_shield_bonus %}<tr><th>Bônus de armadura/escudo</th><td>{{ equipment.armor_shield_bonus }}</td></tr>{% endif %}
+        {% if equipment.maximum_dex_bonus %}<tr><th>Bônus máx. Destreza</th><td>{{ equipment.maximum_dex_bonus }}</td></tr>{% endif %}
+        {% if equipment.armor_check_penalty %}<tr><th>Penalidade de armadura</th><td>{{ equipment.armor_check_penalty }}</td></tr>{% endif %}
+        {% if equipment.arcane_spell_failure_chance %}<tr><th>Falha arcana</th><td>{{ equipment.arcane_spell_failure_chance }}</td></tr>{% endif %}
+        {% if equipment.speed_30 %}<tr><th>Velocidade (30)</th><td>{{ equipment.speed_30 }}</td></tr>{% endif %}
+        {% if equipment.speed_20 %}<tr><th>Velocidade (20)</th><td>{{ equipment.speed_20 }}</td></tr>{% endif %}
+    </tbody>
+</table>
+
+{% if equipment.full_text %}
+{{ equipment.full_text|safe }}
+{% endif %}
+
+{% endblock %}

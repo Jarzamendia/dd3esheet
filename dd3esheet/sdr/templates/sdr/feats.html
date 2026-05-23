@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Feats</h1>
+
+<form method="get">
+    {{ filtered_feats.form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Filtrar">
+</form>
+
+<br>
+
+{% for feat in filtered_feats.qs %}
+<div>
+    <a href="{% url 'sdr:feat' feat.id %}"><p>{{ feat.name }}</p></a>
+    {% if feat.type %}<small>{{ feat.type }}</small>{% endif %}
+</div>
+{% endfor %}
+
+{% endblock %}

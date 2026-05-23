@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Classes</h1>
+
+<form method="get">
+    {{ filtered_classes.form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Filtrar">
+</form>
+
+<br>
+
+{% for cls in filtered_classes.qs %}
+<div>
+    <a href="{% url 'sdr:class' cls.id %}"><p>{{ cls.name }}</p></a>
+    <small>{{ cls.type }} — Dado de vida: {{ cls.hit_die }}</small>
+</div>
+{% endfor %}
+
+{% endblock %}

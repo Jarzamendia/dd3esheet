@@ -1,0 +1,20 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Domínios</h1>
+
+<form method="get">
+    {{ filtered_domains.form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Filtrar">
+</form>
+
+<br>
+
+{% for domain in filtered_domains.qs %}
+<div>
+    <a href="{% url 'sdr:domain' domain.id %}"><p>{{ domain.name }}</p></a>
+</div>
+{% endfor %}
+
+{% endblock %}

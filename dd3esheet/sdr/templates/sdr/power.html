@@ -1,0 +1,42 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>{{ power.name }}</h1>
+
+<table class="table table-sm">
+    <tbody>
+        {% if power.discipline %}<tr><th>Disciplina</th><td>{{ power.discipline }}{% if power.subdiscipline %} ({{ power.subdiscipline }}){% endif %}</td></tr>{% endif %}
+        {% if power.descriptor %}<tr><th>Descritor</th><td>{{ power.descriptor }}</td></tr>{% endif %}
+        {% if power.level %}<tr><th>Nível</th><td>{{ power.level }}</td></tr>{% endif %}
+        {% if power.display %}<tr><th>Manifestação</th><td>{{ power.display }}</td></tr>{% endif %}
+        {% if power.manifesting_time %}<tr><th>Tempo de manifestação</th><td>{{ power.manifesting_time }}</td></tr>{% endif %}
+        {% if power.range %}<tr><th>Alcance</th><td>{{ power.range }}</td></tr>{% endif %}
+        {% if power.target %}<tr><th>Alvo</th><td>{{ power.target }}</td></tr>{% endif %}
+        {% if power.area %}<tr><th>Área</th><td>{{ power.area }}</td></tr>{% endif %}
+        {% if power.effect %}<tr><th>Efeito</th><td>{{ power.effect }}</td></tr>{% endif %}
+        {% if power.duration %}<tr><th>Duração</th><td>{{ power.duration }}</td></tr>{% endif %}
+        {% if power.saving_throw %}<tr><th>Teste de resistência</th><td>{{ power.saving_throw }}</td></tr>{% endif %}
+        {% if power.power_resistance %}<tr><th>Resistência a poderes</th><td>{{ power.power_resistance }}</td></tr>{% endif %}
+        {% if power.power_points %}<tr><th>Pontos de poder</th><td>{{ power.power_points }}</td></tr>{% endif %}
+    </tbody>
+</table>
+
+{% if power.short_description %}
+<p><em>{{ power.short_description }}</em></p>
+{% endif %}
+
+{% if power.description %}
+<p>{{ power.description }}</p>
+{% endif %}
+
+{% if power.augment %}
+<h2>Aumentar</h2>
+<p>{{ power.augment }}</p>
+{% endif %}
+
+{% if power.full_text %}
+{{ power.full_text|safe }}
+{% endif %}
+
+{% endblock %}

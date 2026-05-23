@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Poderes Psiônicos</h1>
+
+<form method="get">
+    {{ filtered_powers.form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Filtrar">
+</form>
+
+<br>
+
+{% for power in filtered_powers.qs %}
+<div>
+    <a href="{% url 'sdr:power' power.id %}"><p>{{ power.name }}</p></a>
+    <small>{{ power.discipline }} | Nível: {{ power.level }} | PP: {{ power.power_points }}</small>
+</div>
+{% endfor %}
+
+{% endblock %}

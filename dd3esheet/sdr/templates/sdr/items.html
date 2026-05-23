@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Itens Mágicos</h1>
+
+<form method="get">
+    {{ filtered_items.form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Filtrar">
+</form>
+
+<br>
+
+{% for item in filtered_items.qs %}
+<div>
+    <a href="{% url 'sdr:item' item.id %}"><p>{{ item.name }}</p></a>
+    <small>{{ item.category }}{% if item.subcategory %} — {{ item.subcategory }}{% endif %} | {{ item.price }}</small>
+</div>
+{% endfor %}
+
+{% endblock %}

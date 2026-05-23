@@ -1,0 +1,62 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>{{ dnd_class.name }}</h1>
+
+<table class="table table-sm">
+    <tr><th>Tipo</th><td>{{ dnd_class.type }}</td></tr>
+    <tr><th>Alinhamento</th><td>{{ dnd_class.alignment }}</td></tr>
+    <tr><th>Dado de vida</th><td>{{ dnd_class.hit_die }}</td></tr>
+    <tr><th>Atributo de magia</th><td>{{ dnd_class.spell_stat }}</td></tr>
+    <tr><th>Pontos de perícia</th><td>{{ dnd_class.skill_points }} + mod {{ dnd_class.skill_points_ability }}</td></tr>
+    <tr><th>Proficiências</th><td>{{ dnd_class.proficiencies }}</td></tr>
+    <tr><th>Perícias da classe</th><td>{{ dnd_class.class_skills }}</td></tr>
+</table>
+
+{% if class_table %}
+<h2>Tabela de Progressão</h2>
+<table class="table table-sm table-bordered">
+    <thead>
+        <tr>
+            <th>Nível</th>
+            <th>BAB</th>
+            <th>Fort</th>
+            <th>Ref</th>
+            <th>Will</th>
+            <th>Especial</th>
+            <th>0</th><th>1</th><th>2</th><th>3</th>
+            <th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in class_table %}
+        <tr>
+            <td>{{ row.level }}</td>
+            <td>{{ row.base_attack_bonus }}</td>
+            <td>{{ row.fort_save }}</td>
+            <td>{{ row.ref_save }}</td>
+            <td>{{ row.will_save }}</td>
+            <td>{{ row.special }}</td>
+            <td>{{ row.slots_0 }}</td>
+            <td>{{ row.slots_1 }}</td>
+            <td>{{ row.slots_2 }}</td>
+            <td>{{ row.slots_3 }}</td>
+            <td>{{ row.slots_4 }}</td>
+            <td>{{ row.slots_5 }}</td>
+            <td>{{ row.slots_6 }}</td>
+            <td>{{ row.slots_7 }}</td>
+            <td>{{ row.slots_8 }}</td>
+            <td>{{ row.slots_9 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if dnd_class.full_text %}
+<h2>Descrição completa</h2>
+{{ dnd_class.full_text|safe }}
+{% endif %}
+
+{% endblock %}

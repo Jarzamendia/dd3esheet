@@ -1,0 +1,60 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>{{ skill.name }}</h1>
+
+<table class="table table-sm">
+    <tbody>
+        {% if skill.key_ability %}<tr><th>Atributo chave</th><td>{{ skill.key_ability }}</td></tr>{% endif %}
+        {% if skill.trained %}<tr><th>Somente treinado</th><td>{{ skill.trained }}</td></tr>{% endif %}
+        {% if skill.armor_check %}<tr><th>Penalidade de armadura</th><td>{{ skill.armor_check }}</td></tr>{% endif %}
+        {% if skill.psionic %}<tr><th>Psiônico</th><td>{{ skill.psionic }}</td></tr>{% endif %}
+        {% if skill.synergy %}<tr><th>Sinergia</th><td>{{ skill.synergy }}</td></tr>{% endif %}
+    </tbody>
+</table>
+
+{% if skill.description %}
+<p>{{ skill.description }}</p>
+{% endif %}
+
+{% if skill.skill_check %}
+<h2>Teste de Perícia</h2>
+<p>{{ skill.skill_check }}</p>
+{% endif %}
+
+{% if skill.action %}
+<h2>Ação</h2>
+<p>{{ skill.action }}</p>
+{% endif %}
+
+{% if skill.try_again %}
+<h2>Tentar novamente</h2>
+<p>{{ skill.try_again }}</p>
+{% endif %}
+
+{% if skill.special %}
+<h2>Especial</h2>
+<p>{{ skill.special }}</p>
+{% endif %}
+
+{% if skill.restriction %}
+<h2>Restrição</h2>
+<p>{{ skill.restriction }}</p>
+{% endif %}
+
+{% if skill.untrained %}
+<h2>Sem treinamento</h2>
+<p>{{ skill.untrained }}</p>
+{% endif %}
+
+{% if skill.epic_use %}
+<h2>Uso épico</h2>
+<p>{{ skill.epic_use }}</p>
+{% endif %}
+
+{% if skill.full_text %}
+{{ skill.full_text|safe }}
+{% endif %}
+
+{% endblock %}

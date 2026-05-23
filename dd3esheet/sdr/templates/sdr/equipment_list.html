@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Equipamentos</h1>
+
+<form method="get">
+    {{ filtered_equipment.form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Filtrar">
+</form>
+
+<br>
+
+{% for eq in filtered_equipment.qs %}
+<div>
+    <a href="{% url 'sdr:equipment_detail' eq.id %}"><p>{{ eq.name }}</p></a>
+    <small>{{ eq.category }}{% if eq.subcategory %} — {{ eq.subcategory }}{% endif %} | {{ eq.cost }}</small>
+</div>
+{% endfor %}
+
+{% endblock %}

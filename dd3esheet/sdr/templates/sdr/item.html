@@ -1,0 +1,25 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>{{ item.name }}</h1>
+
+<table class="table table-sm">
+    <tbody>
+        {% if item.category %}<tr><th>Categoria</th><td>{{ item.category }}</td></tr>{% endif %}
+        {% if item.subcategory %}<tr><th>Subcategoria</th><td>{{ item.subcategory }}</td></tr>{% endif %}
+        {% if item.price %}<tr><th>Preço</th><td>{{ item.price }}</td></tr>{% endif %}
+        {% if item.cost %}<tr><th>Custo de fabricação</th><td>{{ item.cost }}</td></tr>{% endif %}
+        {% if item.weight %}<tr><th>Peso</th><td>{{ item.weight }}</td></tr>{% endif %}
+        {% if item.aura %}<tr><th>Aura</th><td>{{ item.aura }}</td></tr>{% endif %}
+        {% if item.caster_level %}<tr><th>Nível de conjurador</th><td>{{ item.caster_level }}</td></tr>{% endif %}
+        {% if item.special_ability %}<tr><th>Habilidade especial</th><td>{{ item.special_ability }}</td></tr>{% endif %}
+        {% if item.prereq %}<tr><th>Pré-requisitos</th><td>{{ item.prereq }}</td></tr>{% endif %}
+    </tbody>
+</table>
+
+{% if item.full_text %}
+{{ item.full_text|safe }}
+{% endif %}
+
+{% endblock %}

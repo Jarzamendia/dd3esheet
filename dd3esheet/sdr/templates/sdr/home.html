@@ -2,11 +2,18 @@
 
 {% block content %}
 
-<h1>HOME</h1>
+<h1>D&D 3.5 — Referência</h1>
 
-
-<h5>
-    <a href="{% url 'sdr:spells' %}">Spells</a>
-</h5>
+<ul>
+    <li><a href="{% url 'sdr:classes' %}">Classes</a></li>
+    <li><a href="{% url 'sdr:domains' %}">Domínios</a></li>
+    <li><a href="{% url 'sdr:equipment' %}">Equipamentos</a></li>
+    <li><a href="{% url 'sdr:feats' %}">Feats</a></li>
+    <li><a href="{% url 'sdr:items' %}">Itens Mágicos</a></li>
+    <li><a href="{% url 'sdr:monsters' %}">Monstros</a></li>
+    <li><a href="{% url 'sdr:powers' %}">Poderes Psiônicos</a></li>
+    <li><a href="{% url 'sdr:skills' %}">Perícias</a></li>
+    <li><a href="{% url 'sdr:spells' %}">Magias</a></li>
+</ul>
 
 {% endblock %}
