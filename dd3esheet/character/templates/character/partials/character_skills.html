@@ -1,0 +1,51 @@
+{% comment %}
+partial: character_skills.html
+ID HTMX: #characterSkillsForm (Fase 2: endpoint + crispy)
+{% endcomment %}
+{% with grad=character.characterskillgraduation %}
+<form id="characterSkillsForm" class="skills" aria-live="polite">
+
+    <div class="skills-maxgrad">
+        <div class="smg-label">
+            <strong>Graduação Máxima</strong>
+            <span>(classe / outra classe)</span>
+        </div>
+        <div class="smg-value">
+            {{ grad.MaxGraduation|default:"—" }} / {{ grad.OtherClassMaxGraduation|default:"—" }}
+        </div>
+    </div>
+
+    <div class="skills-head">
+        <span class="sh-title">PERÍCIAS</span>
+        <span class="sh-namelabel">Nome da Perícia</span>
+        <span class="sh-meta">Habilidade<br>Chave</span>
+        <span class="sh-meta">Mod. de<br>Perícias</span>
+        <span class="sh-op">=</span>
+        <span class="sh-meta">Mod. de<br>Habilidade</span>
+        <span class="sh-op">+</span>
+        <span class="sh-meta">Graduação</span>
+        <span class="sh-op">+</span>
+        <span class="sh-meta">Outros</span>
+    </div>
+
+    {% for skill in character.characterskill_set.all %}
+    <div class="skill-row{% if skill.SkillIsActive %} is-checked{% endif %}">
+        <span class="sk-cb"></span>
+        <span class="sk-name">{{ skill.SkillName|default:"—" }}</span>
+        <span class="sk-ability">—</span>
+        <span class="sk-cell sk-cell--calc">{{ skill.SkillModifier|default:"—" }}</span>
+        <span class="sk-op">=</span>
+        <span class="sk-cell sk-cell--calc">{{ skill.AbilityModifier|default:"—" }}</span>
+        <span class="sk-op">+</span>
+        <span class="sk-cell">{{ skill.Ranks|default:"" }}</span>
+        <span class="sk-op">+</span>
+        <span class="sk-cell">{{ skill.MiscModifier|default:"" }}</span>
+    </div>
+    {% empty %}
+    <div class="skill-row" style="justify-content: center; color: var(--ink-soft); font-style: italic; padding: 12px;">
+        Nenhuma perícia cadastrada.
+    </div>
+    {% endfor %}
+
+</form>
+{% endwith %}

@@ -1,0 +1,105 @@
+{% comment %}
+partial: character_combat.html  (col-right: PV, CA, Toque/Surpresa/Iniciativa)
+Inclui character_skills.html como sub-partial.
+ID HTMX: separados em Fase 2 em characterStatusForm, characterArmorForm.
+{% endcomment %}
+{% with status=character.characterstatus %}
+<section class="col-right">
+
+    <div class="pvca-stack">
+        <div class="pvca-headrow">
+            <div class="pvca-headrow-spacer"></div>
+            <div class="pvca-head-label">TOTAL</div>
+        </div>
+
+        <form id="characterStatusForm" class="pvca-form" aria-live="polite">
+
+            <div class="pv-row">
+                <div class="tag-black">
+                    <span class="t-main">PV</span>
+                    <span class="t-sub">Pontos de Vida</span>
+                </div>
+                <div class="pv-total-cell">
+                    <div class="slot slot--lg" title="PV total">{{ status.TotalHitPoints|default:"—" }}</div>
+                </div>
+                <div class="pv-cell pv-cell--wide">
+                    <div class="slot slot--lg" style="justify-content:flex-end; padding-right: 10px;" title="Ferimentos / PVs atuais">{{ status.TotalHitPoints|default:"—" }}</div>
+                    <span class="label">Ferimentos / PVs Atuais</span>
+                </div>
+                <div class="pv-cell">
+                    <div class="slot slot--lg slot--calc" title="Dano por contusão">{{ status.NonLethalDamager|default:"—" }}</div>
+                    <span class="label">Dano por Contusão</span>
+                </div>
+                <div class="pv-cell">
+                    <div class="slot slot--lg" title="Deslocamento">{{ status.Speed|default:"—" }}</div>
+                    <span class="label">Deslocamento</span>
+                </div>
+            </div>
+        </form>
+
+        <form id="characterArmorForm" class="pvca-form" aria-live="polite">
+
+            <div class="ca-row">
+                <div class="tag-black">
+                    <span class="t-main">CA</span>
+                    <span class="t-sub">Classe de Armadura</span>
+                </div>
+                <div class="ca-total-cell">
+                    <div class="slot slot--lg slot--calc" title="CA total">{{ status.ACTotal|default:"—" }}</div>
+                </div>
+                <div class="ca-breakdown">
+                    <span class="op">=</span>
+                    <span class="op f-display">10 +</span>
+                    <div class="ca-cell"><div class="slot">{{ status.ACArmorBonus|default:"0" }}</div><span class="label">Armadura</span></div>
+                    <span class="op">+</span>
+                    <div class="ca-cell"><div class="slot">{{ status.ACShieldBonus|default:"0" }}</div><span class="label">Escudo</span></div>
+                    <span class="op">+</span>
+                    <div class="ca-cell"><div class="slot slot--calc">{{ status.ACDexModifier|default:"—" }}</div><span class="label">Destreza</span></div>
+                    <span class="op">+</span>
+                    <div class="ca-cell"><div class="slot">{{ status.ACSizeModifier|default:"0" }}</div><span class="label">Tamanho</span></div>
+                    <span class="op">+</span>
+                    <div class="ca-cell"><div class="slot">{{ status.ACNaturalArmor|default:"0" }}</div><span class="label">Natural</span></div>
+                    <span class="op">+</span>
+                    <div class="ca-cell"><div class="slot">{{ status.ACDeflectionModifier|default:"0" }}</div><span class="label">Deflexão</span></div>
+                    <span class="op">+</span>
+                    <div class="ca-cell"><div class="slot">{{ status.ACMiscModifier|default:"0" }}</div><span class="label">Outros</span></div>
+                </div>
+                <div class="ca-rd-cell">
+                    <div class="slot slot--lg slot--calc" title="Redução de Dano">{{ status.DamageReduction|default:"—" }}</div>
+                    <span class="label">Redução de Dano</span>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="lower-row">
+        <div class="defense-stack">
+            <div class="defense-top">
+                <div class="inline-stat">
+                    <div class="is-tag">TOQUE<span class="t-sub">Classe de Armadura</span></div>
+                    <div class="is-slot is-slot-calc" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACTouch|default:"—" }}</div>
+                </div>
+                <div class="inline-stat">
+                    <div class="is-tag">SURPRESA<span class="t-sub">Classe de Armadura</span></div>
+                    <div class="is-slot is-slot-calc" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACFlatFooterd|default:"—" }}</div>
+                </div>
+            </div>
+            <div class="inline-stat inline-stat--iniciativa">
+                <div class="is-tag">INICIATIVA<span class="t-sub">Modificador</span></div>
+                <div class="is-slot is-slot-calc" style="background: var(--calc-bg); color: var(--ink);">{{ status.Initiative|default:"—" }}</div>
+                <div class="is-meta">
+                    <span class="label">Mod. Destreza</span>
+                    <div class="slot slot--xs">{% with stats=character.characterstats %}{{ stats.DexterityStatMod|default:"—" }}{% endwith %}</div>
+                </div>
+                <div class="is-meta">
+                    <span class="label">Outros</span>
+                    <div class="slot slot--xs">0</div>
+                </div>
+            </div>
+        </div>
+
+        {% include "character/partials/character_skills.html" %}
+    </div>
+
+</section>
+{% endwith %}

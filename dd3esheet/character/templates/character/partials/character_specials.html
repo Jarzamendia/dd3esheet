@@ -1,0 +1,34 @@
+{% comment %}
+partial: character_specials.html  (habilidades especiais + idiomas)
+ID HTMX: #characterSpecialsForm (Fase 2: endpoint)
+{% endcomment %}
+<section>
+    <form id="characterSpecialsForm">
+        <div class="section-title-band"><span>Habilidades Especiais</span></div>
+        <div class="list-block">
+            <div class="list-block-body single-col">
+                {% for ability in character.ability_set.all %}
+                <div class="list-line">
+                    <span class="ll-name">{{ ability.Name|default:"—" }}</span>
+                    <span class="ll-page">{{ ability.Page|default:"" }}</span>
+                </div>
+                {% empty %}
+                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-title-band" style="margin-top: 6px;"><span>Idiomas</span></div>
+        <div class="list-block">
+            <div class="list-block-body">
+                {% for lang in character.characterlanguages_set.all %}
+                <div class="list-line">
+                    <span class="ll-name">{{ lang.Value|default:"—" }}</span>
+                </div>
+                {% empty %}
+                <div class="list-line is-empty"><span class="ll-name">.</span></div>
+                {% endfor %}
+            </div>
+        </div>
+    </form>
+</section>

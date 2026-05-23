@@ -1,108 +1,90 @@
-from django.shortcuts import render, redirect
-from .models import *
-from .forms import *
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 
+from .models import Character
+from .forms import CharacterForm, CharacterStatsForm, CharacterCreateForm, CharacterIdentityForm
+from .services import _bootstrap_character_siblings
+from .constants import DEITY_SUGGESTIONS
+
+
+@login_required
 def home(request):
-    characters = Character.objects.all()
+    characters = (
+        Character.objects
+        .filter(User=request.user)
+        .select_related('characterstatus', 'charactersavingthrows', 'characterattackmodifiers')
+    )
     return render(request, 'character/home.html', {'characters': characters})
 
-# Character CRUD
+
+@login_required
 def character(request, pk):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
 
-    character = Character.objects.get(id=pk)
-    
-    if request.method == 'POST':
+    if request.method == 'POST' and request.htmx:
 
-        if request.htmx:
+        if request.htmx.target == 'characterIdentityForm':
+            form = CharacterIdentityForm(request.POST, instance=char)
+            if form.is_valid():
+                form.save()
+                char.refresh_from_db()
+            context = {
+                'character': char,
+                'characterIdentityForm': form,
+                'deity_suggestions': DEITY_SUGGESTIONS,
+            }
+            return render(request, 'character/partials/character_identity.html', context)
 
-            if request.htmx.target == 'characterForm':
-                
-                print("characterForm")
+        if request.htmx.target == 'characterForm':
+            characterForm = CharacterForm(request.POST, instance=char)
+            if characterForm.is_valid():
+                char = characterForm.save()
+            context = {'character': char, 'characterForm': characterForm}
+            return render(request, 'character/partials/character_description.html', context)
 
-                characterForm = CharacterForm(request.POST, instance=character)
-  
-                if characterForm.is_valid():
-  
-                    print("valid")
+        if request.htmx.target == 'characterStatsForm':
+            stats = getattr(char, 'characterstats', None)
+            characterStatsForm = CharacterStatsForm(request.POST, instance=stats)
+            if characterStatsForm.is_valid():
+                characterStatsForm.save()
+                char.refresh_from_db()
+            context = {'character': char, 'characterStatsForm': characterStatsForm}
+            return render(request, 'character/partials/character_stats.html', context)
 
-                    character = characterForm.save()
-
-                    context = {
-                        "character": character,
-                        "characterForm": characterForm
-                    }
-
-                    return render(request, "character/partials/character_description.html", context)
-
-            if request.htmx.target == 'characterStatsForm':
-
-                print("characterStatsForm")
-
-                characterStatsForm = CharacterStatsForm(request.POST, instance=character)
-
-                if characterStatsForm.is_valid():
-
-                    print("valid")
-                    
-                    character = characterStatsForm.save()
-
-                    context = {
-                        "character": character,
-                        "characterStatsForm": characterStatsForm,
-                    }
-
-                    return render(request, "character/partials/character_stats.html", context)
-
-    characterForm = CharacterForm(instance=character)
-    characterStatsForm = CharacterStatsForm(instance=character)
+    characterForm = CharacterForm(instance=char)
+    stats = getattr(char, 'characterstats', None)
+    characterStatsForm = CharacterStatsForm(instance=stats)
+    characterIdentityForm = CharacterIdentityForm(instance=char)
 
     context = {
-        "character": character,
-        "characterForm": characterForm,
-        "characterStatsForm": characterStatsForm,
+        'character': char,
+        'characterForm': characterForm,
+        'characterStatsForm': characterStatsForm,
+        'characterIdentityForm': characterIdentityForm,
+        'deity_suggestions': DEITY_SUGGESTIONS,
     }
-    return render(request, "character/character.html", context)
+    return render(request, 'character/character.html', context)
 
+
+@login_required
 def createCharacter(request):
-
-    print("createCharacter")
-
-    skillList = ['Appraise', 'Balance', 'Bluff', 'Climb', 'Concentration', 'Craft', 'DecipherScript', 'Diplomacy', 'DisableDevice', 'Disguise', 'EscapeArtist', 'Forgery', 'GatherInformation', 'HandleAnimal', 'Heal', 'Hide', 'Intimidate', 'Jump' , 'Knowledge', 'Listen', 'MoveSilently', 'OpenLock', 'Perform', 'Profession', 'Ride', 'Search', 'SenseMotive', 'SleightofHand', 'Spellcraft', 'Spot', 'Survival', 'Swim', 'Tumble', 'UseMagicDevice', 'UseRope']
-
     if request.method == 'POST':
-        print("POST")
+        form = CharacterCreateForm(request.POST)
+        if form.is_valid():
+            char = form.save(commit=False)
+            char.User = request.user
+            char.save()
+            _bootstrap_character_siblings(char)
+            return redirect('character:character', pk=char.pk)
+    else:
+        form = CharacterCreateForm()
+    return render(request, 'character/character_form.html', {'form': form})
 
-        characterForm = newCharacterForm(request.POST)
 
-        if characterForm.is_valid():
-            print("Valid")
-            character = characterForm.save()
-            CharacterStats(Character = character).save()
-            CharacterStatus(Character = character).save()
-            CharacterSavingThrows(Character = character).save()
-            CharacterAttackModifiers(Character = character).save()
-            CharacterSkillGraduation(Character = character).save()
-            CharacterOtherItemObs(Character = character).save()
-            CharacterMoney(Character = character).save()
-            CharacterSpellSave(Character = character).save()
-            CharacterArcaneSpellFailCheck(Character = character).save()
-            CharacterMagicConditionalModifiers(Character = character).save()
-
-            for skill in skillList:
-                CharacterSkill(Character = character, SkillName = skill).save()
-
-            return redirect('home')
-    
-    characterForm = CharacterForm()
-
-    context = { 'characterForm': characterForm}
-    
-    return render(request, 'character/character_form.html', context)
-
+@login_required
 def deleteCharacter(request, pk):
-    character = Character.objects.get(id=pk)
+    char = get_object_or_404(Character, pk=pk, User=request.user)
     if request.method == 'POST':
-        character.delete()
-        return redirect('home')
-    
-    return render(request, 'character/character_delete.html', {'obj': character})
+        char.delete()
+        return redirect('character:home')
+    return render(request, 'character/character_delete.html', {'obj': char})

@@ -1,13 +1,50 @@
 {% extends "main.html" %}
+{% block title %}{{ character.Name|default:"Ficha" }} — Codex{% endblock %}
 
 {% block content %}
 
-<div>
+<main class="sheet" data-screen-label="character">
 
-{% include "character/partials/character_description.html" %}
+    {% include "character/partials/character_identity.html" %}
 
-{% include "character/partials/character_stats.html" %}
+    <div class="main-grid">
+        {% include "character/partials/character_stats.html" %}
+        {% include "character/partials/character_combat.html" %}
+    </div>
 
-</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px;">
+        {% include "character/partials/character_weapons.html" %}
+        {% include "character/partials/character_armor.html" %}
+        {% include "character/partials/character_items.html" %}
+        {% include "character/partials/character_money.html" %}
+        {% include "character/partials/character_feats.html" %}
+        {% include "character/partials/character_specials.html" %}
+    </div>
 
+    {% include "character/partials/character_spells.html" %}
+
+</main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /* Alinha largura do bloco Toque/Surpresa/Iniciativa com o final do quadrado +Escudo da linha CA. */
+    (function () {
+        function alignDefenseWidth() {
+            var caRow = document.querySelector('.ca-row');
+            var breakdownCells = document.querySelectorAll('.ca-breakdown .ca-cell');
+            if (!caRow || breakdownCells.length < 2) return;
+            var escudo = breakdownCells[1];
+            var w = escudo.getBoundingClientRect().right - caRow.getBoundingClientRect().left;
+            document.documentElement.style.setProperty('--defense-width', Math.round(w) + 'px');
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', alignDefenseWidth);
+        } else {
+            alignDefenseWidth();
+        }
+        window.addEventListener('resize', alignDefenseWidth);
+    })();
+</script>
 {% endblock %}
