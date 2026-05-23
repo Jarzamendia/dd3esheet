@@ -1,9 +1,169 @@
-{% block characterStatsForm %}
-{% load crispy_forms_tags %}
+{% comment %}
+partial: character_stats.html  (col-attrs — atributos + saves + BAB/agarrar)
+ID HTMX: #characterStatsForm (Fase 2: crispy + endpoint)
+Inclui character_weapon_card.html como sub-partial.
+{% endcomment %}
+{% with stats=character.characterstats saves=character.charactersavingthrows atk=character.characterattackmodifiers %}
+<section class="col-attrs">
 
+    <form id="characterStatsForm">
 
-{% csrf_token %}
-{% crispy characterStatsForm %}
+        <div class="attrs" aria-live="polite">
+            <div class="attrs-head">
+                <div class="ah-title">HABILIDADE</div>
+                <div><span class="ah-label ah-main">VALOR</span></div>
+                <div><span class="ah-label">MOD. DE<br>HABILIDADE</span></div>
+                <div><span class="ah-label">VALOR<br>TEMPORÁRIO</span></div>
+                <div><span class="ah-label">MOD.<br>TEMPORÁRIO</span></div>
+            </div>
 
+            <div class="attr-row">
+                <div class="attr-tag">FOR<span class="t-sub">Força</span></div>
+                <div class="attr-cell">{{ stats.Strength|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.StrengthStatMod|default:"—" }}</div>
+                <div class="attr-cell attr-cell--empty">{{ stats.StrengthTemp|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.StrengthModTemp|default:"—" }}</div>
+            </div>
+            <div class="attr-row">
+                <div class="attr-tag">DES<span class="t-sub">Destreza</span></div>
+                <div class="attr-cell">{{ stats.Dexterity|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.DexterityStatMod|default:"—" }}</div>
+                <div class="attr-cell attr-cell--empty">{{ stats.DexterityTemp|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.DexterityModTemp|default:"—" }}</div>
+            </div>
+            <div class="attr-row">
+                <div class="attr-tag">CON<span class="t-sub">Constituição</span></div>
+                <div class="attr-cell">{{ stats.Constitution|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.ConstitutionStatMod|default:"—" }}</div>
+                <div class="attr-cell attr-cell--empty">{{ stats.ConstitutionTemp|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.ConstitutionModTemp|default:"—" }}</div>
+            </div>
+            <div class="attr-row">
+                <div class="attr-tag">INT<span class="t-sub">Inteligência</span></div>
+                <div class="attr-cell">{{ stats.Intelligence|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.IntelligenceStatMod|default:"—" }}</div>
+                <div class="attr-cell attr-cell--empty">{{ stats.IntelligenceTemp|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.IntelligenceModTemp|default:"—" }}</div>
+            </div>
+            <div class="attr-row">
+                <div class="attr-tag">SAB<span class="t-sub">Sabedoria</span></div>
+                <div class="attr-cell">{{ stats.Wisdom|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.WisdomStatMod|default:"—" }}</div>
+                <div class="attr-cell attr-cell--empty">{{ stats.WisdomTemp|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.WisdomModTemp|default:"—" }}</div>
+            </div>
+            <div class="attr-row">
+                <div class="attr-tag">CAR<span class="t-sub">Carisma</span></div>
+                <div class="attr-cell">{{ stats.Charisma|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.CharismaStatMod|default:"—" }}</div>
+                <div class="attr-cell attr-cell--empty">{{ stats.CharismaTemp|default:"—" }}</div>
+                <div class="attr-cell attr-cell--calc">{{ stats.CharismaModTemp|default:"—" }}</div>
+            </div>
+        </div>
+    </form>
 
-{% endblock %}
+    <div class="saves-area">
+        <form id="characterSavesForm" class="saves-form" aria-live="polite">
+
+            <div class="block-body">
+                <div class="saves">
+                    <div class="saves-head">
+                        <div class="sh-name">Teste de Resistência</div>
+                        <div class="sh-total">Total</div>
+                        <div class="sh-base">Bônus<br>Base</div>
+                        <div class="sh-mod">Mod. de<br>Habilidade</div>
+                        <div class="sh-magic">Mod.<br>Mágico</div>
+                        <div class="sh-misc">Outros</div>
+                    </div>
+
+                    <div class="save-row">
+                        <div class="save-tag">FORTITUDE<span class="t-sub">Constituição</span></div>
+                        <div class="save-slot save-slot--calc">{{ saves.TotalFortitude|default:"—" }}</div>
+                        <div class="save-op">=</div>
+                        <div class="save-slot">{{ saves.FortitudeBaseSave|default:"0" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot save-slot--calc">{{ saves.FortitudeAbilityModifier|default:"—" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot">{{ saves.FortitudeMagicModifier|default:"0" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot">{{ saves.FortitudeMiscModifier|default:"0" }}</div>
+                    </div>
+                    <div class="save-row">
+                        <div class="save-tag">REFLEXOS<span class="t-sub">Destreza</span></div>
+                        <div class="save-slot save-slot--calc">{{ saves.TotalReflex|default:"—" }}</div>
+                        <div class="save-op">=</div>
+                        <div class="save-slot">{{ saves.ReflexBaseSave|default:"0" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot save-slot--calc">{{ saves.ReflexAbilityModifier|default:"—" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot">{{ saves.ReflexMagicModifier|default:"0" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot">{{ saves.ReflexMiscModifier|default:"0" }}</div>
+                    </div>
+                    <div class="save-row">
+                        <div class="save-tag">VONTADE<span class="t-sub">Sabedoria</span></div>
+                        <div class="save-slot save-slot--calc">{{ saves.TotalWill|default:"—" }}</div>
+                        <div class="save-op">=</div>
+                        <div class="save-slot">{{ saves.WillBaseSave|default:"0" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot save-slot--calc">{{ saves.WillAbilityModifier|default:"—" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot">{{ saves.WillMagicModifier|default:"0" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot">{{ saves.WillMiscModifier|default:"0" }}</div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="mod-conds">
+            <div class="mc-head">Mod. Condicionais</div>
+            <div class="mc-body"></div>
+        </div>
+    </div>
+
+    <div class="combat-stack">
+        <form id="characterAttackForm" class="block" aria-live="polite">
+
+            <div class="block-body">
+                <div class="bab-row">
+                    <div class="bab-box">
+                        <div class="bb-label">Bônus Base de Ataque</div>
+                        <div class="bb-slot">{% if atk.BBA is not None %}+{{ atk.BBA }}{% else %}—{% endif %}</div>
+                    </div>
+                    <div class="sr-box">
+                        <div class="sr-label">Resistência<br>à Magia</div>
+                        <div class="sr-slot">{{ atk.SpellResistence|default:"—" }}</div>
+                    </div>
+                </div>
+
+                <div class="agarrar">
+                    <div class="agarrar-head">
+                        <div class="ah-tag">&nbsp;</div>
+                        <div class="ah-total">Total</div>
+                        <div class="ah-base">Bônus<br>Base</div>
+                        <div class="ah-for">Mod. de<br>Força</div>
+                        <div class="ah-size">Mod. de<br>Tamanho</div>
+                        <div class="ah-misc">Outros</div>
+                    </div>
+                    <div class="agarrar-row">
+                        <div class="save-tag">AGARRAR<span class="t-sub">Modificador</span></div>
+                        <div class="save-slot save-slot--calc">{{ atk.TotalGrappler|default:"—" }}</div>
+                        <div class="save-op">=</div>
+                        <div class="save-slot">{% if atk.GrapplerBBA is not None %}+{{ atk.GrapplerBBA }}{% else %}—{% endif %}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot save-slot--calc">{{ atk.GrapplerStrModifier|default:"—" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot">{{ atk.GrapplerSizeModifier|default:"0" }}</div>
+                        <div class="save-op">+</div>
+                        <div class="save-slot">{{ atk.GrapplerMiscModifier|default:"0" }}</div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        {% include "character/partials/character_weapon_card.html" %}
+    </div>
+
+</section>
+{% endwith %}

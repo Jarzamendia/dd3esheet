@@ -1,22 +1,66 @@
 {% extends "main.html" %}
+{% block title %}Minhas Fichas — Codex{% endblock %}
 
 {% block content %}
 
-<h1>HOME</h1>
+<main class="sheet sheet--narrow">
 
-<div>
+    <header style="display: flex; justify-content: space-between; align-items: end; padding: 4px 4px 16px; border-bottom: 3px double var(--rule-line); margin-bottom: 18px;">
+        <div>
+            <div class="brand-sub" style="text-align:left;">Codex de Fichas · D&D 3.5</div>
+            <h1 class="brand-title" style="font-size: 32px; text-align: left;">Minhas Fichas</h1>
+        </div>
+        <div style="display:flex; gap: 8px; align-items: center;">
+            <a href="{% url 'character:create-character' %}" class="btn-paper btn-paper--primary">+ Criar Nova Ficha</a>
+        </div>
+    </header>
 
-    <a href="{% url 'character:create-character' %}">Create Character</a>
+    <section class="character-cards">
 
-    <div>
         {% for character in characters %}
-            <a href="{% url 'character:delete-character' character.id %}">Delete</a>
-            <span>@{{character.Name}}</span>
-            <div>
-                <h5>{{character.id}} -- <a href="{% url 'character:character' character.id %}">{{character.Name}}</a></h5>
+        <a class="char-card" href="{% url 'character:character' character.id %}">
+            <div class="char-card-head">
+                <span class="cc-name">{{ character.Name|default:"Sem nome" }}</span>
+                <span class="cc-level">{{ character.Class|default:"—" }} · Nv {{ character.Level|default:"—" }}</span>
             </div>
+            <div class="char-card-body">
+                <div class="cc-bio">{{ character.Race|default:"—" }} · {{ character.Alignment|default:"—" }}{% if character.Deity %} · {{ character.Deity }}{% endif %}</div>
+                {% with status=character.characterstatus %}
+                <div class="cc-stat"><span class="v">{{ status.TotalHitPoints|default:"—" }}</span><span class="l">PV</span></div>
+                <div class="cc-stat"><span class="v">{{ status.ACTotal|default:"—" }}</span><span class="l">CA</span></div>
+                {% endwith %}
+                {% with atk=character.characterattackmodifiers %}
+                <div class="cc-stat"><span class="v">{% if atk.BBA is not None %}+{{ atk.BBA }}{% else %}—{% endif %}</span><span class="l">BAB</span></div>
+                {% endwith %}
+                {% with saves=character.charactersavingthrows %}
+                <div class="cc-stat"><span class="v">{% if saves.TotalFortitude is not None %}+{{ saves.TotalFortitude }}{% else %}—{% endif %}</span><span class="l">FOR</span></div>
+                <div class="cc-stat"><span class="v">{% if saves.TotalReflex is not None %}+{{ saves.TotalReflex }}{% else %}—{% endif %}</span><span class="l">REF</span></div>
+                <div class="cc-stat"><span class="v">{% if saves.TotalWill is not None %}+{{ saves.TotalWill }}{% else %}—{% endif %}</span><span class="l">VON</span></div>
+                {% endwith %}
+            </div>
+            <div class="char-card-meta">
+                <span>editada {{ character.UpdatedAt|timesince }} atrás</span>
+                <span class="cc-shared">⚔ Privada</span>
+            </div>
+        </a>
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 32px; font-family: var(--font-serif); color: var(--ink-soft); font-style: italic;">
+            Nenhuma ficha ainda. Crie sua primeira!
+        </div>
         {% endfor %}
-    </div>
-</div>
+
+        <a class="char-card create-new" href="{% url 'character:create-character' %}">
+            <span class="plus">+</span>
+            <span class="lbl">Criar Nova Ficha</span>
+            <span class="label" style="text-transform: none; letter-spacing: 0.04em;">
+                inicia em branco usando o template 3.5 oficial
+            </span>
+        </a>
+
+    </section>
+
+    {# Seção "Compartilhadas Comigo" — aguardando CharacterShare model (Fase 4) #}
+
+</main>
 
 {% endblock %}

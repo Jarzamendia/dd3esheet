@@ -1,0 +1,59 @@
+{% comment %}
+partial: character_armor.html  (armadura, escudo e proteção)
+ID HTMX: #characterArmorListForm (Fase 2: endpoint)
+{% endcomment %}
+<section>
+    <form id="characterArmorListForm">
+        <div class="section-title-band">
+            <span>Armadura, Escudo &amp; Proteção</span>
+        </div>
+        <table class="sheet-table">
+            <thead>
+                <tr>
+                    <th style="width: 32%;">Nome</th>
+                    <th class="center">Bônus CA</th>
+                    <th class="center">Max DES</th>
+                    <th class="center">Penal.</th>
+                    <th class="center">Falha</th>
+                    <th class="center">Vel.</th>
+                    <th class="center">Peso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for armor in character.characterarmor_set.all %}
+                <tr>
+                    <td>{{ armor.Name|default:"—" }}</td>
+                    <td class="center">{{ armor.ACBonus|default:"—" }}</td>
+                    <td class="center">{{ armor.MaxDex|default:"—" }}</td>
+                    <td class="center">{{ armor.CheckPenalty|default:"—" }}</td>
+                    <td class="center">{{ armor.SpellFailure|default:"—" }}</td>
+                    <td class="center">{{ armor.Speed|default:"—" }}</td>
+                    <td class="center">{{ armor.Weigth|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+                {% for shield in character.charactershield_set.all %}
+                <tr>
+                    <td>{{ shield.Name|default:"—" }}</td>
+                    <td class="center">{{ shield.ACBonus|default:"—" }}</td>
+                    <td class="center">—</td>
+                    <td class="center">{{ shield.CheckPenalty|default:"—" }}</td>
+                    <td class="center">{{ shield.SpellFailure|default:"—" }}</td>
+                    <td class="center">—</td>
+                    <td class="center">{{ shield.Weigth|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+                {% for item in character.characterprotectionitem_set.all %}
+                <tr>
+                    <td>{{ item.Name|default:"—" }}</td>
+                    <td class="center">{{ item.ACBonus|default:"—" }}</td>
+                    <td class="center">—</td>
+                    <td class="center">—</td>
+                    <td class="center">—</td>
+                    <td class="center">—</td>
+                    <td class="center">{{ item.Weigth|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</section>

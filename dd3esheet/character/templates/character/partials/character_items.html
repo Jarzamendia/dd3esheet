@@ -1,0 +1,31 @@
+{% comment %}
+partial: character_items.html  (outros itens)
+ID HTMX: #characterItemsForm (Fase 2: endpoint)
+{% endcomment %}
+<section>
+    <form id="characterItemsForm">
+        <div class="section-title-band">
+            <span>Outros Itens</span>
+        </div>
+        <table class="sheet-table">
+            <thead>
+                <tr>
+                    <th style="width: 60%;">Item</th>
+                    <th class="center" style="width: 20%;">Página</th>
+                    <th class="center" style="width: 20%;">Peso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in character.characterotheritem_set.all %}
+                <tr>
+                    <td>{{ item.Name|default:"—" }}</td>
+                    <td class="center">{{ item.Page|default:"—" }}</td>
+                    <td class="center">{{ item.Weigth|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td class="empty">.</td><td></td><td></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</section>

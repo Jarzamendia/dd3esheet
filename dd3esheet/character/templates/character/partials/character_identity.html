@@ -1,0 +1,77 @@
+{% comment %}
+partial: character_identity.html
+ID HTMX: #characterIdentityForm (Fase 2: crispy + endpoint)
+{% endcomment %}
+<form id="characterIdentityForm" class="id-block">
+
+    <div class="id-fields">
+        <div class="field" style="grid-column: span 7;">
+            <div class="field-slot field-slot--tall">{{ character.Name|default:"" }}</div>
+            <span class="label">Nome do Personagem</span>
+        </div>
+        <div class="field" style="grid-column: span 5;">
+            <div class="field-slot field-slot--tall">{{ character.user.username|default:"" }}</div>
+            <span class="label">Jogador</span>
+        </div>
+
+        <div class="field" style="grid-column: span 5;">
+            <div class="field-slot">{{ character.Class|default:"" }}</div>
+            <span class="label">Classe</span>
+        </div>
+        <div class="field" style="grid-column: span 2;">
+            <div class="field-slot field-slot--center">{{ character.Level|default:"" }}</div>
+            <span class="label">Nível</span>
+        </div>
+        <div class="field" style="grid-column: span 2;">
+            <div class="field-slot">{{ character.Race|default:"" }}</div>
+            <span class="label">Raça</span>
+        </div>
+        <div class="field" style="grid-column: span 3;">
+            <div class="field-slot">{{ character.Alignment|default:"" }}</div>
+            <span class="label">Tendência</span>
+        </div>
+
+        <div class="field" style="grid-column: span 2;">
+            <div class="field-slot">{{ character.Size|default:"" }}</div>
+            <span class="label">Tamanho</span>
+        </div>
+        <div class="field" style="grid-column: span 1;">
+            <div class="field-slot field-slot--center">{{ character.Age|default:"" }}</div>
+            <span class="label">Idade</span>
+        </div>
+        <div class="field" style="grid-column: span 2;">
+            <div class="field-slot">{{ character.Sex|default:"" }}</div>
+            <span class="label">Sexo</span>
+        </div>
+        <div class="field" style="grid-column: span 1;">
+            <div class="field-slot field-slot--center">{{ character.Heigth|default:"" }}</div>
+            <span class="label">Altura</span>
+        </div>
+        <div class="field" style="grid-column: span 1;">
+            <div class="field-slot field-slot--center">{{ character.Weight|default:"" }}</div>
+            <span class="label">Peso</span>
+        </div>
+        <div class="field" style="grid-column: span 1;">
+            <div class="field-slot field-slot--center">{{ character.Eye|default:"" }}</div>
+            <span class="label">Olhos</span>
+        </div>
+        <div class="field" style="grid-column: span 1;">
+            <div class="field-slot field-slot--center">{{ character.Hair|default:"" }}</div>
+            <span class="label">Cabelos</span>
+        </div>
+        <div class="field" style="grid-column: span 1;">
+            <div class="field-slot field-slot--center">{{ character.Skin|default:"" }}</div>
+            <span class="label">Pele</span>
+        </div>
+        <div class="field" style="grid-column: span 2;">
+            <div class="field-slot">{{ character.Deity|default:"" }}</div>
+            <span class="label">Divindade</span>
+        </div>
+    </div>
+
+    <aside class="brand">
+        <div class="brand-swords">⚔ &nbsp;━━━&nbsp; ⚔</div>
+        <h1 class="brand-title">DUNGEONS<br><em>&amp;</em> DRAGONS</h1>
+        <div class="brand-sub">PLANILHA DE PERSONAGEM</div>
+    </aside>
+</form>

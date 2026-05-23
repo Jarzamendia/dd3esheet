@@ -1,0 +1,24 @@
+{% comment %}
+partial: character_feats.html  (talentos)
+ID HTMX: #characterFeatsForm (Fase 2: endpoint)
+{% endcomment %}
+<section>
+    <form id="characterFeatsForm">
+        <div class="section-title-band"><span>Talentos</span></div>
+        <div class="list-block">
+            <div class="list-block-body">
+                {% for feat in character.characterfeat_set.all %}
+                <div class="list-line">
+                    <span class="ll-name">{{ feat.Name|default:"—" }}</span>
+                    <span class="ll-page">{{ feat.Page|default:"" }}</span>
+                </div>
+                {% empty %}
+                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
+                {% endfor %}
+                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
+                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
+                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
+            </div>
+        </div>
+    </form>
+</section>

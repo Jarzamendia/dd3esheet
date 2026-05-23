@@ -1,54 +1,61 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>eSheet</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
-        {% load bootstrap5 %}
-        {% bootstrap_css %}
-        {% bootstrap_javascript %}
-        <style>
-            .bg1 {
-                background-color: yellow;
-                opacity: 0.7;
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Codex de Fichas{% endblock %}</title>
 
-              }
+    {% load bootstrap5 %}
+    {% load static %}
 
-              .bg2 {
-                background-color: green;
-                opacity: 0.7;
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 
-              }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Cormorant+SC:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@400;500;600;700&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
 
-              .bg3 {
-                background-color: gray;
-                opacity: 0.7;
+    <link rel="stylesheet" href="{% static 'css/character_sheet.css' %}">
 
-              }
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="sheet-body">
 
+    <nav class="app-nav">
+        <a class="brand-mark" href="{% url 'character:home' %}" style="text-decoration:none; color: inherit;">
+            ⚔ Codex de Fichas
+        </a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+           href="{% url 'character:home' %}">Minhas Fichas</a>
+        <span class="spacer"></span>
+        {% url 'logout' as logout_url %}
+        {% url 'login' as login_url %}
+        {% if user.is_authenticated %}
+            <span class="nav-user">{{ user.username }}</span>
+            <form action="{{ logout_url|default:'#' }}" method="post" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="nav-link"
+                        style="background: none; border: none; cursor: pointer;">sair</button>
+            </form>
+        {% else %}
+            <a class="nav-link" href="{{ login_url|default:'#' }}">entrar</a>
+        {% endif %}
+    </nav>
 
-            input {
-                width: 100%;
-                background-color: #fcfcfc;
-                border: 0;
-                border-bottom: 2px solid lightgrey;
-                padding: 10px;
-            }
-        </style>
-    </head>
-    <body>
+    {% if messages %}
+        <div style="max-width: 1280px; margin: 8px auto 0;">
+        {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }}" role="alert">{{ msg }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
 
+    {% block content %}{% endblock %}
 
+    <footer class="app-footer">
+        Codex de Fichas · {% now "Y" %} · um lugar pro seu personagem caber inteiro
+    </footer>
 
-        <div class="container-fluid">
-
-            {% include 'navbar.html' %}
-             
-            {% block content %}
-            {% endblock %}
-
-    </body>
+    {% block extra_js %}{% endblock %}
+</body>
 </html>

@@ -1,0 +1,58 @@
+{% comment %}
+partial: character_money.html  (dinheiro + capacidade de carga)
+ID HTMX: #characterMoneyForm (Fase 2: endpoint)
+Posição: grid-column 1 / -1 (largura total)
+{% endcomment %}
+{% with money=character.charactermoney enc=character.characterotheritemobs %}
+<section style="grid-column: 1 / -1;">
+    <form id="characterMoneyForm">
+        <div class="section-title-band"><span>Dinheiro &amp; Capacidade de Carga</span></div>
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; padding: 10px; background: var(--paper-bg);
+                    border-left: 1px solid var(--rule-line);
+                    border-right: 1px solid var(--rule-line);
+                    border-bottom: 2px solid var(--rule-line);">
+            <div class="money-block">
+                <div class="money-coin">
+                    <div class="coin-label">PC</div>
+                    <div class="coin-slot">{{ money.CP|default:"0" }}</div>
+                </div>
+                <div class="money-coin">
+                    <div class="coin-label">PP</div>
+                    <div class="coin-slot">{{ money.SP|default:"0" }}</div>
+                </div>
+                <div class="money-coin">
+                    <div class="coin-label">PO</div>
+                    <div class="coin-slot">{{ money.GP|default:"0" }}</div>
+                </div>
+                <div class="money-coin">
+                    <div class="coin-label">PL</div>
+                    <div class="coin-slot">{{ money.PP|default:"0" }}</div>
+                </div>
+            </div>
+
+            <div id="characterEncumbranceForm" class="enc-grid" aria-live="polite">
+                <div class="enc-cell">
+                    <div class="slot slot--calc">{{ enc.LightLoad|default:"—" }}</div>
+                    <span class="label">Carga Leve</span>
+                </div>
+                <div class="enc-cell">
+                    <div class="slot slot--calc">{{ enc.MediumLoad|default:"—" }}</div>
+                    <span class="label">Carga Média</span>
+                </div>
+                <div class="enc-cell">
+                    <div class="slot slot--calc">{{ enc.HeavyLoad|default:"—" }}</div>
+                    <span class="label">Carga Pesada</span>
+                </div>
+                <div class="enc-cell">
+                    <div class="slot slot--calc">{{ enc.LiftOverHEad|default:"—" }}</div>
+                    <span class="label">Erguer s/ Cabeça</span>
+                </div>
+                <div class="enc-cell">
+                    <div class="slot slot--calc">{{ enc.PushOrDrag|default:"—" }}</div>
+                    <span class="label">Empurrar / Arrastar</span>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+{% endwith %}

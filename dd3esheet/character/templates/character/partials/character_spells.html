@@ -1,0 +1,74 @@
+{% comment %}
+partial: character_spells.html  (resumo por nível + blocos de magias)
+ID HTMX: #characterSpellsForm (Fase 2: endpoint)
+{% endcomment %}
+<section style="margin-top: 14px;">
+    <form id="characterSpellsForm" aria-live="polite">
+
+        <div class="section-title-band">
+            <span>Magias</span>
+            <span class="f-ui" style="font-size: 10px;">
+                Classe Conjuradora: <strong style="color: #fff;">{{ character.Class|default:"—" }}</strong>
+            </span>
+        </div>
+
+        <!-- Resumo por nível -->
+        <div class="spells-summary" style="margin-bottom: 8px;">
+            <div class="sm-corner">Por<br>Nível</div>
+            {% for i in "0123456789" %}
+            <div class="sm-level-head">{{ i }}</div>
+            {% endfor %}
+
+            <div class="sm-row-head">Conhecidas</div>
+            {% for i in "0123456789" %}
+            <div class="sm-cell">—</div>
+            {% endfor %}
+
+            <div class="sm-row-head">CD Resist.</div>
+            {% for i in "0123456789" %}
+            <div class="sm-cell sm-cell--calc">—</div>
+            {% endfor %}
+
+            <div class="sm-row-head">Por Dia</div>
+            {% for i in "0123456789" %}
+            <div class="sm-cell">—</div>
+            {% endfor %}
+
+            <div class="sm-row-head">Bônus</div>
+            {% for i in "0123456789" %}
+            <div class="sm-cell sm-cell--calc">—</div>
+            {% endfor %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            {% regroup character.characterspell_set.all by Level as spells_by_level %}
+            {% for level_group in spells_by_level %}
+            <article class="spell-level-block">
+                <div class="spell-level-head">
+                    <span>Nível {{ level_group.grouper }}</span>
+                    <span class="sl-meta">{{ level_group.list|length }} magia{{ level_group.list|length|pluralize:"s" }}</span>
+                </div>
+                <div class="spell-grid">
+                    {% for spell in level_group.list %}
+                    <div class="spell-item" id="spell-item-{{ spell.id }}">
+                        <span class="sp-check"></span>
+                        <span class="sp-name">{{ spell.Name|default:"—" }}</span>
+                        <span class="sp-tag">p. {{ spell.Page|default:"—" }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </article>
+            {% empty %}
+            <article class="spell-level-block" style="grid-column: 1 / -1; opacity: 0.55;">
+                <div class="spell-level-head">
+                    <span>Nenhuma magia cadastrada</span>
+                </div>
+                <div style="padding: 6px 8px; font-family: var(--font-serif); font-style: italic; color: var(--ink-soft); font-size: 12px;">
+                    Adicione magias ao personagem para que apareçam aqui.
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+    </form>
+</section>
