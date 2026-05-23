@@ -105,6 +105,15 @@ O que **tem que** ter teste:
 
 CRUD trivial e admin não precisam de teste dedicado. Testes ficam em `<app>/tests.py` (ou pacote `tests/` se crescer). Use `Django TestCase` padrão; pra cálculos puros, `SimpleTestCase` (não toca DB, é mais rápido).
 
+## Qualidade de implementação
+
+Ao fazer qualquer alteração de código, o agente deve:
+
+- **Criar ou atualizar testes junto com a mudança.** Se a alteração não justificar teste novo, explique brevemente por quê na resposta final.
+- **Simplificar o código tocado.** Prefira funções pequenas, nomes claros e fluxo direto. Remova duplicação quando isso reduzir complexidade real, mas evite refatorações grandes sem relação com a tarefa.
+- **Manter a solução local ao problema.** Não introduza abstrações, dependências ou padrões novos sem necessidade concreta e alinhada ao restante do projeto.
+- **Deixar o código mais fácil de testar.** Regras de negócio e cálculos devem ficar em funções puras sempre que possível; views devem orquestrar forms, permissões, saves e renderização.
+
 ## Compartilhamento (quando for implementar)
 
 Modelo de permissão explícito, não link público:
@@ -120,3 +129,4 @@ Modelo de permissão explícito, não link público:
 - **Models do `sdr/` são read-only** (`managed = False`). Toda query precisa de `.using('sdr')` — esquecer isso bate no DB `default` e retorna vazio em silêncio.
 - **`requirements.txt` é UTF-16** (BOM + null bytes). Não reescreva como UTF-8 sem confirmar — `pip install` lida com isso dentro do container, e ferramentas que re-encodaram já quebraram o build do Docker antes.
 - **Novos campos da ficha = novo sibling model** com FK/OneToOne para `Character`, não colunas novas em `Character`. Segue o padrão que já está lá (`CharacterStats`, `CharacterStatus`, etc.).
+- **Código simples primeiro.** Antes de finalizar, revise se a mudança pode ser expressa com menos ramificações, menos estado mutável ou menos acoplamento, sem perder clareza.
