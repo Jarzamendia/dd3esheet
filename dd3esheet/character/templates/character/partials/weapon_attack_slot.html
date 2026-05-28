@@ -1,0 +1,60 @@
+<article class="attack-card attack-card--compact{% if not w %} is-empty{% endif %}" id="{% if w %}weaponCard-{{ w.id }}{% else %}weaponCard-empty-{{ slot }}{% endif %}">
+    <div class="attack-card-head">
+        <div class="ah-first">Ataque</div>
+        <div>Bonus de Ataque</div>
+        <div>Dano</div>
+        <div>Sucesso Decisivo</div>
+    </div>
+    <div class="attack-card-row">
+        <input class="sheet-input" name="weapon_{{ slot }}_Attack" value="{% if w.Attack %}{{ w.Attack }}{% else %}{{ w.Name|default:'' }}{% endif %}">
+        <input class="sheet-input" name="weapon_{{ slot }}_AttackBonus" value="{{ w.AttackBonus|default:'' }}">
+        <input class="sheet-input" name="weapon_{{ slot }}_Damage" value="{{ w.Damage|default:'' }}">
+        <input class="sheet-input" name="weapon_{{ slot }}_Critical" value="{{ w.Critical|default:'' }}">
+    </div>
+    <div class="attack-meta">
+        <div class="label-cell">Alcance</div>
+        <div class="label-cell">Tipo</div>
+        <div class="label-cell">Observacoes</div>
+    </div>
+    <div class="attack-meta">
+        <input class="sheet-input" name="weapon_{{ slot }}_Range" value="{{ w.Range|default:'' }}">
+        <input class="sheet-input" name="weapon_{{ slot }}_Type" value="{{ w.Type|default:'' }}">
+        <input class="sheet-input" name="weapon_{{ slot }}_Notes" value="{{ w.Notes|default:'' }}">
+    </div>
+    <div class="attack-ammo">
+        <span class="attack-ammo-label">Municao</span>
+        <input class="attack-ammo-name sheet-input" name="weapon_{{ slot }}_AmmunitionName" value="{{ w.AmmunitionName|default:'' }}">
+        <div class="attack-ammo-boxes" aria-label="Controle de municao usada">
+            <label><input type="checkbox" name="ammo_{{ slot }}_1"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_2"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_3"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_4"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_5"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_6"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_7"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_8"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_9"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_10"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_11"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_12"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_13"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_14"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_15"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_16"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_17"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_18"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_19"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_20"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_21"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_22"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_23"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_24"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_25"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_26"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_27"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_28"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_29"><span></span></label>
+            <label><input type="checkbox" name="ammo_{{ slot }}_30"><span></span></label>
+        </div>
+    </div>
+</article>

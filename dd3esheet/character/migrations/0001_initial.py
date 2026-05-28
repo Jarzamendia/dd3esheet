@@ -69,6 +69,19 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
+            name='CharacterSpellcasting',
+            fields=[
+                ('Character', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to='character.character')),
+                ('CasterClass', models.CharField(blank=True, max_length=200, null=True)),
+                ('CastingAbility', models.CharField(blank=True, max_length=40, null=True)),
+                ('CastingMode', models.CharField(blank=True, max_length=40, null=True)),
+                ('Domain1', models.CharField(blank=True, max_length=200, null=True)),
+                ('Domain2', models.CharField(blank=True, max_length=200, null=True)),
+                ('SpecializedSchool', models.CharField(blank=True, max_length=200, null=True)),
+                ('SpontaneousConversion', models.CharField(blank=True, max_length=80, null=True)),
+            ],
+        ),
+        migrations.CreateModel(
             name='CharacterMoney',
             fields=[
                 ('Character', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to='character.character')),
@@ -208,6 +221,18 @@ class Migration(migrations.Migration):
                 ('Name', models.CharField(blank=True, max_length=200, null=True)),
                 ('Page', models.CharField(blank=True, max_length=200, null=True)),
                 ('Level', models.IntegerField(blank=True, default=0, null=True)),
+                ('Character', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='character.character')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CharacterSpellSlot',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('Level', models.IntegerField(blank=True, default=0, null=True)),
+                ('SlotType', models.CharField(choices=[('normal', 'Normal'), ('domain', 'Dominio'), ('specialist', 'Especialista')], default='normal', max_length=40)),
+                ('PreparedSpellName', models.CharField(blank=True, max_length=200, null=True)),
+                ('IsUsed', models.BooleanField(default=False)),
+                ('ConvertedTo', models.CharField(blank=True, max_length=200, null=True)),
                 ('Character', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='character.character')),
             ],
         ),

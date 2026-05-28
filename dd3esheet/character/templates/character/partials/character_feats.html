@@ -1,23 +1,19 @@
-{% comment %}
-partial: character_feats.html  (talentos)
-ID HTMX: #characterFeatsForm (Fase 2: endpoint)
-{% endcomment %}
-<section>
-    <form id="characterFeatsForm">
+<section id="characterFeatsSection" class="feats-panel">
+    <form id="characterFeatsForm" class="feats-form"
+          hx-post="{% url 'character:character' character.pk %}"
+          hx-target="#characterFeatsSection"
+          hx-swap="outerHTML"
+          hx-trigger="change delay:300ms">
+        {% csrf_token %}
         <div class="section-title-band"><span>Talentos</span></div>
         <div class="list-block">
-            <div class="list-block-body">
-                {% for feat in character.characterfeat_set.all %}
-                <div class="list-line">
-                    <span class="ll-name">{{ feat.Name|default:"—" }}</span>
-                    <span class="ll-page">{{ feat.Page|default:"" }}</span>
+            <div class="list-block-body feats-list">
+                {% for feat in feat_slots %}
+                <div class="list-line{% if not feat %} is-empty{% endif %}">
+                    <input class="ll-name sheet-input" name="feat_{{ forloop.counter }}_Name" value="{{ feat.Name|default:'' }}">
+                    <input class="ll-page sheet-input" name="feat_{{ forloop.counter }}_Page" value="{{ feat.Page|default:'' }}">
                 </div>
-                {% empty %}
-                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
                 {% endfor %}
-                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
-                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
-                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
             </div>
         </div>
     </form>

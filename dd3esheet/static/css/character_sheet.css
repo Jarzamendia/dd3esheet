@@ -69,6 +69,49 @@ body.sheet-body {
     position: relative;
 }
 .sheet--narrow { max-width: 920px; }
+.sheet-page {
+    break-inside: avoid;
+}
+.sheet-page--front {
+    min-height: calc(100vh - 140px);
+}
+.sheet-page-break {
+    height: 28px;
+    margin: 22px -18px;
+    border-top: 3px double var(--rule-line);
+}
+.sheet-secondary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+    align-items: stretch;
+}
+.sheet-secondary-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    align-self: stretch;
+}
+.sheet-secondary-column > section {
+    flex: 1 1 auto;
+}
+.sheet-back-lower {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+.sheet-lists-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: stretch;
+}
+.sheet-lists-grid > section {
+    display: flex;
+    min-width: 0;
+}
 
 /* -------- Tipografia ------------------------------------------------------ */
 .sheet h1, .sheet h2, .sheet h3, .sheet h4 {
@@ -193,6 +236,42 @@ select.field-input:focus {
     box-shadow: inset 0 -2px 0 var(--rubric);
 }
 
+.sheet-input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--rubric);
+    font: inherit;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    text-align: inherit;
+    padding: 0 3px;
+}
+.sheet-input:focus {
+    outline: 1px dashed var(--rubric);
+    outline-offset: 1px;
+    background: #fff;
+}
+input.attr-cell.sheet-input,
+input.save-slot.sheet-input,
+input.slot.sheet-input,
+input.bb-slot.sheet-input,
+input.sr-slot.sheet-input,
+input.coin-slot.sheet-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+input.sk-cb {
+    width: 12px;
+    height: 12px;
+    margin: 0;
+    accent-color: var(--rubric);
+}
+
 /* -------- Cabeçalho preto (estilo ficha oficial) ------------------------- */
 .header-band {
     background: var(--header-bg);
@@ -313,8 +392,7 @@ select.field-input:focus {
     grid-template-areas:
         "abilities  pvca       pvca"
         "abilities  defense    skills"
-        "saves      saves      skills"
-        "combat     combat     skills";
+        "attack     attack     skills";
     column-gap: 12px;
     row-gap: 8px;
     align-items: start;
@@ -328,9 +406,24 @@ select.field-input:focus {
 
 #characterStatsForm { grid-area: abilities; }
 .pvca-stack { grid-area: pvca; }
+.attack-stack {
+    grid-area: attack;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-self: stretch;
+}
+.weapon-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
 .saves-area { grid-area: saves; }
 .combat-stack { grid-area: combat; }
 .defense-stack { grid-area: defense; }
+.attack-card { grid-area: weapon; }
 #characterSkillsForm { grid-area: skills; }
 
 .col-right {
@@ -1158,6 +1251,22 @@ select.field-input:focus {
     background: var(--paper-bg);
     margin-bottom: 8px;
 }
+.attack-stack .attack-card {
+    margin-bottom: 0;
+}
+.weapon-stack .attack-card {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 118px;
+}
+.weapon-stack .attack-card > * {
+    flex: 0 0 auto;
+}
+.weapon-stack .attack-card .attack-card-row,
+.weapon-stack .attack-card .attack-meta:last-child {
+    flex: 1 1 auto;
+}
 .attack-card-head {
     display: grid;
     grid-template-columns: 2.4fr 1fr 1fr 1fr;
@@ -1262,6 +1371,96 @@ select.field-input:focus {
     border: var(--rule-w) solid var(--rule-line);
     background: var(--slot-bg);
     height: 13px;
+}
+
+.attack-card--compact .attack-card-head > div {
+    font-size: 8.5px;
+    padding: 3px 6px;
+    line-height: 1.05;
+}
+.attack-card--compact .attack-card-head .ah-first {
+    font-size: 10px;
+}
+.attack-card--compact .attack-card-row > div {
+    min-height: 28px;
+    padding: 3px 7px;
+    font-size: 13px;
+    line-height: 1.05;
+}
+.attack-card--compact .attack-card-row > div:not(:first-child) {
+    font-size: 12px;
+}
+.attack-card--compact .attack-meta > div {
+    min-height: 24px;
+    padding: 3px 6px;
+    font-size: 11px;
+    line-height: 1.05;
+}
+.attack-card--compact .attack-meta .label-cell {
+    min-height: 18px;
+    padding: 2px 6px;
+    font-size: 8px;
+}
+.attack-ammo {
+    display: grid;
+    grid-template-columns: auto minmax(54px, 0.8fr) minmax(0, 2.6fr);
+    align-items: center;
+    gap: 5px;
+    border-top: var(--rule-w) solid var(--rule-line);
+    background: var(--paper-bg-alt);
+    padding: 3px 5px;
+}
+.attack-ammo-label {
+    font-family: var(--font-display);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+.attack-ammo-name {
+    min-height: 14px;
+    border-bottom: var(--rule-w) solid var(--rule-line);
+    background: var(--slot-bg);
+    color: var(--rubric);
+    font-family: var(--font-serif);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.1;
+    padding: 0 3px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.attack-ammo-boxes {
+    display: grid;
+    grid-template-columns: repeat(30, minmax(5px, 1fr));
+    gap: 2px;
+}
+.attack-ammo-boxes label {
+    display: block;
+    margin: 0;
+    min-width: 0;
+}
+.attack-ammo-boxes input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.attack-ammo-boxes span {
+    display: block;
+    height: 10px;
+    border: var(--rule-w) solid var(--rule-line);
+    background: var(--slot-bg);
+}
+.attack-ammo-boxes input:checked + span {
+    background:
+        linear-gradient(135deg, transparent 0 42%, var(--ink) 42% 58%, transparent 58% 100%),
+        linear-gradient(45deg, transparent 0 42%, var(--ink) 42% 58%, transparent 58% 100%),
+        var(--slot-bg);
+}
+.attack-card--compact.is-empty .attack-card-row > div,
+.attack-card--compact.is-empty .attack-meta > div:not(.label-cell) {
+    color: transparent;
 }
 
 /* -------- Skills --------------------------------------------------------- */
@@ -1537,6 +1736,118 @@ select.field-input:focus {
 .sheet-table tbody td.empty { color: transparent; }
 .sheet-table tbody td input { all: unset; width: 100%; color: var(--rubric); font-weight: 600; }
 
+/* -------- Second page: equipment + other items -------------------------- */
+.equipment-panel,
+.other-items-panel,
+.other-items-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.equipment-panel {
+    gap: 8px;
+}
+.equipment-card {
+    border: var(--rule-w) solid var(--rule-line);
+    background: var(--paper-bg);
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+}
+.equipment-card-head,
+.equipment-card-row {
+    display: grid;
+    gap: 1px;
+    background: var(--rule-line);
+}
+.equipment-card-row {
+    flex: 1 1 auto;
+}
+.equipment-card-head > div {
+    background: var(--header-bg);
+    color: var(--header-fg);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 8.5px;
+    letter-spacing: 0.05em;
+    line-height: 1.05;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 3px 5px;
+}
+.equipment-card-head > div:first-child {
+    text-align: left;
+    font-size: 10px;
+}
+.equipment-card-row > div {
+    background: var(--slot-bg);
+    color: var(--rubric);
+    font-family: var(--font-serif);
+    font-weight: 600;
+    min-height: 30px;
+    padding: 4px 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.equipment-card-row > div:first-child,
+.equipment-card-row--armor-detail > div:last-child,
+.equipment-card-row--shield-detail > div:last-child,
+.equipment-card-row--protection > div:last-child {
+    justify-content: flex-start;
+}
+.equipment-card-head--armor,
+.equipment-card-row--armor {
+    grid-template-columns: 2fr 1fr 0.8fr 0.8fr;
+}
+.equipment-card-head--armor-detail,
+.equipment-card-row--armor-detail {
+    grid-template-columns: 1.1fr 1.1fr 0.9fr 0.7fr 2fr;
+}
+.equipment-card-head--shield,
+.equipment-card-row--shield {
+    grid-template-columns: 2fr 0.9fr 0.8fr 1.2fr;
+}
+.equipment-card-head--shield-detail,
+.equipment-card-row--shield-detail {
+    grid-template-columns: 1.2fr 2.8fr;
+}
+.equipment-protection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.equipment-card-head--protection,
+.equipment-card-row--protection {
+    grid-template-columns: 2fr 0.9fr 0.8fr 2fr;
+}
+.equipment-card.is-empty .equipment-card-row > div {
+    color: transparent;
+}
+.other-items-table {
+    flex: 1 1 auto;
+}
+.other-items-tables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.other-items-tables .other-items-table {
+    height: 100%;
+}
+.other-items-table th:first-child { width: 66%; }
+.other-items-table th:nth-child(2) { width: 14%; }
+.other-items-table th:nth-child(3) { width: 20%; }
+.other-items-table tbody tr {
+    height: 28px;
+}
+
 /* -------- Money / Encumbrance ------------------------------------------- */
 .money-block {
     display: grid;
@@ -1597,6 +1908,23 @@ select.field-input:focus {
     gap: 1px 16px;
 }
 .list-block-body.single-col { grid-template-columns: 1fr; }
+.feats-panel,
+.specials-panel,
+.feats-form,
+.specials-form {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+}
+.feats-panel .list-block,
+.specials-panel .list-block {
+    flex: 1 1 auto;
+}
+.feats-panel .list-block-body,
+.specials-panel .list-block-body {
+    min-height: 100%;
+}
 .list-line {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -1621,6 +1949,39 @@ select.field-input:focus {
 .list-line.is-empty .ll-name { color: transparent; }
 
 /* -------- Spells --------------------------------------------------------- */
+.spells-panel {
+    margin-top: 14px;
+}
+.spell-empty-note {
+    border: var(--rule-w) solid var(--rule-line);
+    border-top: 0;
+    padding: 8px 10px;
+    color: var(--ink-soft);
+    font-family: var(--font-serif);
+    font-style: italic;
+}
+.spell-profile-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--rule-line);
+    border: var(--rule-w) solid var(--rule-line);
+    border-top: 0;
+    margin-bottom: 8px;
+}
+.spell-profile-strip > div {
+    background: var(--slot-bg);
+    min-height: 36px;
+    padding: 4px 6px;
+    display: flex;
+    flex-direction: column-reverse;
+}
+.spell-profile-strip strong {
+    color: var(--rubric);
+    font-family: var(--font-serif);
+    font-size: 14px;
+    line-height: 1.1;
+}
 .spells-summary {
     display: grid;
     grid-template-columns: 60px repeat(10, 1fr);
@@ -1664,6 +2025,13 @@ select.field-input:focus {
     font-size: 13px;
 }
 .spells-summary .sm-cell--calc { background: var(--calc-bg); color: var(--ink); }
+.spell-play-grid,
+.domain-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+}
 
 .spell-level-block {
     border: var(--rule-w) solid var(--rule-line);
@@ -1748,6 +2116,81 @@ select.field-input:focus {
 .spell-item .sp-tag.is-domain {
     color: var(--rubric);
     font-weight: 700;
+}
+.spell-slot-table {
+    display: grid;
+    grid-template-columns: 34px 74px minmax(0, 1fr) 42px minmax(80px, 0.8fr);
+    gap: 1px;
+    background: var(--rule-line);
+}
+.spell-slot-table > div {
+    background: var(--slot-bg);
+    min-height: 24px;
+    padding: 3px 5px;
+    color: var(--rubric);
+    font-family: var(--font-serif);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+}
+.spell-slot-head {
+    background: var(--header-bg) !important;
+    color: var(--header-fg) !important;
+    font-family: var(--font-display) !important;
+    font-size: 8px !important;
+    font-weight: 700;
+    justify-content: center;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+.spell-slot-empty {
+    grid-column: 1 / -1;
+    color: var(--ink-soft) !important;
+    font-style: italic;
+}
+.sp-check.is-used {
+    background:
+        linear-gradient(135deg, transparent 0 40%, var(--ink) 40% 60%, transparent 60%),
+        linear-gradient(45deg, transparent 0 40%, var(--ink) 40% 60%, transparent 60%),
+        var(--paper-bg);
+}
+.spell-used-toggle {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0 auto;
+    display: flex;
+    cursor: pointer;
+}
+.domain-spell-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--rule-line);
+}
+.domain-spell-list > div {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 1px;
+    background: var(--rule-line);
+}
+.domain-spell-list span,
+.domain-spell-list strong {
+    background: var(--slot-bg);
+    min-height: 22px;
+    padding: 3px 6px;
+    display: flex;
+    align-items: center;
+}
+.domain-spell-list span {
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 10px;
+}
+.domain-spell-list strong {
+    color: var(--rubric);
+    font-family: var(--font-serif);
+    font-size: 13px;
 }
 
 /* -------- Componentes de UI (não-ficha): navbar, cards, share ----------- */
@@ -2094,13 +2537,29 @@ select.field-input:focus {
         grid-template-areas:
             "abilities"
             "pvca"
-            "saves"
             "defense"
-            "combat"
+            "attack"
             "skills";
     }
 }
 @media (max-width: 760px) {
     .id-block { grid-template-columns: 1fr; }
     .sheet { padding: 10px; }
+    .sheet-page-break { margin-left: -10px; margin-right: -10px; }
+    .sheet-secondary-grid { grid-template-columns: 1fr; }
+    .sheet-lists-grid { grid-template-columns: 1fr; }
+}
+
+@media print {
+    .sheet-page {
+        page-break-after: always;
+        break-after: page;
+    }
+    .sheet-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+    .sheet-page-break {
+        display: none;
+    }
 }

@@ -1,0 +1,14 @@
+<article class="equipment-card equipment-card--protection{% if not item %} is-empty{% endif %}">
+    <div class="equipment-card-head equipment-card-head--protection">
+        <div>Item de Protecao {{ slot }}</div>
+        <div>Bonus na CA</div>
+        <div>Peso</div>
+        <div>Propriedades Especiais</div>
+    </div>
+    <div class="equipment-card-row equipment-card-row--protection">
+        <input class="sheet-input" name="protection_{{ slot }}_Name" value="{{ item.Name|default:'' }}">
+        <input class="sheet-input" name="protection_{{ slot }}_ACBonus" value="{{ item.ACBonus|default:'' }}">
+        <input class="sheet-input" name="protection_{{ slot }}_Weigth" value="{{ item.Weigth|default:'' }}">
+        <input class="sheet-input" name="protection_{{ slot }}_SpecialProperties" value="{{ item.SpecialProperties|default:'' }}">
+    </div>
+</article>

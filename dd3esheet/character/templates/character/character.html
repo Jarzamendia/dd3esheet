@@ -5,23 +5,37 @@
 
 <main class="sheet" data-screen-label="character">
 
-    {% include "character/partials/character_identity.html" %}
+    <section class="sheet-page sheet-page--front">
+        {% include "character/partials/character_identity.html" %}
 
-    <div class="main-grid">
-        {% include "character/partials/character_stats.html" %}
-        {% include "character/partials/character_combat.html" %}
-    </div>
+        <div class="main-grid">
+            {% include "character/partials/character_stats.html" %}
+            {% include "character/partials/character_combat.html" %}
+        </div>
+    </section>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px;">
-        {% include "character/partials/character_weapons.html" %}
-        {% include "character/partials/character_armor.html" %}
-        {% include "character/partials/character_items.html" %}
-        {% include "character/partials/character_money.html" %}
-        {% include "character/partials/character_feats.html" %}
-        {% include "character/partials/character_specials.html" %}
-    </div>
+    <section class="sheet-page sheet-page--back">
+        <div class="sheet-page-break"></div>
 
-    {% include "character/partials/character_spells.html" %}
+        <div class="sheet-secondary-grid">
+            <div class="sheet-secondary-column">
+                {% include "character/partials/character_armor.html" %}
+            </div>
+            <div class="sheet-secondary-column">
+                {% include "character/partials/character_items.html" %}
+            </div>
+        </div>
+
+        <div class="sheet-back-lower">
+            {% include "character/partials/character_money.html" %}
+            <div class="sheet-lists-grid">
+                {% include "character/partials/character_feats.html" %}
+                {% include "character/partials/character_specials.html" %}
+            </div>
+        </div>
+
+        {% include "character/partials/character_spells.html" %}
+    </section>
 
 </main>
 

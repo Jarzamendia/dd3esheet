@@ -260,6 +260,31 @@ class CharacterMagicConditionalModifiers(models.Model):
     Character = models.OneToOneField(Character, on_delete=models.CASCADE, primary_key=True)
     Value     = models.TextField(null=True, blank=True)
 
+class CharacterSpellcasting(models.Model):
+    Character = models.OneToOneField(Character, on_delete=models.CASCADE, primary_key=True)
+
+    CasterClass           = models.CharField(max_length=200, null=True, blank=True)
+    CastingAbility        = models.CharField(max_length=40, null=True, blank=True)
+    CastingMode           = models.CharField(max_length=40, null=True, blank=True)
+    Domain1               = models.CharField(max_length=200, null=True, blank=True)
+    Domain2               = models.CharField(max_length=200, null=True, blank=True)
+    SpecializedSchool     = models.CharField(max_length=200, null=True, blank=True)
+    SpontaneousConversion = models.CharField(max_length=80, null=True, blank=True)
+
+class CharacterSpellSlot(models.Model):
+    SLOT_TYPES = (
+        ('normal', 'Normal'),
+        ('domain', 'Dominio'),
+        ('specialist', 'Especialista'),
+    )
+
+    Character         = models.ForeignKey(Character, on_delete=models.CASCADE)
+    Level             = models.IntegerField(default=0, null=True, blank=True)
+    SlotType          = models.CharField(max_length=40, choices=SLOT_TYPES, default='normal')
+    PreparedSpellName = models.CharField(max_length=200, null=True, blank=True)
+    IsUsed            = models.BooleanField(default=False)
+    ConvertedTo       = models.CharField(max_length=200, null=True, blank=True)
+
 class CharacterMagicDayUse(models.Model):
     Character    = models.ForeignKey(Character, on_delete=models.CASCADE)
 

@@ -1,19 +1,18 @@
-{% comment %}
-partial: character_specials.html  (habilidades especiais + idiomas)
-ID HTMX: #characterSpecialsForm (Fase 2: endpoint)
-{% endcomment %}
-<section>
-    <form id="characterSpecialsForm">
+<section id="characterSpecialsSection" class="specials-panel">
+    <form id="characterSpecialsForm" class="specials-form"
+          hx-post="{% url 'character:character' character.pk %}"
+          hx-target="#characterSpecialsSection"
+          hx-swap="outerHTML"
+          hx-trigger="change delay:300ms">
+        {% csrf_token %}
         <div class="section-title-band"><span>Habilidades Especiais</span></div>
         <div class="list-block">
             <div class="list-block-body single-col">
-                {% for ability in character.ability_set.all %}
-                <div class="list-line">
-                    <span class="ll-name">{{ ability.Name|default:"—" }}</span>
-                    <span class="ll-page">{{ ability.Page|default:"" }}</span>
+                {% for ability in ability_slots %}
+                <div class="list-line{% if not ability %} is-empty{% endif %}">
+                    <input class="ll-name sheet-input" name="ability_{{ forloop.counter }}_Name" value="{{ ability.Name|default:'' }}">
+                    <input class="ll-page sheet-input" name="ability_{{ forloop.counter }}_Page" value="{{ ability.Page|default:'' }}">
                 </div>
-                {% empty %}
-                <div class="list-line is-empty"><span class="ll-name">.</span><span class="ll-page"></span></div>
                 {% endfor %}
             </div>
         </div>
@@ -21,12 +20,10 @@ ID HTMX: #characterSpecialsForm (Fase 2: endpoint)
         <div class="section-title-band" style="margin-top: 6px;"><span>Idiomas</span></div>
         <div class="list-block">
             <div class="list-block-body">
-                {% for lang in character.characterlanguages_set.all %}
-                <div class="list-line">
-                    <span class="ll-name">{{ lang.Value|default:"—" }}</span>
+                {% for lang in language_slots %}
+                <div class="list-line{% if not lang %} is-empty{% endif %}">
+                    <input class="ll-name sheet-input" name="language_{{ forloop.counter }}_Value" value="{{ lang.Value|default:'' }}">
                 </div>
-                {% empty %}
-                <div class="list-line is-empty"><span class="ll-name">.</span></div>
                 {% endfor %}
             </div>
         </div>

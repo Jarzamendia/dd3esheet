@@ -1,38 +1,35 @@
 {% comment %}
 partial: character_weapons.html  (tabela de armas adicionais)
 ID HTMX: #characterWeaponsForm (Fase 2: endpoint)
-Posição: grid-column 1 / -1 (largura total)
+Posicao: grid-column 1 / -1 (largura total)
 {% endcomment %}
 <section style="grid-column: 1 / -1;">
     <form id="characterWeaponsForm">
         <div class="section-title-band">
             <span>Armas</span>
-            <span class="f-ui" style="font-size:9px; color: rgba(245,236,208,.7);">
-                Tabela de armas adicionais — primeira arma destaque acima
-            </span>
         </div>
         <table class="sheet-table">
             <thead>
                 <tr>
                     <th style="width: 22%;">Nome</th>
-                    <th class="center" style="width: 12%;">Bônus de Ataque</th>
+                    <th class="center" style="width: 12%;">Bonus de Ataque</th>
                     <th class="center" style="width: 12%;">Dano</th>
-                    <th class="center" style="width: 12%;">Crítico</th>
+                    <th class="center" style="width: 12%;">Critico</th>
                     <th class="center" style="width: 10%;">Alcance</th>
                     <th class="center" style="width: 18%;">Tipo</th>
-                    <th class="center" style="width: 14%;">Munição</th>
+                    <th class="center" style="width: 14%;">Municao</th>
                 </tr>
             </thead>
             <tbody>
                 {% for weapon in character.characterweapon_set.all %}
                 <tr id="weapon-row-{{ weapon.id }}">
-                    <td>{{ weapon.Name|default:"—" }}</td>
-                    <td class="center">{{ weapon.AttackBonus|default:"—" }}</td>
-                    <td class="center">{{ weapon.Damage|default:"—" }}</td>
-                    <td class="center">{{ weapon.Critical|default:"—" }}</td>
-                    <td class="center">{{ weapon.Range|default:"—" }}</td>
-                    <td class="center">{{ weapon.Type|default:"—" }}</td>
-                    <td class="center">{{ weapon.AmmunitionCount|default:"—" }}</td>
+                    <td>{{ weapon.Name|default:"-" }}</td>
+                    <td class="center">{{ weapon.AttackBonus|default:"-" }}</td>
+                    <td class="center">{{ weapon.Damage|default:"-" }}</td>
+                    <td class="center">{{ weapon.Critical|default:"-" }}</td>
+                    <td class="center">{{ weapon.Range|default:"-" }}</td>
+                    <td class="center">{{ weapon.Type|default:"-" }}</td>
+                    <td class="center">{{ weapon.AmmunitionCount|default:"-" }}</td>
                 </tr>
                 {% empty %}
                 <tr><td class="empty">.</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>

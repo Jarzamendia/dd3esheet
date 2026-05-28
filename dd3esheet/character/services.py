@@ -2,7 +2,7 @@ from .models import (
     CharacterStats, CharacterStatus, CharacterSavingThrows,
     CharacterAttackModifiers, CharacterSkillGraduation, CharacterOtherItemObs,
     CharacterMoney, CharacterSpellSave, CharacterArcaneSpellFailCheck,
-    CharacterMagicConditionalModifiers, CharacterSkill,
+    CharacterMagicConditionalModifiers, CharacterSpellcasting, CharacterSkill,
 )
 from sdr.models import SDR_Class
 
@@ -31,6 +31,7 @@ def _bootstrap_character_siblings(character):
     CharacterSpellSave(Character=character).save()
     CharacterArcaneSpellFailCheck(Character=character).save()
     CharacterMagicConditionalModifiers(Character=character).save()
+    CharacterSpellcasting(Character=character).save()
     for skill in _SKILL_LIST:
         CharacterSkill(Character=character, SkillName=skill).save()
 

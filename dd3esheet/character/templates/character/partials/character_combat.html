@@ -1,8 +1,3 @@
-{% comment %}
-partial: character_combat.html  (col-right: PV, CA, Toque/Surpresa/Iniciativa)
-Inclui character_skills.html como sub-partial.
-ID HTMX: separados em Fase 2 em characterStatusForm, characterArmorForm.
-{% endcomment %}
 {% with status=character.characterstatus %}
 <section class="col-right">
 
@@ -12,7 +7,12 @@ ID HTMX: separados em Fase 2 em characterStatusForm, characterArmorForm.
             <div class="pvca-head-label">TOTAL</div>
         </div>
 
-        <form id="characterStatusForm" class="pvca-form" aria-live="polite">
+        <form id="characterStatusForm" class="pvca-form" aria-live="polite"
+              hx-post="{% url 'character:character' character.pk %}"
+              hx-target="#characterStatusForm"
+              hx-swap="outerHTML"
+              hx-trigger="change delay:300ms">
+            {% csrf_token %}
 
             <div class="pv-row">
                 <div class="tag-black">
@@ -20,24 +20,29 @@ ID HTMX: separados em Fase 2 em characterStatusForm, characterArmorForm.
                     <span class="t-sub">Pontos de Vida</span>
                 </div>
                 <div class="pv-total-cell">
-                    <div class="slot slot--lg" title="PV total">{{ status.TotalHitPoints|default:"—" }}</div>
+                    <input class="slot slot--lg sheet-input" name="TotalHitPoints" value="{{ status.TotalHitPoints|default:'' }}" inputmode="numeric" title="PV total">
                 </div>
                 <div class="pv-cell pv-cell--wide">
-                    <div class="slot slot--lg" style="justify-content:flex-end; padding-right: 10px;" title="Ferimentos / PVs atuais">{{ status.TotalHitPoints|default:"—" }}</div>
+                    <input class="slot slot--lg sheet-input" value="{{ status.TotalHitPoints|default:'' }}" title="Ferimentos / PVs atuais">
                     <span class="label">Ferimentos / PVs Atuais</span>
                 </div>
                 <div class="pv-cell">
-                    <div class="slot slot--lg slot--calc" title="Dano por contusão">{{ status.NonLethalDamager|default:"—" }}</div>
-                    <span class="label">Dano por Contusão</span>
+                    <input class="slot slot--lg sheet-input" name="NonLethalDamager" value="{{ status.NonLethalDamager|default:'' }}" inputmode="numeric" title="Dano por contusao">
+                    <span class="label">Dano por Contusao</span>
                 </div>
                 <div class="pv-cell">
-                    <div class="slot slot--lg" title="Deslocamento">{{ status.Speed|default:"—" }}</div>
+                    <input class="slot slot--lg sheet-input" name="Speed" value="{{ status.Speed|default:'' }}" inputmode="numeric" title="Deslocamento">
                     <span class="label">Deslocamento</span>
                 </div>
             </div>
         </form>
 
-        <form id="characterArmorForm" class="pvca-form" aria-live="polite">
+        <form id="characterArmorForm" class="pvca-form" aria-live="polite"
+              hx-post="{% url 'character:character' character.pk %}"
+              hx-target="#characterArmorForm"
+              hx-swap="outerHTML"
+              hx-trigger="change delay:300ms">
+            {% csrf_token %}
 
             <div class="ca-row">
                 <div class="tag-black">
@@ -45,28 +50,28 @@ ID HTMX: separados em Fase 2 em characterStatusForm, characterArmorForm.
                     <span class="t-sub">Classe de Armadura</span>
                 </div>
                 <div class="ca-total-cell">
-                    <div class="slot slot--lg slot--calc" title="CA total">{{ status.ACTotal|default:"—" }}</div>
+                    <div class="slot slot--lg slot--calc" title="CA total">{{ status.ACTotal|default:"-" }}</div>
                 </div>
                 <div class="ca-breakdown">
                     <span class="op">=</span>
                     <span class="op f-display">10 +</span>
-                    <div class="ca-cell"><div class="slot">{{ status.ACArmorBonus|default:"0" }}</div><span class="label">Armadura</span></div>
+                    <div class="ca-cell"><input class="slot sheet-input" name="ACArmorBonus" value="{{ status.ACArmorBonus|default:'' }}" inputmode="numeric"><span class="label">Armadura</span></div>
                     <span class="op">+</span>
-                    <div class="ca-cell"><div class="slot">{{ status.ACShieldBonus|default:"0" }}</div><span class="label">Escudo</span></div>
+                    <div class="ca-cell"><input class="slot sheet-input" name="ACShieldBonus" value="{{ status.ACShieldBonus|default:'' }}" inputmode="numeric"><span class="label">Escudo</span></div>
                     <span class="op">+</span>
-                    <div class="ca-cell"><div class="slot slot--calc">{{ status.ACDexModifier|default:"—" }}</div><span class="label">Destreza</span></div>
+                    <div class="ca-cell"><div class="slot slot--calc">{{ status.ACDexModifier|default:"-" }}</div><span class="label">Destreza</span></div>
                     <span class="op">+</span>
-                    <div class="ca-cell"><div class="slot">{{ status.ACSizeModifier|default:"0" }}</div><span class="label">Tamanho</span></div>
+                    <div class="ca-cell"><input class="slot sheet-input" name="ACSizeModifier" value="{{ status.ACSizeModifier|default:'' }}" inputmode="numeric"><span class="label">Tamanho</span></div>
                     <span class="op">+</span>
-                    <div class="ca-cell"><div class="slot">{{ status.ACNaturalArmor|default:"0" }}</div><span class="label">Natural</span></div>
+                    <div class="ca-cell"><input class="slot sheet-input" name="ACNaturalArmor" value="{{ status.ACNaturalArmor|default:'' }}" inputmode="numeric"><span class="label">Natural</span></div>
                     <span class="op">+</span>
-                    <div class="ca-cell"><div class="slot">{{ status.ACDeflectionModifier|default:"0" }}</div><span class="label">Deflexão</span></div>
+                    <div class="ca-cell"><input class="slot sheet-input" name="ACDeflectionModifier" value="{{ status.ACDeflectionModifier|default:'' }}" inputmode="numeric"><span class="label">Deflexao</span></div>
                     <span class="op">+</span>
-                    <div class="ca-cell"><div class="slot">{{ status.ACMiscModifier|default:"0" }}</div><span class="label">Outros</span></div>
+                    <div class="ca-cell"><input class="slot sheet-input" name="ACMiscModifier" value="{{ status.ACMiscModifier|default:'' }}" inputmode="numeric"><span class="label">Outros</span></div>
                 </div>
                 <div class="ca-rd-cell">
-                    <div class="slot slot--lg slot--calc" title="Redução de Dano">{{ status.DamageReduction|default:"—" }}</div>
-                    <span class="label">Redução de Dano</span>
+                    <input class="slot slot--lg sheet-input" name="DamageReduction" value="{{ status.DamageReduction|default:'' }}" inputmode="numeric" title="Reducao de Dano">
+                    <span class="label">Reducao de Dano</span>
                 </div>
             </div>
         </form>
@@ -77,19 +82,19 @@ ID HTMX: separados em Fase 2 em characterStatusForm, characterArmorForm.
             <div class="defense-top">
                 <div class="inline-stat">
                     <div class="is-tag">TOQUE<span class="t-sub">Classe de Armadura</span></div>
-                    <div class="is-slot is-slot-calc" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACTouch|default:"—" }}</div>
+                    <div class="is-slot is-slot-calc" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACTouch|default:"-" }}</div>
                 </div>
                 <div class="inline-stat">
                     <div class="is-tag">SURPRESA<span class="t-sub">Classe de Armadura</span></div>
-                    <div class="is-slot is-slot-calc" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACFlatFooterd|default:"—" }}</div>
+                    <div class="is-slot is-slot-calc" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACFlatFooterd|default:"-" }}</div>
                 </div>
             </div>
             <div class="inline-stat inline-stat--iniciativa">
                 <div class="is-tag">INICIATIVA<span class="t-sub">Modificador</span></div>
-                <div class="is-slot is-slot-calc" style="background: var(--calc-bg); color: var(--ink);">{{ status.Initiative|default:"—" }}</div>
+                <div class="is-slot is-slot-calc" style="background: var(--calc-bg); color: var(--ink);">{{ status.Initiative|default:"-" }}</div>
                 <div class="is-meta">
                     <span class="label">Mod. Destreza</span>
-                    <div class="slot slot--xs">{% with stats=character.characterstats %}{{ stats.DexterityStatMod|default:"—" }}{% endwith %}</div>
+                    <div class="slot slot--xs">{% with stats=character.characterstats %}{{ stats.DexterityStatMod|default:"-" }}{% endwith %}</div>
                 </div>
                 <div class="is-meta">
                     <span class="label">Outros</span>

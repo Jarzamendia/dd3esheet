@@ -1,57 +1,12 @@
-{% comment %}
-partial: character_weapon_card.html  (primeira arma em destaque)
-ID HTMX: #weaponCard-<id> (Fase 2: endpoint por arma)
-{% endcomment %}
-{% with w=character.characterweapon_set.first %}
-{% if w %}
-<article class="attack-card" id="weaponCard-{{ w.id }}">
-    <form>
-        <div class="attack-card-head">
-            <div class="ah-first">ATAQUE</div>
-            <div>Bônus de Ataque</div>
-            <div>Dano</div>
-            <div>Sucesso Decisivo</div>
-        </div>
-        <div class="attack-card-row">
-            <div>{{ w.Name|default:"—" }}</div>
-            <div>{{ w.AttackBonus|default:"—" }}</div>
-            <div>{{ w.Damage|default:"—" }}</div>
-            <div>{{ w.Critical|default:"—" }}</div>
-        </div>
-        <div class="attack-meta">
-            <div class="label-cell">Alcance</div>
-            <div class="label-cell">Tipo</div>
-            <div class="label-cell">Observações</div>
-        </div>
-        <div class="attack-meta">
-            <div>{{ w.Range|default:"—" }}</div>
-            <div style="font-size: 12px;">{{ w.Type|default:"—" }}</div>
-            <div>{{ w.Notes|default:"—" }}</div>
-        </div>
-        <div class="ammo-row">
-            <span class="label">Munição</span>
-            <div class="ammo-boxes">
-                <span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span>
-                <span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span>
-                <span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span>
-                <span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span>
-                <span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span><span class="ammo-box"></span>
-            </div>
-        </div>
-    </form>
-</article>
-{% else %}
-<article class="attack-card" id="weaponCard-empty" style="opacity: 0.4;">
-    <div class="attack-card-head">
-        <div class="ah-first">ATAQUE</div>
-        <div>Bônus de Ataque</div>
-        <div>Dano</div>
-        <div>Sucesso Decisivo</div>
-    </div>
-    <div class="attack-card-row">
-        <div style="font-style:italic; color: var(--ink-soft);">Nenhuma arma cadastrada</div>
-        <div>—</div><div>—</div><div>—</div>
-    </div>
-</article>
-{% endif %}
-{% endwith %}
+<form id="characterWeaponsForm"
+      class="weapon-stack"
+      aria-label="Armas e ataques"
+      hx-post="{% url 'character:character' character.pk %}"
+      hx-target="#characterWeaponsForm"
+      hx-swap="outerHTML"
+      hx-trigger="change delay:300ms">
+    {% csrf_token %}
+    {% for w in weapon_slots %}
+        {% include "character/partials/weapon_attack_slot.html" with slot=forloop.counter %}
+    {% endfor %}
+</form>

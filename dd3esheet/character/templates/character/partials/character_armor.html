@@ -1,59 +1,72 @@
-{% comment %}
-partial: character_armor.html  (armadura, escudo e proteção)
-ID HTMX: #characterArmorListForm (Fase 2: endpoint)
-{% endcomment %}
-<section>
-    <form id="characterArmorListForm">
+{% with armor=character.characterarmor_set.all.0 shield=character.charactershield_set.all.0 %}
+<section id="characterEquipmentSection" class="equipment-panel">
+    <form id="characterEquipmentForm"
+          hx-post="{% url 'character:character' character.pk %}"
+          hx-target="#characterEquipmentSection"
+          hx-swap="outerHTML"
+          hx-trigger="change delay:300ms">
+        {% csrf_token %}
         <div class="section-title-band">
-            <span>Armadura, Escudo &amp; Proteção</span>
+            <span>EQUIPAMENTOS</span>
         </div>
-        <table class="sheet-table">
-            <thead>
-                <tr>
-                    <th style="width: 32%;">Nome</th>
-                    <th class="center">Bônus CA</th>
-                    <th class="center">Max DES</th>
-                    <th class="center">Penal.</th>
-                    <th class="center">Falha</th>
-                    <th class="center">Vel.</th>
-                    <th class="center">Peso</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for armor in character.characterarmor_set.all %}
-                <tr>
-                    <td>{{ armor.Name|default:"—" }}</td>
-                    <td class="center">{{ armor.ACBonus|default:"—" }}</td>
-                    <td class="center">{{ armor.MaxDex|default:"—" }}</td>
-                    <td class="center">{{ armor.CheckPenalty|default:"—" }}</td>
-                    <td class="center">{{ armor.SpellFailure|default:"—" }}</td>
-                    <td class="center">{{ armor.Speed|default:"—" }}</td>
-                    <td class="center">{{ armor.Weigth|default:"—" }}</td>
-                </tr>
-                {% endfor %}
-                {% for shield in character.charactershield_set.all %}
-                <tr>
-                    <td>{{ shield.Name|default:"—" }}</td>
-                    <td class="center">{{ shield.ACBonus|default:"—" }}</td>
-                    <td class="center">—</td>
-                    <td class="center">{{ shield.CheckPenalty|default:"—" }}</td>
-                    <td class="center">{{ shield.SpellFailure|default:"—" }}</td>
-                    <td class="center">—</td>
-                    <td class="center">{{ shield.Weigth|default:"—" }}</td>
-                </tr>
-                {% endfor %}
-                {% for item in character.characterprotectionitem_set.all %}
-                <tr>
-                    <td>{{ item.Name|default:"—" }}</td>
-                    <td class="center">{{ item.ACBonus|default:"—" }}</td>
-                    <td class="center">—</td>
-                    <td class="center">—</td>
-                    <td class="center">—</td>
-                    <td class="center">—</td>
-                    <td class="center">{{ item.Weigth|default:"—" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        <article class="equipment-card">
+            <div class="equipment-card-head equipment-card-head--armor">
+                <div>Armadura</div>
+                <div>Tipo</div>
+                <div>Bonus na CA</div>
+                <div>DES Max</div>
+            </div>
+            <div class="equipment-card-row equipment-card-row--armor">
+                <input class="sheet-input" name="armor_Name" value="{{ armor.Name|default:'' }}">
+                <input class="sheet-input" name="armor_Type" value="{{ armor.Type|default:'' }}">
+                <input class="sheet-input" name="armor_ACBonus" value="{{ armor.ACBonus|default:'' }}">
+                <input class="sheet-input" name="armor_MaxDex" value="{{ armor.MaxDex|default:'' }}">
+            </div>
+            <div class="equipment-card-head equipment-card-head--armor-detail">
+                <div>Penalidade de Armadura</div>
+                <div>Chance de Falha de Magia</div>
+                <div>Deslocamento</div>
+                <div>Peso</div>
+                <div>Propriedades Especiais</div>
+            </div>
+            <div class="equipment-card-row equipment-card-row--armor-detail">
+                <input class="sheet-input" name="armor_CheckPenalty" value="{{ armor.CheckPenalty|default:'' }}">
+                <input class="sheet-input" name="armor_SpellFailure" value="{{ armor.SpellFailure|default:'' }}">
+                <input class="sheet-input" name="armor_Speed" value="{{ armor.Speed|default:'' }}">
+                <input class="sheet-input" name="armor_Weigth" value="{{ armor.Weigth|default:'' }}">
+                <input class="sheet-input" name="armor_SpecialProperties" value="{{ armor.SpecialProperties|default:'' }}">
+            </div>
+        </article>
+
+        <article class="equipment-card">
+            <div class="equipment-card-head equipment-card-head--shield">
+                <div>Escudo</div>
+                <div>Bonus na CA</div>
+                <div>Peso</div>
+                <div>Penalidade de Armadura</div>
+            </div>
+            <div class="equipment-card-row equipment-card-row--shield">
+                <input class="sheet-input" name="shield_Name" value="{{ shield.Name|default:'' }}">
+                <input class="sheet-input" name="shield_ACBonus" value="{{ shield.ACBonus|default:'' }}">
+                <input class="sheet-input" name="shield_Weigth" value="{{ shield.Weigth|default:'' }}">
+                <input class="sheet-input" name="shield_CheckPenalty" value="{{ shield.CheckPenalty|default:'' }}">
+            </div>
+            <div class="equipment-card-head equipment-card-head--shield-detail">
+                <div>Chance de Falha de Magia</div>
+                <div>Propriedades Especiais</div>
+            </div>
+            <div class="equipment-card-row equipment-card-row--shield-detail">
+                <input class="sheet-input" name="shield_SpellFailure" value="{{ shield.SpellFailure|default:'' }}">
+                <input class="sheet-input" name="shield_SpecialProperties" value="{{ shield.SpecialProperties|default:'' }}">
+            </div>
+        </article>
+
+        <div class="equipment-protection-list">
+            {% for item in protection_slots %}
+                {% include "character/partials/protection_item_slot.html" with slot=forloop.counter %}
+            {% endfor %}
+        </div>
     </form>
 </section>
+{% endwith %}

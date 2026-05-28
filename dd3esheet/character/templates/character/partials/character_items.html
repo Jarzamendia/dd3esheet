@@ -1,31 +1,50 @@
-{% comment %}
-partial: character_items.html  (outros itens)
-ID HTMX: #characterItemsForm (Fase 2: endpoint)
-{% endcomment %}
-<section>
-    <form id="characterItemsForm">
+<section id="characterItemsSection" class="other-items-panel">
+    <form id="characterItemsForm" class="other-items-form"
+          hx-post="{% url 'character:character' character.pk %}"
+          hx-target="#characterItemsSection"
+          hx-swap="outerHTML"
+          hx-trigger="change delay:300ms">
+        {% csrf_token %}
         <div class="section-title-band">
             <span>Outros Itens</span>
         </div>
-        <table class="sheet-table">
-            <thead>
-                <tr>
-                    <th style="width: 60%;">Item</th>
-                    <th class="center" style="width: 20%;">Página</th>
-                    <th class="center" style="width: 20%;">Peso</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in character.characterotheritem_set.all %}
-                <tr>
-                    <td>{{ item.Name|default:"—" }}</td>
-                    <td class="center">{{ item.Page|default:"—" }}</td>
-                    <td class="center">{{ item.Weigth|default:"—" }}</td>
-                </tr>
-                {% empty %}
-                <tr><td class="empty">.</td><td></td><td></td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="other-items-tables">
+            <table class="sheet-table other-items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th class="center">Pag</th>
+                        <th class="center">Peso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in other_item_slots|slice:":16" %}
+                    <tr>
+                        <td><input class="sheet-input" name="item_{{ forloop.counter }}_Name" value="{{ item.Name|default:'' }}"></td>
+                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter }}_Page" value="{{ item.Page|default:'' }}"></td>
+                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter }}_Weigth" value="{{ item.Weigth|default:'' }}"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <table class="sheet-table other-items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th class="center">Pag</th>
+                        <th class="center">Peso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in other_item_slots|slice:"16:32" %}
+                    <tr>
+                        <td><input class="sheet-input" name="item_{{ forloop.counter|add:16 }}_Name" value="{{ item.Name|default:'' }}"></td>
+                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter|add:16 }}_Page" value="{{ item.Page|default:'' }}"></td>
+                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter|add:16 }}_Weigth" value="{{ item.Weigth|default:'' }}"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </form>
 </section>
