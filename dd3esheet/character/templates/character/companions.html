@@ -1,5 +1,5 @@
 {% extends "main.html" %}
-{% block title %}{{ character.Name|default:"Ficha" }} - Companheiros{% endblock %}
+{% block title %}{{ character.Name|default:"Ficha" }} - Aliados{% endblock %}
 
 {% block content %}
 
@@ -7,7 +7,7 @@
 
     <nav class="sheet-page-tabs" aria-label="Paginas da ficha">
         <a class="sheet-page-tab" href="{% url 'character:character' character.pk %}">Ficha</a>
-        <a class="sheet-page-tab is-active" href="{% url 'character:companions' character.pk %}">Companheiros</a>
+        <a class="sheet-page-tab is-active" href="{% url 'character:companions' character.pk %}">Aliados</a>
         <a class="sheet-page-tab" href="{% url 'character:spellbook' character.pk %}">Livro de Magias</a>
         <a class="sheet-page-tab" href="{% url 'character:daily-resources' character.pk %}">Recursos</a>
         <a class="sheet-page-tab" href="{% url 'character:reputation' character.pk %}">Reputacao</a>
@@ -16,7 +16,7 @@
     <header class="companions-header" data-sheet-table="companion-page-header">
         <div>
             <div class="brand-sub" style="text-align:left;">D&amp;D 3.5</div>
-            <h1>Companheiro Animal, Invoca&ccedil;&otilde;es e Familiares</h1>
+            <h1>Aliados do Personagem</h1>
         </div>
         <div class="companions-character-card">
             <span class="label">Personagem</span>

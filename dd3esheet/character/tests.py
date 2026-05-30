@@ -1918,3 +1918,48 @@ class SubPageWidthTest(TransactionTestCase):
         m = re.search(r'\.sheet-utility\s*\{([^}]+)\}', css)
         self.assertIsNotNone(m, '.sheet-utility rule not found in CSS')
         self.assertIn('1280px', m.group(1), '.sheet-utility max-width must be 1280px')
+
+
+# ---------------------------------------------------------------------------
+# T4.2 — Renomear "Companheiros" → "Aliados" na UI
+# ---------------------------------------------------------------------------
+
+class AlliesRenameTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user(username='aliasuser')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='AliasTest')
+        _bootstrap_character_siblings(self.char)
+        self.client.force_login(self.user)
+
+    def test_companions_url_still_resolves(self):
+        url = reverse('character:companions', kwargs={'pk': self.char.pk})
+        self.assertEqual(url, f'/character/character/{self.char.pk}/companions')
+
+    def test_companions_page_shows_aliados_not_companheiros(self):
+        url = reverse('character:companions', kwargs={'pk': self.char.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Aliados')
+        self.assertNotContains(resp, 'Companheiros')
+
+    def test_main_sheet_nav_shows_aliados(self):
+        url = reverse('character:character', kwargs={'pk': self.char.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Aliados')
+
+    def test_daily_resources_nav_shows_aliados(self):
+        url = reverse('character:daily-resources', kwargs={'pk': self.char.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Aliados')
+
+    def test_reputation_nav_shows_aliados(self):
+        url = reverse('character:reputation', kwargs={'pk': self.char.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Aliados')
