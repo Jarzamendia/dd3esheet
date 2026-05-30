@@ -4,6 +4,7 @@ import os
 from django.test import TestCase
 from django.core.management import call_command
 from django.db import connections
+from sdr.lookups import resolve_spell
 from sdr.models import SDR_Feat, SDR_Spell
 
 class SDRFeatTests(TestCase):
@@ -167,3 +168,59 @@ class SDRSpellTests(TestCase):
             SDR_Spell.objects.using('sdr').filter(name="Magic Missile").delete()
             if os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
+
+
+class ResolveSpellTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        with connections['sdr'].cursor() as cursor:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS spell (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    altname TEXT,
+                    school TEXT, subschool TEXT, descriptor TEXT,
+                    spellcraft_dc TEXT, level TEXT, components TEXT,
+                    casting_time TEXT, range TEXT, target TEXT, area TEXT,
+                    effect TEXT, duration TEXT, saving_throw TEXT,
+                    spell_resistance TEXT, short_description TEXT,
+                    to_develop TEXT, material_components TEXT,
+                    arcane_material_components TEXT, focus TEXT,
+                    description TEXT, xp_cost TEXT,
+                    arcane_focus TEXT, wizard_focus TEXT,
+                    verbal_components TEXT, sorcerer_focus TEXT,
+                    bard_focus TEXT, cleric_focus TEXT, druid_focus TEXT,
+                    full_text TEXT, reference TEXT
+                );
+            """)
+
+    def setUp(self):
+        SDR_Spell.objects.using('sdr').all().delete()
+        SDR_Spell(name="Magic Missile", altname="Misseis Magicos",
+                  school="Evocation", level="Sor/Wiz 1").save(using='sdr')
+
+    def test_match_by_name_case_insensitive(self):
+        self.assertEqual(resolve_spell("magic missile").name, "Magic Missile")
+        self.assertEqual(resolve_spell("MAGIC MISSILE").name, "Magic Missile")
+
+    def test_match_by_altname_when_name_misses(self):
+        self.assertEqual(resolve_spell("Misseis Magicos").name, "Magic Missile")
+
+    def test_returns_none_for_empty(self):
+        self.assertIsNone(resolve_spell(""))
+        self.assertIsNone(resolve_spell(None))
+        self.assertIsNone(resolve_spell("   "))
+
+    def test_returns_none_for_unknown(self):
+        self.assertIsNone(resolve_spell("Bola de Fogo Tropical"))
+
+    def test_ambiguity_returns_first_by_id(self):
+        first = SDR_Spell.objects.using('sdr').get(name="Magic Missile")
+        duplicate = SDR_Spell(name="Magic Missile", school="X")
+        duplicate.save(using='sdr')
+        result = resolve_spell("Magic Missile")
+        self.assertEqual(result.id, first.id)
+        self.assertEqual(result.school, "Evocation")
