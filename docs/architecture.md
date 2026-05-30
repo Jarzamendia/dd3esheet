@@ -32,7 +32,10 @@ Rotas principais de `character`:
 
 - `/character/`: lista fichas do usuario logado.
 - `/character/create-character/`: cria ficha.
-- `/character/character/<pk>`: exibe/edita ficha.
+- `/character/character/<pk>`: exibe/edita ficha (pagina principal, dispatcher HTMX).
+- `/character/character/<pk>/companions`: pagina de companheiros (animais, familiares, montarias).
+- `/character/character/<pk>/daily-resources`: pagina de recursos diarios (slots/usos/recargas) e efeitos ativos.
+- `/character/character/<pk>/reputation`: pagina de reputacao/notas de campanha.
 - `/character/character/<pk>/spell-slot/<slot_id>/toggle/`: alterna uso de slot de magia.
 - `/character/delete-character/<pk>/`: remove ficha.
 

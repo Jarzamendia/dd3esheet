@@ -31,7 +31,7 @@ Antes de entregar mudancas de codigo:
 
 ## Onde ficam os testes
 
-- `character/tests.py`: principal suite do projeto.
+- `character/tests.py`: principal suite do projeto (atualmente 67 testes).
 - `home/tests.py`: landing e redirect.
 - `sdr/tests.py`: ainda minimo.
 
@@ -76,7 +76,12 @@ Crie tabelas minimas no banco de teste `sdr` se o teste depender de dados especi
 
 ## Migracoes
 
-O app `character` foi consolidado para uma migration inicial com a base atual.
+O app `character` tem 4 migrations versionadas:
+
+- `0001_initial`: base consolidada da ficha.
+- `0002_characterprogress`: `CharacterProgress` (XP e nome da campanha).
+- `0003_daily_resources`: `CharacterDailyNotes`, `CharacterDailyResource`, `CharacterActiveEffect`.
+- `0004_skill_specialization_and_key_ability`: adiciona `SkillSpecialization` a `CharacterSkill` e amplia `SkillAbility`.
 
 Ao adicionar campos:
 

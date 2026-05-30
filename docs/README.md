@@ -14,6 +14,7 @@ Leia nesta ordem quando estiver entrando no codigo:
 8. [Verificacao atual](verification.md)
 9. [Playbook para agentes](agent-playbook.md)
 10. [Lacunas conhecidas](known-issues.md)
+11. [Deploy em producao](deployment.md)
 
 ## Produto
 
@@ -30,16 +31,18 @@ A direcao do produto e clara:
 
 ## Estado verificado
 
-Revisado em 2026-05-28:
+Revisado em 2026-05-30:
 
 - Django app em `dd3esheet/`.
 - Docker Compose sobe `web` em `localhost:8000`.
 - O comando do container executa `migrate`, `seed` e `runserver`.
 - Banco `default`: `db.sqlite3`, local e ignorado pelo git.
 - Banco `sdr`: `dnd35.sqlite3`, versionado e tratado como read-only.
-- App `character` possui apenas uma migration inicial consolidada.
+- App `character` tem 4 migrations: `0001_initial`, `0002_characterprogress`, `0003_daily_resources`, `0004_skill_specialization_and_key_ability`.
 - `character/seeds.py` e `manage.py seed` existem e populam admin + fichas de exemplo.
 - A ficha possui partials HTMX e muitos campos ja foram convertidos para inputs reais.
+- Calculos puros foram extraidos para `character/calculations.py` (modificador de atributo, totais de pericia, limites de carga, parsing de bonus); `_recalculate_stats` em `character/views.py` orquestra o recalculo persistido.
+- Paginas extras de ficha: Companheiros, Recursos Diarios e Reputacao (rotas `/character/<pk>/companions`, `/daily-resources`, `/reputation`).
 - `static/htmx.min.js` existe, mas o template base atual nao inclui o script. Ver [Lacunas conhecidas](known-issues.md).
 
 ## Ultima verificacao

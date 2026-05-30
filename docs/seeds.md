@@ -68,7 +68,7 @@ Os builders setam fontes de verdade e chamam:
 from character.views import _recalculate_stats
 ```
 
-Assim, mods, CA, saves e agarrar usam o mesmo calculo da edicao inline.
+Assim, mods, CA, saves e agarrar usam o mesmo calculo da edicao inline. `_recalculate_stats` por sua vez usa funcoes puras de `character/calculations.py` (`ability_modifier`, `skill_total`, etc.) para a matematica reaproveitavel em testes.
 
 ## Cuidados
 

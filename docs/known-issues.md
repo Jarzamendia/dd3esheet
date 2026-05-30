@@ -1,36 +1,15 @@
 # Lacunas conhecidas
 
-## HTMX nao esta carregado no template base
+## HTMX carregado (resolvido em T0.2)
 
-Existe o arquivo:
+`dd3esheet/templates/main.html` ja carrega `htmx.min.js`, `django_htmx_script`
+e o handler de CSRF para POSTs HTMX.
 
-```text
-dd3esheet/static/htmx.min.js
-```
+## Calculos: funcoes puras extraidas (resolvido em T1.7)
 
-`django_htmx` tambem esta instalado e o middleware esta ativo.
-
-Porem, o template base atual `dd3esheet/templates/main.html` nao inclui:
-
-```html
-<script src="{% static 'htmx.min.js' %}"></script>
-```
-
-Impacto:
-
-- os atributos `hx-*` renderizam no HTML;
-- sem o script, o browser nao executa o autosave HTMX;
-- a edicao inline fica visualmente presente, mas nao faz POST automatico.
-
-## Calculos ainda dentro da view
-
-`_recalculate_stats` fica em `character/views.py`.
-
-Melhoria recomendada:
-
-- mover regras de calculo para `character/calculations.py`;
-- deixar a view apenas orquestrar request, forms e render;
-- cobrir funcoes puras com testes unitarios.
+`character/calculations.py` agora concentra `compute_armor_class`,
+`compute_save_total`, `compute_grapple_total` e `compute_skill_row`, alem das
+funcoes puras anteriores. `_recalculate_stats` e um orquestrador fino.
 
 ## Validacao desigual entre blocos
 

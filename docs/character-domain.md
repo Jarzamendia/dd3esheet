@@ -51,14 +51,16 @@ One-to-one principais:
 - `CharacterSkillGraduation`
 - `CharacterOtherItemObs`
 - `CharacterMoney`
+- `CharacterProgress` (XP, nome da campanha)
 - `CharacterSpellSave`
 - `CharacterArcaneSpellFailCheck`
 - `CharacterMagicConditionalModifiers`
 - `CharacterSpellcasting`
+- `CharacterDailyNotes` (anotacoes de preparacao/gastos do dia)
 
 Foreign keys principais:
 
-- `CharacterSkill`
+- `CharacterSkill` (com campo `SkillSpecialization` para pericias expansiveis como Conhecimento, Oficios, Profissao)
 - `CharacterWeapon`
 - `CharacterArmor`
 - `CharacterShield`
@@ -70,8 +72,10 @@ Foreign keys principais:
 - `CharacterSpellSlot`
 - `CharacterMagicDayUse`
 - `CharacterLanguages`
+- `CharacterDailyResource` (recursos com maximo/usado/recarga)
+- `CharacterActiveEffect` (efeitos ativos com duracao em rounds)
 
-Ao criar uma ficha, `character.services._bootstrap_character_siblings(character)` cria os one-to-one e as 35 pericias base.
+Ao criar uma ficha, `character.services._bootstrap_character_siblings(character)` cria os one-to-one e as pericias base (lista em `constants.SKILL_LIST_PT`, com slots multiplos para pericias expansiveis). `character.services.ensure_expandable_skill_slots(character)` garante slots adicionais para Conhecimento, Oficios e Profissao conforme o jogador preenche especializacoes.
 
 ## Convencoes de model
 
@@ -104,19 +108,19 @@ A ficha renderiza algumas areas com quantidade fixa de linhas mesmo que o banco 
 `character.views._sheet_context` monta:
 
 - 4 armas;
-- 3 itens de protecao;
+- 5 itens de protecao;
 - 32 outros itens;
 - 24 talentos;
 - 12 habilidades especiais;
 - 12 idiomas;
 - 20 slots de magia;
-- 24 magias conhecidas.
+- 36 magias conhecidas.
 
 Se o usuario digita em um slot vazio, `_save_repeating_slots` cria o registro.
 
 ## Calculos derivados atuais
 
-`character.views._recalculate_stats(character)` recalcula e persiste:
+`character.views._recalculate_stats(character)` orquestra o recalculo e persiste:
 
 - modificadores dos seis atributos;
 - modificadores temporarios;
@@ -128,6 +132,20 @@ Se o usuario digita em um slot vazio, `_save_repeating_slots` cria o registro.
 - totais de Fortitude, Reflexos e Vontade;
 - modificador de forca do agarrar;
 - total de agarrar.
+
+As regras puras vivem em `character/calculations.py` (testaveis sem DB com `SimpleTestCase`):
+
+- `ability_modifier(score)`
+- `skill_total(ability_mod, ranks, misc, trained_only=False)`
+- `skill_ability_modifier(skill_name, stats)` / `skill_ability_key(skill_name)`
+- `skill_graduation_limits(level)` (classe e cruzada)
+- `is_trained_only_skill(skill_name)`
+- `load_limits_for_strength(strength)` (leve/medio/pesado/levantar/empurrar)
+- `parse_weight(value)` / `total_carried_weight(values)`
+- `parse_bonus(value)` / `equipment_armor_class_bonuses(...)`
+- `daily_resource_remaining(maximum, used)`
+
+Tabelas auxiliares: `ABILITY_FIELDS`, `ABILITY_KEY_LABELS`, `SKILL_ABILITY_BY_NAME`, `TRAINED_ONLY_SKILLS`.
 
 Magias usam funcoes em `character/spellcasting.py`:
 

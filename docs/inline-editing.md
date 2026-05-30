@@ -40,12 +40,19 @@ Targets tratados:
 - `characterAttackForm`
 - `characterSkillsForm`
 - `characterWeaponsForm`
+- `characterProgressForm` (XP, nivel, campanha)
 - `characterEquipmentForm`
 - `characterItemsForm`
 - `characterMoneyForm`
 - `characterFeatsForm`
 - `characterSpecialsForm`
 - `characterSpellsForm`
+
+Paginas extras da ficha (rotas proprias, fora do dispatcher principal):
+
+- `companions` — companheiros, animais, familiares e montarias.
+- `daily-resources` — recursos diarios com maximo/usado/recarga e efeitos ativos.
+- `reputation` — reputacao e notas de campanha.
 
 ## Helpers da view
 
@@ -89,12 +96,13 @@ Ela remove bordas padrao do navegador e preserva o visual da ficha em papel.
 - Identidade.
 - Descricao.
 - Atributos.
+- Progresso (XP, nivel, campanha).
 - Saves.
 - BAB, resistencia a magia e agarrar.
 - Armas e municao.
 - PV, dano por contusao e deslocamento.
 - CA e reducao de dano.
-- Pericias.
+- Pericias (com slots multiplos para Conhecimento/Oficios/Profissao via `SkillSpecialization`).
 - Equipamentos.
 - Outros itens.
 - Dinheiro e carga.

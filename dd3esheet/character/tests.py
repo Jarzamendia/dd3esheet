@@ -923,6 +923,29 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
         self.assertTrue(slot.IsUsed)
         self.assertContains(resp, 'characterSpellsForm')
         self.assertContains(resp, 'bless')
+        follow_up = self.client.get(self.url)
+        self.assertContains(follow_up, 'bless')
+        self.assertContains(follow_up, 'is-used')
+
+    def test_spell_slot_toggle_markup_posts_to_slot_partial(self):
+        slot = CharacterSpellSlot.objects.create(
+            Character=self.char,
+            Level=1,
+            SlotType='normal',
+            PreparedSpellName='shield',
+            IsUsed=False,
+        )
+
+        self.client.force_login(self.user)
+        resp = self.client.get(self.url)
+
+        self.assertContains(resp, 'class="spell-used-toggle"')
+        self.assertContains(resp, 'type="button"')
+        self.assertContains(
+            resp,
+            reverse('character:toggle-spell-slot', kwargs={'pk': self.char.pk, 'slot_id': slot.pk}),
+        )
+        self.assertContains(resp, 'hx-target="#characterSpellsForm"')
 
     def test_sorcerer_sheet_renders_known_spells_mode(self):
         self.char.Class = 'Sorcerer'
