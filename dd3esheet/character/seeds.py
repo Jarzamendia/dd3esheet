@@ -18,6 +18,9 @@ admin tem a senha redefinida a cada chamada.
 Atenção: a conta admin usa credenciais fixas e conhecidas — destina-se apenas a
 ambientes locais/de teste, nunca a produção.
 """
+import os
+
+from django.conf import settings
 from django.contrib.auth.models import User
 
 from .models import (
@@ -138,10 +141,10 @@ def seed_fighter(user):
 
     _recalculate_stats(char)
 
-    _set_skill(char, 'Climb', ranks=8, ability_mod=3)
-    _set_skill(char, 'Jump', ranks=8, ability_mod=3)
-    _set_skill(char, 'Intimidate', ranks=8, ability_mod=-1)
-    _set_skill(char, 'Ride', ranks=4, ability_mod=2)
+    _set_skill(char, 'Escalar', ranks=8, ability_mod=3)
+    _set_skill(char, 'Saltar', ranks=8, ability_mod=3)
+    _set_skill(char, 'Intimidar', ranks=8, ability_mod=-1)
+    _set_skill(char, 'Cavalgar', ranks=4, ability_mod=2)
 
     CharacterWeapon.objects.create(
         Character=char, Name='Espada Longa', Attack='Espada Longa',
@@ -265,11 +268,11 @@ def seed_wizard(user):
 
     _recalculate_stats(char)
 
-    _set_skill(char, 'Spellcraft', ranks=11, ability_mod=4)
-    _set_skill(char, 'Concentration', ranks=11, ability_mod=1)
-    _set_skill(char, 'Knowledge', ranks=11, ability_mod=4)
-    _set_skill(char, 'DecipherScript', ranks=8, ability_mod=4)
-    _set_skill(char, 'Spot', ranks=4, ability_mod=1, misc=2)
+    _set_skill(char, 'Identificar Magia', ranks=11, ability_mod=4)
+    _set_skill(char, 'Concentracao', ranks=11, ability_mod=1)
+    _set_skill(char, 'Conhecimento', ranks=11, ability_mod=4)
+    _set_skill(char, 'Decifrar Escrita', ranks=8, ability_mod=4)
+    _set_skill(char, 'Observar', ranks=4, ability_mod=1, misc=2)
 
     CharacterWeapon.objects.create(
         Character=char, Name='Bordão', Attack='Bordão', AttackBonus='+3',
@@ -337,8 +340,26 @@ def seed_wizard(user):
 # ---------------------------------------------------------------------------
 
 def seed_all():
-    """Cria a conta admin e as duas fichas de exemplo (de posse do admin)."""
-    admin = seed_admin()
+    """Cria a conta admin e as duas fichas de exemplo (de posse do admin).
+
+    Em produção (DEBUG=False), a conta admin só é criada se SEED_ADMIN=true
+    estiver no ambiente — evitar criação acidental de credenciais fracas em
+    servidores públicos.
+    """
+    # Django's test runner sets settings.DEBUG=False regardless of env.
+    # Check the raw env var so the guard still works correctly in dev/test.
+    _debug_env = os.environ.get('DEBUG', '').lower() in ('1', 'true', 'yes')
+    _seed_admin_allowed = _debug_env or os.environ.get('SEED_ADMIN', '').lower() in ('1', 'true', 'yes')
+    if _seed_admin_allowed:
+        admin = seed_admin()
+    else:
+        admin = User.objects.filter(username=ADMIN_USERNAME).first()
+        if admin is None:
+            raise RuntimeError(
+                "seed_all() em produção requer SEED_ADMIN=true no ambiente "
+                "ou um admin preexistente. Nunca rode seed com credenciais "
+                "fixas em produção sem confirmação explícita."
+            )
     fighter = seed_fighter(admin)
     wizard = seed_wizard(admin)
     return {'admin': admin, 'fighter': fighter, 'wizard': wizard}

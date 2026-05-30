@@ -2,6 +2,7 @@ from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import connections
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from .models import (
@@ -965,6 +966,31 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
         self.assertContains(resp, 'custom charm')
 
 
+class QueryCountTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Query', Class='Cleric', Level='1')
+        _bootstrap_character_siblings(self.char)
+        CharacterWeapon.objects.create(Character=self.char, Attack='Longsword')
+        CharacterProtectionItem.objects.create(Character=self.char, Name='Ring', ACBonus='+1')
+        CharacterOtherItem.objects.create(Character=self.char, Name='Rope')
+        CharacterFeat.objects.create(Character=self.char, Name='Power Attack')
+        CharacterSpellSlot.objects.create(Character=self.char, Level=1, PreparedSpellName='bless')
+        CharacterSpell.objects.create(Character=self.char, Name='cure light wounds', Level=1)
+        self.client.force_login(self.user)
+
+    def test_character_sheet_render_keeps_default_query_count_bounded(self):
+        with CaptureQueriesContext(connections['default']) as queries:
+            resp = self.client.get(reverse('character:character', kwargs={'pk': self.char.pk}))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertLessEqual(len(queries), 15)
+
+
 class SDRClassChoicesTests(TransactionTestCase):
     databases = ('default', 'sdr')
 
@@ -1107,7 +1133,10 @@ class SeedTests(TestCase):
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
         self.assertTrue(user.check_password(ADMIN_PASSWORD))
-        self.assertTrue(self.client.login(username=ADMIN_USERNAME, password=ADMIN_PASSWORD))
+        # axes.AxesStandaloneBackend requires an HTTP request; use force_login to
+        # verify the session mechanism works without going through authenticate().
+        self.client.force_login(user)
+        self.assertIn('_auth_user_id', self.client.session)
 
     def test_seed_admin_is_idempotent(self):
         from .seeds import seed_admin, ADMIN_USERNAME, ADMIN_PASSWORD
@@ -1189,6 +1218,56 @@ class SeedTests(TestCase):
         self.assertEqual(first['wizard'].pk, second['wizard'].pk)
         # rodar de novo não duplica filhos
         self.assertEqual(CharacterSkill.objects.filter(Character=second['fighter']).count(), 41)
+
+
+# ---------------------------------------------------------------------------
+# T1.2 — Auth hardening: seed guard + django-axes brute force
+# ---------------------------------------------------------------------------
+
+class SeedAdminGuardTest(TestCase):
+
+    def test_seed_all_raises_in_production_without_seed_admin_flag(self):
+        """seed_all() sem DEBUG=true e sem SEED_ADMIN não cria admin em produção."""
+        import os
+        from unittest.mock import patch
+        from character.seeds import seed_all
+        with patch.dict(os.environ, {'DEBUG': '', 'SEED_ADMIN': ''}, clear=False):
+            with self.assertRaises(RuntimeError):
+                seed_all()
+
+    def test_seed_all_creates_admin_when_debug_env_is_true(self):
+        import os
+        from unittest.mock import patch
+        from character.seeds import seed_all, ADMIN_USERNAME
+        with patch.dict(os.environ, {'DEBUG': 'True'}, clear=False):
+            result = seed_all()
+        self.assertIsNotNone(result['admin'])
+        self.assertTrue(User.objects.filter(username=ADMIN_USERNAME).exists())
+
+
+class LoginBruteForceTest(TestCase):
+
+    def setUp(self):
+        make_user('brutetest', 'CorrectP@ssword123!')
+        self.login_url = reverse('login')
+
+    def test_repeated_failed_logins_trigger_lockout(self):
+        # 4 falhas → ainda não bloqueado
+        for i in range(4):
+            resp = self.client.post(
+                self.login_url,
+                {'username': 'brutetest', 'password': 'wrongpassword'},
+                REMOTE_ADDR='192.0.2.1',
+            )
+            self.assertNotIn(resp.status_code, [403, 429], f"Bloqueado cedo demais na tentativa {i + 1}")
+
+        # 5ª falha (AXES_FAILURE_LIMIT=5) → bloqueado
+        resp = self.client.post(
+            self.login_url,
+            {'username': 'brutetest', 'password': 'wrongpassword'},
+            REMOTE_ADDR='192.0.2.1',
+        )
+        self.assertIn(resp.status_code, [403, 429])
 
 
 # ---------------------------------------------------------------------------
