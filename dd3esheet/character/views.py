@@ -281,10 +281,13 @@ def _spellbook_context(char, **extra):
 
 
 def _companions_context(char, **extra):
+    companions_qs = char.charactercompanion_set.all()
     context = {
         'character': char,
         'companion_slots': _ordered_slots(char, 'charactercompanion_set', CharacterCompanion, 4),
         'companion_types': ['Animal', 'Familiar', 'Montaria', 'Invocacao'],
+        'animal_companion': companions_qs.filter(Type='animal').first(),
+        'familiar': companions_qs.filter(Type='familiar').first(),
         'companion_skills': [
             ('Esconder-se', 'DES'),
             ('Ouvir', 'SAB'),

@@ -2619,6 +2619,35 @@ input.sk-cell.sheet-input {
     border: 0;
     border-bottom: var(--rule-w) solid var(--rule-line);
 }
+.companion-section {
+    border: var(--rule-w) solid var(--rule-line);
+    background: var(--paper-bg);
+    margin-bottom: 1rem;
+}
+.companion-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    background: var(--slot-bg, #f5f0e8);
+    border-bottom: var(--rule-w) solid var(--rule-line);
+    user-select: none;
+}
+.companion-section-header:hover {
+    background: var(--paper-bg);
+}
+.companion-section[data-collapsed="true"] .companion-section-body {
+    display: none;
+}
+.companion-section[data-collapsed="true"] .chevron {
+    transform: rotate(-90deg);
+}
+.companion-section-body {
+    padding: 0;
+}
 .companion-name-line {
     padding: 10px 10px 4px;
 }

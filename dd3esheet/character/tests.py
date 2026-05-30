@@ -1991,3 +1991,47 @@ class CompanionNameLineTest(TransactionTestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'companion-quickstats')
+
+
+# ---------------------------------------------------------------------------
+# T4.4 — Stack vertical + accordion Animal/Familiar
+# ---------------------------------------------------------------------------
+
+class CompanionCollapseTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        from .services import _bootstrap_character_siblings
+        self.user_empty = make_user(username='collapseempty')
+        self.char_empty = Character.objects.create(User=self.user_empty, Name='EmptyTest')
+        _bootstrap_character_siblings(self.char_empty)
+
+        self.user_named = make_user(username='collapsenamed')
+        self.char_named = Character.objects.create(User=self.user_named, Name='NamedTest')
+        _bootstrap_character_siblings(self.char_named)
+        from .models import CharacterCompanion
+        CharacterCompanion.objects.create(Character=self.char_named, Type='animal', Name='Rex')
+        CharacterCompanion.objects.create(Character=self.char_named, Type='familiar', Name='Pyro')
+
+    def test_empty_name_sections_start_collapsed(self):
+        self.client.force_login(self.user_empty)
+        url = reverse('character:companions', kwargs={'pk': self.char_empty.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-collapsed="true"')
+
+    def test_companion_section_uses_companion_section_class(self):
+        self.client.force_login(self.user_empty)
+        url = reverse('character:companions', kwargs={'pk': self.char_empty.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'companion-section')
+
+    def test_named_companion_section_not_collapsed(self):
+        self.client.force_login(self.user_named)
+        url = reverse('character:companions', kwargs={'pk': self.char_named.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertNotIn('data-collapsed="true"', content)

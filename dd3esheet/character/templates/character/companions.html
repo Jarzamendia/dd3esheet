@@ -28,6 +28,13 @@
     {% include "character/partials/companions_form.html" %}
 
     <section class="companions-grid">
+        <section class="companion-section" data-section="animal"
+                 {% if not animal_companion or not animal_companion.Name %}data-collapsed="true"{% endif %}>
+            <header class="companion-section-header" onclick="toggleCompanionSection('animal')">
+                <span>🐾 Companheiro Animal</span>
+                <span class="chevron">▾</span>
+            </header>
+            <div class="companion-section-body">
         <article class="companion-block companion-block--animal" data-sheet-table="animal-companion">
             <div class="section-title-band"><span>Companheiro Animal</span></div>
 
@@ -141,7 +148,16 @@
                 </div>
             </div>
         </article>
+            </div>{# /companion-section-body (animal) #}
+        </section>{# /companion-section (animal) #}
 
+        <section class="companion-section" data-section="familiar"
+                 {% if not familiar or not familiar.Name %}data-collapsed="true"{% endif %}>
+            <header class="companion-section-header" onclick="toggleCompanionSection('familiar')">
+                <span>🧙 Familiar</span>
+                <span class="chevron">▾</span>
+            </header>
+            <div class="companion-section-body">
         <article class="companion-block companion-block--familiar" data-sheet-table="familiar">
             <div class="section-title-band"><span>Familiar</span></div>
 
@@ -255,7 +271,9 @@
                 </div>
             </div>
         </article>
-    </section>
+            </div>{# /companion-section-body (familiar) #}
+        </section>{# /companion-section (familiar) #}
+    </section>{# /companions-grid #}
 
     <section class="companion-block companion-block--summons" data-sheet-table="summons">
         <div class="section-title-band"><span>Invoca&ccedil;&otilde;es</span></div>
@@ -367,5 +385,14 @@
     </section>
 
 </main>
+
+<script>
+function toggleCompanionSection(section) {
+    var el = document.querySelector('.companion-section[data-section="' + section + '"]');
+    if (!el) return;
+    var collapsed = el.getAttribute('data-collapsed') === 'true';
+    el.setAttribute('data-collapsed', collapsed ? 'false' : 'true');
+}
+</script>
 
 {% endblock %}
