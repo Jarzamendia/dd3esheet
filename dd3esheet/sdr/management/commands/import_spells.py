@@ -2,6 +2,7 @@ import json
 import os
 from django.core.management.base import BaseCommand
 from sdr.models import SDR_Spell
+from sdr.lookups import resolve_spell
 
 class Command(BaseCommand):
     help = 'Importa ou traduz magias (spells) em portugues no banco de dados SDR'
@@ -36,18 +37,9 @@ class Command(BaseCommand):
             if not name:
                 continue
 
-            # Busca prioritariamente por:
-            # 1. Registro cujo name original do banco seja igual ao nome em inglês (altname)
-            # 2. Registro cujo altname já esteja cadastrado como o nome em inglês (altname)
-            # 3. Registro cujo name já esteja traduzido para o português (name)
-            spell_qs = SDR_Spell.objects.using('sdr').none()
-            if altname:
-                spell_qs = SDR_Spell.objects.using('sdr').filter(name__iexact=altname)
-                if not spell_qs.exists():
-                    spell_qs = SDR_Spell.objects.using('sdr').filter(altname__iexact=altname)
-            
-            if not spell_qs.exists():
-                spell_qs = SDR_Spell.objects.using('sdr').filter(name__iexact=name)
+            # Prioriza match por altname (nome original em inglês),
+            # cai para name (português) — encapsulado em resolve_spell.
+            existing = resolve_spell(altname) or resolve_spell(name)
 
             data = {
                 'name': name,
@@ -72,12 +64,11 @@ class Command(BaseCommand):
                 'reference': item.get('reference', 'Livro do Jogador 3.5 (PT)'),
             }
 
-            if spell_qs.exists():
+            if existing is not None:
                 # Atualiza/Traduz in-place
-                spell = spell_qs.first()
                 for key, val in data.items():
-                    setattr(spell, key, val)
-                spell.save(using='sdr')
+                    setattr(existing, key, val)
+                existing.save(using='sdr')
                 updated_count += 1
                 self.stdout.write(self.style.WARNING(f'Traduzida magia: {altname or name} -> {name}'))
             else:
