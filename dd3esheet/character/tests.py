@@ -1271,6 +1271,32 @@ class LoginBruteForceTest(TestCase):
 
 
 # ---------------------------------------------------------------------------
+# T1.6 — _recalculate_stats: atomic + bulk_update
+# ---------------------------------------------------------------------------
+
+class RecalculateQueryBudget(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='QueryBudget', Level='5')
+        _bootstrap_character_siblings(self.char)
+
+    def test_recalculate_stats_stays_within_query_budget(self):
+        from .views import _recalculate_stats
+        # Refresh so relations are resolved before entering the measured block
+        self.char.refresh_from_db()
+        with CaptureQueriesContext(connections['default']) as ctx:
+            _recalculate_stats(self.char)
+        self.assertLessEqual(
+            len(ctx.captured_queries), 22,
+            f"_recalculate_stats usou {len(ctx.captured_queries)} queries (budget: 22)"
+        )
+
+
+# ---------------------------------------------------------------------------
 # T1.4 — WhiteNoise + STATIC_ROOT
 # ---------------------------------------------------------------------------
 

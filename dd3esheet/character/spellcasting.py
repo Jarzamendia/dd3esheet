@@ -106,6 +106,13 @@ def domain_spells(domain_name):
     ]
 
 
+def _related_list(character, related_name, order_by):
+    prefetched = getattr(character, '_prefetched_objects_cache', {}).get(related_name)
+    if prefetched is not None:
+        return list(prefetched)
+    return list(getattr(character, related_name).all().order_by(*order_by))
+
+
 def spellcasting_context(character):
     config = caster_config_for_class(character.Class)
     try:
@@ -114,7 +121,7 @@ def spellcasting_context(character):
         profile = None
     stats = getattr(character, 'characterstats', None)
     class_table = class_table_for_character(character)
-    slots = list(character.characterspellslot_set.all().order_by('Level', 'SlotType', 'id'))
+    slots = _related_list(character, 'characterspellslot_set', ('Level', 'SlotType', 'id'))
     slot_counts = {}
     for slot in slots:
         slot_counts.setdefault(slot.Level, 0)
@@ -152,7 +159,7 @@ def spellcasting_context(character):
         'config': config,
         'levels': levels,
         'slots': slots,
-        'known_spells': character.characterspell_set.all().order_by('Level', 'Name'),
+        'known_spells': _related_list(character, 'characterspell_set', ('Level', 'Name')),
         'domain_1_spells': domain_spells(profile.Domain1 if profile else ''),
         'domain_2_spells': domain_spells(profile.Domain2 if profile else ''),
     }

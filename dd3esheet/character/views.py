@@ -1,19 +1,33 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db import models
+from django.db import models, transaction
+from django.db.models import Prefetch
 
 from .models import (
     Ability, Character, CharacterArmor, CharacterAttackModifiers,
+    CharacterActiveEffect, CharacterDailyNotes, CharacterDailyResource,
     CharacterFeat, CharacterLanguages, CharacterMoney, CharacterOtherItem,
-    CharacterOtherItemObs, CharacterProtectionItem, CharacterSavingThrows,
+    CharacterOtherItemObs, CharacterProgress, CharacterProtectionItem, CharacterSavingThrows,
     CharacterShield, CharacterSkill, CharacterSkillGraduation,
     CharacterSpell, CharacterSpellSlot, CharacterSpellcasting,
     CharacterStatus, CharacterWeapon,
 )
 from .forms import CharacterForm, CharacterStatsForm, CharacterCreateForm, CharacterIdentityForm
-from .services import _bootstrap_character_siblings
+from .services import _bootstrap_character_siblings, ensure_expandable_skill_slots
 from .constants import DEITY_SUGGESTIONS
+from .calculations import (
+    ABILITY_FIELDS, ability_modifier, equipment_armor_class_bonuses, load_limits_for_strength,
+    daily_resource_remaining,
+    is_trained_only_skill, skill_ability_key, skill_ability_modifier, skill_graduation_limits, skill_total,
+    total_carried_weight,
+)
 from .spellcasting import spellcasting_context
+
+
+def _annotate_skill_rules(skills):
+    for skill in skills:
+        skill.IsTrainedOnly = is_trained_only_skill(skill.SkillName)
+    return skills
 
 
 def _to_int(value, default=0):
@@ -26,7 +40,15 @@ def _to_int(value, default=0):
 
 
 def _ability_mod(value):
-    return (_to_int(value, 0) - 10) // 2
+    return ability_modifier(value)
+
+
+def _xp_to_next_level(level, current_xp):
+    level = _to_int(level, 0)
+    if level < 1:
+        return None
+    next_level_xp = level * (level + 1) * 500
+    return max(next_level_xp - _to_int(current_xp, 0), 0)
 
 
 def _post_int(request, name, default=0):
@@ -55,10 +77,52 @@ def _update_fields_from_post(instance, request, fields, prefix=''):
 
 
 def _ordered_slots(character, related_name, model, count):
-    slots = list(getattr(character, related_name).all().order_by('id')[:count])
+    slots = _related_items(character, related_name, model)[:count]
     while len(slots) < count:
         slots.append(None)
     return slots
+
+
+def _related_items(character, related_name, model):
+    prefetched = getattr(character, '_prefetched_objects_cache', {}).get(related_name)
+    if prefetched is not None:
+        return list(prefetched)
+    return list(getattr(character, related_name).all().order_by('id'))
+
+
+def _sheet_character_queryset():
+    return (
+        Character.objects
+        .select_related(
+            'characterstats',
+            'characterstatus',
+            'charactersavingthrows',
+            'characterattackmodifiers',
+            'characterskillgraduation',
+            'characterotheritemobs',
+            'charactermoney',
+            'characterprogress',
+            'characterspellcasting',
+        )
+        .prefetch_related(
+            Prefetch('characterarmor_set', queryset=CharacterArmor.objects.order_by('id')),
+            Prefetch('charactershield_set', queryset=CharacterShield.objects.order_by('id')),
+            Prefetch('characterweapon_set', queryset=CharacterWeapon.objects.order_by('id')),
+            Prefetch('characterprotectionitem_set', queryset=CharacterProtectionItem.objects.order_by('id')),
+            Prefetch('characterotheritem_set', queryset=CharacterOtherItem.objects.order_by('id')),
+            Prefetch('characterfeat_set', queryset=CharacterFeat.objects.order_by('id')),
+            Prefetch('ability_set', queryset=Ability.objects.order_by('id')),
+            Prefetch('characterlanguages_set', queryset=CharacterLanguages.objects.order_by('id')),
+            Prefetch('characterspellslot_set', queryset=CharacterSpellSlot.objects.order_by('Level', 'SlotType', 'id')),
+            Prefetch('characterspell_set', queryset=CharacterSpell.objects.order_by('Level', 'Name')),
+            Prefetch('characterskill_set', queryset=CharacterSkill.objects.order_by('id')),
+        )
+    )
+
+
+def _has_full_sheet_prefetch(character):
+    prefetched = getattr(character, '_prefetched_objects_cache', {})
+    return 'characterskill_set' in prefetched
 
 
 def _save_repeating_slots(character, request, model, prefix, fields, count):
@@ -74,59 +138,184 @@ def _save_repeating_slots(character, request, model, prefix, fields, count):
         _update_fields_from_post(item, request, fields, slot_prefix)
 
 
+def _checked_indexes_from_post(request, prefix, count):
+    return ','.join(str(index) for index in range(1, count + 1) if request.POST.get(f'{prefix}Checks_{index}'))
+
+
+def _daily_resources_context(char, **extra):
+    notes, _ = CharacterDailyNotes.objects.get_or_create(Character=char)
+    resource_items = _ordered_slots(char, 'characterdailyresource_set', CharacterDailyResource, 18)
+    resource_slots = [
+        {
+            'item': item,
+            'checks': set((item.Checks or '').split(',')) if item else set(),
+        }
+        for item in resource_items
+    ]
+    context = {
+        'character': char,
+        'daily_notes': notes,
+        'resource_suggestions': [
+            'Furia',
+            'Musica de Bardo',
+            'Expulsar/Fascinar Mortos-vivos',
+            'Forma Selvagem',
+            'Imposicao das Maos',
+            'Destruir o Mal',
+            'Inimigo Predileto',
+            'Poder de Dominio',
+            'Ataque Furtivo',
+            'Inspirar Coragem',
+            'Magias por Dia',
+            'Cargas de Item',
+        ],
+        'resource_slots': resource_slots,
+        'condition_slots': _ordered_slots(char, 'characteractiveeffect_set', CharacterActiveEffect, 12),
+    }
+    context.update(extra)
+    return context
+
+
+def _save_daily_resources(char, request):
+    existing = list(CharacterDailyResource.objects.filter(Character=char).order_by('id')[:18])
+    fields = ['Name', 'Source', 'Maximum', 'Used', 'Refresh']
+    for index in range(1, 19):
+        item = existing[index - 1] if index <= len(existing) else None
+        slot_prefix = f'resource_{index}_'
+        checks = _checked_indexes_from_post(request, slot_prefix, 10)
+        has_any_value = checks or any(request.POST.get(f'{slot_prefix}{field}', '') for field in fields)
+        if item is None and not has_any_value:
+            continue
+        if item is None:
+            item = CharacterDailyResource(Character=char)
+        _update_fields_from_post(item, request, fields, slot_prefix)
+        item.Checks = checks
+        item.Remaining = daily_resource_remaining(item.Maximum, item.Used)
+        item.save()
+
+
 def _recalculate_stats(character):
-    stats = character.characterstats
-    for ability in ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma']:
-        setattr(stats, f'{ability}StatMod', _ability_mod(getattr(stats, ability)))
-        temp = getattr(stats, f'{ability}Temp')
-        setattr(stats, f'{ability}ModTemp', _ability_mod(temp) if temp else 0)
-    stats.save()
+    with transaction.atomic():
+        stats = character.characterstats
+        for ability in ABILITY_FIELDS:
+            setattr(stats, f'{ability}StatMod', _ability_mod(getattr(stats, ability)))
+        stats.save(update_fields=[f'{a}StatMod' for a in ABILITY_FIELDS])
 
-    status = character.characterstatus
-    status.ACDexModifier = stats.DexterityStatMod
-    status.ACTotal = (
-        10 + _to_int(status.ACArmorBonus) + _to_int(status.ACShieldBonus)
-        + _to_int(status.ACDexModifier) + _to_int(status.ACSizeModifier)
-        + _to_int(status.ACNaturalArmor) + _to_int(status.ACDeflectionModifier)
-        + _to_int(status.ACMiscModifier)
-    )
-    status.ACTouch = 10 + _to_int(status.ACDexModifier) + _to_int(status.ACSizeModifier) + _to_int(status.ACDeflectionModifier) + _to_int(status.ACMiscModifier)
-    status.ACFlatFooterd = 10 + _to_int(status.ACArmorBonus) + _to_int(status.ACShieldBonus) + _to_int(status.ACSizeModifier) + _to_int(status.ACNaturalArmor) + _to_int(status.ACDeflectionModifier) + _to_int(status.ACMiscModifier)
-    status.Initiative = stats.DexterityStatMod
-    status.save()
+        graduation = character.characterskillgraduation
+        graduation.MaxGraduation, graduation.OtherClassMaxGraduation = skill_graduation_limits(character.Level)
+        graduation.save(update_fields=['MaxGraduation', 'OtherClassMaxGraduation'])
 
-    saves = character.charactersavingthrows
-    saves.FortitudeAbilityModifier = stats.ConstitutionStatMod
-    saves.ReflexAbilityModifier = stats.DexterityStatMod
-    saves.WillAbilityModifier = stats.WisdomStatMod
-    saves.TotalFortitude = _to_int(saves.FortitudeBaseSave) + _to_int(saves.FortitudeAbilityModifier) + _to_int(saves.FortitudeMagicModifier) + _to_int(saves.FortitudeMiscModifier) + _to_int(saves.FortitudeTemporaryModifier)
-    saves.TotalReflex = _to_int(saves.ReflexBaseSave) + _to_int(saves.ReflexAbilityModifier) + _to_int(saves.ReflexMagicModifier) + _to_int(saves.ReflexMiscModifier) + _to_int(saves.ReflexTemporaryModifier)
-    saves.TotalWill = _to_int(saves.WillBaseSave) + _to_int(saves.WillAbilityModifier) + _to_int(saves.WillMagicModifier) + _to_int(saves.WillMiscModifier) + _to_int(saves.WillTemporaryModifier)
-    saves.save()
+        status = character.characterstatus
+        # Fetch each equipment type once; reuse ACBonus and Weigth from same queryset
+        armor_rows = list(CharacterArmor.objects.filter(Character=character).order_by('id').values('ACBonus', 'Weigth'))
+        shield_rows = list(CharacterShield.objects.filter(Character=character).order_by('id').values('ACBonus', 'Weigth'))
+        protection_rows = list(CharacterProtectionItem.objects.filter(Character=character).values('ACBonus', 'Weigth'))
+        other_weights = list(CharacterOtherItem.objects.filter(Character=character).values_list('Weigth', flat=True))
 
-    attack = character.characterattackmodifiers
-    attack.GrapplerStrModifier = stats.StrengthStatMod
-    attack.TotalGrappler = _to_int(attack.GrapplerBBA) + _to_int(attack.GrapplerStrModifier) + _to_int(attack.GrapplerSizeModifier) + _to_int(attack.GrapplerMiscModifier)
-    attack.save()
+        armor_ac = armor_rows[0]['ACBonus'] if armor_rows else None
+        shield_ac = shield_rows[0]['ACBonus'] if shield_rows else None
+        protection_bonuses = [r['ACBonus'] for r in protection_rows]
+        weight_values = (
+            [r['Weigth'] for r in armor_rows]
+            + [r['Weigth'] for r in shield_rows]
+            + [r['Weigth'] for r in protection_rows]
+            + list(other_weights)
+        )
+
+        if armor_rows or shield_rows or protection_rows:
+            status.ACArmorBonus, status.ACShieldBonus, status.ACMiscModifier = equipment_armor_class_bonuses(
+                armor_ac, shield_ac, protection_bonuses,
+            )
+        status.ACDexModifier = stats.DexterityStatMod
+        status.ACTotal = (
+            10 + _to_int(status.ACArmorBonus) + _to_int(status.ACShieldBonus)
+            + _to_int(status.ACDexModifier) + _to_int(status.ACSizeModifier)
+            + _to_int(status.ACNaturalArmor) + _to_int(status.ACDeflectionModifier)
+            + _to_int(status.ACMiscModifier)
+        )
+        status.ACTouch = 10 + _to_int(status.ACDexModifier) + _to_int(status.ACSizeModifier) + _to_int(status.ACDeflectionModifier) + _to_int(status.ACMiscModifier)
+        status.ACFlatFooterd = 10 + _to_int(status.ACArmorBonus) + _to_int(status.ACShieldBonus) + _to_int(status.ACSizeModifier) + _to_int(status.ACNaturalArmor) + _to_int(status.ACDeflectionModifier) + _to_int(status.ACMiscModifier)
+        status.Initiative = stats.DexterityStatMod
+        status.save(update_fields=[
+            'ACArmorBonus', 'ACShieldBonus', 'ACMiscModifier', 'ACDexModifier',
+            'ACTotal', 'ACTouch', 'ACFlatFooterd', 'Initiative',
+        ])
+
+        saves = character.charactersavingthrows
+        saves.FortitudeAbilityModifier = stats.ConstitutionStatMod
+        saves.ReflexAbilityModifier = stats.DexterityStatMod
+        saves.WillAbilityModifier = stats.WisdomStatMod
+        saves.TotalFortitude = _to_int(saves.FortitudeBaseSave) + _to_int(saves.FortitudeAbilityModifier) + _to_int(saves.FortitudeMagicModifier) + _to_int(saves.FortitudeMiscModifier) + _to_int(saves.FortitudeTemporaryModifier)
+        saves.TotalReflex = _to_int(saves.ReflexBaseSave) + _to_int(saves.ReflexAbilityModifier) + _to_int(saves.ReflexMagicModifier) + _to_int(saves.ReflexMiscModifier) + _to_int(saves.ReflexTemporaryModifier)
+        saves.TotalWill = _to_int(saves.WillBaseSave) + _to_int(saves.WillAbilityModifier) + _to_int(saves.WillMagicModifier) + _to_int(saves.WillMiscModifier) + _to_int(saves.WillTemporaryModifier)
+        saves.save(update_fields=[
+            'FortitudeAbilityModifier', 'ReflexAbilityModifier', 'WillAbilityModifier',
+            'TotalFortitude', 'TotalReflex', 'TotalWill',
+        ])
+
+        attack = character.characterattackmodifiers
+        attack.GrapplerStrModifier = stats.StrengthStatMod
+        attack.TotalGrappler = _to_int(attack.GrapplerBBA) + _to_int(attack.GrapplerStrModifier) + _to_int(attack.GrapplerSizeModifier) + _to_int(attack.GrapplerMiscModifier)
+        attack.save(update_fields=['GrapplerStrModifier', 'TotalGrappler'])
+
+        skills = list(CharacterSkill.objects.filter(Character=character))
+        for skill in skills:
+            skill.SkillAbility = skill_ability_key(skill.SkillName)
+            skill.AbilityModifier = skill_ability_modifier(skill.SkillName, stats)
+            skill.SkillModifier = skill_total(
+                skill.AbilityModifier,
+                skill.Ranks,
+                skill.MiscModifier,
+                trained_only=is_trained_only_skill(skill.SkillName),
+            )
+        CharacterSkill.objects.bulk_update(skills, ['SkillAbility', 'AbilityModifier', 'SkillModifier'])
+
+        encumbrance = character.characterotheritemobs
+        (
+            encumbrance.LightLoad,
+            encumbrance.MediumLoad,
+            encumbrance.HeavyLoad,
+            encumbrance.LiftOverHEad,
+            encumbrance.LiftOffGround,
+            encumbrance.PushOrDrag,
+        ) = load_limits_for_strength(stats.Strength)
+        encumbrance.TotalWCarried = total_carried_weight(weight_values)
+        encumbrance.save(update_fields=[
+            'LightLoad', 'MediumLoad', 'HeavyLoad', 'LiftOverHEad',
+            'LiftOffGround', 'PushOrDrag', 'TotalWCarried',
+        ])
 
 
 def _sheet_context(char, **extra):
+    ensure_expandable_skill_slots(char)
+    try:
+        if not _has_full_sheet_prefetch(char):
+            char = _sheet_character_queryset().get(pk=char.pk)
+        progress = char.characterprogress
+    except CharacterProgress.DoesNotExist:
+        progress, _ = CharacterProgress.objects.get_or_create(Character=char)
+        char = _sheet_character_queryset().get(pk=char.pk)
     context = {
         'character': char,
+        'progress': progress,
+        'xp_to_next_level': _xp_to_next_level(char.Level, progress.ExperiencePoints),
         'characterForm': CharacterForm(instance=char),
         'characterStatsForm': CharacterStatsForm(instance=getattr(char, 'characterstats', None)),
         'characterIdentityForm': CharacterIdentityForm(instance=char),
         'deity_suggestions': DEITY_SUGGESTIONS,
         'spellcasting': spellcasting_context(char),
         'weapon_slots': _ordered_slots(char, 'characterweapon_set', CharacterWeapon, 4),
-        'protection_slots': _ordered_slots(char, 'characterprotectionitem_set', CharacterProtectionItem, 3),
+        'protection_slots': _ordered_slots(char, 'characterprotectionitem_set', CharacterProtectionItem, 5),
         'other_item_slots': _ordered_slots(char, 'characterotheritem_set', CharacterOtherItem, 32),
         'feat_slots': _ordered_slots(char, 'characterfeat_set', CharacterFeat, 24),
         'ability_slots': _ordered_slots(char, 'ability_set', Ability, 12),
         'language_slots': _ordered_slots(char, 'characterlanguages_set', CharacterLanguages, 12),
         'spell_slots_edit': _ordered_slots(char, 'characterspellslot_set', CharacterSpellSlot, 20),
-        'known_spell_slots': _ordered_slots(char, 'characterspell_set', CharacterSpell, 24),
+        'known_spell_slots': _ordered_slots(char, 'characterspell_set', CharacterSpell, 36),
     }
+    context['character'].skill_rows = _annotate_skill_rules(
+        _related_items(context['character'], 'characterskill_set', CharacterSkill)
+    )
     context.update(extra)
     return context
 
@@ -143,7 +332,10 @@ def home(request):
 
 @login_required
 def character(request, pk):
-    char = get_object_or_404(Character, pk=pk, User=request.user)
+    if request.method == 'GET':
+        char = get_object_or_404(_sheet_character_queryset(), pk=pk, User=request.user)
+    else:
+        char = get_object_or_404(Character, pk=pk, User=request.user)
 
     if request.method == 'POST' and request.htmx:
 
@@ -152,6 +344,7 @@ def character(request, pk):
             if form.is_valid():
                 form.save()
                 char.refresh_from_db()
+                _recalculate_stats(char)
             context = _sheet_context(char, characterIdentityForm=form)
             return render(request, 'character/partials/character_identity.html', context)
 
@@ -168,6 +361,8 @@ def character(request, pk):
                 'Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma',
                 'StrengthTemp', 'DexterityTemp', 'ConstitutionTemp', 'IntelligenceTemp',
                 'WisdomTemp', 'CharismaTemp',
+                'StrengthModTemp', 'DexterityModTemp', 'ConstitutionModTemp', 'IntelligenceModTemp',
+                'WisdomModTemp', 'CharismaModTemp',
             ])
             _save_repeating_slots(char, request, CharacterWeapon, 'weapon', [
                 'Attack', 'AttackBonus', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
@@ -212,10 +407,10 @@ def character(request, pk):
                 prefix = f'skill_{index}_'
                 skill.SkillIsActive = f'{prefix}SkillIsActive' in request.POST
                 _update_fields_from_post(skill, request, [
-                    'SkillName', 'SkillAbility', 'Ranks', 'MiscModifier',
+                    'SkillName', 'SkillSpecialization', 'Ranks', 'MiscModifier',
                 ], prefix)
-                skill.SkillModifier = _to_int(skill.AbilityModifier) + _to_int(skill.Ranks) + _to_int(skill.MiscModifier)
                 skill.save()
+            _recalculate_stats(char)
             return render(request, 'character/partials/character_skills.html', _sheet_context(char))
 
         if request.htmx.target == 'characterWeaponsForm':
@@ -223,6 +418,11 @@ def character(request, pk):
                 'Attack', 'AttackBonus', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
             ], 4)
             return render(request, 'character/partials/character_weapon_card.html', _sheet_context(char))
+
+        if request.htmx.target == 'characterProgressForm':
+            progress, _ = CharacterProgress.objects.get_or_create(Character=char)
+            _update_fields_from_post(progress, request, ['ExperiencePoints', 'CampaignName'])
+            return render(request, 'character/partials/character_progress.html', _sheet_context(char))
 
         if request.htmx.target == 'characterEquipmentForm':
             armor, _ = CharacterArmor.objects.get_or_create(Character=char)
@@ -236,11 +436,13 @@ def character(request, pk):
             ], 'shield_')
             _save_repeating_slots(char, request, CharacterProtectionItem, 'protection', [
                 'Name', 'ACBonus', 'Weigth', 'SpecialProperties',
-            ], 3)
+            ], 5)
+            _recalculate_stats(char)
             return render(request, 'character/partials/character_armor.html', _sheet_context(char))
 
         if request.htmx.target == 'characterItemsForm':
             _save_repeating_slots(char, request, CharacterOtherItem, 'item', ['Name', 'Page', 'Weigth'], 32)
+            _recalculate_stats(char)
             return render(request, 'character/partials/character_items.html', _sheet_context(char))
 
         if request.htmx.target == 'characterMoneyForm':
@@ -249,6 +451,7 @@ def character(request, pk):
                 'LightLoad', 'MediumLoad', 'HeavyLoad', 'LiftOverHEad', 'LiftOffGround',
                 'PushOrDrag', 'TotalWCarried',
             ])
+            _recalculate_stats(char)
             return render(request, 'character/partials/character_money.html', _sheet_context(char))
 
         if request.htmx.target == 'characterFeatsForm':
@@ -268,10 +471,115 @@ def character(request, pk):
             _save_repeating_slots(char, request, CharacterSpellSlot, 'slot', [
                 'Level', 'SlotType', 'PreparedSpellName', 'ConvertedTo',
             ], 20)
-            _save_repeating_slots(char, request, CharacterSpell, 'known_spell', ['Name', 'Page', 'Level'], 24)
+            _save_repeating_slots(char, request, CharacterSpell, 'known_spell', ['Name', 'Page', 'Level'], 36)
             return render(request, 'character/partials/character_spells.html', _sheet_context(char))
 
     return render(request, 'character/character.html', _sheet_context(char))
+
+
+@login_required
+def companions(request, pk):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    companion_skills = [
+        ('Esconder-se', 'DES'),
+        ('Ouvir', 'SAB'),
+        ('Furtividade', 'DES'),
+        ('Procurar', 'INT'),
+        ('Observar', 'SAB'),
+        ('Equilibrio', 'DES'),
+        ('Escalar', 'FOR'),
+        ('Arte da Fuga', 'DES'),
+        ('Saltar', 'FOR'),
+        ('Sobrevivencia', 'SAB'),
+        ('Natacao', 'FOR'),
+    ]
+    summon_nature_rows = [
+        {
+            'level': 1,
+            'spell': 'Aliado da Natureza I',
+            'quantity': '1 criatura de 1o nivel',
+            'examples': 'Rato atroz, aguia, macaco, coruja, lobo, vibora pequena',
+        },
+        {
+            'level': 2,
+            'spell': 'Aliado da Natureza II',
+            'quantity': '1 de 2o, 1d3 de 1o',
+            'examples': 'Urso negro, crocodilo, texugo atroz, morcego atroz, elemental pequeno',
+        },
+        {
+            'level': 3,
+            'spell': 'Aliado da Natureza III',
+            'quantity': '1 de 3o, 1d3 de 2o, 1d4+1 de 1o',
+            'examples': 'Gorila, doninha atroz, lobo atroz, leao, thoqqua',
+        },
+        {
+            'level': 4,
+            'spell': 'Aliado da Natureza IV',
+            'quantity': '1 de 4o, 1d3 de 3o, 1d4+1 menores',
+            'examples': 'Urso pardo, aguia gigante, elemental medio, tigre, unicornio',
+        },
+        {
+            'level': 5,
+            'spell': 'Aliado da Natureza V',
+            'quantity': '1 de 5o, 1d3 de 4o, 1d4+1 menores',
+            'examples': 'Urso polar, leao atroz, elemental grande, grifo, rinoceronte',
+        },
+        {
+            'level': 6,
+            'spell': 'Aliado da Natureza VI',
+            'quantity': '1 de 6o, 1d3 de 5o, 1d4+1 menores',
+            'examples': 'Urso atroz, elemental enorme, elefante, girallon, megaraptor',
+        },
+        {
+            'level': 7,
+            'spell': 'Aliado da Natureza VII',
+            'quantity': '1 de 7o, 1d3 de 6o, 1d4+1 menores',
+            'examples': 'Tigre atroz, elemental maior, djinni, triceratopo, tiranossauro',
+        },
+        {
+            'level': 8,
+            'spell': 'Aliado da Natureza VIII',
+            'quantity': '1 de 8o, 1d3 de 7o, 1d4+1 menores',
+            'examples': 'Elemental anciao, roc, salamandra nobre, baleia cachalote',
+        },
+        {
+            'level': 9,
+            'spell': 'Aliado da Natureza IX',
+            'quantity': '1 de 9o, 1d3 de 8o, 1d4+1 menores',
+            'examples': 'Elemental anciao, grifo celestial, unicornios e aliados maiores',
+        },
+    ]
+    return render(request, 'character/companions.html', {
+        'character': char,
+        'companion_skills': companion_skills,
+        'summon_nature_rows': summon_nature_rows,
+    })
+
+
+@login_required
+def dailyResources(request, pk):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    if request.method == 'POST' and request.htmx:
+        _save_daily_resources(char, request)
+        _save_repeating_slots(char, request, CharacterActiveEffect, 'effect', [
+            'Name', 'Source', 'Modifier', 'RoundsRemaining', 'Notes',
+        ], 12)
+        notes, _ = CharacterDailyNotes.objects.get_or_create(Character=char)
+        _update_fields_from_post(notes, request, ['Preparation', 'Spent'])
+        return render(request, 'character/daily_resources.html', _daily_resources_context(char))
+
+    return render(request, 'character/daily_resources.html', _daily_resources_context(char))
+
+
+@login_required
+def reputation(request, pk):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    return render(request, 'character/reputation.html', {
+        'character': char,
+        'contact_slots': range(1, 17),
+        'faction_slots': range(1, 11),
+        'contract_slots': range(1, 13),
+    })
 
 
 @login_required
