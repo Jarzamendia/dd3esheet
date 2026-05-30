@@ -1295,6 +1295,21 @@ class FieldValidationTest(TransactionTestCase):
         weapon = CharacterWeapon.objects.get(Character=self.char)
         self.assertEqual(weapon.Attack, 'x' * 200)
 
+    def test_repeating_slot_integer_fields_are_clamped(self):
+        resp = self.client.post(
+            self.url,
+            {
+                'known_spell_1_Name': 'Raio Arcano',
+                'known_spell_1_Level': '-5000',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterSpellsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        spell = CharacterSpell.objects.get(Character=self.char, Name='Raio Arcano')
+        self.assertEqual(spell.Level, -999)
+
     def test_html_text_is_preserved_as_plain_database_value(self):
         payload = '  <script>alert(1)</script>  '
         resp = self.client.post(
