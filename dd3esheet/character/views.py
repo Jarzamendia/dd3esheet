@@ -23,7 +23,9 @@ from .calculations import (
     is_trained_only_skill, skill_ability_key, skill_ability_modifier, skill_graduation_limits,
     skill_total, total_carried_weight,
 )
-from .spellcasting import spellcasting_context
+from .spellcasting import numeric_slot_count, spellcasting_context
+
+_SPELLBOOK_SLOT_TOTAL = 20
 
 _SPELLBOOK_PROFILE_FIELDS = [
     'CastingMode',
@@ -165,6 +167,26 @@ def _save_repeating_slots(character, request, model, prefix, fields, count):
         _update_fields_from_post(item, request, fields, slot_prefix)
 
 
+def _save_typed_companion_slots(character, request, type_value, prefix, fields, count):
+    existing = list(
+        CharacterCompanion.objects
+        .filter(Character=character, Type__iexact=type_value)
+        .order_by('id')[:count]
+    )
+    for index in range(1, count + 1):
+        item = existing[index - 1] if index <= len(existing) else None
+        slot_prefix = f'{prefix}_{index}_'
+        has_any_value = any(request.POST.get(f'{slot_prefix}{field}', '') for field in fields)
+        if item is None and not has_any_value:
+            continue
+        if item is None:
+            item = CharacterCompanion(Character=character, Type=type_value)
+        _update_fields_from_post(item, request, fields, slot_prefix)
+        if item.Type != type_value:
+            item.Type = type_value
+            item.save(update_fields=['Type'])
+
+
 def _save_spellbook_level(character, request, level):
     prefix = f'spellbook_{level}'
     existing = list(
@@ -267,12 +289,71 @@ def _spellbook_level_context(char, level, spellcasting=None):
     }
 
 
+def _spellbook_slot_levels(char, spellcasting):
+    db_slots = list(char.characterspellslot_set.all().order_by('id'))
+    by_level = {}
+    for slot in db_slots:
+        by_level.setdefault(slot.Level or 0, []).append(slot)
+
+    profile = spellcasting.get('profile')
+    casting_mode = getattr(profile, 'CastingMode', None) or (
+        spellcasting['config']['mode'] if spellcasting.get('config') else ''
+    )
+    is_spontaneous = casting_mode == 'spontaneous_known'
+    has_conversion = bool(
+        getattr(profile, 'SpontaneousConversion', '')
+        or (spellcasting.get('config') or {}).get('conversion')
+    )
+
+    level_blocks = []
+    next_index = 1
+    for row in spellcasting['levels']:
+        capacity = numeric_slot_count(row.spells_per_day)
+        if row.level > 0:
+            capacity += bonus_for_level(row.bonus_spells)
+        existing = by_level.get(row.level, [])
+        display_count = max(capacity, len(existing))
+        if display_count == 0:
+            continue
+        if next_index > _SPELLBOOK_SLOT_TOTAL:
+            break
+        rows = []
+        for offset in range(display_count):
+            if next_index > _SPELLBOOK_SLOT_TOTAL:
+                break
+            slot = existing[offset] if offset < len(existing) else None
+            rows.append({'slot': slot, 'index': next_index, 'level': row.level})
+            next_index += 1
+        used = sum(1 for slot in existing if slot and slot.IsUsed)
+        remaining = max(capacity - used, 0) if capacity else max(len(existing) - used, 0)
+        level_blocks.append({
+            'level': row.level,
+            'capacity': capacity,
+            'used': used,
+            'remaining': remaining,
+            'rows': rows,
+            'is_spontaneous': is_spontaneous,
+            'has_conversion': has_conversion,
+        })
+    return level_blocks
+
+
+def bonus_for_level(value):
+    if value in (None, '', '-'):
+        return 0
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
 def _spellbook_context(char, **extra):
     spellcasting = spellcasting_context(char)
     context = {
         'character': char,
         'spellcasting': spellcasting,
         'spell_slots_edit': _ordered_slots(char, 'characterspellslot_set', CharacterSpellSlot, 20),
+        'spellbook_slot_levels': _spellbook_slot_levels(char, spellcasting),
         'spellbook_profile_fields': _SPELLBOOK_PROFILE_FIELDS,
         'spellbook_levels': [_spellbook_level_context(char, level, spellcasting)['spellbook_level'] for level in range(10)],
     }
@@ -282,12 +363,18 @@ def _spellbook_context(char, **extra):
 
 def _companions_context(char, **extra):
     companions_qs = char.charactercompanion_set.all()
+    animals = list(companions_qs.filter(Type__iexact='animal').order_by('id')[:4])
+    while len(animals) < 4:
+        animals.append(None)
+    familiars = list(companions_qs.filter(Type__iexact='familiar').order_by('id')[:4])
+    while len(familiars) < 4:
+        familiars.append(None)
     context = {
         'character': char,
-        'companion_slots': _ordered_slots(char, 'charactercompanion_set', CharacterCompanion, 4),
-        'companion_types': ['Animal', 'Familiar', 'Montaria', 'Invocacao'],
-        'animal_companion': companions_qs.filter(Type='animal').first(),
-        'familiar': companions_qs.filter(Type='familiar').first(),
+        'animal_companions': animals,
+        'familiars': familiars,
+        'animal_companion': animals[0],
+        'familiar': familiars[0],
         'companion_skills': [
             ('Esconder-se', 'DES'),
             ('Ouvir', 'SAB'),
@@ -701,11 +788,17 @@ def character(request, pk):
 def companions(request, pk):
     char = get_object_or_404(Character, pk=pk, User=request.user)
     if request.method == 'POST' and request.htmx:
-        _save_repeating_slots(char, request, CharacterCompanion, 'companion', [
-            'Type', 'Name', 'Species', 'HitPoints', 'ArmorClass', 'Speed',
-            'Skills', 'Feats', 'SpecialAbilities', 'Notes',
-        ], 4)
-        return render(request, 'character/partials/companions_form.html', _companions_context(char))
+        target = request.htmx.target or ''
+        if target == 'animalCompanionsForm':
+            _save_typed_companion_slots(char, request, 'animal', 'animalCompanion', [
+                'Name', 'Species', 'HitPoints', 'ArmorClass', 'Speed', 'SpecialAbilities',
+            ], 4)
+            return render(request, 'character/partials/companions_animal_form.html', _companions_context(char))
+        if target == 'familiarsForm':
+            _save_typed_companion_slots(char, request, 'familiar', 'familiar', [
+                'Name', 'Species', 'HitPoints', 'ArmorClass', 'Speed', 'SpecialAbilities', 'Notes',
+            ], 4)
+            return render(request, 'character/partials/companions_familiar_form.html', _companions_context(char))
 
     return render(request, 'character/companions.html', _companions_context(char))
 

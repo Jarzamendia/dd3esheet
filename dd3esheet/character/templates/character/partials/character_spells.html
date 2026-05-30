@@ -14,7 +14,8 @@
             </span>
         </div>
 
-        {% include "character/partials/spellcasting_header.html" %}
+        {% include "character/partials/spellcasting_profile_strip.html" %}
+        {% include "character/partials/spellcasting_summary.html" %}
 
         <div class="spellbook-cta-row">
             <a class="btn btn-arcane" href="{% url 'character:spellbook' character.pk %}">

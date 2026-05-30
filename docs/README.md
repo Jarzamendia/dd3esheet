@@ -15,6 +15,8 @@ Leia nesta ordem quando estiver entrando no codigo:
 9. [Playbook para agentes](agent-playbook.md)
 10. [Lacunas conhecidas](known-issues.md)
 11. [Deploy em producao](deployment.md)
+12. [Backlog de melhorias da Ficha](backlog-improvements.md)
+
 
 ## Produto
 

@@ -1,0 +1,36 @@
+<div class="spells-summary" data-sheet-table="spellcasting-summary">
+    <div class="sm-corner">Nivel</div>
+    {% for row in spellcasting.levels %}
+    <div class="sm-level-head" data-slot="{{ row.level }}">{{ row.level }}</div>
+    {% endfor %}
+
+    <div class="sm-row-head">Conhecidas</div>
+    {% for row in spellcasting.levels %}
+    <div class="sm-cell" data-derived="spellcasting.SpellsKnown" data-slot="{{ row.level }}">{{ row.spells_known }}</div>
+    {% endfor %}
+
+    <div class="sm-row-head">CD Resist.</div>
+    {% for row in spellcasting.levels %}
+    <div class="sm-cell sm-cell--calc" data-derived="spellcasting.SaveDC" data-slot="{{ row.level }}">{{ row.save_dc }}</div>
+    {% endfor %}
+
+    <div class="sm-row-head">Por Dia</div>
+    {% for row in spellcasting.levels %}
+    <div class="sm-cell" data-derived="spellcasting.SpellsPerDay" data-slot="{{ row.level }}">{{ row.spells_per_day }}</div>
+    {% endfor %}
+
+    <div class="sm-row-head">Bonus</div>
+    {% for row in spellcasting.levels %}
+    <div class="sm-cell sm-cell--calc" data-derived="spellcasting.BonusSpells" data-slot="{{ row.level }}">{{ row.bonus_spells }}</div>
+    {% endfor %}
+
+    <div class="sm-row-head">Usadas</div>
+    {% for row in spellcasting.levels %}
+    <div class="sm-cell" data-derived="spellcasting.UsedSlots" data-slot="{{ row.level }}">{{ row.used_slots }}</div>
+    {% endfor %}
+
+    <div class="sm-row-head">Restam</div>
+    {% for row in spellcasting.levels %}
+    <div class="sm-cell sm-cell--calc" data-derived="spellcasting.RemainingSlots" data-slot="{{ row.level }}">{{ row.remaining_slots }}</div>
+    {% endfor %}
+</div>

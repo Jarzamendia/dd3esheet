@@ -31,6 +31,14 @@ CASTER_CONFIG = {
 }
 
 
+CASTING_MODE_CHOICES = [
+    ('prepared_book', 'Arcana preparada (livro)'),
+    ('spontaneous_known', 'Arcana espontanea'),
+    ('prepared_divine', 'Divina preparada'),
+    ('custom', 'Personalizada'),
+]
+
+
 @dataclass(frozen=True)
 class SpellLevelSummary:
     level: int
@@ -159,6 +167,7 @@ def spellcasting_context(character):
         'config': config,
         'levels': levels,
         'slots': slots,
+        'casting_modes': CASTING_MODE_CHOICES,
         'known_spells': _related_list(character, 'characterspell_set', ('Level', 'Name')),
         'domain_1_spells': domain_spells(profile.Domain1 if profile else ''),
         'domain_2_spells': domain_spells(profile.Domain2 if profile else ''),

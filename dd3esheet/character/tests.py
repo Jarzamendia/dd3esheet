@@ -633,7 +633,8 @@ class CharacterAuxiliaryPageTests(TransactionTestCase):
         self.assertContains(resp, 'data-sheet-table="familiar"')
         self.assertContains(resp, 'data-sheet-table="summon-nature-reference"')
         self.assertContains(resp, 'Aliado da Natureza IX')
-        self.assertContains(resp, 'data-field="activeSummonAttack.Name"', count=3)
+        self.assertContains(resp, 'data-sheet-table="summon-card"', count=4)
+        self.assertContains(resp, 'data-field="summon.FullAttack"', count=4)
 
     def test_daily_resources_page_renders_trackers(self):
         self.client.force_login(self.user)
@@ -685,34 +686,46 @@ class CompanionsTest(TransactionTestCase):
         self.client.force_login(self.user)
 
     def test_htmx_post_creates_and_updates_companion_slots(self):
-        resp = self.client.post(
+        resp_animal = self.client.post(
             self.url,
             {
-                'companion_1_Type': 'Animal',
-                'companion_1_Name': 'Bruma',
-                'companion_1_Species': 'Lobo',
-                'companion_1_HitPoints': '24',
-                'companion_1_ArmorClass': '16',
-                'companion_1_Speed': '15 m',
-                'companion_1_Skills': 'Ouvir +5',
-                'companion_2_Type': 'Familiar',
-                'companion_2_Name': 'Nix',
-                'companion_2_Species': 'Coruja',
-                'companion_2_HitPoints': '8',
-                'companion_2_ArmorClass': '14',
+                'animalCompanion_1_Name': 'Bruma',
+                'animalCompanion_1_Species': 'Lobo',
+                'animalCompanion_1_HitPoints': '24',
+                'animalCompanion_1_ArmorClass': '16',
+                'animalCompanion_1_Speed': '15 m',
+                'animalCompanion_1_SpecialAbilities': 'Faro',
             },
             HTTP_HX_REQUEST='true',
-            HTTP_HX_TARGET='companionsForm',
+            HTTP_HX_TARGET='animalCompanionsForm',
         )
 
-        self.assertEqual(resp.status_code, 200)
-        self.assertTemplateUsed(resp, 'character/partials/companions_form.html')
-        self.assertEqual(CharacterCompanion.objects.filter(Character=self.char).count(), 2)
+        self.assertEqual(resp_animal.status_code, 200)
+        self.assertTemplateUsed(resp_animal, 'character/partials/companions_animal_form.html')
         bruma = CharacterCompanion.objects.get(Character=self.char, Name='Bruma')
+        self.assertEqual(bruma.Type, 'animal')
         self.assertEqual(bruma.Species, 'Lobo')
         self.assertEqual(bruma.HitPoints, 24)
-        self.assertContains(resp, 'Bruma')
-        self.assertContains(resp, 'Nix')
+        self.assertContains(resp_animal, 'Bruma')
+
+        resp_familiar = self.client.post(
+            self.url,
+            {
+                'familiar_1_Name': 'Nix',
+                'familiar_1_Species': 'Coruja',
+                'familiar_1_HitPoints': '8',
+                'familiar_1_ArmorClass': '14',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='familiarsForm',
+        )
+
+        self.assertEqual(resp_familiar.status_code, 200)
+        self.assertTemplateUsed(resp_familiar, 'character/partials/companions_familiar_form.html')
+        nix = CharacterCompanion.objects.get(Character=self.char, Name='Nix')
+        self.assertEqual(nix.Type, 'familiar')
+        self.assertEqual(CharacterCompanion.objects.filter(Character=self.char).count(), 2)
+        self.assertContains(resp_familiar, 'Nix')
 
     def test_get_reflects_saved_companion_data(self):
         CharacterCompanion.objects.create(
@@ -728,16 +741,16 @@ class CompanionsTest(TransactionTestCase):
         resp = self.client.get(self.url)
 
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, 'companionsForm')
+        self.assertContains(resp, 'animalCompanionsForm')
         self.assertContains(resp, 'Bruma')
         self.assertContains(resp, 'Lobo')
 
     def test_empty_slots_do_not_create_rows(self):
         resp = self.client.post(
             self.url,
-            {'companion_1_Name': ''},
+            {'animalCompanion_1_Name': ''},
             HTTP_HX_REQUEST='true',
-            HTTP_HX_TARGET='companionsForm',
+            HTTP_HX_TARGET='animalCompanionsForm',
         )
 
         self.assertEqual(resp.status_code, 200)
@@ -1091,7 +1104,7 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
         self.client.force_login(self.user)
         resp = self.client.get(self.spellbook_url)
 
-        self.assertContains(resp, 'class="spell-used-toggle"')
+        self.assertContains(resp, 'spell-used-toggle')
         self.assertContains(resp, 'type="button"')
         self.assertContains(
             resp,
@@ -1158,7 +1171,7 @@ class SpellbookPageTest(TransactionTestCase):
         self.assertContains(resp, 'Maelis Vorn')
         self.assertContains(resp, 'Livro de Magias')
         self.assertContains(resp, 'spellbookSlotsForm')
-        self.assertContains(resp, 'Slots Preparados / Usados')
+        self.assertContains(resp, 'Slots por nivel')
         self.assertContains(resp, 'spellbookLevel0Form')
         self.assertContains(resp, 'spellbookLevel4Form')
         self.assertContains(resp, 'Detectar Magia')
@@ -1184,6 +1197,53 @@ class SpellbookPageTest(TransactionTestCase):
         self.assertTemplateUsed(resp, 'character/partials/spellbook_level_form.html')
         updated = CharacterSpell.objects.get(Character=self.char, Level=1, Name=level_one_spells[0].Name)
         self.assertEqual(updated.Page, 'PHB-2')
+
+    def test_spellbook_casting_mode_renders_as_select_with_all_options(self):
+        resp = self.client.get(self.url)
+
+        self.assertContains(resp, 'name="spellcasting_CastingMode"')
+        self.assertContains(resp, '<option value="prepared_book"')
+        self.assertContains(resp, '<option value="spontaneous_known"')
+        self.assertContains(resp, '<option value="prepared_divine"')
+        self.assertContains(resp, '<option value="custom"')
+        # Wizard seed defaults to prepared_book
+        self.assertContains(resp, 'value="prepared_book" selected')
+
+    def test_spellbook_does_not_duplicate_summary_table(self):
+        resp = self.client.get(self.url)
+
+        self.assertNotContains(resp, 'data-sheet-table="spellcasting-summary"')
+        self.assertNotContains(resp, 'CD Resist.')
+
+    def test_spellbook_renders_per_level_slot_cards_with_capacity(self):
+        resp = self.client.get(self.url)
+
+        self.assertContains(resp, 'spellbook-slot-grid')
+        self.assertContains(resp, 'spellbook-slot-card')
+        self.assertContains(resp, 'Nivel 1')
+        # Wizard nv 8 INT 18 -> level 1 capacity should be at least 4 (4 per day + bonus)
+        self.assertContains(resp, 'Restam')
+
+    def test_spellbook_slot_post_persists_prepared_spell_name(self):
+        payload = {
+            'slot_1_Level': '1',
+            'slot_1_SlotType': 'normal',
+            'slot_1_PreparedSpellName': 'Escudo Arcano',
+            'slot_1_ConvertedTo': '',
+        }
+        resp = self.client.post(
+            self.url,
+            payload,
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='spellbookSlotsForm',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(
+            CharacterSpellSlot.objects.filter(
+                Character=self.char,
+                PreparedSpellName='Escudo Arcano',
+            ).exists()
+        )
 
 
 class CharacterSpellsLeanTest(TransactionTestCase):

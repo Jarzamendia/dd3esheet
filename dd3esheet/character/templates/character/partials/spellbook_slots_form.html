@@ -1,47 +1,80 @@
 <form id="spellbookSlotsForm"
-      class="spell-level-block"
+      class="spellbook-slot-form"
       hx-post="{% url 'character:spellbook' character.pk %}"
       hx-target="#spellbookSlotsForm"
       hx-swap="outerHTML"
       hx-trigger="change delay:300ms">
     {% csrf_token %}
-    <div class="spell-level-head">
-        <span>Slots Preparados / Usados</span>
-        <span class="sl-meta">marque quando gastar</span>
+    <div class="spellbook-slot-band">
+        <span>Slots por nivel</span>
+        <span class="sl-meta">prepare aqui &amp; marque gasto em combate</span>
     </div>
-    <div class="spell-slot-table" data-sheet-table="prepared-spell-slots">
-        <div class="spell-slot-head">Nv</div>
-        <div class="spell-slot-head">Tipo</div>
-        <div class="spell-slot-head">Magia preparada</div>
-        <div class="spell-slot-head">Usada</div>
-        <div class="spell-slot-head">Conversao</div>
-        {% for slot in spell_slots_edit %}
-        <div><input class="sheet-input" name="slot_{{ forloop.counter }}_Level" value="{{ slot.Level|default:'' }}" inputmode="numeric" data-field="spellSlot.Level" data-slot="{{ forloop.counter }}"></div>
-        <div>
-            <select class="sheet-input" name="slot_{{ forloop.counter }}_SlotType" data-field="spellSlot.SlotType" data-slot="{{ forloop.counter }}">
-                <option value="normal" {% if slot.SlotType == "normal" %}selected{% endif %}>Normal</option>
-                <option value="domain" {% if slot.SlotType == "domain" %}selected{% endif %}>Dominio</option>
-                <option value="specialist" {% if slot.SlotType == "specialist" %}selected{% endif %}>Especialista</option>
-            </select>
-        </div>
-        <div><input class="sheet-input" name="slot_{{ forloop.counter }}_PreparedSpellName" value="{{ slot.PreparedSpellName|default:'' }}" data-field="spellSlot.PreparedSpellName" data-slot="{{ forloop.counter }}"></div>
-        <div>
-            {% if slot %}
-            <button class="spell-used-toggle"
-                    type="button"
-                    hx-post="{% url 'character:toggle-spell-slot' character.pk slot.id %}"
-                    hx-target="#spellbookSlotsForm"
-                    hx-swap="outerHTML"
-                    aria-label="Marcar uso da magia {{ slot.PreparedSpellName|default:'slot' }}"
-                    data-field="spellSlot.IsUsed"
-                    data-slot="{{ forloop.counter }}">
-                <span class="sp-check{% if slot.IsUsed %} is-used{% endif %}"></span>
-            </button>
-            {% else %}
-            <span class="sp-check"></span>
-            {% endif %}
-        </div>
-        <div><input class="sheet-input" name="slot_{{ forloop.counter }}_ConvertedTo" value="{{ slot.ConvertedTo|default:'' }}" data-field="spellSlot.ConvertedTo" data-slot="{{ forloop.counter }}"></div>
+
+    {% if spellbook_slot_levels %}
+    <div class="spellbook-slot-grid" data-sheet-table="prepared-spell-slots">
+        {% for block in spellbook_slot_levels %}
+        <article class="spellbook-slot-card" data-slot-level="{{ block.level }}">
+            <header class="spellbook-slot-card-head">
+                <span class="ssc-level">Nivel {{ block.level }}</span>
+                <span class="ssc-counter" data-derived="spellSlot.Remaining" data-slot="{{ block.level }}">
+                    Restam <strong>{{ block.remaining }}</strong> / {{ block.capacity }}
+                </span>
+            </header>
+            <div class="spellbook-slot-rows">
+                {% for row in block.rows %}
+                <div class="spellbook-slot-row{% if row.slot and row.slot.IsUsed %} is-used{% endif %}">
+                    <input type="hidden" name="slot_{{ row.index }}_Level" value="{{ row.level }}">
+                    <div class="ssr-type">
+                        <select class="sheet-input" name="slot_{{ row.index }}_SlotType" data-field="spellSlot.SlotType" data-slot="{{ row.index }}">
+                            <option value="normal" {% if row.slot and row.slot.SlotType == "normal" %}selected{% endif %}>Normal</option>
+                            <option value="domain" {% if row.slot and row.slot.SlotType == "domain" %}selected{% endif %}>Dominio</option>
+                            <option value="specialist" {% if row.slot and row.slot.SlotType == "specialist" %}selected{% endif %}>Especialista</option>
+                        </select>
+                    </div>
+                    <div class="ssr-name">
+                        <input class="sheet-input"
+                               name="slot_{{ row.index }}_PreparedSpellName"
+                               value="{{ row.slot.PreparedSpellName|default:'' }}"
+                               placeholder="{% if block.is_spontaneous %}Anotacao{% else %}Magia preparada{% endif %}"
+                               data-field="spellSlot.PreparedSpellName"
+                               data-slot="{{ row.index }}">
+                    </div>
+                    <div class="ssr-toggle">
+                        {% if row.slot %}
+                        <button class="spell-used-toggle btn-slot-cast{% if row.slot.IsUsed %} is-used{% endif %}"
+                                type="button"
+                                hx-post="{% url 'character:toggle-spell-slot' character.pk row.slot.id %}"
+                                hx-target="#spellbookSlotsForm"
+                                hx-swap="outerHTML"
+                                aria-pressed="{% if row.slot.IsUsed %}true{% else %}false{% endif %}"
+                                aria-label="{% if row.slot.IsUsed %}Restaurar slot{% else %}Marcar como usada{% endif %} - {{ row.slot.PreparedSpellName|default:'slot' }}"
+                                data-field="spellSlot.IsUsed"
+                                data-slot="{{ row.index }}">
+                            {% if row.slot.IsUsed %}Restaurar{% else %}Marcar como usada{% endif %}
+                        </button>
+                        {% else %}
+                        <button class="btn-slot-cast is-disabled" type="button" disabled title="Salve o slot para habilitar">Marcar como usada</button>
+                        {% endif %}
+                    </div>
+                    {% if block.has_conversion %}
+                    <div class="ssr-conv">
+                        <input class="sheet-input"
+                               name="slot_{{ row.index }}_ConvertedTo"
+                               value="{{ row.slot.ConvertedTo|default:'' }}"
+                               placeholder="Convertida em"
+                               data-field="spellSlot.ConvertedTo"
+                               data-slot="{{ row.index }}">
+                    </div>
+                    {% else %}
+                    <input type="hidden" name="slot_{{ row.index }}_ConvertedTo" value="{{ row.slot.ConvertedTo|default:'' }}">
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </article>
         {% endfor %}
     </div>
+    {% else %}
+    <p class="spellbook-slot-empty">Defina classe e nivel do personagem para liberar slots de magia.</p>
+    {% endif %}
 </form>
