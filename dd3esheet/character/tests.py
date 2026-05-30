@@ -1173,6 +1173,19 @@ class QueryCountTest(TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertLessEqual(len(queries), 15)
 
+    def test_home_render_keeps_character_card_query_count_bounded(self):
+        second = Character.objects.create(User=self.user, Name='Second')
+        from .services import _bootstrap_character_siblings
+        _bootstrap_character_siblings(second)
+
+        with CaptureQueriesContext(connections['default']) as queries:
+            resp = self.client.get(reverse('character:home'))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Query')
+        self.assertContains(resp, 'Second')
+        self.assertLessEqual(len(queries), 5)
+
 
 class SDRClassChoicesTests(TransactionTestCase):
     databases = ('default', 'sdr')
