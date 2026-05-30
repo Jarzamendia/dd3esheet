@@ -60,6 +60,12 @@ def _clamp_int(value, minimum=-999, maximum=999):
     return max(min(value, maximum), minimum)
 
 
+def _integer_bounds(model_field):
+    if model_field.model is CharacterProgress and model_field.name == 'ExperiencePoints':
+        return 0, 999999999
+    return -999, 999
+
+
 def _clean_text_value(value, model_field):
     max_length = getattr(model_field, 'max_length', None) or 200
     return (value or '').strip()[:max_length]
@@ -67,7 +73,7 @@ def _clean_text_value(value, model_field):
 
 def _clean_post_value(raw_value, model_field):
     if isinstance(model_field, models.IntegerField):
-        return _clamp_int(_to_int(raw_value, 0))
+        return _clamp_int(_to_int(raw_value, 0), *_integer_bounds(model_field))
     if isinstance(model_field, models.BooleanField):
         return raw_value in ('on', 'true', '1', 'yes')
     return _clean_text_value(raw_value, model_field)

@@ -1090,14 +1090,14 @@ class FieldValidationTest(TransactionTestCase):
     def test_integer_fields_are_clamped_without_500(self):
         resp = self.client.post(
             self.url,
-            {'ExperiencePoints': '5000'},
+            {'Speed': '5000'},
             HTTP_HX_REQUEST='true',
-            HTTP_HX_TARGET='characterProgressForm',
+            HTTP_HX_TARGET='characterStatusForm',
         )
 
         self.assertEqual(resp.status_code, 200)
-        self.char.characterprogress.refresh_from_db()
-        self.assertEqual(self.char.characterprogress.ExperiencePoints, 999)
+        self.char.characterstatus.refresh_from_db()
+        self.assertEqual(self.char.characterstatus.Speed, 999)
 
     def test_repeating_slot_strings_are_stripped_and_truncated_to_max_length(self):
         long_attack = f"  {'x' * 250}  "
