@@ -1086,7 +1086,7 @@ class HomeRedirectTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTemplateUsed(resp, 'home/landing.html')
         self.assertContains(resp, 'Entrar')
-        self.assertContains(resp, 'character_sheet.css?v=')
+        self.assertContains(resp, 'character_sheet')
 
     def test_authenticated_redirects_to_character_home(self):
         user = make_user()
@@ -1271,6 +1271,24 @@ class LoginBruteForceTest(TestCase):
 
 
 # ---------------------------------------------------------------------------
+# T1.4 — WhiteNoise + STATIC_ROOT
+# ---------------------------------------------------------------------------
+
+class StaticFilesTest(TestCase):
+
+    def test_whitenoise_middleware_in_middleware(self):
+        self.assertIn('whitenoise.middleware.WhiteNoiseMiddleware', settings.MIDDLEWARE)
+
+    def test_static_root_configured_inside_base_dir(self):
+        self.assertTrue(hasattr(settings, 'STATIC_ROOT'))
+        self.assertTrue(str(settings.STATIC_ROOT).startswith(str(settings.BASE_DIR)))
+
+    def test_whitenoise_storage_backend_configured(self):
+        backend = settings.STORAGES['staticfiles']['BACKEND']
+        self.assertIn('whitenoise', backend)
+
+
+# ---------------------------------------------------------------------------
 # T1.1 — Settings hardening via django-environ
 # ---------------------------------------------------------------------------
 
@@ -1314,7 +1332,8 @@ class HtmxLoadedTest(TransactionTestCase):
         self.client.force_login(self.user)
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, 'htmx.min.js')
+        # WhiteNoise manifest storage appends content hashes (htmx.min.<hash>.js)
+        self.assertContains(resp, 'htmx.min')
 
     def test_character_page_includes_csrf_config_request_handler(self):
         self.client.force_login(self.user)
