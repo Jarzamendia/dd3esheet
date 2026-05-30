@@ -2095,3 +2095,26 @@ class CompanionCollapseTest(TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode()
         self.assertNotIn('data-collapsed="true"', content)
+
+
+# ---------------------------------------------------------------------------
+# T3 — SDRSpellId column
+# ---------------------------------------------------------------------------
+
+class CharacterSpellSDRLinkTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    def test_sdr_spell_id_nullable_by_default(self):
+        user = make_user()
+        char = make_character(user)
+        spell = CharacterSpell.objects.create(Character=char, Name="X", Level=1)
+        self.assertIsNone(spell.SDRSpellId)
+
+    def test_sdr_spell_id_stores_integer(self):
+        user = make_user()
+        char = make_character(user)
+        spell = CharacterSpell.objects.create(
+            Character=char, Name="Magic Missile", Level=1, SDRSpellId=42,
+        )
+        spell.refresh_from_db()
+        self.assertEqual(spell.SDRSpellId, 42)
