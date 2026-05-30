@@ -5,6 +5,10 @@ services:
       sh -c "python manage.py migrate &&
              python manage.py seed &&
              python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - SECRET_KEY=django-insecure-dev-only-not-for-production
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
     volumes:
       - ./:/usr/src/app/
     ports:

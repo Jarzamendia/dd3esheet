@@ -1192,6 +1192,31 @@ class SeedTests(TestCase):
 
 
 # ---------------------------------------------------------------------------
+# T1.1 — Settings hardening via django-environ
+# ---------------------------------------------------------------------------
+
+class SettingsHardeningTest(TestCase):
+
+    def test_prod_security_settings_active_when_debug_false(self):
+        import os
+        import importlib
+        import dd3esheet.settings as settings_module
+        from unittest.mock import patch
+
+        with patch.dict(os.environ, {'DEBUG': 'False'}, clear=False):
+            importlib.reload(settings_module)
+            self.assertGreater(settings_module.SECURE_HSTS_SECONDS, 0)
+            self.assertTrue(settings_module.SESSION_COOKIE_SECURE)
+            self.assertTrue(settings_module.CSRF_COOKIE_SECURE)
+
+        importlib.reload(settings_module)
+
+    def test_secret_key_is_non_empty(self):
+        from django.conf import settings as s
+        self.assertTrue(len(s.SECRET_KEY) > 0)
+
+
+# ---------------------------------------------------------------------------
 # T0.2 — HTMX loaded in base template
 # ---------------------------------------------------------------------------
 
