@@ -1,0 +1,47 @@
+<form id="spellbookSlotsForm"
+      class="spell-level-block"
+      hx-post="{% url 'character:spellbook' character.pk %}"
+      hx-target="#spellbookSlotsForm"
+      hx-swap="outerHTML"
+      hx-trigger="change delay:300ms">
+    {% csrf_token %}
+    <div class="spell-level-head">
+        <span>Slots Preparados / Usados</span>
+        <span class="sl-meta">marque quando gastar</span>
+    </div>
+    <div class="spell-slot-table" data-sheet-table="prepared-spell-slots">
+        <div class="spell-slot-head">Nv</div>
+        <div class="spell-slot-head">Tipo</div>
+        <div class="spell-slot-head">Magia preparada</div>
+        <div class="spell-slot-head">Usada</div>
+        <div class="spell-slot-head">Conversao</div>
+        {% for slot in spell_slots_edit %}
+        <div><input class="sheet-input" name="slot_{{ forloop.counter }}_Level" value="{{ slot.Level|default:'' }}" inputmode="numeric" data-field="spellSlot.Level" data-slot="{{ forloop.counter }}"></div>
+        <div>
+            <select class="sheet-input" name="slot_{{ forloop.counter }}_SlotType" data-field="spellSlot.SlotType" data-slot="{{ forloop.counter }}">
+                <option value="normal" {% if slot.SlotType == "normal" %}selected{% endif %}>Normal</option>
+                <option value="domain" {% if slot.SlotType == "domain" %}selected{% endif %}>Dominio</option>
+                <option value="specialist" {% if slot.SlotType == "specialist" %}selected{% endif %}>Especialista</option>
+            </select>
+        </div>
+        <div><input class="sheet-input" name="slot_{{ forloop.counter }}_PreparedSpellName" value="{{ slot.PreparedSpellName|default:'' }}" data-field="spellSlot.PreparedSpellName" data-slot="{{ forloop.counter }}"></div>
+        <div>
+            {% if slot %}
+            <button class="spell-used-toggle"
+                    type="button"
+                    hx-post="{% url 'character:toggle-spell-slot' character.pk slot.id %}"
+                    hx-target="#spellbookSlotsForm"
+                    hx-swap="outerHTML"
+                    aria-label="Marcar uso da magia {{ slot.PreparedSpellName|default:'slot' }}"
+                    data-field="spellSlot.IsUsed"
+                    data-slot="{{ forloop.counter }}">
+                <span class="sp-check{% if slot.IsUsed %} is-used{% endif %}"></span>
+            </button>
+            {% else %}
+            <span class="sp-check"></span>
+            {% endif %}
+        </div>
+        <div><input class="sheet-input" name="slot_{{ forloop.counter }}_ConvertedTo" value="{{ slot.ConvertedTo|default:'' }}" data-field="spellSlot.ConvertedTo" data-slot="{{ forloop.counter }}"></div>
+        {% endfor %}
+    </div>
+</form>

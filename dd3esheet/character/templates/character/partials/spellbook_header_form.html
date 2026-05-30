@@ -1,0 +1,9 @@
+<form id="spellbookHeaderForm"
+      class="spellbook-header-form"
+      hx-post="{% url 'character:spellbook' character.pk %}"
+      hx-target="#spellbookHeaderForm"
+      hx-swap="outerHTML"
+      hx-trigger="change delay:300ms">
+    {% csrf_token %}
+    {% include "character/partials/spellcasting_header.html" %}
+</form>

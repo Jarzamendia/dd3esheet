@@ -1043,25 +1043,17 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
         self.char.characterspellcasting.Domain2 = ''
         self.char.characterspellcasting.save()
         self.url = reverse('character:character', kwargs={'pk': self.char.pk})
+        self.spellbook_url = reverse('character:spellbook', kwargs={'pk': self.char.pk})
 
     def test_cleric_sheet_renders_domain_and_daily_spell_summary(self):
-        CharacterSpellSlot.objects.create(
-            Character=self.char,
-            Level=1,
-            SlotType='domain',
-            PreparedSpellName='cure light wounds',
-            IsUsed=True,
-        )
-
         self.client.force_login(self.user)
         resp = self.client.get(self.url)
 
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'MAGIAS')
         self.assertContains(resp, 'Dominio Healing')
-        self.assertContains(resp, 'cure light wounds')
-        self.assertContains(resp, 'Slots Preparados / Usados')
         self.assertContains(resp, 'Restam')
+        self.assertContains(resp, 'Abrir Livro de Magias')
 
     def test_htmx_toggle_spell_slot_marks_used_and_returns_spells_partial(self):
         slot = CharacterSpellSlot.objects.create(
@@ -1081,9 +1073,9 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         slot.refresh_from_db()
         self.assertTrue(slot.IsUsed)
-        self.assertContains(resp, 'characterSpellsForm')
+        self.assertContains(resp, 'spellbookSlotsForm')
         self.assertContains(resp, 'bless')
-        follow_up = self.client.get(self.url)
+        follow_up = self.client.get(self.spellbook_url)
         self.assertContains(follow_up, 'bless')
         self.assertContains(follow_up, 'is-used')
 
@@ -1097,7 +1089,7 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
         )
 
         self.client.force_login(self.user)
-        resp = self.client.get(self.url)
+        resp = self.client.get(self.spellbook_url)
 
         self.assertContains(resp, 'class="spell-used-toggle"')
         self.assertContains(resp, 'type="button"')
@@ -1105,7 +1097,7 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
             resp,
             reverse('character:toggle-spell-slot', kwargs={'pk': self.char.pk, 'slot_id': slot.pk}),
         )
-        self.assertContains(resp, 'hx-target="#characterSpellsForm"')
+        self.assertContains(resp, 'hx-target="#spellbookSlotsForm"')
 
     def test_sorcerer_sheet_renders_known_spells_mode(self):
         self.char.Class = 'Sorcerer'
@@ -1118,7 +1110,6 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
         resp = self.client.get(self.url)
 
         self.assertContains(resp, 'spontaneous_known')
-        self.assertContains(resp, 'magic missile')
         self.assertContains(resp, 'CAR')
 
     def test_wizard_sheet_renders_specialized_school(self):
@@ -1139,14 +1130,82 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
     def test_any_class_can_render_custom_spellcasting(self):
         self.char.Class = 'Fighter'
         self.char.save()
-        CharacterSpell.objects.create(Character=self.char, Name='custom charm', Level=1)
 
         self.client.force_login(self.user)
         resp = self.client.get(self.url)
 
         self.assertContains(resp, 'MAGIAS')
-        self.assertContains(resp, 'custom')
-        self.assertContains(resp, 'custom charm')
+        self.assertContains(resp, 'Abrir Livro de Magias')
+        self.assertContains(resp, 'data-sheet-table="spellcasting-summary"')
+
+
+class SpellbookPageTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        from .seeds import seed_admin, seed_wizard
+        self.char = seed_wizard(seed_admin())
+        self.user = self.char.User
+        self.url = reverse('character:spellbook', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.user)
+
+    def test_spellbook_groups_maelis_vorn_spells_by_level(self):
+        resp = self.client.get(self.url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/spellbook.html')
+        self.assertContains(resp, 'Maelis Vorn')
+        self.assertContains(resp, 'Livro de Magias')
+        self.assertContains(resp, 'spellbookSlotsForm')
+        self.assertContains(resp, 'Slots Preparados / Usados')
+        self.assertContains(resp, 'spellbookLevel0Form')
+        self.assertContains(resp, 'spellbookLevel4Form')
+        self.assertContains(resp, 'Detectar Magia')
+        self.assertContains(resp, 'Mísseis Mágicos')
+        self.assertContains(resp, 'Bola de Fogo')
+
+    def test_htmx_post_updates_spellbook_section(self):
+        level_one_spells = list(CharacterSpell.objects.filter(Character=self.char, Level=1).order_by('id'))
+        payload = {}
+        for index, spell in enumerate(level_one_spells, start=1):
+            payload[f'spellbook_1_{index}_Name'] = spell.Name
+            payload[f'spellbook_1_{index}_Page'] = spell.Page
+        payload['spellbook_1_1_Page'] = 'PHB-2'
+
+        resp = self.client.post(
+            self.url,
+            payload,
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='spellbookLevel1Form',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/partials/spellbook_level_form.html')
+        updated = CharacterSpell.objects.get(Character=self.char, Level=1, Name=level_one_spells[0].Name)
+        self.assertEqual(updated.Page, 'PHB-2')
+
+
+class CharacterSpellsLeanTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        from .seeds import seed_admin, seed_wizard
+        self.char = seed_wizard(seed_admin())
+        self.url = reverse('character:character', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.char.User)
+
+    def test_character_spells_partial_is_lean(self):
+        resp = self.client.get(self.url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-sheet-table="spellcasting-summary"')
+        self.assertContains(resp, 'Abrir Livro de Magias')
+        self.assertNotContains(resp, 'data-sheet-table="prepared-spell-slots"')
+        self.assertNotContains(resp, 'data-sheet-table="known-spells"')
+        self.assertNotContains(resp, 'Slots Preparados / Usados')
+        self.assertNotContains(resp, 'Magias Conhecidas / Grimorio')
 
 
 class QueryCountTest(TransactionTestCase):
@@ -1805,3 +1864,57 @@ class UrlPkIntTest(TransactionTestCase):
     def test_numeric_pk_returns_200(self):
         resp = self.client.get(reverse('character:character', kwargs={'pk': self.char.pk}))
         self.assertEqual(resp.status_code, 200)
+
+
+# ---------------------------------------------------------------------------
+# T4.1 — Padronizar max-width das sub-páginas em 1280px
+# ---------------------------------------------------------------------------
+
+class SubPageWidthTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user(username='widthuser')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='WidthTest')
+        _bootstrap_character_siblings(self.char)
+        self.client.force_login(self.user)
+
+    def _css_text(self):
+        import re as _re
+        css_path = settings.BASE_DIR / 'static' / 'css' / 'character_sheet.css'
+        with open(css_path, encoding='utf-8') as f:
+            return f.read()
+
+    def test_companions_page_has_companions_sheet_class(self):
+        url = reverse('character:companions', kwargs={'pk': self.char.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'companions-sheet')
+
+    def test_daily_resources_page_has_sheet_utility_class(self):
+        url = reverse('character:daily-resources', kwargs={'pk': self.char.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'sheet-utility')
+
+    def test_reputation_page_has_sheet_utility_class(self):
+        url = reverse('character:reputation', kwargs={'pk': self.char.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'sheet-utility')
+
+    def test_companions_sheet_max_width_is_1280px(self):
+        import re
+        css = self._css_text()
+        m = re.search(r'\.companions-sheet\s*\{([^}]+)\}', css)
+        self.assertIsNotNone(m, '.companions-sheet rule not found in CSS')
+        self.assertIn('1280px', m.group(1), '.companions-sheet max-width must be 1280px')
+
+    def test_sheet_utility_max_width_is_1280px(self):
+        import re
+        css = self._css_text()
+        m = re.search(r'\.sheet-utility\s*\{([^}]+)\}', css)
+        self.assertIsNotNone(m, '.sheet-utility rule not found in CSS')
+        self.assertIn('1280px', m.group(1), '.sheet-utility max-width must be 1280px')

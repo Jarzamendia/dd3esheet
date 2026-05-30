@@ -1,22 +1,22 @@
 {% extends "main.html" %}
-{% block title %}{{ character.Name|default:"Ficha" }} - Reputacao{% endblock %}
+{% block title %}{{ character.Name|default:"Ficha" }} - Livro de Magias{% endblock %}
 
 {% block content %}
 
-<main class="sheet sheet-utility" data-screen-label="reputation">
+<main class="sheet sheet-utility spellbook-sheet" data-screen-label="spellbook">
 
     <nav class="sheet-page-tabs" aria-label="Paginas da ficha">
         <a class="sheet-page-tab" href="{% url 'character:character' character.pk %}">Ficha</a>
         <a class="sheet-page-tab" href="{% url 'character:companions' character.pk %}">Companheiros</a>
-        <a class="sheet-page-tab" href="{% url 'character:spellbook' character.pk %}">Livro de Magias</a>
+        <a class="sheet-page-tab is-active" href="{% url 'character:spellbook' character.pk %}">Livro de Magias</a>
         <a class="sheet-page-tab" href="{% url 'character:daily-resources' character.pk %}">Recursos</a>
-        <a class="sheet-page-tab is-active" href="{% url 'character:reputation' character.pk %}">Reputacao</a>
+        <a class="sheet-page-tab" href="{% url 'character:reputation' character.pk %}">Reputacao</a>
     </nav>
 
-    <header class="utility-header" data-sheet-table="reputation-header">
+    <header class="utility-header" data-sheet-table="spellbook-header">
         <div>
             <div class="brand-sub" style="text-align:left;">D&amp;D 3.5</div>
-            <h1>Reputacao, Contatos e Contratos</h1>
+            <h1>Livro de Magias</h1>
         </div>
         <div class="companions-character-card">
             <span class="label">Personagem</span>
@@ -25,12 +25,15 @@
         </div>
     </header>
 
-    <section class="utility-grid">
-        {% include "character/partials/reputation_contacts_form.html" %}
-        {% include "character/partials/reputation_factions_form.html" %}
-    </section>
+    {% include "character/partials/spellbook_header_form.html" %}
 
-    {% include "character/partials/reputation_contracts_form.html" %}
+    {% include "character/partials/spellbook_slots_form.html" %}
+
+    <section class="spellbook-accordion">
+        {% for spellbook_level in spellbook_levels %}
+            {% include "character/partials/spellbook_level_form.html" %}
+        {% endfor %}
+    </section>
 
 </main>
 

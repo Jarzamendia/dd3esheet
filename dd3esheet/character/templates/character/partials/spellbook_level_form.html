@@ -1,0 +1,22 @@
+<details class="spellbook-level" {% if spellbook_level.level == 0 %}open{% endif %}>
+    <summary class="spellbook-level-summary">
+        <span>Magias de nivel {{ spellbook_level.level }}</span>
+        <strong>{{ spellbook_level.count }}</strong>
+    </summary>
+    <form id="{{ spellbook_level.form_id }}"
+          class="spellbook-level-form"
+          hx-post="{% url 'character:spellbook' character.pk %}"
+          hx-target="#{{ spellbook_level.form_id }}"
+          hx-swap="outerHTML"
+          hx-trigger="change delay:300ms">
+        {% csrf_token %}
+        <div class="spellbook-level-grid" data-sheet-table="spellbook-level-{{ spellbook_level.level }}">
+            <div class="spellbook-head">Livro</div>
+            <div class="spellbook-head">Magia</div>
+            {% for spell in spellbook_level.spells %}
+            <input class="sheet-input spellbook-page-input" name="spellbook_{{ spellbook_level.level }}_{{ forloop.counter }}_Page" value="{{ spell.Page|default:'' }}" data-field="spellbook.Page" data-slot="{{ forloop.counter }}">
+            <input class="sheet-input spellbook-name-input" name="spellbook_{{ spellbook_level.level }}_{{ forloop.counter }}_Name" value="{{ spell.Name|default:'' }}" data-field="spellbook.Name" data-slot="{{ forloop.counter }}">
+            {% endfor %}
+        </div>
+    </form>
+</details>

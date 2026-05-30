@@ -25,6 +25,14 @@ from .calculations import (
 )
 from .spellcasting import spellcasting_context
 
+_SPELLBOOK_PROFILE_FIELDS = [
+    'CastingMode',
+    'Domain1',
+    'Domain2',
+    'SpecializedSchool',
+    'SpontaneousConversion',
+]
+
 
 def _annotate_skill_rules(skills):
     for skill in skills:
@@ -157,6 +165,45 @@ def _save_repeating_slots(character, request, model, prefix, fields, count):
         _update_fields_from_post(item, request, fields, slot_prefix)
 
 
+def _save_spellbook_level(character, request, level):
+    prefix = f'spellbook_{level}'
+    existing = list(
+        CharacterSpell.objects.filter(Character=character, Level=level).order_by('id')
+    )
+    row_count = 0
+    for key in request.POST.keys():
+        if key.startswith(f'{prefix}_') and key.endswith('_Name'):
+            try:
+                row_count = max(row_count, int(key.split('_')[2]))
+            except (IndexError, ValueError):
+                continue
+        elif key.startswith(f'{prefix}_') and key.endswith('_Page'):
+            try:
+                row_count = max(row_count, int(key.split('_')[2]))
+            except (IndexError, ValueError):
+                continue
+
+    name_field = CharacterSpell._meta.get_field('Name')
+    page_field = CharacterSpell._meta.get_field('Page')
+    processed = 0
+    for index in range(1, max(row_count, len(existing)) + 1):
+        item = existing[index - 1] if index <= len(existing) else None
+        name = _clean_text_value(request.POST.get(f'{prefix}_{index}_Name'), name_field)
+        page = _clean_text_value(request.POST.get(f'{prefix}_{index}_Page'), page_field)
+        if not name and not page:
+            if item is not None:
+                item.delete()
+            continue
+        if item is None:
+            item = CharacterSpell(Character=character)
+        item.Level = level
+        item.Name = name
+        item.Page = page
+        item.save()
+        processed += 1
+    return processed
+
+
 def _checked_indexes_from_post(request, prefix, count):
     return ','.join(str(index) for index in range(1, count + 1) if request.POST.get(f'{prefix}Checks_{index}'))
 
@@ -190,6 +237,44 @@ def _daily_resources_context(char, **extra):
         ],
         'resource_slots': resource_slots,
         'condition_slots': _ordered_slots(char, 'characteractiveeffect_set', CharacterActiveEffect, 12),
+    }
+    context.update(extra)
+    return context
+
+
+def _spellbook_level_rows(character, level):
+    spells = [
+        spell for spell in _related_items(character, 'characterspell_set', CharacterSpell)
+        if spell.Level == level
+    ]
+    return spells + [None]
+
+
+def _spellbook_level_context(char, level, spellcasting=None):
+    spellcasting = spellcasting or spellcasting_context(char)
+    spells = _spellbook_level_rows(char, level)
+    return {
+        'character': char,
+        'spellcasting': spellcasting,
+        'spellbook_profile_fields': _SPELLBOOK_PROFILE_FIELDS,
+        'spellbook_level': {
+            'level': level,
+            'target': f'spellbookLevel{level}Form',
+            'form_id': f'spellbookLevel{level}Form',
+            'spells': spells,
+            'count': len([spell for spell in spellcasting['known_spells'] if spell.Level == level]),
+        },
+    }
+
+
+def _spellbook_context(char, **extra):
+    spellcasting = spellcasting_context(char)
+    context = {
+        'character': char,
+        'spellcasting': spellcasting,
+        'spell_slots_edit': _ordered_slots(char, 'characterspellslot_set', CharacterSpellSlot, 20),
+        'spellbook_profile_fields': _SPELLBOOK_PROFILE_FIELDS,
+        'spellbook_levels': [_spellbook_level_context(char, level, spellcasting)['spellbook_level'] for level in range(10)],
     }
     context.update(extra)
     return context
@@ -623,6 +708,33 @@ def companions(request, pk):
 
 
 @login_required
+def spellbook(request, pk):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    if request.method == 'POST' and request.htmx:
+        if request.htmx.target == 'spellbookHeaderForm':
+            _update_fields_from_post(char.characterspellcasting, request, _SPELLBOOK_PROFILE_FIELDS, 'spellcasting_')
+            return render(request, 'character/partials/spellbook_header_form.html', _spellbook_context(char))
+
+        if request.htmx.target == 'spellbookSlotsForm':
+            _save_repeating_slots(char, request, CharacterSpellSlot, 'slot', [
+                'Level', 'SlotType', 'PreparedSpellName', 'ConvertedTo',
+            ], 20)
+            return render(request, 'character/partials/spellbook_slots_form.html', _spellbook_context(char))
+
+        target = request.htmx.target or ''
+        if target.startswith('spellbookLevel') and target.endswith('Form'):
+            try:
+                level = int(target.removeprefix('spellbookLevel').removesuffix('Form'))
+            except ValueError:
+                level = None
+            if level is not None and 0 <= level <= 9:
+                _save_spellbook_level(char, request, level)
+                return render(request, 'character/partials/spellbook_level_form.html', _spellbook_level_context(char, level))
+
+    return render(request, 'character/spellbook.html', _spellbook_context(char))
+
+
+@login_required
 def dailyResources(request, pk):
     char = get_object_or_404(Character, pk=pk, User=request.user)
     if request.method == 'POST' and request.htmx:
@@ -693,4 +805,4 @@ def toggleSpellSlot(request, pk, slot_id):
     if request.method == 'POST':
         slot.IsUsed = not slot.IsUsed
         slot.save(update_fields=['IsUsed'])
-    return render(request, 'character/partials/character_spells.html', _sheet_context(char))
+    return render(request, 'character/partials/spellbook_slots_form.html', _spellbook_context(char))
