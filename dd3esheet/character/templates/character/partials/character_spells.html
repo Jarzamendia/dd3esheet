@@ -1,4 +1,4 @@
-<section id="characterSpellsForm" class="spells-panel" aria-live="polite">
+<section id="characterSpellsForm" class="spells-panel" data-sheet-table="spells" aria-live="polite">
     <form hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterSpellsForm"
           hx-swap="outerHTML"
@@ -14,48 +14,48 @@
             </span>
         </div>
 
-        <div class="spell-profile-strip">
-            <div><span class="label">Modo</span><input class="sheet-input" name="spellcasting_CastingMode" value="{{ spellcasting.profile.CastingMode|default:spellcasting.config.mode }}"></div>
-            <div><span class="label">Dominio 1</span><input class="sheet-input" name="spellcasting_Domain1" value="{{ spellcasting.profile.Domain1|default:'' }}"></div>
-            <div><span class="label">Dominio 2</span><input class="sheet-input" name="spellcasting_Domain2" value="{{ spellcasting.profile.Domain2|default:'' }}"></div>
-            <div><span class="label">Escola</span><input class="sheet-input" name="spellcasting_SpecializedSchool" value="{{ spellcasting.profile.SpecializedSchool|default:'' }}"></div>
-            <div><span class="label">Conversao</span><input class="sheet-input" name="spellcasting_SpontaneousConversion" value="{{ spellcasting.profile.SpontaneousConversion|default:spellcasting.config.conversion }}"></div>
+        <div class="spell-profile-strip" data-sheet-table="spellcasting-profile">
+            <div><span class="label">Modo</span><input class="sheet-input" name="spellcasting_CastingMode" value="{{ spellcasting.profile.CastingMode|default:spellcasting.config.mode }}" data-field="spellcasting.CastingMode"></div>
+            <div><span class="label">Dominio 1</span><input class="sheet-input" name="spellcasting_Domain1" value="{{ spellcasting.profile.Domain1|default:'' }}" data-field="spellcasting.Domain1"></div>
+            <div><span class="label">Dominio 2</span><input class="sheet-input" name="spellcasting_Domain2" value="{{ spellcasting.profile.Domain2|default:'' }}" data-field="spellcasting.Domain2"></div>
+            <div><span class="label">Escola</span><input class="sheet-input" name="spellcasting_SpecializedSchool" value="{{ spellcasting.profile.SpecializedSchool|default:'' }}" data-field="spellcasting.SpecializedSchool"></div>
+            <div><span class="label">Conversao</span><input class="sheet-input" name="spellcasting_SpontaneousConversion" value="{{ spellcasting.profile.SpontaneousConversion|default:spellcasting.config.conversion }}" data-field="spellcasting.SpontaneousConversion"></div>
         </div>
 
-        <div class="spells-summary">
+        <div class="spells-summary" data-sheet-table="spellcasting-summary">
             <div class="sm-corner">Nivel</div>
             {% for row in spellcasting.levels %}
-            <div class="sm-level-head">{{ row.level }}</div>
+            <div class="sm-level-head" data-slot="{{ row.level }}">{{ row.level }}</div>
             {% endfor %}
 
             <div class="sm-row-head">Conhecidas</div>
             {% for row in spellcasting.levels %}
-            <div class="sm-cell">{{ row.spells_known }}</div>
+            <div class="sm-cell" data-derived="spellcasting.SpellsKnown" data-slot="{{ row.level }}">{{ row.spells_known }}</div>
             {% endfor %}
 
             <div class="sm-row-head">CD Resist.</div>
             {% for row in spellcasting.levels %}
-            <div class="sm-cell sm-cell--calc">{{ row.save_dc }}</div>
+            <div class="sm-cell sm-cell--calc" data-derived="spellcasting.SaveDC" data-slot="{{ row.level }}">{{ row.save_dc }}</div>
             {% endfor %}
 
             <div class="sm-row-head">Por Dia</div>
             {% for row in spellcasting.levels %}
-            <div class="sm-cell">{{ row.spells_per_day }}</div>
+            <div class="sm-cell" data-derived="spellcasting.SpellsPerDay" data-slot="{{ row.level }}">{{ row.spells_per_day }}</div>
             {% endfor %}
 
             <div class="sm-row-head">Bonus</div>
             {% for row in spellcasting.levels %}
-            <div class="sm-cell sm-cell--calc">{{ row.bonus_spells }}</div>
+            <div class="sm-cell sm-cell--calc" data-derived="spellcasting.BonusSpells" data-slot="{{ row.level }}">{{ row.bonus_spells }}</div>
             {% endfor %}
 
             <div class="sm-row-head">Usadas</div>
             {% for row in spellcasting.levels %}
-            <div class="sm-cell">{{ row.used_slots }}</div>
+            <div class="sm-cell" data-derived="spellcasting.UsedSlots" data-slot="{{ row.level }}">{{ row.used_slots }}</div>
             {% endfor %}
 
             <div class="sm-row-head">Restam</div>
             {% for row in spellcasting.levels %}
-            <div class="sm-cell sm-cell--calc">{{ row.remaining_slots }}</div>
+            <div class="sm-cell sm-cell--calc" data-derived="spellcasting.RemainingSlots" data-slot="{{ row.level }}">{{ row.remaining_slots }}</div>
             {% endfor %}
         </div>
 
@@ -65,22 +65,22 @@
                     <span>Slots Preparados / Usados</span>
                     <span class="sl-meta">marque quando gastar</span>
                 </div>
-                <div class="spell-slot-table">
+                <div class="spell-slot-table" data-sheet-table="prepared-spell-slots">
                     <div class="spell-slot-head">Nv</div>
                     <div class="spell-slot-head">Tipo</div>
                     <div class="spell-slot-head">Magia preparada</div>
                     <div class="spell-slot-head">Usada</div>
                     <div class="spell-slot-head">Conversao</div>
                     {% for slot in spell_slots_edit %}
-                    <div><input class="sheet-input" name="slot_{{ forloop.counter }}_Level" value="{{ slot.Level|default:'' }}" inputmode="numeric"></div>
+                    <div><input class="sheet-input" name="slot_{{ forloop.counter }}_Level" value="{{ slot.Level|default:'' }}" inputmode="numeric" data-field="spellSlot.Level" data-slot="{{ forloop.counter }}"></div>
                     <div>
-                        <select class="sheet-input" name="slot_{{ forloop.counter }}_SlotType">
+                        <select class="sheet-input" name="slot_{{ forloop.counter }}_SlotType" data-field="spellSlot.SlotType" data-slot="{{ forloop.counter }}">
                             <option value="normal" {% if slot.SlotType == "normal" %}selected{% endif %}>Normal</option>
                             <option value="domain" {% if slot.SlotType == "domain" %}selected{% endif %}>Dominio</option>
                             <option value="specialist" {% if slot.SlotType == "specialist" %}selected{% endif %}>Especialista</option>
                         </select>
                     </div>
-                    <div><input class="sheet-input" name="slot_{{ forloop.counter }}_PreparedSpellName" value="{{ slot.PreparedSpellName|default:'' }}"></div>
+                    <div><input class="sheet-input" name="slot_{{ forloop.counter }}_PreparedSpellName" value="{{ slot.PreparedSpellName|default:'' }}" data-field="spellSlot.PreparedSpellName" data-slot="{{ forloop.counter }}"></div>
                     <div>
                         {% if slot %}
                         <button class="spell-used-toggle"
@@ -88,14 +88,16 @@
                                 hx-post="{% url 'character:toggle-spell-slot' character.pk slot.id %}"
                                 hx-target="#characterSpellsForm"
                                 hx-swap="outerHTML"
-                                aria-label="Marcar uso da magia {{ slot.PreparedSpellName|default:'slot' }}">
+                                aria-label="Marcar uso da magia {{ slot.PreparedSpellName|default:'slot' }}"
+                                data-field="spellSlot.IsUsed"
+                                data-slot="{{ forloop.counter }}">
                             <span class="sp-check{% if slot.IsUsed %} is-used{% endif %}"></span>
                         </button>
                         {% else %}
                         <span class="sp-check"></span>
                         {% endif %}
                     </div>
-                    <div><input class="sheet-input" name="slot_{{ forloop.counter }}_ConvertedTo" value="{{ slot.ConvertedTo|default:'' }}"></div>
+                    <div><input class="sheet-input" name="slot_{{ forloop.counter }}_ConvertedTo" value="{{ slot.ConvertedTo|default:'' }}" data-field="spellSlot.ConvertedTo" data-slot="{{ forloop.counter }}"></div>
                     {% endfor %}
                 </div>
             </article>
@@ -105,15 +107,18 @@
                     <span>Magias Conhecidas / Grimorio</span>
                     <span class="sl-meta">{{ spellcasting.known_spells|length }} magia{{ spellcasting.known_spells|length|pluralize:"s" }}</span>
                 </div>
-                <div class="spell-grid">
+                <div class="spell-grid" data-sheet-table="known-spells">
+                    <div class="spell-known-head">Nv</div>
+                    <div class="spell-known-head">Magia</div>
+                    <div class="spell-known-head">Livro</div>
+                    <div class="spell-known-head">Nv</div>
+                    <div class="spell-known-head">Magia</div>
+                    <div class="spell-known-head">Livro</div>
                     {% for spell in known_spell_slots %}
-                    <div class="spell-item" id="spell-item-{{ spell.id|default:forloop.counter }}">
-                        <span class="sp-check"></span>
-                        <span class="sp-name">
-                            Nv <input class="sheet-input spell-level-input" name="known_spell_{{ forloop.counter }}_Level" value="{{ spell.Level|default:'' }}" inputmode="numeric">
-                            <input class="sheet-input" name="known_spell_{{ forloop.counter }}_Name" value="{{ spell.Name|default:'' }}">
-                        </span>
-                        <span class="sp-tag">p. <input class="sheet-input" name="known_spell_{{ forloop.counter }}_Page" value="{{ spell.Page|default:'' }}"></span>
+                    <div class="spell-item" id="spell-item-{{ spell.id|default:forloop.counter }}" data-slot="{{ forloop.counter }}">
+                        <input class="sheet-input spell-level-input" name="known_spell_{{ forloop.counter }}_Level" value="{{ spell.Level|default:'' }}" inputmode="numeric" data-field="knownSpell.Level" data-slot="{{ forloop.counter }}">
+                        <input class="sheet-input sp-name" name="known_spell_{{ forloop.counter }}_Name" value="{{ spell.Name|default:'' }}" data-field="knownSpell.Name" data-slot="{{ forloop.counter }}">
+                        <span class="sp-tag"><input class="sheet-input" name="known_spell_{{ forloop.counter }}_Page" value="{{ spell.Page|default:'' }}" data-field="knownSpell.Page" data-slot="{{ forloop.counter }}"></span>
                     </div>
                     {% endfor %}
                 </div>
@@ -124,17 +129,17 @@
         <div class="domain-grid">
             <article class="spell-level-block">
                 <div class="spell-level-head"><span>Dominio {{ spellcasting.profile.Domain1|default:"1" }}</span></div>
-                <div class="domain-spell-list">
+                <div class="domain-spell-list" data-sheet-table="domain-spells-1">
                     {% for spell in spellcasting.domain_1_spells %}
-                    <div><span>{{ spell.level }}</span><strong>{{ spell.name|default:"-" }}</strong></div>
+                    <div data-slot="{{ spell.level }}"><span data-derived="domainSpell.Level" data-slot="{{ spell.level }}">{{ spell.level }}</span><strong data-derived="domainSpell.Name" data-slot="{{ spell.level }}">{{ spell.name|default:"-" }}</strong></div>
                     {% endfor %}
                 </div>
             </article>
             <article class="spell-level-block">
                 <div class="spell-level-head"><span>Dominio {{ spellcasting.profile.Domain2|default:"2" }}</span></div>
-                <div class="domain-spell-list">
+                <div class="domain-spell-list" data-sheet-table="domain-spells-2">
                     {% for spell in spellcasting.domain_2_spells %}
-                    <div><span>{{ spell.level }}</span><strong>{{ spell.name|default:"-" }}</strong></div>
+                    <div data-slot="{{ spell.level }}"><span data-derived="domainSpell.Level" data-slot="{{ spell.level }}">{{ spell.level }}</span><strong data-derived="domainSpell.Name" data-slot="{{ spell.level }}">{{ spell.name|default:"-" }}</strong></div>
                     {% endfor %}
                 </div>
             </article>

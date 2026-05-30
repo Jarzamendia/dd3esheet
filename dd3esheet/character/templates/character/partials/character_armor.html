@@ -1,5 +1,5 @@
 {% with armor=character.characterarmor_set.all.0 shield=character.charactershield_set.all.0 %}
-<section id="characterEquipmentSection" class="equipment-panel">
+<section id="characterEquipmentSection" class="equipment-panel" data-sheet-table="equipment">
     <form id="characterEquipmentForm"
           hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterEquipmentSection"
@@ -10,7 +10,7 @@
             <span>EQUIPAMENTOS</span>
         </div>
 
-        <article class="equipment-card">
+        <article class="equipment-card" data-sheet-table="armor">
             <div class="equipment-card-head equipment-card-head--armor">
                 <div>Armadura</div>
                 <div>Tipo</div>
@@ -18,10 +18,10 @@
                 <div>DES Max</div>
             </div>
             <div class="equipment-card-row equipment-card-row--armor">
-                <input class="sheet-input" name="armor_Name" value="{{ armor.Name|default:'' }}">
-                <input class="sheet-input" name="armor_Type" value="{{ armor.Type|default:'' }}">
-                <input class="sheet-input" name="armor_ACBonus" value="{{ armor.ACBonus|default:'' }}">
-                <input class="sheet-input" name="armor_MaxDex" value="{{ armor.MaxDex|default:'' }}">
+                <input class="sheet-input" name="armor_Name" value="{{ armor.Name|default:'' }}" data-field="armor.Name">
+                <input class="sheet-input" name="armor_Type" value="{{ armor.Type|default:'' }}" data-field="armor.Type">
+                <input class="sheet-input" name="armor_ACBonus" value="{{ armor.ACBonus|default:'' }}" data-field="armor.ACBonus">
+                <input class="sheet-input" name="armor_MaxDex" value="{{ armor.MaxDex|default:'' }}" data-field="armor.MaxDex">
             </div>
             <div class="equipment-card-head equipment-card-head--armor-detail">
                 <div>Penalidade de Armadura</div>
@@ -31,15 +31,15 @@
                 <div>Propriedades Especiais</div>
             </div>
             <div class="equipment-card-row equipment-card-row--armor-detail">
-                <input class="sheet-input" name="armor_CheckPenalty" value="{{ armor.CheckPenalty|default:'' }}">
-                <input class="sheet-input" name="armor_SpellFailure" value="{{ armor.SpellFailure|default:'' }}">
-                <input class="sheet-input" name="armor_Speed" value="{{ armor.Speed|default:'' }}">
-                <input class="sheet-input" name="armor_Weigth" value="{{ armor.Weigth|default:'' }}">
-                <input class="sheet-input" name="armor_SpecialProperties" value="{{ armor.SpecialProperties|default:'' }}">
+                <input class="sheet-input" name="armor_CheckPenalty" value="{{ armor.CheckPenalty|default:'' }}" data-field="armor.CheckPenalty">
+                <input class="sheet-input" name="armor_SpellFailure" value="{{ armor.SpellFailure|default:'' }}" data-field="armor.SpellFailure">
+                <input class="sheet-input" name="armor_Speed" value="{{ armor.Speed|default:'' }}" data-field="armor.Speed">
+                <input class="sheet-input" name="armor_Weigth" value="{{ armor.Weigth|default:'' }}" data-field="armor.Weigth">
+                <input class="sheet-input" name="armor_SpecialProperties" value="{{ armor.SpecialProperties|default:'' }}" data-field="armor.SpecialProperties">
             </div>
         </article>
 
-        <article class="equipment-card">
+        <article class="equipment-card" data-sheet-table="shield">
             <div class="equipment-card-head equipment-card-head--shield">
                 <div>Escudo</div>
                 <div>Bonus na CA</div>
@@ -47,22 +47,22 @@
                 <div>Penalidade de Armadura</div>
             </div>
             <div class="equipment-card-row equipment-card-row--shield">
-                <input class="sheet-input" name="shield_Name" value="{{ shield.Name|default:'' }}">
-                <input class="sheet-input" name="shield_ACBonus" value="{{ shield.ACBonus|default:'' }}">
-                <input class="sheet-input" name="shield_Weigth" value="{{ shield.Weigth|default:'' }}">
-                <input class="sheet-input" name="shield_CheckPenalty" value="{{ shield.CheckPenalty|default:'' }}">
+                <input class="sheet-input" name="shield_Name" value="{{ shield.Name|default:'' }}" data-field="shield.Name">
+                <input class="sheet-input" name="shield_ACBonus" value="{{ shield.ACBonus|default:'' }}" data-field="shield.ACBonus">
+                <input class="sheet-input" name="shield_Weigth" value="{{ shield.Weigth|default:'' }}" data-field="shield.Weigth">
+                <input class="sheet-input" name="shield_CheckPenalty" value="{{ shield.CheckPenalty|default:'' }}" data-field="shield.CheckPenalty">
             </div>
             <div class="equipment-card-head equipment-card-head--shield-detail">
                 <div>Chance de Falha de Magia</div>
                 <div>Propriedades Especiais</div>
             </div>
             <div class="equipment-card-row equipment-card-row--shield-detail">
-                <input class="sheet-input" name="shield_SpellFailure" value="{{ shield.SpellFailure|default:'' }}">
-                <input class="sheet-input" name="shield_SpecialProperties" value="{{ shield.SpecialProperties|default:'' }}">
+                <input class="sheet-input" name="shield_SpellFailure" value="{{ shield.SpellFailure|default:'' }}" data-field="shield.SpellFailure">
+                <input class="sheet-input" name="shield_SpecialProperties" value="{{ shield.SpecialProperties|default:'' }}" data-field="shield.SpecialProperties">
             </div>
         </article>
 
-        <div class="equipment-protection-list">
+        <div class="equipment-protection-list" data-sheet-table="protection-items">
             {% for item in protection_slots %}
                 {% include "character/partials/protection_item_slot.html" with slot=forloop.counter %}
             {% endfor %}

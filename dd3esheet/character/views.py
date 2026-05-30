@@ -6,6 +6,7 @@ from django.db.models import Prefetch
 from .models import (
     Ability, Character, CharacterArmor, CharacterAttackModifiers,
     CharacterActiveEffect, CharacterDailyNotes, CharacterDailyResource,
+    CharacterCompanion,
     CharacterFeat, CharacterLanguages, CharacterMoney, CharacterOtherItem,
     CharacterOtherItemObs, CharacterProgress, CharacterProtectionItem, CharacterSavingThrows,
     CharacterShield, CharacterSkill, CharacterSkillGraduation,
@@ -192,6 +193,89 @@ def _daily_resources_context(char, **extra):
     }
     context.update(extra)
     return context
+
+
+def _companions_context(char, **extra):
+    context = {
+        'character': char,
+        'companion_slots': _ordered_slots(char, 'charactercompanion_set', CharacterCompanion, 4),
+        'companion_types': ['Animal', 'Familiar', 'Montaria', 'Invocacao'],
+        'companion_skills': [
+            ('Esconder-se', 'DES'),
+            ('Ouvir', 'SAB'),
+            ('Furtividade', 'DES'),
+            ('Procurar', 'INT'),
+            ('Observar', 'SAB'),
+            ('Equilibrio', 'DES'),
+            ('Escalar', 'FOR'),
+            ('Arte da Fuga', 'DES'),
+            ('Saltar', 'FOR'),
+            ('Sobrevivencia', 'SAB'),
+            ('Natacao', 'FOR'),
+        ],
+        'summon_nature_rows': _summon_nature_rows(),
+    }
+    context.update(extra)
+    return context
+
+
+def _summon_nature_rows():
+    return [
+        {
+            'level': 1,
+            'spell': 'Aliado da Natureza I',
+            'quantity': '1 criatura de 1o nivel',
+            'examples': 'Rato atroz, aguia, macaco, coruja, lobo, vibora pequena',
+        },
+        {
+            'level': 2,
+            'spell': 'Aliado da Natureza II',
+            'quantity': '1 de 2o, 1d3 de 1o',
+            'examples': 'Urso negro, crocodilo, texugo atroz, morcego atroz, elemental pequeno',
+        },
+        {
+            'level': 3,
+            'spell': 'Aliado da Natureza III',
+            'quantity': '1 de 3o, 1d3 de 2o, 1d4+1 de 1o',
+            'examples': 'Gorila, doninha atroz, lobo atroz, leao, thoqqua',
+        },
+        {
+            'level': 4,
+            'spell': 'Aliado da Natureza IV',
+            'quantity': '1 de 4o, 1d3 de 3o, 1d4+1 menores',
+            'examples': 'Urso pardo, aguia gigante, elemental medio, tigre, unicornio',
+        },
+        {
+            'level': 5,
+            'spell': 'Aliado da Natureza V',
+            'quantity': '1 de 5o, 1d3 de 4o, 1d4+1 menores',
+            'examples': 'Urso polar, leao atroz, elemental grande, grifo, rinoceronte',
+        },
+        {
+            'level': 6,
+            'spell': 'Aliado da Natureza VI',
+            'quantity': '1 de 6o, 1d3 de 5o, 1d4+1 menores',
+            'examples': 'Urso atroz, elemental enorme, elefante, girallon, megaraptor',
+        },
+        {
+            'level': 7,
+            'spell': 'Aliado da Natureza VII',
+            'quantity': '1 de 7o, 1d3 de 6o, 1d4+1 menores',
+            'examples': 'Tigre atroz, elemental maior, djinni, triceratopo, tiranossauro',
+        },
+        {
+            'level': 8,
+            'spell': 'Aliado da Natureza VIII',
+            'quantity': '1 de 8o, 1d3 de 7o, 1d4+1 menores',
+            'examples': 'Elemental anciao, roc, salamandra nobre, baleia cachalote',
+        },
+        {
+            'level': 9,
+            'spell': 'Aliado da Natureza IX',
+            'quantity': '1 de 9o, 1d3 de 8o, 1d4+1 menores',
+            'examples': 'Elemental anciao, grifo celestial, unicornios e aliados maiores',
+        },
+    ]
 
 
 def _save_daily_resources(char, request):
@@ -517,80 +601,14 @@ def character(request, pk):
 @login_required
 def companions(request, pk):
     char = get_object_or_404(Character, pk=pk, User=request.user)
-    companion_skills = [
-        ('Esconder-se', 'DES'),
-        ('Ouvir', 'SAB'),
-        ('Furtividade', 'DES'),
-        ('Procurar', 'INT'),
-        ('Observar', 'SAB'),
-        ('Equilibrio', 'DES'),
-        ('Escalar', 'FOR'),
-        ('Arte da Fuga', 'DES'),
-        ('Saltar', 'FOR'),
-        ('Sobrevivencia', 'SAB'),
-        ('Natacao', 'FOR'),
-    ]
-    summon_nature_rows = [
-        {
-            'level': 1,
-            'spell': 'Aliado da Natureza I',
-            'quantity': '1 criatura de 1o nivel',
-            'examples': 'Rato atroz, aguia, macaco, coruja, lobo, vibora pequena',
-        },
-        {
-            'level': 2,
-            'spell': 'Aliado da Natureza II',
-            'quantity': '1 de 2o, 1d3 de 1o',
-            'examples': 'Urso negro, crocodilo, texugo atroz, morcego atroz, elemental pequeno',
-        },
-        {
-            'level': 3,
-            'spell': 'Aliado da Natureza III',
-            'quantity': '1 de 3o, 1d3 de 2o, 1d4+1 de 1o',
-            'examples': 'Gorila, doninha atroz, lobo atroz, leao, thoqqua',
-        },
-        {
-            'level': 4,
-            'spell': 'Aliado da Natureza IV',
-            'quantity': '1 de 4o, 1d3 de 3o, 1d4+1 menores',
-            'examples': 'Urso pardo, aguia gigante, elemental medio, tigre, unicornio',
-        },
-        {
-            'level': 5,
-            'spell': 'Aliado da Natureza V',
-            'quantity': '1 de 5o, 1d3 de 4o, 1d4+1 menores',
-            'examples': 'Urso polar, leao atroz, elemental grande, grifo, rinoceronte',
-        },
-        {
-            'level': 6,
-            'spell': 'Aliado da Natureza VI',
-            'quantity': '1 de 6o, 1d3 de 5o, 1d4+1 menores',
-            'examples': 'Urso atroz, elemental enorme, elefante, girallon, megaraptor',
-        },
-        {
-            'level': 7,
-            'spell': 'Aliado da Natureza VII',
-            'quantity': '1 de 7o, 1d3 de 6o, 1d4+1 menores',
-            'examples': 'Tigre atroz, elemental maior, djinni, triceratopo, tiranossauro',
-        },
-        {
-            'level': 8,
-            'spell': 'Aliado da Natureza VIII',
-            'quantity': '1 de 8o, 1d3 de 7o, 1d4+1 menores',
-            'examples': 'Elemental anciao, roc, salamandra nobre, baleia cachalote',
-        },
-        {
-            'level': 9,
-            'spell': 'Aliado da Natureza IX',
-            'quantity': '1 de 9o, 1d3 de 8o, 1d4+1 menores',
-            'examples': 'Elemental anciao, grifo celestial, unicornios e aliados maiores',
-        },
-    ]
-    return render(request, 'character/companions.html', {
-        'character': char,
-        'companion_skills': companion_skills,
-        'summon_nature_rows': summon_nature_rows,
-    })
+    if request.method == 'POST' and request.htmx:
+        _save_repeating_slots(char, request, CharacterCompanion, 'companion', [
+            'Type', 'Name', 'Species', 'HitPoints', 'ArmorClass', 'Speed',
+            'Skills', 'Feats', 'SpecialAbilities', 'Notes',
+        ], 4)
+        return render(request, 'character/partials/companions_form.html', _companions_context(char))
+
+    return render(request, 'character/companions.html', _companions_context(char))
 
 
 @login_required

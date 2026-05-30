@@ -125,7 +125,8 @@ class CharacterSkill(models.Model):
 
     SkillIsActive = models.BooleanField(default=False, null=True, blank=True)
     SkillName       = models.CharField(max_length=200, null=True, blank=True)
-    SkillAbility    = models.IntegerField(default=0, null=True, blank=True)
+    SkillSpecialization = models.CharField(max_length=200, null=True, blank=True)
+    SkillAbility    = models.CharField(max_length=10, null=True, blank=True)
     SkillModifier   = models.IntegerField(default=0, null=True, blank=True)
     AbilityModifier = models.IntegerField(default=0, null=True, blank=True)
     Ranks           = models.IntegerField(default=0, null=True, blank=True)
@@ -220,6 +221,12 @@ class CharacterMoney(models.Model):
     GP        = models.IntegerField(default=0, null=True, blank=True)
     PP        = models.IntegerField(default=0, null=True, blank=True)
 
+class CharacterProgress(models.Model):
+    Character        = models.OneToOneField(Character, on_delete=models.CASCADE, primary_key=True)
+
+    ExperiencePoints = models.IntegerField(default=0, null=True, blank=True)
+    CampaignName     = models.CharField(max_length=200, null=True, blank=True)
+
 class CharacterFeat(models.Model):
     Character = models.ForeignKey(Character, on_delete=models.CASCADE)
 
@@ -297,3 +304,43 @@ class CharacterMagicDayUse(models.Model):
 class CharacterLanguages(models.Model):
     Character = models.ForeignKey(Character, on_delete=models.CASCADE)
     Value     = models.CharField(max_length=200, null=True, blank=True)
+
+class CharacterDailyResource(models.Model):
+    Character = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    Name      = models.CharField(max_length=200, null=True, blank=True)
+    Source    = models.CharField(max_length=200, null=True, blank=True)
+    Maximum   = models.IntegerField(default=0, null=True, blank=True)
+    Used      = models.IntegerField(default=0, null=True, blank=True)
+    Remaining = models.IntegerField(default=0, null=True, blank=True)
+    Refresh   = models.CharField(max_length=200, null=True, blank=True)
+    Checks    = models.CharField(max_length=200, null=True, blank=True)
+
+class CharacterActiveEffect(models.Model):
+    Character       = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    Name            = models.CharField(max_length=200, null=True, blank=True)
+    Source          = models.CharField(max_length=200, null=True, blank=True)
+    Modifier        = models.CharField(max_length=200, null=True, blank=True)
+    RoundsRemaining = models.IntegerField(default=0, null=True, blank=True)
+    Notes           = models.CharField(max_length=200, null=True, blank=True)
+
+class CharacterDailyNotes(models.Model):
+    Character   = models.OneToOneField(Character, on_delete=models.CASCADE, primary_key=True)
+
+    Preparation = models.TextField(null=True, blank=True)
+    Spent       = models.TextField(null=True, blank=True)
+
+class CharacterCompanion(models.Model):
+    Character        = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    Type             = models.CharField(max_length=200, blank=True)
+    Name             = models.CharField(max_length=200, blank=True)
+    Species          = models.CharField(max_length=200, blank=True)
+    HitPoints        = models.IntegerField(default=0)
+    ArmorClass       = models.IntegerField(default=0)
+    Speed            = models.CharField(max_length=50, blank=True)
+    Skills           = models.TextField(blank=True)
+    Feats            = models.TextField(blank=True)
+    SpecialAbilities = models.TextField(blank=True)
+    Notes            = models.TextField(blank=True)

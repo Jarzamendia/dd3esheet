@@ -1,0 +1,101 @@
+{% extends "main.html" %}
+{% block title %}{{ character.Name|default:"Ficha" }} - Recursos Diarios{% endblock %}
+
+{% block content %}
+
+<main class="sheet sheet-utility" data-screen-label="daily-resources">
+
+    <nav class="sheet-page-tabs" aria-label="Paginas da ficha">
+        <a class="sheet-page-tab" href="{% url 'character:character' character.pk %}">Ficha</a>
+        <a class="sheet-page-tab" href="{% url 'character:companions' character.pk %}">Companheiros</a>
+        <a class="sheet-page-tab is-active" href="{% url 'character:daily-resources' character.pk %}">Recursos</a>
+        <a class="sheet-page-tab" href="{% url 'character:reputation' character.pk %}">Reputacao</a>
+    </nav>
+
+    <header class="utility-header" data-sheet-table="daily-resources-header">
+        <div>
+            <div class="brand-sub" style="text-align:left;">D&amp;D 3.5</div>
+            <h1>Recursos Diarios</h1>
+        </div>
+        <div class="companions-character-card">
+            <span class="label">Personagem</span>
+            <strong data-field="character.Name">{{ character.Name|default:"-" }}</strong>
+            <span data-field="character.Class">{{ character.Class|default:"-" }} Nv {{ character.Level|default:"-" }}</span>
+        </div>
+    </header>
+
+    <form id="dailyResourcesForm"
+          hx-post="{% url 'character:daily-resources' character.pk %}"
+          hx-target="#dailyResourcesForm"
+          hx-swap="outerHTML"
+          hx-trigger="change delay:300ms">
+    {% csrf_token %}
+
+    <section class="utility-grid utility-grid--daily">
+        <article class="utility-block" data-sheet-table="daily-resource-tracker">
+            <div class="section-title-band"><span>Usos por Dia / Descanso</span></div>
+            <div class="resource-table">
+                <div class="resource-head">Recurso</div>
+                <div class="resource-head">Fonte</div>
+                <div class="resource-head">Max</div>
+                <div class="resource-head">Usado</div>
+                <div class="resource-head">Restam</div>
+                <div class="resource-head">Recarga</div>
+                <div class="resource-head">Marcadores</div>
+                {% for resource in resource_slots %}
+                <input class="sheet-input" list="resource-suggestions" name="resource_{{ forloop.counter }}_Name" value="{{ resource.item.Name|default:'' }}" data-field="dailyResource.Name" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" name="resource_{{ forloop.counter }}_Source" value="{{ resource.item.Source|default:'' }}" data-field="dailyResource.Source" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" name="resource_{{ forloop.counter }}_Maximum" value="{{ resource.item.Maximum|default:'' }}" data-field="dailyResource.Maximum" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" name="resource_{{ forloop.counter }}_Used" value="{{ resource.item.Used|default:'' }}" data-field="dailyResource.Used" data-slot="{{ forloop.counter }}">
+                <div class="resource-calc" data-derived="dailyResource.Remaining" data-slot="{{ forloop.counter }}">{{ resource.item.Remaining|default:"-" }}</div>
+                <input class="sheet-input" name="resource_{{ forloop.counter }}_Refresh" value="{{ resource.item.Refresh|default:'' }}" data-field="dailyResource.Refresh" data-slot="{{ forloop.counter }}">
+                <div class="resource-checks" data-field="dailyResource.Checks" data-slot="{{ forloop.counter }}">
+                    {% for mark in "1234567890" %}<label><input type="checkbox" name="resource_{{ forloop.parentloop.counter }}_Checks_{{ forloop.counter }}" data-index="{{ forloop.counter }}" {% if forloop.counter|stringformat:"s" in resource.checks %}checked{% endif %}><span></span></label>{% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            <datalist id="resource-suggestions">
+                {% for suggestion in resource_suggestions %}
+                <option value="{{ suggestion }}">
+                {% endfor %}
+            </datalist>
+        </article>
+
+        <article class="utility-block" data-sheet-table="active-effects">
+            <div class="section-title-band"><span>Efeitos Ativos</span></div>
+            <div class="effect-table">
+                <div class="resource-head">Efeito</div>
+                <div class="resource-head">Origem</div>
+                <div class="resource-head">Bonus / Penalidade</div>
+                <div class="resource-head">Rodadas</div>
+                <div class="resource-head">Notas</div>
+                {% for effect in condition_slots %}
+                <input class="sheet-input" name="effect_{{ forloop.counter }}_Name" value="{{ effect.Name|default:'' }}" data-field="activeEffect.Name" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" name="effect_{{ forloop.counter }}_Source" value="{{ effect.Source|default:'' }}" data-field="activeEffect.Source" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" name="effect_{{ forloop.counter }}_Modifier" value="{{ effect.Modifier|default:'' }}" data-field="activeEffect.Modifier" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" name="effect_{{ forloop.counter }}_RoundsRemaining" value="{{ effect.RoundsRemaining|default:'' }}" data-field="activeEffect.RoundsRemaining" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" name="effect_{{ forloop.counter }}_Notes" value="{{ effect.Notes|default:'' }}" data-field="activeEffect.Notes" data-slot="{{ forloop.counter }}">
+                {% endfor %}
+            </div>
+        </article>
+    </section>
+
+    <section class="utility-block" data-sheet-table="daily-notes">
+        <div class="section-title-band"><span>Rotina de Descanso / Preparacao</span></div>
+        <div class="utility-notes-grid">
+            <div class="companion-notes">
+                <label class="label" for="daily-prepare">Preparar ao acordar</label>
+                <textarea id="daily-prepare" name="Preparation" data-field="dailyNotes.Preparation">{{ daily_notes.Preparation|default:'' }}</textarea>
+            </div>
+            <div class="companion-notes">
+                <label class="label" for="daily-spent">Gastos importantes do dia</label>
+                <textarea id="daily-spent" name="Spent" data-field="dailyNotes.Spent">{{ daily_notes.Spent|default:'' }}</textarea>
+            </div>
+        </div>
+    </section>
+
+    </form>
+
+</main>
+
+{% endblock %}

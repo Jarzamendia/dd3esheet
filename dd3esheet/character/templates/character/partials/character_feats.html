@@ -1,4 +1,4 @@
-<section id="characterFeatsSection" class="feats-panel">
+<section id="characterFeatsSection" class="feats-panel" data-sheet-table="feats">
     <form id="characterFeatsForm" class="feats-form"
           hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterFeatsSection"
@@ -9,9 +9,9 @@
         <div class="list-block">
             <div class="list-block-body feats-list">
                 {% for feat in feat_slots %}
-                <div class="list-line{% if not feat %} is-empty{% endif %}">
-                    <input class="ll-name sheet-input" name="feat_{{ forloop.counter }}_Name" value="{{ feat.Name|default:'' }}">
-                    <input class="ll-page sheet-input" name="feat_{{ forloop.counter }}_Page" value="{{ feat.Page|default:'' }}">
+                <div class="list-line{% if not feat %} is-empty{% endif %}" data-slot="{{ forloop.counter }}">
+                    <input class="ll-name sheet-input" name="feat_{{ forloop.counter }}_Name" value="{{ feat.Name|default:'' }}" data-max-font="14" data-min-font="8" data-field="feat.Name" data-slot="{{ forloop.counter }}">
+                    <input class="ll-page sheet-input" name="feat_{{ forloop.counter }}_Page" value="{{ feat.Page|default:'' }}" data-max-font="9.5" data-min-font="7" data-field="feat.Page" data-slot="{{ forloop.counter }}">
                 </div>
                 {% endfor %}
             </div>

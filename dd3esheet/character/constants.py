@@ -12,6 +12,27 @@ CLASS_LABEL_PT = {
     'Wizard':    'Mago',
 }
 
+PHB_BASE_CLASSES = [
+    'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter',
+    'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Wizard',
+]
+
+SKILL_LIST_PT = [
+    'Avaliar', 'Equilibrio', 'Blefar', 'Escalar', 'Concentracao',
+    'Oficios', 'Oficios', 'Oficios',
+    'Decifrar Escrita', 'Diplomacia', 'Operar Mecanismo', 'Disfarces', 'Arte da Fuga',
+    'Falsificacao', 'Obter Informacao', 'Adestrar Animais', 'Cura', 'Esconder-se',
+    'Intimidar', 'Saltar',
+    'Conhecimento', 'Conhecimento', 'Conhecimento',
+    'Ouvir', 'Furtividade', 'Abrir Fechaduras',
+    'Atuacao', 'Profissao', 'Profissao', 'Profissao',
+    'Cavalgar', 'Procurar', 'Sentir Motivacao', 'Prestidigitacao',
+    'Identificar Magia', 'Observar', 'Sobrevivencia', 'Natacao', 'Acrobacia', 'Usar Instrumento Magico',
+    'Usar Cordas',
+]
+
+EXPANDABLE_SKILL_NAMES = ('Conhecimento', 'Oficios', 'Profissao')
+
 RACE_CHOICES = [
     ('',         '—'),
     ('Human',    'Humano'),

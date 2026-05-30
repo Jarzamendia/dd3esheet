@@ -6,23 +6,23 @@
           hx-trigger="change delay:300ms">
         {% csrf_token %}
         <div class="section-title-band"><span>Habilidades Especiais</span></div>
-        <div class="list-block">
+        <div class="list-block" data-sheet-table="special-abilities">
             <div class="list-block-body single-col">
                 {% for ability in ability_slots %}
-                <div class="list-line{% if not ability %} is-empty{% endif %}">
-                    <input class="ll-name sheet-input" name="ability_{{ forloop.counter }}_Name" value="{{ ability.Name|default:'' }}">
-                    <input class="ll-page sheet-input" name="ability_{{ forloop.counter }}_Page" value="{{ ability.Page|default:'' }}">
+                <div class="list-line{% if not ability %} is-empty{% endif %}" data-slot="{{ forloop.counter }}">
+                    <input class="ll-name sheet-input" name="ability_{{ forloop.counter }}_Name" value="{{ ability.Name|default:'' }}" data-field="ability.Name" data-slot="{{ forloop.counter }}">
+                    <input class="ll-page sheet-input" name="ability_{{ forloop.counter }}_Page" value="{{ ability.Page|default:'' }}" data-field="ability.Page" data-slot="{{ forloop.counter }}">
                 </div>
                 {% endfor %}
             </div>
         </div>
 
         <div class="section-title-band" style="margin-top: 6px;"><span>Idiomas</span></div>
-        <div class="list-block">
+        <div class="list-block" data-sheet-table="languages">
             <div class="list-block-body">
                 {% for lang in language_slots %}
-                <div class="list-line{% if not lang %} is-empty{% endif %}">
-                    <input class="ll-name sheet-input" name="language_{{ forloop.counter }}_Value" value="{{ lang.Value|default:'' }}">
+                <div class="list-line{% if not lang %} is-empty{% endif %}" data-slot="{{ forloop.counter }}">
+                    <input class="ll-name sheet-input" name="language_{{ forloop.counter }}_Value" value="{{ lang.Value|default:'' }}" data-field="language.Value" data-slot="{{ forloop.counter }}">
                 </div>
                 {% endfor %}
             </div>

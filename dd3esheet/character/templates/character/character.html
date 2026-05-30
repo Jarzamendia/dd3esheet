@@ -5,6 +5,13 @@
 
 <main class="sheet" data-screen-label="character">
 
+    <nav class="sheet-page-tabs" aria-label="Paginas da ficha">
+        <a class="sheet-page-tab is-active" href="{% url 'character:character' character.pk %}">Ficha</a>
+        <a class="sheet-page-tab" href="{% url 'character:companions' character.pk %}">Companheiros</a>
+        <a class="sheet-page-tab" href="{% url 'character:daily-resources' character.pk %}">Recursos</a>
+        <a class="sheet-page-tab" href="{% url 'character:reputation' character.pk %}">Reputacao</a>
+    </nav>
+
     <section class="sheet-page sheet-page--front">
         {% include "character/partials/character_identity.html" %}
 
@@ -16,6 +23,8 @@
 
     <section class="sheet-page sheet-page--back">
         <div class="sheet-page-break"></div>
+
+        {% include "character/partials/character_progress.html" %}
 
         <div class="sheet-secondary-grid">
             <div class="sheet-secondary-column">
@@ -59,6 +68,57 @@
             alignDefenseWidth();
         }
         window.addEventListener('resize', alignDefenseWidth);
+    })();
+
+    (function () {
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+
+        function fitInputText(input) {
+            var max = Number(input.dataset.maxFont || window.getComputedStyle(input).fontSize.replace('px', ''));
+            var min = Number(input.dataset.minFont || 8);
+            var available = input.clientWidth - 8;
+            var text = input.value || '';
+            var style = window.getComputedStyle(input);
+            var size = max;
+
+            if (!text || available <= 0) {
+                input.style.fontSize = max + 'px';
+                return;
+            }
+
+            while (size > min) {
+                context.font = style.font
+                    .replace(/(?:\d+(?:\.\d+)?)px/, size + 'px');
+                if (context.measureText(text).width <= available) {
+                    break;
+                }
+                size -= 0.5;
+            }
+            input.style.fontSize = size + 'px';
+        }
+
+        function fitFeatInputs(root) {
+            (root || document)
+                .querySelectorAll('.feats-list .ll-name, .feats-list .ll-page')
+                .forEach(fitInputText);
+        }
+
+        document.addEventListener('input', function (event) {
+            if (event.target.matches('.feats-list .ll-name, .feats-list .ll-page')) {
+                fitInputText(event.target);
+            }
+        });
+        document.addEventListener('htmx:afterSwap', function (event) {
+            fitFeatInputs(event.target);
+        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () { fitFeatInputs(document); });
+        } else {
+            fitFeatInputs(document);
+        }
+        window.addEventListener('resize', function () { fitFeatInputs(document); });
     })();
 </script>
 {% endblock %}

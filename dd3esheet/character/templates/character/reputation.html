@@ -1,0 +1,87 @@
+{% extends "main.html" %}
+{% block title %}{{ character.Name|default:"Ficha" }} - Reputacao{% endblock %}
+
+{% block content %}
+
+<main class="sheet sheet-utility" data-screen-label="reputation">
+
+    <nav class="sheet-page-tabs" aria-label="Paginas da ficha">
+        <a class="sheet-page-tab" href="{% url 'character:character' character.pk %}">Ficha</a>
+        <a class="sheet-page-tab" href="{% url 'character:companions' character.pk %}">Companheiros</a>
+        <a class="sheet-page-tab" href="{% url 'character:daily-resources' character.pk %}">Recursos</a>
+        <a class="sheet-page-tab is-active" href="{% url 'character:reputation' character.pk %}">Reputacao</a>
+    </nav>
+
+    <header class="utility-header" data-sheet-table="reputation-header">
+        <div>
+            <div class="brand-sub" style="text-align:left;">D&amp;D 3.5</div>
+            <h1>Reputacao, Contatos e Contratos</h1>
+        </div>
+        <div class="companions-character-card">
+            <span class="label">Personagem</span>
+            <strong data-field="character.Name">{{ character.Name|default:"-" }}</strong>
+            <span data-field="character.Class">{{ character.Class|default:"-" }} Nv {{ character.Level|default:"-" }}</span>
+        </div>
+    </header>
+
+    <section class="utility-grid">
+        <article class="utility-block" data-sheet-table="contacts">
+            <div class="section-title-band"><span>Contatos</span></div>
+            <div class="contact-table">
+                <div class="resource-head">Nome</div>
+                <div class="resource-head">Local</div>
+                <div class="resource-head">Relacao</div>
+                <div class="resource-head">Favor</div>
+                <div class="resource-head">Notas</div>
+                {% for slot in contact_slots %}
+                <input class="sheet-input" data-field="contact.Name" data-slot="{{ slot }}">
+                <input class="sheet-input" data-field="contact.Location" data-slot="{{ slot }}">
+                <input class="sheet-input" data-field="contact.Relationship" data-slot="{{ slot }}">
+                <input class="sheet-input" data-field="contact.Favor" data-slot="{{ slot }}">
+                <input class="sheet-input" data-field="contact.Notes" data-slot="{{ slot }}">
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="utility-block" data-sheet-table="factions">
+            <div class="section-title-band"><span>Faccoes e Reputacao</span></div>
+            <div class="faction-table">
+                <div class="resource-head">Faccao / Grupo</div>
+                <div class="resource-head">Reputacao</div>
+                <div class="resource-head">Influencia</div>
+                <div class="resource-head">Risco</div>
+                <div class="resource-head">Notas</div>
+                {% for slot in faction_slots %}
+                <input class="sheet-input" data-field="faction.Name" data-slot="{{ slot }}">
+                <input class="sheet-input" data-field="faction.Reputation" data-slot="{{ slot }}">
+                <input class="sheet-input" data-field="faction.Influence" data-slot="{{ slot }}">
+                <input class="sheet-input" data-field="faction.Risk" data-slot="{{ slot }}">
+                <input class="sheet-input" data-field="faction.Notes" data-slot="{{ slot }}">
+                {% endfor %}
+            </div>
+        </article>
+    </section>
+
+    <section class="utility-block" data-sheet-table="contracts">
+        <div class="section-title-band"><span>Contratos, Promessas e Dividas</span></div>
+        <div class="contract-table">
+            <div class="resource-head">Contrato / Promessa</div>
+            <div class="resource-head">Com quem</div>
+            <div class="resource-head">Recompensa</div>
+            <div class="resource-head">Prazo</div>
+            <div class="resource-head">Status</div>
+            <div class="resource-head">Notas</div>
+            {% for slot in contract_slots %}
+            <input class="sheet-input" data-field="contract.Title" data-slot="{{ slot }}">
+            <input class="sheet-input" data-field="contract.Party" data-slot="{{ slot }}">
+            <input class="sheet-input" data-field="contract.Reward" data-slot="{{ slot }}">
+            <input class="sheet-input" data-field="contract.Deadline" data-slot="{{ slot }}">
+            <input class="sheet-input" data-field="contract.Status" data-slot="{{ slot }}">
+            <input class="sheet-input" data-field="contract.Notes" data-slot="{{ slot }}">
+            {% endfor %}
+        </div>
+    </section>
+
+</main>
+
+{% endblock %}

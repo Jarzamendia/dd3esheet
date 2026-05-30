@@ -1,0 +1,41 @@
+<form id="companionsForm"
+      class="companion-block"
+      hx-post="{% url 'character:companions' character.pk %}"
+      hx-target="#companionsForm"
+      hx-swap="outerHTML"
+      hx-trigger="change delay:300ms">
+    {% csrf_token %}
+    <div class="section-title-band"><span>Companheiros Registrados</span></div>
+
+    <div class="summons-table" data-sheet-table="companions-slots">
+        <div class="summons-head">Tipo</div>
+        <div class="summons-head">Nome</div>
+        <div class="summons-head">Especie</div>
+        <div class="summons-head">PV</div>
+        <div class="summons-head">CA</div>
+        <div class="summons-head">Desloc.</div>
+        <div class="summons-head">Pericias</div>
+        <div class="summons-head">Talentos</div>
+        <div class="summons-head">Habilidades</div>
+        <div class="summons-head">Notas</div>
+
+        {% for companion in companion_slots %}
+        <input class="sheet-input" name="companion_{{ forloop.counter }}_Type" value="{{ companion.Type|default:'' }}" list="companion-type-options" data-field="companion.Type" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="companion_{{ forloop.counter }}_Name" value="{{ companion.Name|default:'' }}" data-field="companion.Name" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="companion_{{ forloop.counter }}_Species" value="{{ companion.Species|default:'' }}" data-field="companion.Species" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="companion_{{ forloop.counter }}_HitPoints" value="{{ companion.HitPoints|default:'' }}" inputmode="numeric" data-field="companion.HitPoints" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="companion_{{ forloop.counter }}_ArmorClass" value="{{ companion.ArmorClass|default:'' }}" inputmode="numeric" data-field="companion.ArmorClass" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="companion_{{ forloop.counter }}_Speed" value="{{ companion.Speed|default:'' }}" data-field="companion.Speed" data-slot="{{ forloop.counter }}">
+        <textarea class="sheet-input" name="companion_{{ forloop.counter }}_Skills" data-field="companion.Skills" data-slot="{{ forloop.counter }}">{{ companion.Skills|default:'' }}</textarea>
+        <textarea class="sheet-input" name="companion_{{ forloop.counter }}_Feats" data-field="companion.Feats" data-slot="{{ forloop.counter }}">{{ companion.Feats|default:'' }}</textarea>
+        <textarea class="sheet-input" name="companion_{{ forloop.counter }}_SpecialAbilities" data-field="companion.SpecialAbilities" data-slot="{{ forloop.counter }}">{{ companion.SpecialAbilities|default:'' }}</textarea>
+        <textarea class="sheet-input" name="companion_{{ forloop.counter }}_Notes" data-field="companion.Notes" data-slot="{{ forloop.counter }}">{{ companion.Notes|default:'' }}</textarea>
+        {% endfor %}
+    </div>
+
+    <datalist id="companion-type-options">
+        {% for type in companion_types %}
+        <option value="{{ type }}">
+        {% endfor %}
+    </datalist>
+</form>

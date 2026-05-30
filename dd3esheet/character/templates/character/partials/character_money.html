@@ -1,5 +1,5 @@
 {% with money=character.charactermoney enc=character.characterotheritemobs %}
-<section id="characterMoneySection" style="grid-column: 1 / -1;">
+<section id="characterMoneySection" data-sheet-table="money-and-encumbrance" style="grid-column: 1 / -1;">
     <form id="characterMoneyForm"
           hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterMoneySection"
@@ -11,45 +11,49 @@
                     border-left: 1px solid var(--rule-line);
                     border-right: 1px solid var(--rule-line);
                     border-bottom: 2px solid var(--rule-line);">
-            <div class="money-block">
+            <div class="money-block" data-sheet-table="money">
                 <div class="money-coin">
                     <div class="coin-label">PC</div>
-                    <input class="coin-slot sheet-input" name="CP" value="{{ money.CP|default:'' }}" inputmode="numeric">
+                    <input class="coin-slot sheet-input" name="CP" value="{{ money.CP|default:'' }}" inputmode="numeric" data-field="CP">
                 </div>
                 <div class="money-coin">
                     <div class="coin-label">PP</div>
-                    <input class="coin-slot sheet-input" name="SP" value="{{ money.SP|default:'' }}" inputmode="numeric">
+                    <input class="coin-slot sheet-input" name="SP" value="{{ money.SP|default:'' }}" inputmode="numeric" data-field="SP">
                 </div>
                 <div class="money-coin">
                     <div class="coin-label">PO</div>
-                    <input class="coin-slot sheet-input" name="GP" value="{{ money.GP|default:'' }}" inputmode="numeric">
+                    <input class="coin-slot sheet-input" name="GP" value="{{ money.GP|default:'' }}" inputmode="numeric" data-field="GP">
                 </div>
                 <div class="money-coin">
                     <div class="coin-label">PL</div>
-                    <input class="coin-slot sheet-input" name="PP" value="{{ money.PP|default:'' }}" inputmode="numeric">
+                    <input class="coin-slot sheet-input" name="PP" value="{{ money.PP|default:'' }}" inputmode="numeric" data-field="PP">
                 </div>
             </div>
 
-            <div id="characterEncumbranceForm" class="enc-grid" aria-live="polite">
+            <div id="characterEncumbranceForm" class="enc-grid" data-sheet-table="encumbrance" aria-live="polite">
                 <div class="enc-cell">
-                    <input class="slot sheet-input" name="LightLoad" value="{{ enc.LightLoad|default:'' }}" inputmode="numeric">
+                    <input class="slot sheet-input" name="LightLoad" value="{{ enc.LightLoad|default:'' }}" inputmode="numeric" data-field="LightLoad">
                     <span class="label">Carga Leve</span>
                 </div>
                 <div class="enc-cell">
-                    <input class="slot sheet-input" name="MediumLoad" value="{{ enc.MediumLoad|default:'' }}" inputmode="numeric">
+                    <input class="slot sheet-input" name="MediumLoad" value="{{ enc.MediumLoad|default:'' }}" inputmode="numeric" data-field="MediumLoad">
                     <span class="label">Carga Media</span>
                 </div>
                 <div class="enc-cell">
-                    <input class="slot sheet-input" name="HeavyLoad" value="{{ enc.HeavyLoad|default:'' }}" inputmode="numeric">
+                    <input class="slot sheet-input" name="HeavyLoad" value="{{ enc.HeavyLoad|default:'' }}" inputmode="numeric" data-field="HeavyLoad">
                     <span class="label">Carga Pesada</span>
                 </div>
                 <div class="enc-cell">
-                    <input class="slot sheet-input" name="LiftOverHEad" value="{{ enc.LiftOverHEad|default:'' }}" inputmode="numeric">
+                    <input class="slot sheet-input" name="LiftOverHEad" value="{{ enc.LiftOverHEad|default:'' }}" inputmode="numeric" data-field="LiftOverHEad">
                     <span class="label">Erguer s/ Cabeca</span>
                 </div>
                 <div class="enc-cell">
-                    <input class="slot sheet-input" name="PushOrDrag" value="{{ enc.PushOrDrag|default:'' }}" inputmode="numeric">
+                    <input class="slot sheet-input" name="PushOrDrag" value="{{ enc.PushOrDrag|default:'' }}" inputmode="numeric" data-field="PushOrDrag">
                     <span class="label">Empurrar / Arrastar</span>
+                </div>
+                <div class="enc-cell enc-cell--total">
+                    <input class="slot sheet-input" name="TotalWCarried" value="{{ enc.TotalWCarried|default:'' }}" inputmode="numeric" data-field="TotalWCarried">
+                    <span class="label">Total de Peso Carregado</span>
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-<article class="equipment-card equipment-card--protection{% if not item %} is-empty{% endif %}">
+<article class="equipment-card equipment-card--protection{% if not item %} is-empty{% endif %}" data-sheet-table="protection-item" data-slot="{{ slot }}">
     <div class="equipment-card-head equipment-card-head--protection">
         <div>Item de Protecao {{ slot }}</div>
         <div>Bonus na CA</div>
@@ -6,9 +6,9 @@
         <div>Propriedades Especiais</div>
     </div>
     <div class="equipment-card-row equipment-card-row--protection">
-        <input class="sheet-input" name="protection_{{ slot }}_Name" value="{{ item.Name|default:'' }}">
-        <input class="sheet-input" name="protection_{{ slot }}_ACBonus" value="{{ item.ACBonus|default:'' }}">
-        <input class="sheet-input" name="protection_{{ slot }}_Weigth" value="{{ item.Weigth|default:'' }}">
-        <input class="sheet-input" name="protection_{{ slot }}_SpecialProperties" value="{{ item.SpecialProperties|default:'' }}">
+        <input class="sheet-input" name="protection_{{ slot }}_Name" value="{{ item.Name|default:'' }}" data-field="protection.Name" data-slot="{{ slot }}">
+        <input class="sheet-input" name="protection_{{ slot }}_ACBonus" value="{{ item.ACBonus|default:'' }}" data-field="protection.ACBonus" data-slot="{{ slot }}">
+        <input class="sheet-input" name="protection_{{ slot }}_Weigth" value="{{ item.Weigth|default:'' }}" data-field="protection.Weigth" data-slot="{{ slot }}">
+        <input class="sheet-input" name="protection_{{ slot }}_SpecialProperties" value="{{ item.SpecialProperties|default:'' }}" data-field="protection.SpecialProperties" data-slot="{{ slot }}">
     </div>
 </article>

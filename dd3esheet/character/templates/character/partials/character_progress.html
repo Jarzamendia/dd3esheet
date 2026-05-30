@@ -1,0 +1,21 @@
+<section id="characterProgressSection" class="progress-panel">
+    <form id="characterProgressForm"
+          class="progress-form"
+          aria-label="Experiencia e campanha"
+          hx-post="{% url 'character:character' character.pk %}"
+          hx-target="#characterProgressSection"
+          hx-swap="outerHTML"
+          hx-trigger="change delay:300ms">
+        {% csrf_token %}
+        <div class="progress-table" data-sheet-table="campaign-progress">
+            <div class="progress-head">Campanha</div>
+            <div class="progress-head">Pontos de Experiencia</div>
+            <div class="progress-head">XP para o Proximo</div>
+            <input class="progress-cell sheet-input" name="CampaignName" value="{{ progress.CampaignName|default:'' }}" data-field="CampaignName">
+            <input class="progress-cell sheet-input" name="ExperiencePoints" value="{{ progress.ExperiencePoints|default:'' }}" inputmode="numeric" data-field="ExperiencePoints">
+            <div class="progress-cell progress-cell--calc" data-derived="XPToNextLevel">
+                {% if xp_to_next_level is not None %}{{ xp_to_next_level }}{% else %}-{% endif %}
+            </div>
+        </div>
+    </form>
+</section>

@@ -1,4 +1,4 @@
-<section id="characterItemsSection" class="other-items-panel">
+<section id="characterItemsSection" class="other-items-panel" data-sheet-table="other-items">
     <form id="characterItemsForm" class="other-items-form"
           hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterItemsSection"
@@ -9,7 +9,7 @@
             <span>Outros Itens</span>
         </div>
         <div class="other-items-tables">
-            <table class="sheet-table other-items-table">
+            <table class="sheet-table other-items-table" data-sheet-table="other-items-left">
                 <thead>
                     <tr>
                         <th>Item</th>
@@ -19,15 +19,15 @@
                 </thead>
                 <tbody>
                     {% for item in other_item_slots|slice:":16" %}
-                    <tr>
-                        <td><input class="sheet-input" name="item_{{ forloop.counter }}_Name" value="{{ item.Name|default:'' }}"></td>
-                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter }}_Page" value="{{ item.Page|default:'' }}"></td>
-                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter }}_Weigth" value="{{ item.Weigth|default:'' }}"></td>
+                    <tr data-slot="{{ forloop.counter }}">
+                        <td><input class="sheet-input" name="item_{{ forloop.counter }}_Name" value="{{ item.Name|default:'' }}" data-field="item.Name" data-slot="{{ forloop.counter }}"></td>
+                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter }}_Page" value="{{ item.Page|default:'' }}" data-field="item.Page" data-slot="{{ forloop.counter }}"></td>
+                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter }}_Weigth" value="{{ item.Weigth|default:'' }}" data-field="item.Weigth" data-slot="{{ forloop.counter }}"></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <table class="sheet-table other-items-table">
+            <table class="sheet-table other-items-table" data-sheet-table="other-items-right">
                 <thead>
                     <tr>
                         <th>Item</th>
@@ -37,10 +37,10 @@
                 </thead>
                 <tbody>
                     {% for item in other_item_slots|slice:"16:32" %}
-                    <tr>
-                        <td><input class="sheet-input" name="item_{{ forloop.counter|add:16 }}_Name" value="{{ item.Name|default:'' }}"></td>
-                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter|add:16 }}_Page" value="{{ item.Page|default:'' }}"></td>
-                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter|add:16 }}_Weigth" value="{{ item.Weigth|default:'' }}"></td>
+                    <tr data-slot="{{ forloop.counter|add:16 }}">
+                        <td><input class="sheet-input" name="item_{{ forloop.counter|add:16 }}_Name" value="{{ item.Name|default:'' }}" data-field="item.Name" data-slot="{{ forloop.counter|add:16 }}"></td>
+                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter|add:16 }}_Page" value="{{ item.Page|default:'' }}" data-field="item.Page" data-slot="{{ forloop.counter|add:16 }}"></td>
+                        <td class="center"><input class="sheet-input" name="item_{{ forloop.counter|add:16 }}_Weigth" value="{{ item.Weigth|default:'' }}" data-field="item.Weigth" data-slot="{{ forloop.counter|add:16 }}"></td>
                     </tr>
                     {% endfor %}
                 </tbody>

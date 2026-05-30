@@ -8,7 +8,7 @@ Posicao: grid-column 1 / -1 (largura total)
         <div class="section-title-band">
             <span>Armas</span>
         </div>
-        <table class="sheet-table">
+        <table class="sheet-table" data-sheet-table="weapon-list">
             <thead>
                 <tr>
                     <th style="width: 22%;">Nome</th>
@@ -22,14 +22,14 @@ Posicao: grid-column 1 / -1 (largura total)
             </thead>
             <tbody>
                 {% for weapon in character.characterweapon_set.all %}
-                <tr id="weapon-row-{{ weapon.id }}">
-                    <td>{{ weapon.Name|default:"-" }}</td>
-                    <td class="center">{{ weapon.AttackBonus|default:"-" }}</td>
-                    <td class="center">{{ weapon.Damage|default:"-" }}</td>
-                    <td class="center">{{ weapon.Critical|default:"-" }}</td>
-                    <td class="center">{{ weapon.Range|default:"-" }}</td>
-                    <td class="center">{{ weapon.Type|default:"-" }}</td>
-                    <td class="center">{{ weapon.AmmunitionCount|default:"-" }}</td>
+                <tr id="weapon-row-{{ weapon.id }}" data-slot="{{ forloop.counter }}">
+                    <td data-field="weapon.Name" data-slot="{{ forloop.counter }}">{{ weapon.Name|default:"-" }}</td>
+                    <td class="center" data-field="weapon.AttackBonus" data-slot="{{ forloop.counter }}">{{ weapon.AttackBonus|default:"-" }}</td>
+                    <td class="center" data-field="weapon.Damage" data-slot="{{ forloop.counter }}">{{ weapon.Damage|default:"-" }}</td>
+                    <td class="center" data-field="weapon.Critical" data-slot="{{ forloop.counter }}">{{ weapon.Critical|default:"-" }}</td>
+                    <td class="center" data-field="weapon.Range" data-slot="{{ forloop.counter }}">{{ weapon.Range|default:"-" }}</td>
+                    <td class="center" data-field="weapon.Type" data-slot="{{ forloop.counter }}">{{ weapon.Type|default:"-" }}</td>
+                    <td class="center" data-field="weapon.AmmunitionCount" data-slot="{{ forloop.counter }}">{{ weapon.AmmunitionCount|default:"-" }}</td>
                 </tr>
                 {% empty %}
                 <tr><td class="empty">.</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>

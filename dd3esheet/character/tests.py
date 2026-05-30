@@ -12,6 +12,7 @@ from .models import (
     CharacterMagicConditionalModifiers, CharacterSkill, CharacterWeapon,
     CharacterArmor, CharacterShield, CharacterProtectionItem, CharacterOtherItem,
     CharacterSpellcasting, CharacterSpellSlot, CharacterSpell, CharacterFeat,
+    CharacterCompanion,
 )
 from sdr.models import SDR_Class
 
@@ -669,6 +670,78 @@ class CharacterAuxiliaryPageTests(TransactionTestCase):
                 resp = self.client.get(url)
                 self.assertEqual(resp.status_code, 404)
                 self.client.logout()
+
+
+class CompanionsTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Druid')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:companions', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.user)
+
+    def test_htmx_post_creates_and_updates_companion_slots(self):
+        resp = self.client.post(
+            self.url,
+            {
+                'companion_1_Type': 'Animal',
+                'companion_1_Name': 'Bruma',
+                'companion_1_Species': 'Lobo',
+                'companion_1_HitPoints': '24',
+                'companion_1_ArmorClass': '16',
+                'companion_1_Speed': '15 m',
+                'companion_1_Skills': 'Ouvir +5',
+                'companion_2_Type': 'Familiar',
+                'companion_2_Name': 'Nix',
+                'companion_2_Species': 'Coruja',
+                'companion_2_HitPoints': '8',
+                'companion_2_ArmorClass': '14',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='companionsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/partials/companions_form.html')
+        self.assertEqual(CharacterCompanion.objects.filter(Character=self.char).count(), 2)
+        bruma = CharacterCompanion.objects.get(Character=self.char, Name='Bruma')
+        self.assertEqual(bruma.Species, 'Lobo')
+        self.assertEqual(bruma.HitPoints, 24)
+        self.assertContains(resp, 'Bruma')
+        self.assertContains(resp, 'Nix')
+
+    def test_get_reflects_saved_companion_data(self):
+        CharacterCompanion.objects.create(
+            Character=self.char,
+            Type='Animal',
+            Name='Bruma',
+            Species='Lobo',
+            HitPoints=24,
+            ArmorClass=16,
+            Speed='15 m',
+        )
+
+        resp = self.client.get(self.url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'companionsForm')
+        self.assertContains(resp, 'Bruma')
+        self.assertContains(resp, 'Lobo')
+
+    def test_empty_slots_do_not_create_rows(self):
+        resp = self.client.post(
+            self.url,
+            {'companion_1_Name': ''},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='companionsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(CharacterCompanion.objects.filter(Character=self.char).count(), 0)
 
 
 class DailyResourcesDjangoIntegrationTests(TransactionTestCase):
