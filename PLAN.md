@@ -9,36 +9,33 @@ Este plano divide o trabalho em **tasks autocontidas**, cada uma executável por
 3. Correções de performance (queries, recalculo, render).
 4. Todos os componentes da ficha (edição inline, páginas extras, toggles) funcionando ponta a ponta.
 
-## Status atual (2026-05-30)
+## Status atual (2026-05-30) — ROADMAP COMPLETO ✅
 
-Legenda: ✅ concluída · 🟡 em progresso (arquivos não-commitados) · ⬜ não iniciada
+Legenda: ✅ concluída
 
-| Fase | Task  | Status | Commit / Notas                                  |
-|------|-------|--------|-------------------------------------------------|
-| 0    | T0.1  | ✅     | `fe3d0c7` — requirements UTF-8 enxuto           |
-| 0    | T0.2  | ✅     | `02cf28c` — HTMX no template base               |
-| 1A   | T1.1  | ✅     | `fd4862a` — django-environ + hardening          |
-| 1A   | T1.2  | ✅     | `8fecf01` — seed guard + django-axes + login    |
-| 1A   | T1.3  | ⬜     | validação consistente nos helpers POST          |
-| 1A   | T1.4  | ✅     | `b07c2b5` — WhiteNoise + STATIC_ROOT            |
-| 1B   | T1.5  | ⬜     | prefetch em `_sheet_context` e home             |
-| 1B   | T1.6  | ✅     | `bf7e796` — atomic + bulk_update                |
-| 1B   | T1.7  | ✅     | `d8d4319` — funções puras em calculations.py    |
-| 1C   | T1.8  | ✅     | `02cf28c` — `<int:pk>` nas URLs                 |
-| 1C   | T1.9  | ✅     | `02c34e5` — toggle de spell slot                |
-| 1C   | T1.10 | 🟡     | migration 0005, template companions.html e companions_form.html ainda untracked |
-| 1C   | T1.11 | 🟡     | reputation.html untracked; models de Contact/Faction/Contract ainda não criados |
-| 1C   | T1.12 | ⬜     | `DispatcherSmokeTest`                            |
-| 2    | T2.1  | ✅     | `7811bf2` — Dockerfile.prod + compose.prod      |
-| 2    | T2.2  | ✅     | `7811bf2` — `/healthz` + logging                |
-| 2    | T2.3  | ⬜     | `EndToEndSmoke`                                  |
-| 3    | T3.1  | ✅     | `11c9e4c` — docs/deployment.md                  |
-| 3    | T3.2  | ✅*    | `d662521` — `pip-audit` parcial; revisar quando T1.3/T1.5/T1.10/T1.11/T1.12/T2.3 fecharem |
+| Fase | Task  | Status | Commit / Notas                                                        |
+|------|-------|--------|-----------------------------------------------------------------------|
+| 0    | T0.1  | ✅     | `fe3d0c7` — requirements UTF-8 enxuto                                 |
+| 0    | T0.2  | ✅     | `02cf28c` — HTMX no template base                                     |
+| 1A   | T1.1  | ✅     | `fd4862a` — django-environ + hardening                                |
+| 1A   | T1.2  | ✅     | `8fecf01` — seed guard + django-axes + login                          |
+| 1A   | T1.3  | ✅     | `3b876f6` — validação consistente nos helpers POST                    |
+| 1A   | T1.4  | ✅     | `b07c2b5` — WhiteNoise + STATIC_ROOT                                  |
+| 1B   | T1.5  | ✅     | `96b7821` — prefetch_related em `_sheet_context` e home               |
+| 1B   | T1.6  | ✅     | `bf7e796` — atomic + bulk_update                                      |
+| 1B   | T1.7  | ✅     | `d8d4319` — funções puras em calculations.py                          |
+| 1C   | T1.8  | ✅     | `02cf28c` — `<int:pk>` nas URLs                                       |
+| 1C   | T1.9  | ✅     | `02c34e5` — toggle de spell slot                                      |
+| 1C   | T1.10 | ✅     | `9aa488f` — página Companheiros editável (migration 0005)             |
+| 1C   | T1.11 | ✅     | `8264230` — página Reputação editável (Contact/Faction/Contract)      |
+| 1C   | T1.12 | ✅     | `3b59a16` — DispatcherSmokeTest (16 targets)                          |
+| 2    | T2.1  | ✅     | `7811bf2` — Dockerfile.prod + compose.prod                            |
+| 2    | T2.2  | ✅     | `7811bf2` — `/healthz` + logging                                      |
+| 2    | T2.3  | ✅     | `f960945` — EndToEndSmoke                                             |
+| 3    | T3.1  | ✅     | `11c9e4c` — docs/deployment.md                                        |
+| 3    | T3.2  | ✅     | T3.2 (final) — check --deploy zero issues, 107 testes verdes, pip-audit limpo |
 
-`*` T3.2 foi executada antes das pré-condições estarem 100% — precisa de uma segunda passada quando as pendentes encerrarem.
-
-**Pendentes (donas: Codex):** T1.3, T1.5, T1.10 (finalizar), T1.11 (finalizar), T1.12, T2.3.
-**Pendentes (donas: Sonnet):** revisão final de T3.2.
+**Todas as 19 tasks concluídas. App pronto para deploy.**
 
 ## Visão geral em fases
 

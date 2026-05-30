@@ -68,7 +68,7 @@ Observacao: o `command` do servico `web` roda `migrate` -> `seed` -> `runserver`
 Apps principais:
 
 - `home/`: pagina inicial em `/`.
-- `character/`: fichas dos personagens em `/character/`.
+- `character/`: fichas dos personagens em `/character/`. Alem da ficha principal, oferece paginas extras de Companheiros, Recursos Diarios e Reputacao.
 - `sdr/`: dados de referencia do SRD D&D 3.5 em `/sdr/`.
 
 Arquivos importantes:
@@ -137,7 +137,7 @@ Nao rode migracoes tentando criar ou alterar as tabelas do banco `sdr`. Ele e um
 - `CharacterSpell`
 - `CharacterMoney`
 
-Ao criar uma ficha em `character.views.createCharacter`, o app cria o `Character` e chama `character.services._bootstrap_character_siblings`, que inicializa os modelos `OneToOne` (stats, status, saves, ataque, dinheiro, conjuracao, etc.) e a lista base de 35 skills.
+Ao criar uma ficha em `character.views.createCharacter`, o app cria o `Character` e chama `character.services._bootstrap_character_siblings`, que inicializa os modelos `OneToOne` (stats, status, saves, ataque, dinheiro, progresso, notas diarias, conjuracao, etc.) e a lista base de pericias definida em `character.constants.SKILL_LIST_PT` (inclui slots iniciais para Conhecimento/Oficios/Profissao). `character.services.ensure_expandable_skill_slots` adiciona slots conforme o jogador preenche especializacoes.
 
 Convencao importante: os models do app `character` usam nomes em PascalCase, como `Name`, `Strength`, `ACTotal` e `UpdatedAt`. Mantenha esse padrao ao estender modelos existentes.
 
@@ -177,7 +177,8 @@ Exemplos de regras esperadas:
 
 Onde os calculos vivem hoje:
 
-- O recalculo dos derivados da ficha esta em `character.views._recalculate_stats(character)` (mods, AC, saves, iniciativa, grapple — muta os siblings e salva num so fluxo).
+- As funcoes puras (modificador de atributo, totais de pericia, limites de carga, parsing de bonus de equipamento, recursos diarios) ficam em `character/calculations.py` — sao testaveis com `SimpleTestCase` sem tocar o DB.
+- O orquestrador `character.views._recalculate_stats(character)` aplica as regras de CA, saves, iniciativa e grapple e persiste nos siblings num so fluxo.
 - A matematica de conjuracao esta em `character/spellcasting.py` como funcoes puras (`spell_save_dc`, `bonus_spells_for_level`, `ability_modifier`, `numeric_slot_count`).
 
 Recomendacao para novas implementacoes:
@@ -203,7 +204,7 @@ De fora do container:
 docker compose exec web python manage.py test
 ```
 
-Estado atual: `character/tests.py` ja tem uma suite ampla (criacao de ficha, permissoes de dono/404, edicao HTMX por target, calculos de conjuracao, render de dominios/slots, e queries SDR via `.using("sdr")`). Testes que tocam o SDR usam `TransactionTestCase` com `databases = ('default', 'sdr')` e criam as tabelas de referencia no banco de teste via cursor cru (ver `setup_sdr_class_table`). Para novas features e correcoes, estenda essa suite (escreva o teste antes ou junto da implementacao).
+Estado atual: `character/tests.py` ja tem uma suite ampla (~67 testes — criacao de ficha, permissoes de dono/404, edicao HTMX por target, calculos de conjuracao, render de dominios/slots, calculos puros em `calculations.py`, paginas extras de companions/daily-resources/reputation, e queries SDR via `.using("sdr")`). Testes que tocam o SDR usam `TransactionTestCase` com `databases = ('default', 'sdr')` e criam as tabelas de referencia no banco de teste via cursor cru (ver `setup_sdr_class_table`). Para novas features e correcoes, estenda essa suite (escreva o teste antes ou junto da implementacao).
 
 Prioridades de teste:
 

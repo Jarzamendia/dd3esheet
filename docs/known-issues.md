@@ -11,25 +11,11 @@ e o handler de CSRF para POSTs HTMX.
 `compute_save_total`, `compute_grapple_total` e `compute_skill_row`, alem das
 funcoes puras anteriores. `_recalculate_stats` e um orquestrador fino.
 
-## Validacao desigual entre blocos
+## Validacao consistente (resolvido em T1.3)
 
-Identidade, descricao e stats usam `ModelForm`.
-
-Outros blocos usam helpers diretos de POST:
-
-- equipamentos;
-- itens;
-- talentos;
-- habilidades;
-- magias;
-- dinheiro;
-- pericias.
-
-Impacto:
-
-- menos validacao explicita;
-- conversao simples para `IntegerField` e `BooleanField`;
-- valores textuais aceitam quase tudo.
+`_update_fields_from_post` e `_save_repeating_slots` agora aplicam strip/truncate
+em strings (respeitando `max_length` do model) e clamp em inteiros (`-999..999`).
+Identidade/descricao/stats continuam usando `ModelForm` crispy.
 
 ## Compartilhamento ainda nao implementado
 
