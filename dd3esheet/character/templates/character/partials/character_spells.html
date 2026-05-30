@@ -84,7 +84,7 @@
                     <div>
                         {% if slot %}
                         <button class="spell-used-toggle"
-                                type="submit"
+                                type="button"
                                 hx-post="{% url 'character:toggle-spell-slot' character.pk slot.id %}"
                                 hx-target="#characterSpellsForm"
                                 hx-swap="outerHTML"
