@@ -1963,3 +1963,31 @@ class AlliesRenameTest(TransactionTestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'Aliados')
+
+
+# ---------------------------------------------------------------------------
+# T4.3 — Redesign do bloco Nome do Aliado/Familiar
+# ---------------------------------------------------------------------------
+
+class CompanionNameLineTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user(username='namelineuser')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='NameLineTest')
+        _bootstrap_character_siblings(self.char)
+        self.client.force_login(self.user)
+
+    def test_companions_page_has_name_line_class(self):
+        url = reverse('character:companions', kwargs={'pk': self.char.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'companion-name-line')
+
+    def test_companions_page_has_quickstats_class(self):
+        url = reverse('character:companions', kwargs={'pk': self.char.pk})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'companion-quickstats')

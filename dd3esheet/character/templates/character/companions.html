@@ -31,8 +31,20 @@
         <article class="companion-block companion-block--animal" data-sheet-table="animal-companion">
             <div class="section-title-band"><span>Companheiro Animal</span></div>
 
+            <div class="companion-name-line">
+                <input class="field-slot" data-field="animalCompanion.Name" placeholder="Nome do Companheiro">
+                <div class="subtitle">Companheiro Animal — Nível {{ character.Level|default:"-" }}</div>
+            </div>
+
+            <div class="companion-quickstats">
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.HitPoints"><span class="label">PV</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.ArmorClass"><span class="label">CA</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.BaseSpeed"><span class="label">Desloc.</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.Initiative"><span class="label">Inic.</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.SpellResistance"><span class="label">RM</span></div>
+            </div>
+
             <div class="companion-identity-grid">
-                <div class="field"><input class="field-slot" data-field="animalCompanion.Name"><span class="label">Nome</span></div>
                 <div class="field"><input class="field-slot" data-field="animalCompanion.Species"><span class="label">Especie</span></div>
                 <div class="field"><input class="field-slot" data-field="animalCompanion.Type"><span class="label">Tipo</span></div>
                 <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.Sex"><span class="label">Sexo</span></div>
@@ -133,8 +145,20 @@
         <article class="companion-block companion-block--familiar" data-sheet-table="familiar">
             <div class="section-title-band"><span>Familiar</span></div>
 
+            <div class="companion-name-line">
+                <input class="field-slot" data-field="familiar.Name" placeholder="Nome do Familiar">
+                <div class="subtitle">Familiar — Mago/Feiticeiro Nv {{ character.Level|default:"-" }}</div>
+            </div>
+
+            <div class="companion-quickstats">
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.HitPoints"><span class="label">PV</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.ArmorClass"><span class="label">CA</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.BaseSpeed"><span class="label">Desloc.</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.Initiative"><span class="label">Inic.</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.SpellResistance"><span class="label">RM</span></div>
+            </div>
+
             <div class="companion-identity-grid">
-                <div class="field"><input class="field-slot" data-field="familiar.Name"><span class="label">Nome</span></div>
                 <div class="field"><input class="field-slot" data-field="familiar.Species"><span class="label">Especie</span></div>
                 <div class="field"><input class="field-slot" data-field="familiar.Type"><span class="label">Tipo</span></div>
                 <div class="field"><input class="field-slot field-slot--center" data-field="familiar.Size"><span class="label">Tamanho</span></div>
