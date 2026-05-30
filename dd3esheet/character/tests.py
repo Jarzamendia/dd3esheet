@@ -1,14 +1,15 @@
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import connections
 from django.urls import reverse
 
 from .models import (
     Character, CharacterStats, CharacterStatus, CharacterSavingThrows,
     CharacterAttackModifiers, CharacterSkillGraduation, CharacterOtherItemObs,
-    CharacterMoney, CharacterSpellSave, CharacterArcaneSpellFailCheck,
+    CharacterMoney, CharacterProgress, CharacterSpellSave, CharacterArcaneSpellFailCheck,
     CharacterMagicConditionalModifiers, CharacterSkill, CharacterWeapon,
-    CharacterArmor, CharacterShield, CharacterProtectionItem,
+    CharacterArmor, CharacterShield, CharacterProtectionItem, CharacterOtherItem,
     CharacterSpellcasting, CharacterSpellSlot, CharacterSpell, CharacterFeat,
 )
 from sdr.models import SDR_Class
@@ -206,11 +207,12 @@ class CreateCharacterViewTests(TestCase):
         self.assertTrue(CharacterSkillGraduation.objects.filter(Character=char).exists())
         self.assertTrue(CharacterOtherItemObs.objects.filter(Character=char).exists())
         self.assertTrue(CharacterMoney.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterProgress.objects.filter(Character=char).exists())
         self.assertTrue(CharacterSpellSave.objects.filter(Character=char).exists())
         self.assertTrue(CharacterArcaneSpellFailCheck.objects.filter(Character=char).exists())
         self.assertTrue(CharacterMagicConditionalModifiers.objects.filter(Character=char).exists())
         self.assertTrue(CharacterSpellcasting.objects.filter(Character=char).exists())
-        self.assertEqual(CharacterSkill.objects.filter(Character=char).count(), 35)
+        self.assertEqual(CharacterSkill.objects.filter(Character=char).count(), 41)
 
 
 class BootstrapCharacterSiblingsTests(TestCase):
@@ -227,12 +229,36 @@ class BootstrapCharacterSiblingsTests(TestCase):
         self.assertTrue(CharacterSkillGraduation.objects.filter(Character=char).exists())
         self.assertTrue(CharacterOtherItemObs.objects.filter(Character=char).exists())
         self.assertTrue(CharacterMoney.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterProgress.objects.filter(Character=char).exists())
         self.assertTrue(CharacterSpellSave.objects.filter(Character=char).exists())
         self.assertTrue(CharacterArcaneSpellFailCheck.objects.filter(Character=char).exists())
         self.assertTrue(CharacterMagicConditionalModifiers.objects.filter(Character=char).exists())
         self.assertTrue(CharacterSpellcasting.objects.filter(Character=char).exists())
-        self.assertEqual(CharacterSkill.objects.filter(Character=char).count(), 35)
+        self.assertEqual(CharacterSkill.objects.filter(Character=char).count(), 41)
+        self.assertTrue(CharacterSkill.objects.filter(Character=char, SkillName='Escalar').exists())
+        self.assertTrue(CharacterSkill.objects.filter(Character=char, SkillName='Esconder-se').exists())
+        self.assertEqual(CharacterSkill.objects.filter(Character=char, SkillName='Conhecimento').count(), 3)
+        self.assertEqual(CharacterSkill.objects.filter(Character=char, SkillName='Oficios').count(), 3)
+        self.assertEqual(CharacterSkill.objects.filter(Character=char, SkillName='Profissao').count(), 3)
+        self.assertFalse(CharacterSkill.objects.filter(Character=char, SkillName='Climb').exists())
 
+
+class CharacterSheetCssTests(TestCase):
+
+    def test_editable_weapon_and_equipment_grid_inputs_have_cell_backgrounds(self):
+        css_path = settings.BASE_DIR / 'static' / 'css' / 'character_sheet.css'
+        css = css_path.read_text(encoding='utf-8')
+
+        self.assertIn('.attack-card-row > input', css)
+        self.assertIn('.attack-meta > input', css)
+        self.assertIn('.equipment-card-row > input', css)
+
+    def test_ac_breakdown_labels_stay_below_their_rectangles(self):
+        css_path = settings.BASE_DIR / 'static' / 'css' / 'character_sheet.css'
+        css = css_path.read_text(encoding='utf-8')
+
+        self.assertIn('.ca-cell {\n    display: flex;\n    flex-direction: column;', css)
+        self.assertNotIn('.ca-cell {\n    display: flex;\n    flex-direction: column-reverse;', css)
 
 # ---------------------------------------------------------------------------
 # Phase C — identity inline editing + SDR
@@ -300,6 +326,7 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'name="Strength"')
         self.assertContains(resp, 'name="DexterityTemp"')
+        self.assertContains(resp, 'name="StrengthModTemp"')
         self.assertContains(resp, 'hx-target="#characterStatsForm"')
 
     def test_htmx_post_stats_updates_values_and_returns_partial(self):
@@ -314,11 +341,17 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
                 'Wisdom': '8',
                 'Charisma': '18',
                 'StrengthTemp': '20',
+                'StrengthModTemp': '8',
                 'DexterityTemp': '',
+                'DexterityModTemp': '',
                 'ConstitutionTemp': '',
+                'ConstitutionModTemp': '',
                 'IntelligenceTemp': '',
+                'IntelligenceModTemp': '',
                 'WisdomTemp': '',
+                'WisdomModTemp': '',
                 'CharismaTemp': '',
+                'CharismaModTemp': '',
             },
             HTTP_HX_REQUEST='true',
             HTTP_HX_TARGET='characterStatsForm',
@@ -328,7 +361,145 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
         self.char.characterstats.refresh_from_db()
         self.assertEqual(self.char.characterstats.Strength, 16)
         self.assertEqual(self.char.characterstats.StrengthTemp, 20)
+        self.assertEqual(self.char.characterstats.StrengthModTemp, 8)
         self.assertContains(resp, 'name="Strength"')
+
+    def test_htmx_post_stats_recalculates_skills_graduation_and_load(self):
+        skill = CharacterSkill.objects.get(Character=self.char, SkillName='Escalar')
+        skill.Ranks = 2
+        skill.MiscModifier = 1
+        skill.save()
+        CharacterArmor.objects.create(Character=self.char, Name='Chainmail', Weigth='40 lb')
+        CharacterShield.objects.create(Character=self.char, Name='Shield', Weigth='15 lb')
+        CharacterOtherItem.objects.create(Character=self.char, Name='Rope', Weigth='10 lb')
+
+        self.char.Level = '5'
+        self.char.save()
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {
+                'Strength': '16',
+                'Dexterity': '14',
+                'Constitution': '12',
+                'Intelligence': '10',
+                'Wisdom': '8',
+                'Charisma': '18',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterStatsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.char.characterskillgraduation.refresh_from_db()
+        self.char.characterotheritemobs.refresh_from_db()
+        skill.refresh_from_db()
+        self.assertEqual(self.char.characterskillgraduation.MaxGraduation, 8)
+        self.assertEqual(self.char.characterskillgraduation.OtherClassMaxGraduation, 4)
+        self.assertEqual(skill.AbilityModifier, 3)
+        self.assertEqual(skill.SkillModifier, 6)
+        self.assertEqual(self.char.characterotheritemobs.LightLoad, 76)
+        self.assertEqual(self.char.characterotheritemobs.HeavyLoad, 230)
+        self.assertEqual(self.char.characterotheritemobs.TotalWCarried, 65)
+
+    def test_skills_render_key_ability_and_specialization_slots(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(self.url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-derived="SkillAbility"')
+        self.assertContains(resp, 'name="skill_', count=None)
+        self.assertContains(resp, 'data-field="SkillSpecialization"')
+        self.assertContains(resp, 'Conhecimento', count=3)
+        self.assertContains(resp, 'Oficios', count=3)
+        self.assertContains(resp, 'Profissao', count=3)
+        self.assertContains(resp, 'data-derived="SkillTrainedOnly"')
+
+    def test_filling_all_expandable_skill_specializations_adds_one_slot(self):
+        self.client.force_login(self.user)
+        conhecimentos = list(CharacterSkill.objects.filter(Character=self.char, SkillName='Conhecimento').order_by('id'))
+        payload = {}
+        for index, skill in enumerate(CharacterSkill.objects.filter(Character=self.char).order_by('id'), start=1):
+            payload[f'skill_{index}_SkillName'] = skill.SkillName
+            payload[f'skill_{index}_SkillSpecialization'] = ''
+            payload[f'skill_{index}_Ranks'] = str(skill.Ranks or 0)
+            payload[f'skill_{index}_MiscModifier'] = str(skill.MiscModifier or 0)
+            if skill in conhecimentos:
+                payload[f'skill_{index}_SkillSpecialization'] = f'Area {conhecimentos.index(skill) + 1}'
+
+        resp = self.client.post(
+            self.url,
+            payload,
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterSkillsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(CharacterSkill.objects.filter(Character=self.char, SkillName='Conhecimento').count(), 4)
+        self.assertContains(resp, 'Area 1')
+
+    def test_trained_only_skill_without_ranks_has_zero_total(self):
+        skill = CharacterSkill.objects.get(Character=self.char, SkillName='Operar Mecanismo')
+        self.char.characterstats.Intelligence = 16
+        self.char.characterstats.save()
+
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {
+                'Strength': '10',
+                'Dexterity': '10',
+                'Constitution': '10',
+                'Intelligence': '16',
+                'Wisdom': '10',
+                'Charisma': '10',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterStatsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        skill.refresh_from_db()
+        self.assertEqual(skill.AbilityModifier, 3)
+        self.assertEqual(skill.SkillModifier, 0)
+
+    def test_htmx_post_equipment_recalculates_armor_class_from_items(self):
+        self.char.characterstats.Dexterity = 14
+        self.char.characterstats.save()
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {
+                'armor_Name': 'Chainmail',
+                'armor_Type': 'Media',
+                'armor_ACBonus': '+5',
+                'armor_MaxDex': '+2',
+                'armor_CheckPenalty': '-5',
+                'armor_SpellFailure': '30%',
+                'armor_Speed': '6 m',
+                'armor_Weigth': '40 lb',
+                'armor_SpecialProperties': '',
+                'shield_Name': 'Heavy Shield',
+                'shield_ACBonus': '+2',
+                'shield_Weigth': '15 lb',
+                'shield_CheckPenalty': '-2',
+                'shield_SpellFailure': '15%',
+                'shield_SpecialProperties': '',
+                'protection_1_Name': 'Ring',
+                'protection_1_ACBonus': '+1',
+                'protection_1_Weigth': '-',
+                'protection_1_SpecialProperties': 'Deflection',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterEquipmentForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.char.characterstatus.refresh_from_db()
+        self.assertEqual(self.char.characterstatus.ACArmorBonus, 5)
+        self.assertEqual(self.char.characterstatus.ACShieldBonus, 2)
+        self.assertEqual(self.char.characterstatus.ACMiscModifier, 1)
+        self.assertEqual(self.char.characterstatus.ACTotal, 20)
 
     def test_htmx_post_weapon_slot_creates_editable_weapon(self):
         self.client.force_login(self.user)
@@ -417,7 +588,177 @@ class CharacterSheetWeaponLayoutTests(TransactionTestCase):
         self.assertContains(resp, 'Chainmail')
         self.assertContains(resp, 'Heavy Shield')
         self.assertContains(resp, 'Ring of Protection')
-        self.assertContains(resp, 'Item de Protecao', count=3)
+        self.assertContains(resp, 'Item de Protecao', count=5)
+
+    def test_pv_headers_render_above_fields_and_ac_labels_remain_below(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(self.url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'class="pvca-headrow pv-headrow"')
+        self.assertNotContains(resp, 'class="pvca-headrow ca-headrow"')
+        self.assertContains(resp, '<span class="label">Armadura</span>', html=True)
+        self.assertContains(resp, '<span class="label">Reducao de Dano</span>', html=True)
+
+
+class CharacterAuxiliaryPageTests(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        self.other = make_user('mallory')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Auxiliar', Class='Druid', Level='7')
+        _bootstrap_character_siblings(self.char)
+
+    def test_character_sheet_links_auxiliary_pages(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(reverse('character:character', kwargs={'pk': self.char.pk}))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, reverse('character:companions', kwargs={'pk': self.char.pk}))
+        self.assertContains(resp, reverse('character:daily-resources', kwargs={'pk': self.char.pk}))
+        self.assertContains(resp, reverse('character:reputation', kwargs={'pk': self.char.pk}))
+
+    def test_companions_page_renders_animal_familiar_and_druid_summons(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(reverse('character:companions', kwargs={'pk': self.char.pk}))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/companions.html')
+        self.assertContains(resp, 'data-sheet-table="animal-companion"')
+        self.assertContains(resp, 'data-sheet-table="familiar"')
+        self.assertContains(resp, 'data-sheet-table="summon-nature-reference"')
+        self.assertContains(resp, 'Aliado da Natureza IX')
+        self.assertContains(resp, 'data-field="activeSummonAttack.Name"', count=3)
+
+    def test_daily_resources_page_renders_trackers(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(reverse('character:daily-resources', kwargs={'pk': self.char.pk}))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/daily_resources.html')
+        self.assertContains(resp, 'data-sheet-table="daily-resource-tracker"')
+        self.assertContains(resp, 'data-sheet-table="active-effects"')
+        self.assertContains(resp, 'data-derived="dailyResource.Remaining"', count=18)
+        self.assertContains(resp, 'data-field="activeEffect.Name"', count=12)
+
+    def test_reputation_page_renders_contacts_factions_and_contracts(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(reverse('character:reputation', kwargs={'pk': self.char.pk}))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/reputation.html')
+        self.assertContains(resp, 'data-sheet-table="contacts"')
+        self.assertContains(resp, 'data-sheet-table="factions"')
+        self.assertContains(resp, 'data-sheet-table="contracts"')
+        self.assertContains(resp, 'data-field="contact.Name"', count=16)
+        self.assertContains(resp, 'data-field="contract.Title"', count=12)
+
+    def test_auxiliary_pages_require_owner(self):
+        for route_name in ['companions', 'daily-resources', 'reputation']:
+            with self.subTest(route_name=route_name):
+                url = reverse(f'character:{route_name}', kwargs={'pk': self.char.pk})
+
+                resp = self.client.get(url)
+                self.assertRedirects(resp, f"{reverse('login')}?next={url}", fetch_redirect_response=False)
+
+                self.client.force_login(self.other)
+                resp = self.client.get(url)
+                self.assertEqual(resp.status_code, 404)
+                self.client.logout()
+
+
+class DailyResourcesDjangoIntegrationTests(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Recursos', Class='Druid', Level='7')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:daily-resources', kwargs={'pk': self.char.pk})
+
+    def test_bootstrap_creates_daily_notes_singleton(self):
+        from .models import CharacterDailyNotes
+        self.assertTrue(CharacterDailyNotes.objects.filter(Character=self.char).exists())
+
+    def test_daily_resource_remaining_is_derived(self):
+        from .calculations import daily_resource_remaining
+        self.assertEqual(daily_resource_remaining(5, 2), 3)
+        self.assertEqual(daily_resource_remaining(2, 5), 0)
+
+    def test_get_renders_saved_daily_resources_effects_and_notes(self):
+        from .models import CharacterActiveEffect, CharacterDailyResource
+        CharacterDailyResource.objects.create(
+            Character=self.char,
+            Name='Forma Selvagem',
+            Source='Druida',
+            Maximum=3,
+            Used=1,
+            Remaining=2,
+            Refresh='Diario',
+            Checks='1',
+        )
+        CharacterActiveEffect.objects.create(
+            Character=self.char,
+            Name='Pele de Arvore',
+            Source='Magia',
+            Modifier='+3 CA natural',
+            RoundsRemaining=60,
+            Notes='Ja aplicado',
+        )
+        self.char.characterdailynotes.Preparation = 'Preparar magias ao amanhecer'
+        self.char.characterdailynotes.Spent = 'Forma selvagem usada uma vez'
+        self.char.characterdailynotes.save()
+
+        self.client.force_login(self.user)
+        resp = self.client.get(self.url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Forma Selvagem')
+        self.assertContains(resp, 'Pele de Arvore')
+        self.assertContains(resp, 'Preparar magias ao amanhecer')
+        self.assertContains(resp, 'data-derived="dailyResource.Remaining"')
+        self.assertContains(resp, '>2</div>', html=False)
+
+    def test_htmx_post_daily_resources_saves_and_returns_page_fragment(self):
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {
+                'resource_1_Name': 'Forma Selvagem',
+                'resource_1_Source': 'Druida',
+                'resource_1_Maximum': '3',
+                'resource_1_Used': '1',
+                'resource_1_Refresh': 'Diario',
+                'resource_1_Checks_1': 'on',
+                'effect_1_Name': 'Pele de Arvore',
+                'effect_1_Source': 'Magia',
+                'effect_1_Modifier': '+3 CA natural',
+                'effect_1_RoundsRemaining': '60',
+                'effect_1_Notes': 'Ativo',
+                'Preparation': 'Preparar magias',
+                'Spent': 'Nada ainda',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='dailyResourcesForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        from .models import CharacterActiveEffect, CharacterDailyResource
+        resource = CharacterDailyResource.objects.get(Character=self.char)
+        effect = CharacterActiveEffect.objects.get(Character=self.char)
+        self.char.characterdailynotes.refresh_from_db()
+        self.assertEqual(resource.Name, 'Forma Selvagem')
+        self.assertEqual(resource.Remaining, 2)
+        self.assertEqual(resource.Checks, '1')
+        self.assertEqual(effect.Name, 'Pele de Arvore')
+        self.assertEqual(self.char.characterdailynotes.Preparation, 'Preparar magias')
+        self.assertContains(resp, 'dailyResourcesForm')
+        self.assertContains(resp, 'Forma Selvagem')
 
 
 class SpellcastingCalculationTests(TestCase):
@@ -432,6 +773,98 @@ class SpellcastingCalculationTests(TestCase):
         self.assertEqual(bonus_spells_for_level(18, 4), 1)
         self.assertEqual(bonus_spells_for_level(18, 5), 0)
         self.assertEqual(bonus_spells_for_level(18, 0), 0)
+
+
+class CharacterCoreCalculationTests(TestCase):
+
+    def test_skill_graduation_limits_follow_character_level(self):
+        from .calculations import skill_graduation_limits
+        self.assertEqual(skill_graduation_limits('5'), (8, 4))
+        self.assertEqual(skill_graduation_limits('1'), (4, 2))
+        self.assertEqual(skill_graduation_limits(''), (0, 0))
+
+    def test_skill_total_uses_ability_ranks_and_misc(self):
+        from .calculations import skill_total
+        self.assertEqual(skill_total(3, 4, 2), 9)
+        self.assertEqual(skill_total(-1, 0, 0), -1)
+        self.assertEqual(skill_total(3, 0, 2, trained_only=True), 0)
+
+    def test_skill_ability_modifier_uses_skill_name_mapping(self):
+        from .calculations import skill_ability_modifier
+        stats = {'Strength': 16, 'Dexterity': 14, 'Intelligence': 12, 'Wisdom': 8, 'Charisma': 10}
+        self.assertEqual(skill_ability_modifier('Escalar', stats), 3)
+        self.assertEqual(skill_ability_modifier('Esconder-se', stats), 2)
+        self.assertEqual(skill_ability_modifier('Sobrevivencia', stats), -1)
+        self.assertEqual(skill_ability_modifier('Unknown Skill', stats), 0)
+
+    def test_load_limits_follow_strength_table(self):
+        from .calculations import load_limits_for_strength
+        self.assertEqual(load_limits_for_strength(10), (33, 66, 100, 100, 200, 500))
+        self.assertEqual(load_limits_for_strength(16), (76, 153, 230, 230, 460, 1150))
+        self.assertEqual(load_limits_for_strength(0), (0, 0, 0, 0, 0, 0))
+
+    def test_total_carried_weight_parses_lbs_from_equipment_values(self):
+        from .calculations import total_carried_weight
+        self.assertEqual(total_carried_weight(['40 lb', '15 lb', '2.5 lb', '-', '', None]), 58)
+
+    def test_parse_bonus_accepts_signed_equipment_text(self):
+        from .calculations import parse_bonus
+        self.assertEqual(parse_bonus('+5'), 5)
+        self.assertEqual(parse_bonus('-2 penalidade'), -2)
+        self.assertEqual(parse_bonus(''), 0)
+        self.assertEqual(parse_bonus(None), 0)
+
+    def test_equipment_armor_class_bonuses_sum_protection_items(self):
+        from .calculations import equipment_armor_class_bonuses
+        self.assertEqual(equipment_armor_class_bonuses('+5', '+2', ['+1', '2']), (5, 2, 3))
+
+
+class CharacterProgressTests(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Progress', Level='5')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:character', kwargs={'pk': self.char.pk})
+
+    def test_xp_to_next_level_uses_current_character_level(self):
+        from .views import _xp_to_next_level
+        self.assertEqual(_xp_to_next_level('5', 12000), 3000)
+        self.assertEqual(_xp_to_next_level('5', 15000), 0)
+        self.assertIsNone(_xp_to_next_level('', 0))
+
+    def test_sheet_renders_progress_table_with_campaign_and_next_xp(self):
+        self.char.characterprogress.CampaignName = 'A Fronteira'
+        self.char.characterprogress.ExperiencePoints = 12000
+        self.char.characterprogress.save()
+
+        self.client.force_login(self.user)
+        resp = self.client.get(self.url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-sheet-table="campaign-progress"')
+        self.assertContains(resp, 'A Fronteira')
+        self.assertContains(resp, 'data-derived="XPToNextLevel"')
+        self.assertContains(resp, '3000')
+
+    def test_htmx_post_progress_saves_campaign_and_xp(self):
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {'CampaignName': 'Mar Interior', 'ExperiencePoints': '14000'},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterProgressForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.char.characterprogress.refresh_from_db()
+        self.assertEqual(self.char.characterprogress.CampaignName, 'Mar Interior')
+        self.assertEqual(self.char.characterprogress.ExperiencePoints, 14000)
+        self.assertContains(resp, 'characterProgressForm')
+        self.assertContains(resp, '1000')
 
 
 class CharacterSpellcastingRenderTests(TransactionTestCase):
@@ -546,6 +979,28 @@ class SDRClassChoicesTests(TransactionTestCase):
             self.assertIn(cls, codes, f"SDR não retornou {cls} — provavelmente esqueceu .using('sdr')")
 
 
+class SDRClassFilteringTests(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+
+    def test_sdr_class_choices_excludes_non_phb_base_classes_and_uses_portuguese_labels(self):
+        SDR_Class.objects.using('sdr').create(name='Assassin')
+        SDR_Class.objects.using('sdr').create(name='Loremaster')
+
+        from .services import sdr_class_choices
+        choices = sdr_class_choices()
+        codes = [code for code, _label in choices]
+        labels = dict(choices)
+
+        self.assertNotIn('Assassin', codes)
+        self.assertNotIn('Loremaster', codes)
+        self.assertEqual(labels['Fighter'], 'Guerreiro')
+        self.assertEqual(labels['Wizard'], 'Mago')
+        self.assertEqual(len([code for code in codes if code]), 11)
+
+
 class ReferenceDataTests(TestCase):
 
     def test_alignment_choices_are_two_letter_codes(self):
@@ -605,6 +1060,7 @@ class HomeRedirectTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTemplateUsed(resp, 'home/landing.html')
         self.assertContains(resp, 'Entrar')
+        self.assertContains(resp, 'character_sheet.css?v=')
 
     def test_authenticated_redirects_to_character_home(self):
         user = make_user()
@@ -669,7 +1125,7 @@ class SeedTests(TestCase):
         self.assertTrue(CharacterStats.objects.filter(Character=char).exists())
         self.assertTrue(CharacterStatus.objects.filter(Character=char).exists())
         self.assertTrue(CharacterSavingThrows.objects.filter(Character=char).exists())
-        self.assertEqual(CharacterSkill.objects.filter(Character=char).count(), 35)
+        self.assertEqual(CharacterSkill.objects.filter(Character=char).count(), 41)
         self.assertTrue(CharacterWeapon.objects.filter(Character=char).exists())
         self.assertTrue(CharacterArmor.objects.filter(Character=char).exists())
         self.assertTrue(CharacterShield.objects.filter(Character=char).exists())
@@ -732,4 +1188,56 @@ class SeedTests(TestCase):
         self.assertEqual(first['fighter'].pk, second['fighter'].pk)
         self.assertEqual(first['wizard'].pk, second['wizard'].pk)
         # rodar de novo não duplica filhos
-        self.assertEqual(CharacterSkill.objects.filter(Character=second['fighter']).count(), 35)
+        self.assertEqual(CharacterSkill.objects.filter(Character=second['fighter']).count(), 41)
+
+
+# ---------------------------------------------------------------------------
+# T0.2 — HTMX loaded in base template
+# ---------------------------------------------------------------------------
+
+class HtmxLoadedTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='HtmxTest')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:character', kwargs={'pk': self.char.pk})
+
+    def test_character_page_includes_htmx_script(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'htmx.min.js')
+
+    def test_character_page_includes_csrf_config_request_handler(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'htmx:configRequest')
+
+
+# ---------------------------------------------------------------------------
+# T1.8 — <int:pk> URL converter
+# ---------------------------------------------------------------------------
+
+class UrlPkIntTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='UrlTest')
+        _bootstrap_character_siblings(self.char)
+        self.client.force_login(self.user)
+
+    def test_non_numeric_pk_returns_404(self):
+        resp = self.client.get('/character/character/abc')
+        self.assertEqual(resp.status_code, 404)
+
+    def test_numeric_pk_returns_200(self):
+        resp = self.client.get(reverse('character:character', kwargs={'pk': self.char.pk}))
+        self.assertEqual(resp.status_code, 200)

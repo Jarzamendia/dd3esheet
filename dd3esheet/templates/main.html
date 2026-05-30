@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Cormorant+SC:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@400;500;600;700&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{% static 'css/character_sheet.css' %}">
+    <link rel="stylesheet" href="{% static 'css/character_sheet.css' %}?v={% now 'U' %}">
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -57,6 +57,16 @@
     <footer class="app-footer">
         Codex de Fichas · {% now "Y" %} · um lugar pro seu personagem caber inteiro
     </footer>
+
+    <script src="{% static 'htmx.min.js' %}"></script>
+    {% load django_htmx %}
+    {% django_htmx_script %}
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        const token = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (token) event.detail.headers['X-CSRFToken'] = token.value;
+      });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>
