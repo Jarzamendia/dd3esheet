@@ -1187,6 +1187,56 @@ class QueryCountTest(TransactionTestCase):
         self.assertLessEqual(len(queries), 5)
 
 
+class DispatcherSmokeTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Dispatcher', Class='Fighter', Level='1')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:character', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.user)
+
+    def test_all_character_dispatcher_targets_return_expected_partials(self):
+        cases = [
+            ('characterIdentityForm', {
+                'Name': 'Dispatcher', 'Class': 'Fighter', 'Level': '1',
+                'Race': '', 'Alignment': '', 'Deity': '', 'Size': '',
+                'Age': '', 'Sex': '', 'Heigth': '', 'Weight': '',
+                'Eye': '', 'Hair': '', 'Skin': '',
+            }, 'character/partials/character_identity.html'),
+            ('characterForm', {'Description': 'Updated'}, 'character/partials/character_description.html'),
+            ('characterStatsForm', {'Strength': '12'}, 'character/partials/character_stats.html'),
+            ('characterStatusForm', {'Speed': '9'}, 'character/partials/character_combat.html'),
+            ('characterArmorForm', {'ACSizeModifier': '0'}, 'character/partials/character_combat.html'),
+            ('characterSavesForm', {'FortitudeBaseSave': '2'}, 'character/partials/character_stats.html'),
+            ('characterAttackForm', {'BBA': '1'}, 'character/partials/character_stats.html'),
+            ('characterSkillsForm', {'skill_1_Ranks': '1'}, 'character/partials/character_skills.html'),
+            ('characterWeaponsForm', {'weapon_1_Attack': 'Longsword'}, 'character/partials/character_weapon_card.html'),
+            ('characterProgressForm', {'ExperiencePoints': '1000'}, 'character/partials/character_progress.html'),
+            ('characterEquipmentForm', {'armor_Name': 'Chain Shirt'}, 'character/partials/character_armor.html'),
+            ('characterItemsForm', {'item_1_Name': 'Rope'}, 'character/partials/character_items.html'),
+            ('characterMoneyForm', {'GP': '25'}, 'character/partials/character_money.html'),
+            ('characterFeatsForm', {'feat_1_Name': 'Power Attack'}, 'character/partials/character_feats.html'),
+            ('characterSpecialsForm', {'ability_1_Name': 'Darkvision'}, 'character/partials/character_specials.html'),
+            ('characterSpellsForm', {'known_spell_1_Name': 'Bless'}, 'character/partials/character_spells.html'),
+        ]
+
+        for target, payload, template in cases:
+            with self.subTest(target=target):
+                resp = self.client.post(
+                    self.url,
+                    payload,
+                    HTTP_HX_REQUEST='true',
+                    HTTP_HX_TARGET=target,
+                )
+
+                self.assertEqual(resp.status_code, 200)
+                self.assertTemplateUsed(resp, template)
+
+
 class SDRClassChoicesTests(TransactionTestCase):
     databases = ('default', 'sdr')
 
