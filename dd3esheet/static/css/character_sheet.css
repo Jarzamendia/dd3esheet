@@ -2568,7 +2568,7 @@ input.sk-cell.sheet-input {
 
 /* -------- Companheiros / familiares / invocacoes ------------------------ */
 .companions-sheet {
-    max-width: 1180px;
+    max-width: 1280px;
 }
 .companions-header {
     display: grid;
@@ -2874,7 +2874,7 @@ input.sk-cell.sheet-input {
 
 /* -------- Paginas auxiliares: recursos / reputacao ---------------------- */
 .sheet-utility {
-    max-width: 1180px;
+    max-width: 1280px;
 }
 .utility-header {
     display: grid;
