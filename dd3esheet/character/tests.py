@@ -12,7 +12,7 @@ from .models import (
     CharacterMagicConditionalModifiers, CharacterSkill, CharacterWeapon,
     CharacterArmor, CharacterShield, CharacterProtectionItem, CharacterOtherItem,
     CharacterSpellcasting, CharacterSpellSlot, CharacterSpell, CharacterFeat,
-    CharacterCompanion,
+    CharacterCompanion, CharacterContact, CharacterContract, CharacterFaction,
 )
 from sdr.models import SDR_Class
 
@@ -742,6 +742,93 @@ class CompanionsTest(TransactionTestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(CharacterCompanion.objects.filter(Character=self.char).count(), 0)
+
+
+class ReputationTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Face')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:reputation', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.user)
+
+    def test_htmx_post_creates_contact_slots(self):
+        resp = self.client.post(
+            self.url,
+            {
+                'contact_1_Name': 'Mestre Ardan',
+                'contact_1_Location': 'Greyhawk',
+                'contact_1_Relationship': 'Aliado',
+                'contact_1_Favor': '1',
+                'contact_1_Notes': 'Sabe sobre portais',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='reputationContactsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/partials/reputation_contacts_form.html')
+        contact = CharacterContact.objects.get(Character=self.char)
+        self.assertEqual(contact.Name, 'Mestre Ardan')
+        self.assertEqual(contact.Location, 'Greyhawk')
+        self.assertContains(resp, 'Mestre Ardan')
+
+    def test_htmx_post_creates_faction_slots(self):
+        resp = self.client.post(
+            self.url,
+            {
+                'faction_1_Name': 'Circulo Esmeralda',
+                'faction_1_Reputation': '+2',
+                'faction_1_Influence': 'Regional',
+                'faction_1_Risk': 'Baixo',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='reputationFactionsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/partials/reputation_factions_form.html')
+        faction = CharacterFaction.objects.get(Character=self.char)
+        self.assertEqual(faction.Name, 'Circulo Esmeralda')
+        self.assertEqual(faction.Reputation, '+2')
+
+    def test_htmx_post_creates_contract_slots(self):
+        resp = self.client.post(
+            self.url,
+            {
+                'contract_1_Title': 'Recuperar o selo',
+                'contract_1_Party': 'Lady Merin',
+                'contract_1_Reward': '500 po',
+                'contract_1_Deadline': 'Lua cheia',
+                'contract_1_Status': 'Aberto',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='reputationContractsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/partials/reputation_contracts_form.html')
+        contract = CharacterContract.objects.get(Character=self.char)
+        self.assertEqual(contract.Title, 'Recuperar o selo')
+        self.assertEqual(contract.Status, 'Aberto')
+
+    def test_get_reflects_saved_reputation_data(self):
+        CharacterContact.objects.create(Character=self.char, Name='Mestre Ardan')
+        CharacterFaction.objects.create(Character=self.char, Name='Circulo Esmeralda')
+        CharacterContract.objects.create(Character=self.char, Title='Recuperar o selo')
+
+        resp = self.client.get(self.url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'character/reputation.html')
+        self.assertContains(resp, 'reputationContactsForm')
+        self.assertContains(resp, 'Mestre Ardan')
+        self.assertContains(resp, 'Circulo Esmeralda')
+        self.assertContains(resp, 'Recuperar o selo')
 
 
 class DailyResourcesDjangoIntegrationTests(TransactionTestCase):

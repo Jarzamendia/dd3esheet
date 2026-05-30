@@ -344,3 +344,31 @@ class CharacterCompanion(models.Model):
     Feats            = models.TextField(blank=True)
     SpecialAbilities = models.TextField(blank=True)
     Notes            = models.TextField(blank=True)
+
+class CharacterContact(models.Model):
+    Character    = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    Name         = models.CharField(max_length=200, blank=True)
+    Location     = models.CharField(max_length=200, blank=True)
+    Relationship = models.CharField(max_length=200, blank=True)
+    Favor        = models.CharField(max_length=200, blank=True)
+    Notes        = models.TextField(blank=True)
+
+class CharacterFaction(models.Model):
+    Character  = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    Name       = models.CharField(max_length=200, blank=True)
+    Reputation = models.CharField(max_length=200, blank=True)
+    Influence  = models.CharField(max_length=200, blank=True)
+    Risk       = models.CharField(max_length=200, blank=True)
+    Notes      = models.TextField(blank=True)
+
+class CharacterContract(models.Model):
+    Character = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    Title     = models.CharField(max_length=200, blank=True)
+    Party     = models.CharField(max_length=200, blank=True)
+    Reward    = models.CharField(max_length=200, blank=True)
+    Deadline  = models.CharField(max_length=200, blank=True)
+    Status    = models.CharField(max_length=200, blank=True)
+    Notes     = models.TextField(blank=True)

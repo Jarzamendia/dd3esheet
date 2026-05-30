@@ -1,0 +1,24 @@
+<form id="reputationFactionsForm"
+      class="utility-block"
+      data-sheet-table="factions"
+      hx-post="{% url 'character:reputation' character.pk %}"
+      hx-target="#reputationFactionsForm"
+      hx-swap="outerHTML"
+      hx-trigger="change delay:300ms">
+    {% csrf_token %}
+    <div class="section-title-band"><span>Faccoes e Reputacao</span></div>
+    <div class="faction-table">
+        <div class="resource-head">Faccao / Grupo</div>
+        <div class="resource-head">Reputacao</div>
+        <div class="resource-head">Influencia</div>
+        <div class="resource-head">Risco</div>
+        <div class="resource-head">Notas</div>
+        {% for faction in faction_slots %}
+        <input class="sheet-input" name="faction_{{ forloop.counter }}_Name" value="{{ faction.Name|default:'' }}" data-field="faction.Name" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="faction_{{ forloop.counter }}_Reputation" value="{{ faction.Reputation|default:'' }}" data-field="faction.Reputation" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="faction_{{ forloop.counter }}_Influence" value="{{ faction.Influence|default:'' }}" data-field="faction.Influence" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="faction_{{ forloop.counter }}_Risk" value="{{ faction.Risk|default:'' }}" data-field="faction.Risk" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="faction_{{ forloop.counter }}_Notes" value="{{ faction.Notes|default:'' }}" data-field="faction.Notes" data-slot="{{ forloop.counter }}">
+        {% endfor %}
+    </div>
+</form>

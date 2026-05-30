@@ -1,0 +1,24 @@
+<form id="reputationContactsForm"
+      class="utility-block"
+      data-sheet-table="contacts"
+      hx-post="{% url 'character:reputation' character.pk %}"
+      hx-target="#reputationContactsForm"
+      hx-swap="outerHTML"
+      hx-trigger="change delay:300ms">
+    {% csrf_token %}
+    <div class="section-title-band"><span>Contatos</span></div>
+    <div class="contact-table">
+        <div class="resource-head">Nome</div>
+        <div class="resource-head">Local</div>
+        <div class="resource-head">Relacao</div>
+        <div class="resource-head">Favor</div>
+        <div class="resource-head">Notas</div>
+        {% for contact in contact_slots %}
+        <input class="sheet-input" name="contact_{{ forloop.counter }}_Name" value="{{ contact.Name|default:'' }}" data-field="contact.Name" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="contact_{{ forloop.counter }}_Location" value="{{ contact.Location|default:'' }}" data-field="contact.Location" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="contact_{{ forloop.counter }}_Relationship" value="{{ contact.Relationship|default:'' }}" data-field="contact.Relationship" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="contact_{{ forloop.counter }}_Favor" value="{{ contact.Favor|default:'' }}" data-field="contact.Favor" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="contact_{{ forloop.counter }}_Notes" value="{{ contact.Notes|default:'' }}" data-field="contact.Notes" data-slot="{{ forloop.counter }}">
+        {% endfor %}
+    </div>
+</form>

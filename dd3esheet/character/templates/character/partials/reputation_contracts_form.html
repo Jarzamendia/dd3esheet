@@ -1,0 +1,26 @@
+<form id="reputationContractsForm"
+      class="utility-block"
+      data-sheet-table="contracts"
+      hx-post="{% url 'character:reputation' character.pk %}"
+      hx-target="#reputationContractsForm"
+      hx-swap="outerHTML"
+      hx-trigger="change delay:300ms">
+    {% csrf_token %}
+    <div class="section-title-band"><span>Contratos, Promessas e Dividas</span></div>
+    <div class="contract-table">
+        <div class="resource-head">Contrato / Promessa</div>
+        <div class="resource-head">Com quem</div>
+        <div class="resource-head">Recompensa</div>
+        <div class="resource-head">Prazo</div>
+        <div class="resource-head">Status</div>
+        <div class="resource-head">Notas</div>
+        {% for contract in contract_slots %}
+        <input class="sheet-input" name="contract_{{ forloop.counter }}_Title" value="{{ contract.Title|default:'' }}" data-field="contract.Title" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="contract_{{ forloop.counter }}_Party" value="{{ contract.Party|default:'' }}" data-field="contract.Party" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="contract_{{ forloop.counter }}_Reward" value="{{ contract.Reward|default:'' }}" data-field="contract.Reward" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="contract_{{ forloop.counter }}_Deadline" value="{{ contract.Deadline|default:'' }}" data-field="contract.Deadline" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="contract_{{ forloop.counter }}_Status" value="{{ contract.Status|default:'' }}" data-field="contract.Status" data-slot="{{ forloop.counter }}">
+        <input class="sheet-input" name="contract_{{ forloop.counter }}_Notes" value="{{ contract.Notes|default:'' }}" data-field="contract.Notes" data-slot="{{ forloop.counter }}">
+        {% endfor %}
+    </div>
+</form>

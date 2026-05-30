@@ -6,7 +6,7 @@ from django.db.models import Prefetch
 from .models import (
     Ability, Character, CharacterArmor, CharacterAttackModifiers,
     CharacterActiveEffect, CharacterDailyNotes, CharacterDailyResource,
-    CharacterCompanion,
+    CharacterCompanion, CharacterContact, CharacterContract, CharacterFaction,
     CharacterFeat, CharacterLanguages, CharacterMoney, CharacterOtherItem,
     CharacterOtherItemObs, CharacterProgress, CharacterProtectionItem, CharacterSavingThrows,
     CharacterShield, CharacterSkill, CharacterSkillGraduation,
@@ -276,6 +276,17 @@ def _summon_nature_rows():
             'examples': 'Elemental anciao, grifo celestial, unicornios e aliados maiores',
         },
     ]
+
+
+def _reputation_context(char, **extra):
+    context = {
+        'character': char,
+        'contact_slots': _ordered_slots(char, 'charactercontact_set', CharacterContact, 16),
+        'faction_slots': _ordered_slots(char, 'characterfaction_set', CharacterFaction, 10),
+        'contract_slots': _ordered_slots(char, 'charactercontract_set', CharacterContract, 12),
+    }
+    context.update(extra)
+    return context
 
 
 def _save_daily_resources(char, request):
@@ -629,12 +640,26 @@ def dailyResources(request, pk):
 @login_required
 def reputation(request, pk):
     char = get_object_or_404(Character, pk=pk, User=request.user)
-    return render(request, 'character/reputation.html', {
-        'character': char,
-        'contact_slots': range(1, 17),
-        'faction_slots': range(1, 11),
-        'contract_slots': range(1, 13),
-    })
+    if request.method == 'POST' and request.htmx:
+        if request.htmx.target == 'reputationContactsForm':
+            _save_repeating_slots(char, request, CharacterContact, 'contact', [
+                'Name', 'Location', 'Relationship', 'Favor', 'Notes',
+            ], 16)
+            return render(request, 'character/partials/reputation_contacts_form.html', _reputation_context(char))
+
+        if request.htmx.target == 'reputationFactionsForm':
+            _save_repeating_slots(char, request, CharacterFaction, 'faction', [
+                'Name', 'Reputation', 'Influence', 'Risk', 'Notes',
+            ], 10)
+            return render(request, 'character/partials/reputation_factions_form.html', _reputation_context(char))
+
+        if request.htmx.target == 'reputationContractsForm':
+            _save_repeating_slots(char, request, CharacterContract, 'contract', [
+                'Title', 'Party', 'Reward', 'Deadline', 'Status', 'Notes',
+            ], 12)
+            return render(request, 'character/partials/reputation_contracts_form.html', _reputation_context(char))
+
+    return render(request, 'character/reputation.html', _reputation_context(char))
 
 
 @login_required
