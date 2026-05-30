@@ -1237,6 +1237,46 @@ class DispatcherSmokeTest(TransactionTestCase):
                 self.assertTemplateUsed(resp, template)
 
 
+class EndToEndSmoke(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+
+    def test_user_creates_character_edits_strength_and_sees_recalculated_modifier(self):
+        User.objects.create_user(username='e2e', password='pass')
+        login_resp = self.client.post(reverse('login'), {'username': 'e2e', 'password': 'pass'})
+        self.assertEqual(login_resp.status_code, 302)
+
+        create_resp = self.client.post(
+            reverse('character:create-character'),
+            {'Name': 'Smoke', 'Description': 'Fluxo ponta a ponta'},
+        )
+        char = Character.objects.get(Name='Smoke')
+        self.assertRedirects(
+            create_resp,
+            reverse('character:character', kwargs={'pk': char.pk}),
+            fetch_redirect_response=False,
+        )
+
+        edit_resp = self.client.post(
+            reverse('character:character', kwargs={'pk': char.pk}),
+            {'Strength': '16'},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterStatsForm',
+        )
+        self.assertEqual(edit_resp.status_code, 200)
+        self.assertTemplateUsed(edit_resp, 'character/partials/character_stats.html')
+
+        char.characterstats.refresh_from_db()
+        self.assertEqual(char.characterstats.Strength, 16)
+        self.assertEqual(char.characterstats.StrengthStatMod, 3)
+
+        get_resp = self.client.get(reverse('character:character', kwargs={'pk': char.pk}))
+        self.assertEqual(get_resp.status_code, 200)
+        self.assertContains(get_resp, 'data-derived="StrengthStatMod">3')
+
+
 class SDRClassChoicesTests(TransactionTestCase):
     databases = ('default', 'sdr')
 
