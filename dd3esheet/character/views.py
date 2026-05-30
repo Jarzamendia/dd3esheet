@@ -24,6 +24,7 @@ from .calculations import (
     skill_total, total_carried_weight,
 )
 from .spellcasting import numeric_slot_count, spellcasting_context
+from sdr.lookups import resolve_spell
 
 _SPELLBOOK_SLOT_TOTAL = 20
 
@@ -221,6 +222,8 @@ def _save_spellbook_level(character, request, level):
         item.Level = level
         item.Name = name
         item.Page = page
+        matched = resolve_spell(name)
+        item.SDRSpellId = matched.id if matched else None
         item.save()
         processed += 1
     return processed

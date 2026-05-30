@@ -154,6 +154,29 @@ def setup_sdr_class_table():
         )
 
 
+def setup_sdr_spell_table():
+    """Create the SDR spell table for testing (unmanaged model)."""
+    with connections['sdr'].cursor() as cursor:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS spell (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL, altname TEXT,
+                school TEXT, subschool TEXT, descriptor TEXT,
+                spellcraft_dc TEXT, level TEXT, components TEXT,
+                casting_time TEXT, range TEXT, target TEXT, area TEXT,
+                effect TEXT, duration TEXT, saving_throw TEXT,
+                spell_resistance TEXT, short_description TEXT,
+                to_develop TEXT, material_components TEXT,
+                arcane_material_components TEXT, focus TEXT,
+                description TEXT, xp_cost TEXT,
+                arcane_focus TEXT, wizard_focus TEXT,
+                verbal_components TEXT, sorcerer_focus TEXT,
+                bard_focus TEXT, cleric_focus TEXT, druid_focus TEXT,
+                full_text TEXT, reference TEXT
+            )
+        """)
+
+
 # ---------------------------------------------------------------------------
 # Phase B — character creation
 # ---------------------------------------------------------------------------
@@ -1157,6 +1180,7 @@ class SpellbookPageTest(TransactionTestCase):
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         from .seeds import seed_admin, seed_wizard
         self.char = seed_wizard(seed_admin())
         self.user = self.char.User
@@ -2118,3 +2142,58 @@ class CharacterSpellSDRLinkTests(TestCase):
         )
         spell.refresh_from_db()
         self.assertEqual(spell.SDRSpellId, 42)
+
+
+class SpellbookSDRResolveTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_spell_table()
+
+    def setUp(self):
+        from sdr.models import SDR_Spell
+        SDR_Spell.objects.using('sdr').all().delete()
+        self.sdr_mm = SDR_Spell(
+            name="Magic Missile", altname="Misseis Magicos",
+            school="Evocation", level="Sor/Wiz 1",
+            short_description="1 missil mais 1 a cada dois niveis",
+        )
+        self.sdr_mm.save(using='sdr')
+        self.user = make_user()
+        self.char = make_character(self.user)
+        self.client.force_login(self.user)
+
+    def _post_level(self, level, rows):
+        data = {}
+        for i, (name, page) in enumerate(rows, start=1):
+            data[f'spellbook_{level}_{i}_Name'] = name
+            data[f'spellbook_{level}_{i}_Page'] = page
+        return self.client.post(
+            reverse('character:spellbook', args=[self.char.pk]),
+            data=data,
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET=f'spellbookLevel{level}Form',
+        )
+
+    def test_save_resolves_sdr_id_for_known_spell(self):
+        self._post_level(1, [("Magic Missile", "12")])
+        spell = CharacterSpell.objects.get(Character=self.char, Level=1)
+        self.assertEqual(spell.SDRSpellId, self.sdr_mm.id)
+
+    def test_save_resolves_sdr_id_by_altname(self):
+        self._post_level(1, [("Misseis Magicos", "")])
+        spell = CharacterSpell.objects.get(Character=self.char, Level=1)
+        self.assertEqual(spell.SDRSpellId, self.sdr_mm.id)
+
+    def test_save_leaves_sdr_id_none_for_homebrew(self):
+        self._post_level(1, [("Bola de Fogo Tropical", "")])
+        spell = CharacterSpell.objects.get(Character=self.char, Level=1)
+        self.assertIsNone(spell.SDRSpellId)
+
+    def test_save_clears_sdr_id_when_switching_to_homebrew(self):
+        self._post_level(1, [("Magic Missile", "")])
+        self._post_level(1, [("Bola de Fogo Tropical", "")])
+        spell = CharacterSpell.objects.get(Character=self.char, Level=1)
+        self.assertIsNone(spell.SDRSpellId)
