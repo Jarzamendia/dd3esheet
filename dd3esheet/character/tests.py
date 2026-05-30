@@ -1075,6 +1075,57 @@ class AlignmentValidationTests(TransactionTestCase):
         self.assertNotEqual(self.char.Alignment, 'XX')
 
 
+class FieldValidationTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Validation')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:character', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.user)
+
+    def test_integer_fields_are_clamped_without_500(self):
+        resp = self.client.post(
+            self.url,
+            {'ExperiencePoints': '5000'},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterProgressForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.char.characterprogress.refresh_from_db()
+        self.assertEqual(self.char.characterprogress.ExperiencePoints, 999)
+
+    def test_repeating_slot_strings_are_stripped_and_truncated_to_max_length(self):
+        long_attack = f"  {'x' * 250}  "
+        resp = self.client.post(
+            self.url,
+            {'weapon_1_Attack': long_attack},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterWeaponsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        weapon = CharacterWeapon.objects.get(Character=self.char)
+        self.assertEqual(weapon.Attack, 'x' * 200)
+
+    def test_html_text_is_preserved_as_plain_database_value(self):
+        payload = '  <script>alert(1)</script>  '
+        resp = self.client.post(
+            self.url,
+            {'feat_1_Name': payload},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterFeatsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        feat = CharacterFeat.objects.get(Character=self.char)
+        self.assertEqual(feat.Name, '<script>alert(1)</script>')
+
+
 # ---------------------------------------------------------------------------
 # Phase A — home redirect and character list filtering
 # ---------------------------------------------------------------------------
@@ -1268,6 +1319,69 @@ class LoginBruteForceTest(TestCase):
             REMOTE_ADDR='192.0.2.1',
         )
         self.assertIn(resp.status_code, [403, 429])
+
+
+# ---------------------------------------------------------------------------
+# T1.7 — Pure calculation functions in calculations.py
+# ---------------------------------------------------------------------------
+
+class PureCalculationsTest(TestCase):
+
+    def test_compute_armor_class_base(self):
+        from .calculations import compute_armor_class
+        total, touch, flat = compute_armor_class(
+            armor_bonus=5, shield_bonus=2, dex_mod=2, size_mod=0,
+            natural_armor=0, deflection=1, misc=0,
+        )
+        self.assertEqual(total, 20)
+        self.assertEqual(touch, 13)
+        self.assertEqual(flat, 18)
+
+    def test_compute_armor_class_zeros(self):
+        from .calculations import compute_armor_class
+        total, touch, flat = compute_armor_class(
+            armor_bonus=0, shield_bonus=0, dex_mod=0, size_mod=0,
+            natural_armor=0, deflection=0, misc=0,
+        )
+        self.assertEqual(total, 10)
+        self.assertEqual(touch, 10)
+        self.assertEqual(flat, 10)
+
+    def test_compute_armor_class_negative_dex(self):
+        from .calculations import compute_armor_class
+        total, touch, flat = compute_armor_class(
+            armor_bonus=4, shield_bonus=0, dex_mod=-2, size_mod=0,
+            natural_armor=2, deflection=0, misc=0,
+        )
+        self.assertEqual(total, 14)
+        self.assertEqual(touch, 8)
+        self.assertEqual(flat, 16)
+
+    def test_compute_save_total_sums_all_components(self):
+        from .calculations import compute_save_total
+        self.assertEqual(compute_save_total(base=3, ability_mod=2, magic=1, misc=0, temporary=0), 6)
+        self.assertEqual(compute_save_total(base=0, ability_mod=-1, magic=0, misc=0, temporary=0), -1)
+        self.assertEqual(compute_save_total(base=5, ability_mod=3, magic=2, misc=1, temporary=1), 12)
+
+    def test_compute_grapple_total_sums_components(self):
+        from .calculations import compute_grapple_total
+        self.assertEqual(compute_grapple_total(bba=5, str_mod=3, size_mod=0, misc=0), 8)
+        self.assertEqual(compute_grapple_total(bba=0, str_mod=0, size_mod=0, misc=0), 0)
+        self.assertEqual(compute_grapple_total(bba=3, str_mod=-1, size_mod=-1, misc=2), 3)
+
+    def test_compute_skill_row_returns_ability_key_and_modifier(self):
+        from .calculations import compute_skill_row
+        stats = {'Strength': 16, 'Dexterity': 14, 'Intelligence': 10}
+        key, mod = compute_skill_row(skill_name='Escalar', stats=stats)
+        self.assertEqual(key, 'FOR')
+        self.assertEqual(mod, 3)
+
+    def test_compute_skill_row_unknown_skill_returns_empty_key(self):
+        from .calculations import compute_skill_row
+        stats = {'Strength': 10}
+        key, mod = compute_skill_row(skill_name='UnknownSkill', stats=stats)
+        self.assertEqual(key, '')
+        self.assertEqual(mod, 0)
 
 
 # ---------------------------------------------------------------------------

@@ -16,10 +16,11 @@ from .forms import CharacterForm, CharacterStatsForm, CharacterCreateForm, Chara
 from .services import _bootstrap_character_siblings, ensure_expandable_skill_slots
 from .constants import DEITY_SUGGESTIONS
 from .calculations import (
-    ABILITY_FIELDS, ability_modifier, equipment_armor_class_bonuses, load_limits_for_strength,
-    daily_resource_remaining,
-    is_trained_only_skill, skill_ability_key, skill_ability_modifier, skill_graduation_limits, skill_total,
-    total_carried_weight,
+    ABILITY_FIELDS, ability_modifier, compute_armor_class, compute_grapple_total,
+    compute_save_total, compute_skill_row, equipment_armor_class_bonuses,
+    load_limits_for_strength, daily_resource_remaining,
+    is_trained_only_skill, skill_ability_key, skill_ability_modifier, skill_graduation_limits,
+    skill_total, total_carried_weight,
 )
 from .spellcasting import spellcasting_context
 
@@ -55,6 +56,23 @@ def _post_int(request, name, default=0):
     return _to_int(request.POST.get(name), default)
 
 
+def _clamp_int(value, minimum=-999, maximum=999):
+    return max(min(value, maximum), minimum)
+
+
+def _clean_text_value(value, model_field):
+    max_length = getattr(model_field, 'max_length', None) or 200
+    return (value or '').strip()[:max_length]
+
+
+def _clean_post_value(raw_value, model_field):
+    if isinstance(model_field, models.IntegerField):
+        return _clamp_int(_to_int(raw_value, 0))
+    if isinstance(model_field, models.BooleanField):
+        return raw_value in ('on', 'true', '1', 'yes')
+    return _clean_text_value(raw_value, model_field)
+
+
 def _update_fields_from_post(instance, request, fields, prefix=''):
     changed = False
     for field in fields:
@@ -62,13 +80,7 @@ def _update_fields_from_post(instance, request, fields, prefix=''):
         if name not in request.POST:
             continue
         model_field = instance._meta.get_field(field)
-        raw_value = request.POST.get(name)
-        if isinstance(model_field, models.IntegerField):
-            value = _to_int(raw_value, 0)
-        elif isinstance(model_field, models.BooleanField):
-            value = raw_value in ('on', 'true', '1', 'yes')
-        else:
-            value = raw_value
+        value = _clean_post_value(request.POST.get(name), model_field)
         setattr(instance, field, value)
         changed = True
     if changed:
@@ -227,14 +239,15 @@ def _recalculate_stats(character):
                 armor_ac, shield_ac, protection_bonuses,
             )
         status.ACDexModifier = stats.DexterityStatMod
-        status.ACTotal = (
-            10 + _to_int(status.ACArmorBonus) + _to_int(status.ACShieldBonus)
-            + _to_int(status.ACDexModifier) + _to_int(status.ACSizeModifier)
-            + _to_int(status.ACNaturalArmor) + _to_int(status.ACDeflectionModifier)
-            + _to_int(status.ACMiscModifier)
+        status.ACTotal, status.ACTouch, status.ACFlatFooterd = compute_armor_class(
+            armor_bonus=status.ACArmorBonus,
+            shield_bonus=status.ACShieldBonus,
+            dex_mod=status.ACDexModifier,
+            size_mod=status.ACSizeModifier,
+            natural_armor=status.ACNaturalArmor,
+            deflection=status.ACDeflectionModifier,
+            misc=status.ACMiscModifier,
         )
-        status.ACTouch = 10 + _to_int(status.ACDexModifier) + _to_int(status.ACSizeModifier) + _to_int(status.ACDeflectionModifier) + _to_int(status.ACMiscModifier)
-        status.ACFlatFooterd = 10 + _to_int(status.ACArmorBonus) + _to_int(status.ACShieldBonus) + _to_int(status.ACSizeModifier) + _to_int(status.ACNaturalArmor) + _to_int(status.ACDeflectionModifier) + _to_int(status.ACMiscModifier)
         status.Initiative = stats.DexterityStatMod
         status.save(update_fields=[
             'ACArmorBonus', 'ACShieldBonus', 'ACMiscModifier', 'ACDexModifier',
@@ -245,9 +258,21 @@ def _recalculate_stats(character):
         saves.FortitudeAbilityModifier = stats.ConstitutionStatMod
         saves.ReflexAbilityModifier = stats.DexterityStatMod
         saves.WillAbilityModifier = stats.WisdomStatMod
-        saves.TotalFortitude = _to_int(saves.FortitudeBaseSave) + _to_int(saves.FortitudeAbilityModifier) + _to_int(saves.FortitudeMagicModifier) + _to_int(saves.FortitudeMiscModifier) + _to_int(saves.FortitudeTemporaryModifier)
-        saves.TotalReflex = _to_int(saves.ReflexBaseSave) + _to_int(saves.ReflexAbilityModifier) + _to_int(saves.ReflexMagicModifier) + _to_int(saves.ReflexMiscModifier) + _to_int(saves.ReflexTemporaryModifier)
-        saves.TotalWill = _to_int(saves.WillBaseSave) + _to_int(saves.WillAbilityModifier) + _to_int(saves.WillMagicModifier) + _to_int(saves.WillMiscModifier) + _to_int(saves.WillTemporaryModifier)
+        saves.TotalFortitude = compute_save_total(
+            base=saves.FortitudeBaseSave, ability_mod=saves.FortitudeAbilityModifier,
+            magic=saves.FortitudeMagicModifier, misc=saves.FortitudeMiscModifier,
+            temporary=saves.FortitudeTemporaryModifier,
+        )
+        saves.TotalReflex = compute_save_total(
+            base=saves.ReflexBaseSave, ability_mod=saves.ReflexAbilityModifier,
+            magic=saves.ReflexMagicModifier, misc=saves.ReflexMiscModifier,
+            temporary=saves.ReflexTemporaryModifier,
+        )
+        saves.TotalWill = compute_save_total(
+            base=saves.WillBaseSave, ability_mod=saves.WillAbilityModifier,
+            magic=saves.WillMagicModifier, misc=saves.WillMiscModifier,
+            temporary=saves.WillTemporaryModifier,
+        )
         saves.save(update_fields=[
             'FortitudeAbilityModifier', 'ReflexAbilityModifier', 'WillAbilityModifier',
             'TotalFortitude', 'TotalReflex', 'TotalWill',
@@ -255,13 +280,19 @@ def _recalculate_stats(character):
 
         attack = character.characterattackmodifiers
         attack.GrapplerStrModifier = stats.StrengthStatMod
-        attack.TotalGrappler = _to_int(attack.GrapplerBBA) + _to_int(attack.GrapplerStrModifier) + _to_int(attack.GrapplerSizeModifier) + _to_int(attack.GrapplerMiscModifier)
+        attack.TotalGrappler = compute_grapple_total(
+            bba=attack.GrapplerBBA,
+            str_mod=attack.GrapplerStrModifier,
+            size_mod=attack.GrapplerSizeModifier,
+            misc=attack.GrapplerMiscModifier,
+        )
         attack.save(update_fields=['GrapplerStrModifier', 'TotalGrappler'])
 
         skills = list(CharacterSkill.objects.filter(Character=character))
         for skill in skills:
-            skill.SkillAbility = skill_ability_key(skill.SkillName)
-            skill.AbilityModifier = skill_ability_modifier(skill.SkillName, stats)
+            skill.SkillAbility, skill.AbilityModifier = compute_skill_row(
+                skill_name=skill.SkillName, stats=stats,
+            )
             skill.SkillModifier = skill_total(
                 skill.AbilityModifier,
                 skill.Ranks,
