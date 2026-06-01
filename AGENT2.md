@@ -10,12 +10,26 @@ git worktree add ../dd3esheet-agent2 -b feat/agent2-calc-summons feat/sdr-spell-
 cd ../dd3esheet-agent2
 ```
 
-Confirme `docker ps` listando `dd3esheet-web-1`.
+Ligue o Docker Desktop antes de testar.
 
 ## Regras (obrigatórias)
 
 - **TDD:** teste que falha → implementa → passa. Testes na mesma commit.
-- **Testes:** `docker exec dd3esheet-web-1 python manage.py test <alvo> -v 2`. Suite inteira antes de cada commit: `docker exec dd3esheet-web-1 python manage.py test -v 1`. Após criar migrations: `docker exec dd3esheet-web-1 python manage.py migrate`.
+- **Testes (container isolado desta worktree):** rode a partir de `../dd3esheet-agent2/dd3esheet` com nome de projeto próprio para não colidir com a outra worktree. `run --rm` não publica a porta 8000 (sem conflito):
+  ```bash
+  cd ../dd3esheet-agent2/dd3esheet   # raiz onde está o docker-compose.yaml
+  docker compose -p agent2 run --rm --build web python manage.py test <alvo> -v 2
+  ```
+  Suite inteira antes de cada commit (omita `--build` após a 1ª vez):
+  ```bash
+  docker compose -p agent2 run --rm web python manage.py test -v 1
+  ```
+  Após criar migrations, aplique no banco da sua worktree:
+  ```bash
+  docker compose -p agent2 run --rm web python manage.py makemigrations character
+  docker compose -p agent2 run --rm web python manage.py migrate
+  ```
+  > **Não** use `docker exec dd3esheet-web-1 …`: aquele container monta a pasta do coordenador, não a sua worktree.
 - **Funções de cálculo são puras** (recebem primitivos, não models), moram em `character/calculations.py`, e ganham `SimpleTestCase` com casos zero/positivo/negativo. A view só orquestra: lê fontes de verdade, chama puras, persiste atômico com `update_fields`.
 - **PascalCase** em campos de model; SDR sempre `.using('sdr')`; **sem FK cross-DB** (resolver por ID com `.using('sdr')`). Arquivos novos UTF-8 sem BOM.
 - **Commits pequenos**, pt-BR (`feat(...)`/`refactor(...)`), **sem** trailer `Co-Authored-By`. Commite só na sua branch.

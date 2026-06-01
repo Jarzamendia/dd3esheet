@@ -10,12 +10,21 @@ git worktree add ../dd3esheet-agent1 -b feat/agent1-popup-autosave feat/sdr-spel
 cd ../dd3esheet-agent1
 ```
 
-Confirme que o container de testes está de pé: `docker ps` deve listar `dd3esheet-web-1`.
+Ligue o Docker Desktop antes de testar.
 
 ## Regras (obrigatórias)
 
 - **TDD:** escreva o teste que falha → implemente → veja passar. Testes na mesma commit da implementação.
-- **Testes:** `docker exec dd3esheet-web-1 python manage.py test <alvo> -v 2`. Suite inteira antes de cada commit: `docker exec dd3esheet-web-1 python manage.py test -v 1`.
+- **Testes (container isolado desta worktree):** rode a partir de `../dd3esheet-agent1/dd3esheet` com nome de projeto próprio para não colidir com a outra worktree. `run --rm` não publica a porta 8000 (sem conflito):
+  ```bash
+  cd ../dd3esheet-agent1/dd3esheet   # raiz onde está o docker-compose.yaml
+  docker compose -p agent1 run --rm --build web python manage.py test <alvo> -v 2
+  ```
+  Suite inteira antes de cada commit (omita `--build` após a 1ª vez):
+  ```bash
+  docker compose -p agent1 run --rm web python manage.py test -v 1
+  ```
+  > **Não** use `docker exec dd3esheet-web-1 …`: aquele container monta a pasta do coordenador, não a sua worktree. Para a verificação visual (Task 12) suba com porta própria: `docker compose -p agent1 run --rm --service-ports -p 8001:8000 web python manage.py runserver 0.0.0.0:8000`.
 - **Commits pequenos**, pt-BR (`feat(...)`), **sem** trailer `Co-Authored-By`. Commite só na sua branch.
 - **PascalCase** em campos de model; SDR sempre `.using('sdr')`; **sem FK cross-DB**. Arquivos novos UTF-8 sem BOM.
 - **Nunca** `git add dd3esheet/nul`. Use `git add <paths específicos>`.
