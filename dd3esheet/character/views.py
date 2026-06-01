@@ -276,9 +276,26 @@ def _spellbook_level_rows(character, level):
     return spells + [None]
 
 
+def _build_sdr_lookup_for_spells(spells):
+    ids = {s.SDRSpellId for s in spells if s and s.SDRSpellId}
+    if not ids:
+        return {}
+    return {
+        sdr.id: sdr
+        for sdr in SDR_Spell.objects.using('sdr').filter(id__in=ids)
+    }
+
+
+def _sdr_spell_suggestions():
+    return list(
+        SDR_Spell.objects.using('sdr').only('id', 'name', 'school', 'level').order_by('name')
+    )
+
+
 def _spellbook_level_context(char, level, spellcasting=None):
     spellcasting = spellcasting or spellcasting_context(char)
     spells = _spellbook_level_rows(char, level)
+    sdr_lookup = _build_sdr_lookup_for_spells(spells)
     return {
         'character': char,
         'spellcasting': spellcasting,
@@ -289,7 +306,9 @@ def _spellbook_level_context(char, level, spellcasting=None):
             'form_id': f'spellbookLevel{level}Form',
             'spells': spells,
             'count': len([spell for spell in spellcasting['known_spells'] if spell.Level == level]),
+            'sdr_lookup': sdr_lookup,
         },
+        'sdr_spell_suggestions': _sdr_spell_suggestions(),
     }
 
 
@@ -360,6 +379,7 @@ def _spellbook_context(char, **extra):
         'spellbook_slot_levels': _spellbook_slot_levels(char, spellcasting),
         'spellbook_profile_fields': _SPELLBOOK_PROFILE_FIELDS,
         'spellbook_levels': [_spellbook_level_context(char, level, spellcasting)['spellbook_level'] for level in range(10)],
+        'sdr_spell_suggestions': _sdr_spell_suggestions(),
     }
     context.update(extra)
     return context

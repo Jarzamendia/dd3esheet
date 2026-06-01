@@ -1069,6 +1069,7 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         self.user = make_user()
         from .services import _bootstrap_character_siblings
         self.char = Character.objects.create(User=self.user, Name='Caster', Class='Cleric', Level='1')
@@ -2197,6 +2198,59 @@ class SpellbookSDRResolveTests(TestCase):
         self._post_level(1, [("Bola de Fogo Tropical", "")])
         spell = CharacterSpell.objects.get(Character=self.char, Level=1)
         self.assertIsNone(spell.SDRSpellId)
+
+
+# ---------------------------------------------------------------------------
+# T9 — spellbook render: sdr_lookup, tooltip, trigger, datalist
+# ---------------------------------------------------------------------------
+
+class SpellbookLevelRenderTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_spell_table()
+
+    def setUp(self):
+        from sdr.models import SDR_Spell
+        SDR_Spell.objects.using('sdr').all().delete()
+        self.sdr_mm = SDR_Spell(
+            name="Magic Missile", school="Evocation", level="Sor/Wiz 1",
+            casting_time="1 ação padrão",
+            short_description="1 missil mais 1 a cada 2 niveis",
+        )
+        self.sdr_mm.save(using='sdr')
+        self.user = make_user(); self.user.set_password('pw'); self.user.save()
+        self.char = make_character(self.user)
+        self.client.force_login(self.user)
+
+    def test_known_spell_renders_data_sdr_id_and_trigger(self):
+        CharacterSpell.objects.create(
+            Character=self.char, Name="Magic Missile", Level=1, SDRSpellId=self.sdr_mm.id,
+        )
+        url = reverse('character:spellbook', args=[self.char.pk])
+        resp = self.client.get(url)
+        body = resp.content.decode()
+        self.assertIn(f'data-sdr-id="{self.sdr_mm.id}"', body)
+        self.assertIn('class="spell-detail-trigger"', body)
+        self.assertIn('class="spell-tooltip"', body)
+        self.assertIn('1 missil mais 1 a cada 2 niveis', body)
+
+    def test_homebrew_spell_renders_without_sdr_attrs(self):
+        CharacterSpell.objects.create(
+            Character=self.char, Name="Bola Tropical", Level=1, SDRSpellId=None,
+        )
+        url = reverse('character:spellbook', args=[self.char.pk])
+        body = self.client.get(url).content.decode()
+        self.assertNotIn('spell-detail-trigger', body)
+        self.assertNotIn('class="spell-tooltip"', body)
+
+    def test_datalist_is_rendered_once(self):
+        url = reverse('character:spellbook', args=[self.char.pk])
+        body = self.client.get(url).content.decode()
+        self.assertEqual(body.count('id="spell-suggestions"'), 1)
+        self.assertIn('value="Magic Missile"', body)
 
 
 # ---------------------------------------------------------------------------

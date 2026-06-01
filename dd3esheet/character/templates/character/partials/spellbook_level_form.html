@@ -1,3 +1,4 @@
+{% load dict_extras %}
 <details class="spellbook-level" {% if spellbook_level.level == 0 %}open{% endif %}>
     <summary class="spellbook-level-summary">
         <span>Magias de nivel {{ spellbook_level.level }}</span>
@@ -14,8 +15,40 @@
             <div class="spellbook-head">Livro</div>
             <div class="spellbook-head">Magia</div>
             {% for spell in spellbook_level.spells %}
-            <input class="sheet-input spellbook-page-input" name="spellbook_{{ spellbook_level.level }}_{{ forloop.counter }}_Page" value="{{ spell.Page|default:'' }}" data-field="spellbook.Page" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input spellbook-name-input" name="spellbook_{{ spellbook_level.level }}_{{ forloop.counter }}_Name" value="{{ spell.Name|default:'' }}" data-field="spellbook.Name" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input spellbook-page-input"
+                       name="spellbook_{{ spellbook_level.level }}_{{ forloop.counter }}_Page"
+                       value="{{ spell.Page|default:'' }}"
+                       data-field="spellbook.Page" data-slot="{{ forloop.counter }}">
+                {% if spell %}
+                {% with sdr=spellbook_level.sdr_lookup|get_item:spell.SDRSpellId %}
+                <span class="spell-input-wrap"
+                      data-sdr-id="{% if sdr %}{{ sdr.id }}{% endif %}">
+                    <input class="sheet-input spellbook-name-input"
+                           list="spell-suggestions"
+                           name="spellbook_{{ spellbook_level.level }}_{{ forloop.counter }}_Name"
+                           value="{{ spell.Name|default:'' }}"
+                           data-field="spellbook.Name" data-slot="{{ forloop.counter }}">
+                    {% if sdr %}
+                        <button type="button"
+                                class="spell-detail-trigger"
+                                title="Ver detalhe completo"
+                                hx-get="{% url 'character:spell-detail' character.pk sdr.id %}"
+                                hx-target="#spell-detail-dialog"
+                                hx-swap="innerHTML"
+                                onclick="document.getElementById('spell-detail-dialog').showModal()">&#128214;</button>
+                        {% include "character/partials/_spell_tooltip.html" %}
+                    {% endif %}
+                </span>
+                {% endwith %}
+                {% else %}
+                <span class="spell-input-wrap">
+                    <input class="sheet-input spellbook-name-input"
+                           list="spell-suggestions"
+                           name="spellbook_{{ spellbook_level.level }}_{{ forloop.counter }}_Name"
+                           value=""
+                           data-field="spellbook.Name" data-slot="{{ forloop.counter }}">
+                </span>
+                {% endif %}
             {% endfor %}
         </div>
     </form>
