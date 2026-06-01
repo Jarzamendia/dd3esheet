@@ -631,6 +631,7 @@ class CharacterAuxiliaryPageTests(TransactionTestCase):
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         self.user = make_user()
         self.other = make_user('mallory')
         from .services import _bootstrap_character_siblings
@@ -2014,6 +2015,7 @@ class AlliesRenameTest(TransactionTestCase):
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         self.user = make_user(username='aliasuser')
         from .services import _bootstrap_character_siblings
         self.char = Character.objects.create(User=self.user, Name='AliasTest')
@@ -2357,3 +2359,37 @@ class DomainSpellsResolveTests(TestCase):
         row1 = next(r for r in rows if r['level'] == 1)
         self.assertEqual(row1['name'], "Homebrew Spell")
         self.assertIsNone(row1['sdr_id'])
+
+
+# ---------------------------------------------------------------------------
+# T11 — _summon_nature_rows includes sdr_id
+# ---------------------------------------------------------------------------
+
+class SummonNatureRowsResolveTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_spell_table()
+
+    def test_summon_rows_have_sdr_id_when_known(self):
+        from sdr.models import SDR_Spell
+        from character.views import _summon_nature_rows
+        SDR_Spell.objects.using('sdr').all().delete()
+        sdr = SDR_Spell(
+            name="Aliado da Natureza I",
+            altname="Summon Nature's Ally I",
+            school="Conjuration", level="Drd 1",
+        )
+        sdr.save(using='sdr')
+        rows = _summon_nature_rows()
+        row1 = next(r for r in rows if r['level'] == 1)
+        self.assertEqual(row1['sdr_id'], sdr.id)
+
+    def test_summon_rows_sdr_id_none_when_unknown(self):
+        from sdr.models import SDR_Spell
+        from character.views import _summon_nature_rows
+        SDR_Spell.objects.using('sdr').all().delete()
+        rows = _summon_nature_rows()
+        self.assertTrue(all(r['sdr_id'] is None for r in rows))

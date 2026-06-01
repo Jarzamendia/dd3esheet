@@ -419,62 +419,22 @@ def _companions_context(char, **extra):
 
 
 def _summon_nature_rows():
-    return [
-        {
-            'level': 1,
-            'spell': 'Aliado da Natureza I',
-            'quantity': '1 criatura de 1o nivel',
-            'examples': 'Rato atroz, aguia, macaco, coruja, lobo, vibora pequena',
-        },
-        {
-            'level': 2,
-            'spell': 'Aliado da Natureza II',
-            'quantity': '1 de 2o, 1d3 de 1o',
-            'examples': 'Urso negro, crocodilo, texugo atroz, morcego atroz, elemental pequeno',
-        },
-        {
-            'level': 3,
-            'spell': 'Aliado da Natureza III',
-            'quantity': '1 de 3o, 1d3 de 2o, 1d4+1 de 1o',
-            'examples': 'Gorila, doninha atroz, lobo atroz, leao, thoqqua',
-        },
-        {
-            'level': 4,
-            'spell': 'Aliado da Natureza IV',
-            'quantity': '1 de 4o, 1d3 de 3o, 1d4+1 menores',
-            'examples': 'Urso pardo, aguia gigante, elemental medio, tigre, unicornio',
-        },
-        {
-            'level': 5,
-            'spell': 'Aliado da Natureza V',
-            'quantity': '1 de 5o, 1d3 de 4o, 1d4+1 menores',
-            'examples': 'Urso polar, leao atroz, elemental grande, grifo, rinoceronte',
-        },
-        {
-            'level': 6,
-            'spell': 'Aliado da Natureza VI',
-            'quantity': '1 de 6o, 1d3 de 5o, 1d4+1 menores',
-            'examples': 'Urso atroz, elemental enorme, elefante, girallon, megaraptor',
-        },
-        {
-            'level': 7,
-            'spell': 'Aliado da Natureza VII',
-            'quantity': '1 de 7o, 1d3 de 6o, 1d4+1 menores',
-            'examples': 'Tigre atroz, elemental maior, djinni, triceratopo, tiranossauro',
-        },
-        {
-            'level': 8,
-            'spell': 'Aliado da Natureza VIII',
-            'quantity': '1 de 8o, 1d3 de 7o, 1d4+1 menores',
-            'examples': 'Elemental anciao, roc, salamandra nobre, baleia cachalote',
-        },
-        {
-            'level': 9,
-            'spell': 'Aliado da Natureza IX',
-            'quantity': '1 de 9o, 1d3 de 8o, 1d4+1 menores',
-            'examples': 'Elemental anciao, grifo celestial, unicornios e aliados maiores',
-        },
+    raw = [
+        {'level': 1, 'spell': 'Aliado da Natureza I',    'quantity': '1 criatura de 1o nivel',           'examples': 'Rato atroz, aguia, macaco, coruja, lobo, vibora pequena'},
+        {'level': 2, 'spell': 'Aliado da Natureza II',   'quantity': '1 de 2o, 1d3 de 1o',               'examples': 'Urso negro, crocodilo, texugo atroz, morcego atroz, elemental pequeno'},
+        {'level': 3, 'spell': 'Aliado da Natureza III',  'quantity': '1 de 3o, 1d3 de 2o, 1d4+1 de 1o', 'examples': 'Gorila, doninha atroz, lobo atroz, leao, thoqqua'},
+        {'level': 4, 'spell': 'Aliado da Natureza IV',   'quantity': '1 de 4o, 1d3 de 3o, 1d4+1 menores','examples': 'Urso pardo, aguia gigante, elemental medio, tigre, unicornio'},
+        {'level': 5, 'spell': 'Aliado da Natureza V',    'quantity': '1 de 5o, 1d3 de 4o, 1d4+1 menores','examples': 'Urso polar, leao atroz, elemental grande, grifo, rinoceronte'},
+        {'level': 6, 'spell': 'Aliado da Natureza VI',   'quantity': '1 de 6o, 1d3 de 5o, 1d4+1 menores','examples': 'Urso atroz, elemental enorme, elefante, girallon, megaraptor'},
+        {'level': 7, 'spell': 'Aliado da Natureza VII',  'quantity': '1 de 7o, 1d3 de 6o, 1d4+1 menores','examples': 'Tigre atroz, elemental maior, djinni, triceratopo, tiranossauro'},
+        {'level': 8, 'spell': 'Aliado da Natureza VIII', 'quantity': '1 de 8o, 1d3 de 7o, 1d4+1 menores','examples': 'Elemental anciao, roc, salamandra nobre, baleia cachalote'},
+        {'level': 9, 'spell': 'Aliado da Natureza IX',   'quantity': '1 de 9o, 1d3 de 8o, 1d4+1 menores','examples': 'Elemental anciao, grifo celestial, unicornios e aliados maiores'},
     ]
+    for row in raw:
+        sdr = resolve_spell(row['spell'])
+        row['sdr_id'] = sdr.id if sdr else None
+        row['sdr'] = sdr
+    return raw
 
 
 def _reputation_context(char, **extra):

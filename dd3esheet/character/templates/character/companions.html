@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load dict_extras %}
 {% block title %}{{ character.Name|default:"Ficha" }} - Aliados{% endblock %}
 
 {% block content %}
@@ -100,7 +101,21 @@
                     <div class="summons-head">Favorito</div>
                     {% for row in summon_nature_rows %}
                     <div class="summon-level" data-slot="{{ row.level }}">{{ row.level }}</div>
-                    <div class="summon-spell-name" data-field="summonNature.Spell" data-slot="{{ row.level }}">{{ row.spell }}</div>
+                    <div class="summon-spell-name" data-field="summonNature.Spell" data-slot="{{ row.level }}">
+                        <span class="spell-name-link"
+                              data-sdr-id="{% if row.sdr_id %}{{ row.sdr_id }}{% endif %}"
+                              {% if row.sdr_id %}
+                              hx-get="{% url 'character:spell-detail' character.pk row.sdr_id %}"
+                              hx-target="#spell-detail-dialog"
+                              hx-swap="innerHTML"
+                              onclick="document.getElementById('spell-detail-dialog').showModal()"
+                              {% endif %}>
+                            {{ row.spell }}
+                        </span>
+                        {% if row.sdr %}
+                            {% with sdr=row.sdr %}{% include "character/partials/_spell_tooltip.html" %}{% endwith %}
+                        {% endif %}
+                    </div>
                     <div class="summon-quantity" data-derived="summonNature.QuantityRule" data-slot="{{ row.level }}">{{ row.quantity }}</div>
                     <div class="summon-examples" data-derived="summonNature.Examples" data-slot="{{ row.level }}">{{ row.examples }}</div>
                     <input class="sheet-input" data-field="summonNature.FavoriteCreature" data-slot="{{ row.level }}">
