@@ -25,6 +25,7 @@ from .calculations import (
 )
 from .spellcasting import numeric_slot_count, spellcasting_context
 from sdr.lookups import resolve_spell
+from sdr.models import SDR_Spell
 
 _SPELLBOOK_SLOT_TOTAL = 20
 
@@ -905,3 +906,10 @@ def toggleSpellSlot(request, pk, slot_id):
         slot.IsUsed = not slot.IsUsed
         slot.save(update_fields=['IsUsed'])
     return render(request, 'character/partials/spellbook_slots_form.html', _spellbook_context(char))
+
+
+@login_required
+def spell_detail(request, pk, sdr_id):
+    get_object_or_404(Character, pk=pk, User=request.user)
+    spell = get_object_or_404(SDR_Spell.objects.using('sdr'), id=sdr_id)
+    return render(request, 'character/partials/spell_detail_dialog.html', {'spell': spell})

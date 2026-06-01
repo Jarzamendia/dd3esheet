@@ -2197,3 +2197,54 @@ class SpellbookSDRResolveTests(TestCase):
         self._post_level(1, [("Bola de Fogo Tropical", "")])
         spell = CharacterSpell.objects.get(Character=self.char, Level=1)
         self.assertIsNone(spell.SDRSpellId)
+
+
+# ---------------------------------------------------------------------------
+# T5 — spell_detail view
+# ---------------------------------------------------------------------------
+
+class SpellDetailViewTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_spell_table()
+
+    def setUp(self):
+        from sdr.models import SDR_Spell
+        SDR_Spell.objects.using('sdr').all().delete()
+        self.spell = SDR_Spell(
+            name="Magic Missile",
+            full_text="<p>Conjuras misseis magicos.</p>",
+            school="Evocation", level="Sor/Wiz 1",
+        )
+        self.spell.save(using='sdr')
+        self.owner = make_user('owner')
+        self.owner.set_password('pw'); self.owner.save()
+        self.stranger = make_user('stranger')
+        self.stranger.set_password('pw'); self.stranger.save()
+        self.char = make_character(self.owner)
+
+    def test_owner_gets_dialog_partial(self):
+        self.client.force_login(self.owner)
+        url = reverse('character:spell-detail', args=[self.char.pk, self.spell.id])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'Magic Missile', resp.content)
+        self.assertIn(b'Conjuras misseis magicos', resp.content)
+
+    def test_unknown_sdr_id_returns_404(self):
+        self.client.force_login(self.owner)
+        url = reverse('character:spell-detail', args=[self.char.pk, 99999])
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_stranger_gets_404(self):
+        self.client.force_login(self.stranger)
+        url = reverse('character:spell-detail', args=[self.char.pk, self.spell.id])
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_anonymous_redirected_or_blocked(self):
+        url = reverse('character:spell-detail', args=[self.char.pk, self.spell.id])
+        resp = self.client.get(url)
+        self.assertIn(resp.status_code, (302, 401, 403))
