@@ -9,7 +9,7 @@ Este plano divide o trabalho em **tasks autocontidas**, cada uma executável por
 3. Correções de performance (queries, recalculo, render).
 4. Todos os componentes da ficha (edição inline, páginas extras, toggles) funcionando ponta a ponta.
 
-## Status atual (2026-05-30) — Fases 0–3 concluídas; Fase 4 pendente
+## Status atual (2026-06-01) — Fases 0–3 concluídas; Fase 4 em andamento (T4.1–T4.5 ✅, T4.6–T4.8 pendentes)
 
 Legenda: ✅ concluída · ⬜ não iniciada
 
@@ -34,11 +34,11 @@ Legenda: ✅ concluída · ⬜ não iniciada
 | 2    | T2.3  | ✅     | `f960945` — EndToEndSmoke                                             |
 | 3    | T3.1  | ✅     | `11c9e4c` — docs/deployment.md                                        |
 | 3    | T3.2  | ✅     | T3.2 (final) — check --deploy zero issues, 107 testes verdes, pip-audit limpo |
-| 4    | T4.1  | ⬜     | Padronizar largura 1280px nas sub-páginas                             |
-| 4    | T4.2  | ⬜     | Renomear "Companheiros" → "Aliados" na UI (URL preservada)            |
-| 4    | T4.3  | ⬜     | Redesign do bloco Nome do Aliado/Familiar (linha 100%, tipografia)    |
-| 4    | T4.4  | ⬜     | Empilhar Animal/Familiar com toggle colapsável                        |
-| 4    | T4.5  | ⬜     | Sub-página "Livro de Magias" + enxugar `character_spells.html`        |
+| 4    | T4.1  | ✅     | `a3e89a3` — largura unificada 1280px nas sub-páginas                  |
+| 4    | T4.2  | ✅     | `8e71fd2` — renomear "Companheiros" → "Aliados" na UI (URL preservada) |
+| 4    | T4.3  | ✅     | `634909e` — redesign do bloco Nome do Aliado/Familiar                 |
+| 4    | T4.4  | ✅     | `be6b5ab` — stack vertical + accordion Animal/Familiar                |
+| 4    | T4.5  | ✅     | `e45a15d` — sub-página "Livro de Magias" + enxugar `character_spells.html` |
 | 4    | T4.6  | ⬜     | Modelo `CharacterSummon` + grid de 3 colunas de invocações ativas     |
 | 4    | T4.7  | ⬜     | Sistema de favoritos (★) em invocações                                |
 | 4    | T4.8  | ⬜     | Autopreenchimento de Summon via SRD (`SdrMonster`)                    |
@@ -859,7 +859,7 @@ Fonte: [`NEW.md`](NEW.md). Esta fase **não** é pré-requisito para o critério
 
 ### T4.1 — Padronizar `max-width` das sub-páginas em 1280px
 
-**Status:** ⬜ não iniciada
+**Status:** ✅ concluída (`a3e89a3`)
 **Tipo:** UI/CSS
 **Pré-requisitos:** nenhum
 **Pode paralelizar com:** T4.2, T4.3, T4.5, T4.6
@@ -889,7 +889,7 @@ Fonte: [`NEW.md`](NEW.md). Esta fase **não** é pré-requisito para o critério
 
 ### T4.2 — Renomear "Companheiros" → "Aliados" na interface (URL preservada)
 
-**Status:** ⬜ não iniciada
+**Status:** ✅ concluída (`8e71fd2`)
 **Tipo:** UI/i18n
 **Pré-requisitos:** nenhum
 **Pode paralelizar com:** T4.1, T4.3, T4.5, T4.6
@@ -918,7 +918,7 @@ Fonte: [`NEW.md`](NEW.md). Esta fase **não** é pré-requisito para o critério
 
 ### T4.3 — Redesign do bloco "Nome" do Aliado/Familiar (linha 100%, tipografia premium)
 
-**Status:** ⬜ não iniciada
+**Status:** ✅ concluída (`634909e`)
 **Tipo:** UI/UX
 **Pré-requisitos:** nenhum
 **Pode paralelizar com:** T4.1, T4.2, T4.5, T4.6
@@ -971,7 +971,7 @@ O campo `Name` do animal/familiar está dentro de um grid de duas colunas, espre
 
 ### T4.4 — Stack vertical + toggle colapsável Animal/Familiar
 
-**Status:** ⬜ não iniciada
+**Status:** ✅ concluída (`be6b5ab`)
 **Tipo:** UI/UX
 **Pré-requisitos:** T4.3 (mesmo template — evita conflito)
 **Pode paralelizar com:** T4.1, T4.2, T4.5, T4.6, T4.7, T4.8
@@ -1024,7 +1024,7 @@ Hoje Animal Companion e Familiar ficam lado a lado. Raros personagens têm os do
 
 ### T4.5 — Sub-página `/spellbook/` + simplificação de `character_spells.html`
 
-**Status:** ⬜ não iniciada
+**Status:** ✅ concluída (`e45a15d`)
 **Tipo:** componente/feature
 **Pré-requisitos:** nenhum
 **Pode paralelizar com:** T4.1–T4.4, T4.6
@@ -1220,6 +1220,155 @@ NEW.md: formulário "Adicionar Invocação" com autocomplete que busca em `sdr.m
 
 ---
 
+# Feature paralela — Popup SDR de Magias (branch `feat/sdr-spell-popup`)
+
+Em paralelo à Fase 4, está em curso a feature de **autocomplete SDR + tooltip (hover) + modal (click)** para nomes de magia no Livro de Magias, Domínios de clérigo e Magias de Invocação. Plano detalhado e autocontido (12 tasks TDD) em [`docs/superpowers/plans/2026-05-30-sdr-spell-popup.md`].
+
+| Task | Descrição                                                        | Status |
+|------|-----------------------------------------------------------------|--------|
+| 1    | `sdr.lookups.resolve_spell` (name/altname → SDR_Spell)          | ✅ `0cd7479` |
+| 2    | `import_spells` usa `resolve_spell` (DRY)                       | ✅ `845c94d` |
+| 3    | Coluna `CharacterSpell.SDRSpellId` + migration `0007`          | ✅ `ab2ee16` |
+| 4    | Save hook resolve `SDRSpellId` no Livro de Magias              | ✅ `d1d637c` |
+| 5    | View `spell_detail` + URL + partial `spell_detail_dialog.html` | ⬜ |
+| 6    | `<dialog>` vazio em `main.html`                                 | ⬜ |
+| 7    | CSS `.spell-input-wrap` / `.spell-tooltip` / `.spell-detail-dialog` | ⬜ |
+| 8    | Partial reusável `_spell_tooltip.html`                         | ⬜ |
+| 9    | Autocomplete (datalist) + tooltip + ícone no Livro de Magias   | ⬜ |
+| 10   | Domínios de clérigo com tooltip + click                        | ⬜ |
+| 11   | Magias de Invocação (Aliados) com tooltip + click             | ⬜ |
+| 12   | Verificação visual manual (`/run`)                             | ⬜ |
+
+---
+
+# Fase 5 — Fechamento de MVP (cálculos, persistência, autosave ao digitar)
+
+Estas tasks fecham o que falta para a ficha funcionar como **MVP de jogo real**: derivar automaticamente os números que hoje são digitados à mão, persistir o estado que hoje se perde, e salvar enquanto o usuário digita (não só no blur). Cada task é autocontida e exige TDD. Fonte de verdade do estado atual: `character/calculations.py` (puras já existentes) e `character/views.py::_recalculate_stats` (linhas 488–596).
+
+## Sprint E — Autosave conforme o usuário escreve
+
+### T5.1 — Salvar ao digitar (input) sem perder foco
+
+**Status:** ⬜ não iniciada
+**Tipo:** UX/HTMX (frontend + dispatcher)
+**Pré-requisitos:** nenhum
+**Agente:** ver alocação
+
+#### Contexto
+Todos os forms da ficha usam hoje `hx-trigger="change delay:300ms"` + `hx-swap="outerHTML"`. O evento `change` só dispara no **blur** (sair do campo), então a ficha **não salva enquanto o usuário digita**. Trocar ingenuamente para `keyup`/`input` quebra a UX: o `hx-swap="outerHTML"` substitui o form inteiro a cada tecla e o input perde foco/cursor.
+
+#### Objetivo
+Salvar texto enquanto o usuário digita, **sem** destruir o campo em foco, mantendo o recálculo de campos derivados.
+
+#### Passos (abordagem recomendada — confirmar na implementação)
+1. **Separar persistência de re-render.** Para campos puramente textuais (nomes, notas, descrições, páginas), disparar `hx-trigger="input changed delay:600ms"` com `hx-swap="none"` (servidor persiste e devolve `204 No Content` ou corpo vazio) — o input mantém foco e cursor.
+2. **Manter `change` (com swap) para campos que alteram derivados** (atributos, BBA, bônus de armadura, ranks de perícia): ao sair do campo, recalcula e troca o partial. Opcionalmente, empurrar só os campos derivados via **OOB swap** (`hx-swap-oob`) para não tocar o input ativo.
+3. Adicionar um **indicador de estado** discreto ("salvando…/salvo ✓") via `htmx:beforeRequest`/`htmx:afterRequest`.
+4. Garantir que o dispatcher (`views.py::character` e as views de sub-página) aceitam POST sem header de swap e respondem corretamente quando `hx-swap="none"`.
+
+#### Entregáveis
+- Templates de partials editáveis com triggers ajustados.
+- `views.py` (dispatcher) suportando resposta sem swap para saves de texto.
+- Indicador de salvamento em `main.html`/CSS.
+
+#### Testes
+- `character/tests.py::AutosaveOnInputTest`: POST com `HX-Trigger` de `input` persiste o campo e responde 200/204 sem re-renderizar o input ativo.
+- Regressão: saves por `change` (derivados) continuam recalculando (suite existente verde).
+- Smoke manual (`/run`): digitar em "Nome"/"Notas" salva sozinho após ~0,6 s sem perder o cursor.
+
+---
+
+## Sprint F — Cálculos faltantes
+
+### T5.2 — Derivar ataques, cap de Des da armadura, deslocamento e penalidades
+
+**Status:** ⬜ não iniciada
+**Tipo:** domínio/cálculo
+**Pré-requisitos:** nenhum (estende `calculations.py` + `_recalculate_stats`)
+**Agente:** ver alocação
+
+#### Contexto
+Hoje só **Agarrar** é derivado entre os ataques; `_recalculate_stats` não calcula ataque corpo-a-corpo/à distância, ignora o `MaxDex` da armadura na CA (usa o mod de Des cheio), não aplica penalidade de armadura nem ajusta deslocamento por carga/armadura.
+
+#### Objetivo
+Adicionar funções puras em `calculations.py` e ligá-las no `_recalculate_stats`:
+1. `compute_attack_bonus(*, bba, ability_mod, size_mod, misc)` → corpo-a-corpo (Força) e à distância (Destreza).
+2. `cap_dex_to_armor(dex_mod, max_dex)` → limita o mod de Des aplicado à CA pelo `MaxDex` da armadura equipada (parse via `parse_bonus`).
+3. `armor_check_penalty(...)` → soma penalidades de armadura/escudo e aplica às perícias afetadas por armadura (Força/Destreza).
+4. `speed_for_load(base_speed, load_category, armor_speed)` → deslocamento ajustado por carga média/pesada e armadura.
+
+#### Entregáveis
+- `character/calculations.py` com as novas funções puras.
+- `character/views.py::_recalculate_stats` chamando-as e persistindo (`update_fields`).
+- `docs/character-domain.md` atualizado.
+
+#### Testes
+- `character/tests.py::PureCombatCalcsTest` (`SimpleTestCase`): cada função pura com casos zero/positivo/negativo.
+- `RecalcAppliesArmorCapTest`: armadura com `MaxDex 2` + Des +4 → CA usa +2.
+- Suite existente verde.
+
+---
+
+### T5.3 — Conjuração: Ca (DC) de magia e magias bônus por atributo
+
+**Status:** ⬜ não iniciada
+**Tipo:** domínio/cálculo (integra SDR `class_table`)
+**Pré-requisitos:** nenhum
+**Agente:** ver alocação
+
+#### Contexto
+`CharacterSpellSave.SpellSaveDC` e `BonusSpells` existem como campos mas ficam em `0` (manuais). A CD de uma magia é `10 + nível da magia + mod do atributo-chave`; magias bônus saem de uma tabela por atributo.
+
+#### Objetivo
+1. `compute_spell_save_dc(spell_level, casting_ability_mod)` puro.
+2. `bonus_spells_for_ability(ability_score, spell_level)` puro (tabela padrão 3.5).
+3. Ligar no contexto de conjuração (`spellcasting.py`) e/ou `_recalculate_stats`, persistindo por nível.
+
+#### Entregáveis
+- `character/calculations.py` + `character/spellcasting.py` editados.
+
+#### Testes
+- `character/tests.py::SpellDcAndBonusTest` (`SimpleTestCase`): CD e bônus para FOR/DES baixos e altos.
+
+---
+
+## Sprint G — Persistência faltante
+
+### T5.4 — Auditoria + persistência de estado de jogo (HP atual, dano, condições)
+
+**Status:** ⬜ não iniciada
+**Tipo:** modelo/persistência
+**Pré-requisitos:** nenhum
+**Agente:** ver alocação
+
+#### Contexto
+`CharacterStatus.TotalHitPoints` guarda o total, mas **não há PV atual/temporário nem registro de dano** — o estado de combate se perde. Pode haver outros campos hoje só derivados/estáticos que deveriam persistir.
+
+#### Objetivo
+1. **Passo 1 (auditoria):** varrer models + templates editáveis e listar o que é editável na UI mas não persiste, e o que deveria ser rastreado e não é. Registrar em `docs/known-issues.md`.
+2. Adicionar campos `CurrentHitPoints`, `TemporaryHitPoints` (e opcional `NonlethalDamage`) em `CharacterStatus` + migration.
+3. UI inline (HTMX) para PV atual/temporário com clamp (`0 ≤ atual ≤ total`).
+4. (Opcional MVP) seção simples de **condições/efeitos** persistida.
+
+#### Entregáveis
+- Auditoria em `docs/known-issues.md`.
+- `models.py` + migration + view/partial de PV.
+
+#### Testes
+- `character/tests.py::HitPointTrackingTest`: POST altera PV atual; clamp respeitado; persiste no GET.
+
+---
+
+# Critério de "MVP de jogo pronto" (Fase 5)
+
+- [ ] Ficha salva enquanto se digita (texto), sem perder foco; derivados recalculam no blur (T5.1).
+- [ ] Ataque corpo-a-corpo/à distância, cap de Des por armadura, penalidade de armadura e deslocamento por carga derivados automaticamente (T5.2).
+- [ ] CD de magia e magias bônus calculados (T5.3).
+- [ ] PV atual/temporário (e dano) persistidos e editáveis (T5.4).
+- [ ] Suite de testes verde com a nova cobertura.
+
+---
+
 # Matriz de paralelismo
 
 | Fase | Tasks paralelas                                                                   |
@@ -1266,9 +1415,9 @@ Antes de declarar Fase 2 concluída, exigir:
 
 # Critério de "Fase 4 concluída" (UX/Feature)
 
-- [ ] Largura unificada 1280px nas 3 sub-páginas (T4.1).
-- [ ] Aba/menu mostra "Aliados" em toda a navegação (T4.2).
-- [ ] Página de Aliados com nome em destaque, layout empilhado e accordion (T4.3 + T4.4).
-- [ ] `/character/<pk>/spellbook/` no ar; `character_spells.html` enxugado (T4.5).
+- [x] Largura unificada 1280px nas 3 sub-páginas (T4.1).
+- [x] Aba/menu mostra "Aliados" em toda a navegação (T4.2).
+- [x] Página de Aliados com nome em destaque, layout empilhado e accordion (T4.3 + T4.4).
+- [x] `/character/<pk>/spellbook/` no ar; `character_spells.html` enxugado (T4.5).
 - [ ] Grid de invocações renderiza, fixar (★) funciona, autocomplete SRD preenche estatísticas (T4.6 + T4.7 + T4.8).
 - [ ] Suite de testes continua verde com a nova cobertura.
