@@ -1,3 +1,4 @@
+{% load dict_extras %}
 <section id="characterSpellsForm" class="spells-panel" data-sheet-table="spells" aria-live="polite">
     <form hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterSpellsForm"
@@ -29,7 +30,23 @@
                 <div class="spell-level-head"><span>Dominio {{ spellcasting.profile.Domain1|default:"1" }}</span></div>
                 <div class="domain-spell-list" data-sheet-table="domain-spells-1">
                     {% for spell in spellcasting.domain_1_spells %}
-                    <div data-slot="{{ spell.level }}"><span data-derived="domainSpell.Level" data-slot="{{ spell.level }}">{{ spell.level }}</span><strong data-derived="domainSpell.Name" data-slot="{{ spell.level }}">{{ spell.name|default:"-" }}</strong></div>
+                    <div data-slot="{{ spell.level }}">
+                        <span data-derived="domainSpell.Level" data-slot="{{ spell.level }}">{{ spell.level }}</span>
+                        <strong class="spell-name-link"
+                                data-sdr-id="{% if spell.sdr_id %}{{ spell.sdr_id }}{% endif %}"
+                                data-derived="domainSpell.Name" data-slot="{{ spell.level }}"
+                                {% if spell.sdr_id %}
+                                hx-get="{% url 'character:spell-detail' character.pk spell.sdr_id %}"
+                                hx-target="#spell-detail-dialog"
+                                hx-swap="innerHTML"
+                                onclick="document.getElementById('spell-detail-dialog').showModal()"
+                                {% endif %}>
+                            {{ spell.name|default:"-" }}
+                        </strong>
+                        {% if spell.sdr %}
+                            {% with sdr=spell.sdr %}{% include "character/partials/_spell_tooltip.html" %}{% endwith %}
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
             </article>
@@ -37,7 +54,23 @@
                 <div class="spell-level-head"><span>Dominio {{ spellcasting.profile.Domain2|default:"2" }}</span></div>
                 <div class="domain-spell-list" data-sheet-table="domain-spells-2">
                     {% for spell in spellcasting.domain_2_spells %}
-                    <div data-slot="{{ spell.level }}"><span data-derived="domainSpell.Level" data-slot="{{ spell.level }}">{{ spell.level }}</span><strong data-derived="domainSpell.Name" data-slot="{{ spell.level }}">{{ spell.name|default:"-" }}</strong></div>
+                    <div data-slot="{{ spell.level }}">
+                        <span data-derived="domainSpell.Level" data-slot="{{ spell.level }}">{{ spell.level }}</span>
+                        <strong class="spell-name-link"
+                                data-sdr-id="{% if spell.sdr_id %}{{ spell.sdr_id }}{% endif %}"
+                                data-derived="domainSpell.Name" data-slot="{{ spell.level }}"
+                                {% if spell.sdr_id %}
+                                hx-get="{% url 'character:spell-detail' character.pk spell.sdr_id %}"
+                                hx-target="#spell-detail-dialog"
+                                hx-swap="innerHTML"
+                                onclick="document.getElementById('spell-detail-dialog').showModal()"
+                                {% endif %}>
+                            {{ spell.name|default:"-" }}
+                        </strong>
+                        {% if spell.sdr %}
+                            {% with sdr=spell.sdr %}{% include "character/partials/_spell_tooltip.html" %}{% endwith %}
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
             </article>

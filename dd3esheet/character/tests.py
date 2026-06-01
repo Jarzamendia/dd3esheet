@@ -2302,3 +2302,58 @@ class SpellDetailViewTests(TestCase):
         url = reverse('character:spell-detail', args=[self.char.pk, self.spell.id])
         resp = self.client.get(url)
         self.assertIn(resp.status_code, (302, 401, 403))
+
+
+# ---------------------------------------------------------------------------
+# T10 — domain_spells includes sdr_id
+# ---------------------------------------------------------------------------
+
+def setup_sdr_domain_table():
+    with connections['sdr'].cursor() as cursor:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS domain (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                granted_powers TEXT,
+                spell_1 TEXT, spell_2 TEXT, spell_3 TEXT, spell_4 TEXT,
+                spell_5 TEXT, spell_6 TEXT, spell_7 TEXT, spell_8 TEXT, spell_9 TEXT,
+                full_text TEXT,
+                reference TEXT
+            )
+        """)
+
+
+class DomainSpellsResolveTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_spell_table()
+        setup_sdr_domain_table()
+
+    def test_domain_spells_includes_sdr_id_when_known(self):
+        from sdr.models import SDR_Spell, SDR_Domain
+        from character.spellcasting import domain_spells
+        SDR_Spell.objects.using('sdr').all().delete()
+        SDR_Domain.objects.using('sdr').all().delete()
+        sdr = SDR_Spell(name="Bless", school="Enchantment", level="Clr 1")
+        sdr.save(using='sdr')
+        d = SDR_Domain(name="Good", spell_1="Bless")
+        d.save(using='sdr')
+        rows = domain_spells("Good")
+        row1 = next(r for r in rows if r['level'] == 1)
+        self.assertEqual(row1['name'], "Bless")
+        self.assertEqual(row1['sdr_id'], sdr.id)
+
+    def test_domain_spells_sdr_id_none_when_unknown(self):
+        from sdr.models import SDR_Spell, SDR_Domain
+        from character.spellcasting import domain_spells
+        SDR_Spell.objects.using('sdr').all().delete()
+        SDR_Domain.objects.using('sdr').all().delete()
+        d = SDR_Domain(name="Custom", spell_1="Homebrew Spell")
+        d.save(using='sdr')
+        rows = domain_spells("Custom")
+        row1 = next(r for r in rows if r['level'] == 1)
+        self.assertEqual(row1['name'], "Homebrew Spell")
+        self.assertIsNone(row1['sdr_id'])
