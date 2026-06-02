@@ -7,13 +7,34 @@
     {% csrf_token %}
     <div class="summons-grid">
         {% for summon in summon_slots %}
-        <article class="summon-card{% if not summon %} summon-card--empty{% endif %}"
+        <article class="summon-card summon-stat-card{% if not summon %} summon-card--empty{% endif %}"
+                 data-sheet-table="summon-active-card"
                  {% if summon %}data-summon-card="active"{% else %}data-summon-card="empty"{% endif %}>
-            <header class="summon-card-head">
-                <div>
-                    <span class="label">Invocacao</span>
-                    <strong>{{ summon.Name|default:"Nova criatura" }}</strong>
-                </div>
+            <header class="summon-stat-card-title">
+                <span class="summon-stat-slot-badge">{{ forloop.counter }}</span>
+                <label class="summon-stat-title-field summon-stat-title-field--name">
+                    <span class="summon-stat-title-label">Invocacao</span>
+                    <input class="summon-stat-title-input"
+                           name="summon_{{ forloop.counter }}_Name"
+                           value="{{ summon.Name|default:'' }}"
+                           placeholder="Nova criatura"
+                           data-field="summon.Name">
+                </label>
+                <label class="summon-stat-title-field summon-stat-title-field--level">
+                    <span class="summon-stat-title-label">Nivel</span>
+                    <input class="summon-stat-title-input"
+                           name="summon_{{ forloop.counter }}_Level"
+                           value="{{ summon.Level|default_if_none:'' }}"
+                           data-field="summon.Level"
+                           inputmode="numeric">
+                </label>
+                <label class="summon-stat-title-field summon-stat-title-field--source">
+                    <span class="summon-stat-title-label">Origem</span>
+                    <input class="summon-stat-title-input"
+                           name="summon_{{ forloop.counter }}_SpellOrigin"
+                           value="{{ summon.SpellOrigin|default:'' }}"
+                           data-field="summon.SpellOrigin">
+                </label>
                 {% if summon %}
                 <button type="button"
                         class="summon-highlight-toggle"
@@ -21,24 +42,128 @@
                         hx-target="#summonsGrid"
                         hx-swap="outerHTML"
                         aria-label="Destacar invocacao">
-                    {% if summon.Highlighted %}★{% else %}☆{% endif %}
+                    {% if summon.Highlighted %}&#9733;{% else %}&#9734;{% endif %}
                 </button>
                 {% endif %}
             </header>
 
-            <div class="summon-card-fields">
-                <label><span>Nome</span><input class="sheet-input" name="summon_{{ forloop.counter }}_Name" value="{{ summon.Name|default:'' }}"></label>
-                <label><span>Origem</span><input class="sheet-input" name="summon_{{ forloop.counter }}_SpellOrigin" value="{{ summon.SpellOrigin|default:'' }}"></label>
-                <label><span>Nivel</span><input class="sheet-input" name="summon_{{ forloop.counter }}_Level" value="{{ summon.Level|default_if_none:'' }}"></label>
-                <label><span>CA</span><input class="sheet-input" name="summon_{{ forloop.counter }}_ArmorClass" value="{{ summon.ArmorClass|default_if_none:'' }}"></label>
-                <label><span>PV Max</span><input class="sheet-input" name="summon_{{ forloop.counter }}_HitPointsMax" value="{{ summon.HitPointsMax|default_if_none:'' }}"></label>
-                <label><span>PV Atual</span><input class="sheet-input" name="summon_{{ forloop.counter }}_HitPointsCurrent" value="{{ summon.HitPointsCurrent|default_if_none:'' }}"></label>
-                <label><span>Ataque</span><input class="sheet-input" name="summon_{{ forloop.counter }}_AttackBonus" value="{{ summon.AttackBonus|default:'' }}"></label>
-                <label><span>Dano</span><input class="sheet-input" name="summon_{{ forloop.counter }}_Damage" value="{{ summon.Damage|default:'' }}"></label>
-                <label class="summon-card-fields__wide"><span>Especial</span><input class="sheet-input" name="summon_{{ forloop.counter }}_SpecialAbility" value="{{ summon.SpecialAbility|default:'' }}"></label>
-                <label><span>Rodadas</span><input class="sheet-input" name="summon_{{ forloop.counter }}_RoundsTotal" value="{{ summon.RoundsTotal|default_if_none:'' }}"></label>
-                <label><span>Restantes</span><input class="sheet-input" name="summon_{{ forloop.counter }}_RoundsRemaining" value="{{ summon.RoundsRemaining|default_if_none:'' }}"></label>
-                <label class="summon-card-fields__wide"><span>Origem SRD</span><input class="sheet-input" name="summon_{{ forloop.counter }}_SdrMonsterName" value="{{ summon.SdrMonsterName|default:'' }}"></label>
+            <div class="summon-stat-card-body">
+                <div class="summon-stat-table">
+                    <label class="micro">
+                        <span>Inic.</span>
+                        <input name="summon_{{ forloop.counter }}_Initiative"
+                               value="{{ summon.Initiative|default:'' }}"
+                               data-field="summon.Initiative">
+                    </label>
+                    <label class="micro">
+                        <span>Desloc.</span>
+                        <input name="summon_{{ forloop.counter }}_Speed"
+                               value="{{ summon.Speed|default:'' }}"
+                               data-field="summon.Speed">
+                    </label>
+                    <label class="micro">
+                        <span>CA</span>
+                        <input name="summon_{{ forloop.counter }}_ArmorClass"
+                               value="{{ summon.ArmorClass|default_if_none:'' }}"
+                               data-field="summon.ArmorClass"
+                               inputmode="numeric">
+                    </label>
+                    <label class="micro">
+                        <span>BBA</span>
+                        <input name="summon_{{ forloop.counter }}_BaseAttackBonus"
+                               value="{{ summon.BaseAttackBonus|default:'' }}"
+                               data-field="summon.BaseAttackBonus">
+                    </label>
+                    <label class="micro">
+                        <span>Agarrar</span>
+                        <input name="summon_{{ forloop.counter }}_Grapple"
+                               value="{{ summon.Grapple|default:'' }}"
+                               data-field="summon.Grapple">
+                    </label>
+                    <label class="micro">
+                        <span>Tamanho</span>
+                        <input name="summon_{{ forloop.counter }}_Size"
+                               value="{{ summon.Size|default:'' }}"
+                               data-field="summon.Size">
+                    </label>
+                    <label class="micro">
+                        <span>PV Atual</span>
+                        <input name="summon_{{ forloop.counter }}_HitPointsCurrent"
+                               value="{{ summon.HitPointsCurrent|default_if_none:'' }}"
+                               data-field="summon.HitPointsCurrent"
+                               inputmode="numeric">
+                    </label>
+                    <label class="micro">
+                        <span>PV Max</span>
+                        <input name="summon_{{ forloop.counter }}_HitPointsMax"
+                               value="{{ summon.HitPointsMax|default_if_none:'' }}"
+                               data-field="summon.HitPointsMax"
+                               inputmode="numeric">
+                    </label>
+                    <label class="micro">
+                        <span>Rodadas</span>
+                        <input name="summon_{{ forloop.counter }}_RoundsTotal"
+                               value="{{ summon.RoundsTotal|default_if_none:'' }}"
+                               data-field="summon.RoundsTotal"
+                               inputmode="numeric">
+                    </label>
+                    <label class="micro">
+                        <span>Restam</span>
+                        <input name="summon_{{ forloop.counter }}_RoundsRemaining"
+                               value="{{ summon.RoundsRemaining|default_if_none:'' }}"
+                               data-field="summon.RoundsRemaining"
+                               inputmode="numeric">
+                    </label>
+                </div>
+
+                <div class="summon-mid summon-mid--active">
+                    <section class="summon-attacks">
+                        <label class="attack-row attack-row--multi">
+                            <span class="rl">Ataque</span>
+                            <textarea name="summon_{{ forloop.counter }}_Attack"
+                                      data-field="summon.Attack">{{ summon.Attack|default:'' }}</textarea>
+                        </label>
+                        <label class="attack-row attack-row--multi">
+                            <span class="rl">Completo</span>
+                            <textarea name="summon_{{ forloop.counter }}_FullAttack"
+                                      data-field="summon.FullAttack">{{ summon.FullAttack|default:'' }}</textarea>
+                        </label>
+                    </section>
+                    <section class="summon-traits">
+                        <label class="trait-row">
+                            <span class="rl">Origem SRD</span>
+                            <input name="summon_{{ forloop.counter }}_SdrMonsterName"
+                                   value="{{ summon.SdrMonsterName|default:'' }}"
+                                   data-field="summon.SdrMonsterName">
+                        </label>
+                        <label class="trait-row">
+                            <span class="rl">Bonus</span>
+                            <input name="summon_{{ forloop.counter }}_AttackBonus"
+                                   value="{{ summon.AttackBonus|default:'' }}"
+                                   data-field="summon.AttackBonus">
+                        </label>
+                        <label class="trait-row">
+                            <span class="rl">Dano</span>
+                            <input name="summon_{{ forloop.counter }}_Damage"
+                                   value="{{ summon.Damage|default:'' }}"
+                                   data-field="summon.Damage">
+                        </label>
+                    </section>
+                </div>
+
+                <section class="summon-notes summon-notes--skills">
+                    <header>Pericias</header>
+                    <textarea name="summon_{{ forloop.counter }}_Skills"
+                              data-field="summon.Skills"
+                              aria-label="Espaco para pericias da invocacao">{{ summon.Skills|default:'' }}</textarea>
+                </section>
+
+                <section class="summon-notes">
+                    <header>Especiais / Observacoes</header>
+                    <textarea name="summon_{{ forloop.counter }}_SpecialAbility"
+                              data-field="summon.SpecialAbility"
+                              aria-label="Espaco para observacoes da invocacao">{{ summon.SpecialAbility|default:'' }}</textarea>
+                </section>
             </div>
         </article>
         {% endfor %}

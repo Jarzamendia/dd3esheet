@@ -418,6 +418,7 @@ input.sk-cb {
     grid-template-areas:
         "abilities  pvca       pvca"
         "abilities  defense    skills"
+        "buffs      buffs      skills"
         "attack     attack     skills";
     column-gap: 12px;
     row-gap: 8px;
@@ -430,7 +431,23 @@ input.sk-cb {
 .col-right,
 .lower-row { display: contents; }
 
+/* A area "abilities" hospeda a tabela de atributos. O painel de buffs vira
+   item proprio da grid para usar todo o espaco lateral antes das pericias. */
+.abilities-area {
+    grid-area: abilities;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    /* estica a area ate o fim das linhas 1-2 (sobrepoe o align-items:start do
+       grid), para o painel de buffs preencher o vao ate a altura das pericias. */
+    align-self: stretch;
+}
 #characterStatsForm { grid-area: abilities; }
+#characterBuffsForm {
+    grid-area: buffs;
+    align-self: stretch;
+}
 .pvca-stack { grid-area: pvca; }
 .attack-stack {
     grid-area: attack;
@@ -2501,15 +2518,15 @@ input.sk-cell.sheet-input {
     gap: 10px;
     background: var(--header-bg);
     color: var(--header-fg);
-    padding: 5px 10px;
+    padding: 4px 8px;
     font-family: var(--font-display);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 .spellbook-slot-band .sl-meta {
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 500;
     letter-spacing: 0.05em;
     text-transform: none;
@@ -2532,18 +2549,18 @@ input.sk-cell.sheet-input {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    padding: 4px 8px;
+    padding: 3px 6px;
     background: var(--header-bg);
     color: var(--header-fg);
     font-family: var(--font-display);
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 .spellbook-slot-card-head .ssc-counter {
     font-family: var(--font-serif);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.02em;
     text-transform: none;
@@ -2551,7 +2568,7 @@ input.sk-cell.sheet-input {
 }
 .spellbook-slot-card-head .ssc-counter strong {
     color: #fff;
-    font-size: 13px;
+    font-size: 12px;
 }
 .spellbook-slot-rows {
     display: flex;
@@ -2561,17 +2578,17 @@ input.sk-cell.sheet-input {
 }
 .spellbook-slot-row {
     display: grid;
-    grid-template-columns: 92px minmax(0, 1fr) 140px;
+    grid-template-columns: 68px minmax(0, 1fr) 48px;
     gap: 1px;
     background: var(--column-separator);
     align-items: stretch;
 }
 .spellbook-slot-row > * {
     background: var(--slot-bg);
-    padding: 4px 6px;
+    padding: 2px 4px;
     display: flex;
     align-items: center;
-    min-height: 32px;
+    min-height: 26px;
 }
 .spellbook-slot-row.is-used .ssr-name input,
 .spellbook-slot-row.is-used .ssr-conv input {
@@ -2580,7 +2597,7 @@ input.sk-cell.sheet-input {
 }
 .spellbook-slot-row .ssr-toggle {
     justify-content: stretch;
-    padding: 3px;
+    padding: 2px;
 }
 .spellbook-slot-row .ssr-conv {
     grid-column: 1 / -1;
@@ -2592,13 +2609,19 @@ input.sk-cell.sheet-input {
     background: var(--paper-bg);
     color: var(--rubric);
     font-family: var(--font-display);
-    font-size: 10px;
+    font-size: 8px;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
     text-transform: uppercase;
-    padding: 6px 8px;
+    padding: 3px 2px;
     cursor: pointer;
     transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.btn-slot-cast-label {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .btn-slot-cast:hover:not(:disabled) {
     background: var(--rubric);
@@ -2622,7 +2645,8 @@ input.sk-cell.sheet-input {
 .spellbook-slot-row .sheet-input {
     background: transparent;
     width: 100%;
-    min-height: 22px;
+    min-height: 20px;
+    font-size: 12px;
 }
 .spellbook-slot-empty {
     color: var(--ink-soft);
@@ -3924,6 +3948,7 @@ input.sk-cell.sheet-input {
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas:
             "abilities"
+            "buffs"
             "pvca"
             "defense"
             "attack"
@@ -4045,6 +4070,127 @@ input.sk-cell.sheet-input {
     grid-column: 1 / -1;
 }
 
+.summon-card.summon-stat-card {
+    background: var(--paper-bg);
+    border: var(--rule-w) solid var(--rule-line);
+    border-radius: 6px;
+    box-shadow: none;
+    overflow: hidden;
+    padding: 0;
+}
+
+.summon-card.summon-card--empty {
+    opacity: 1;
+}
+
+.summon-card .summon-stat-card-title {
+    align-items: stretch;
+    display: grid;
+    gap: 6px;
+    grid-template-columns: 28px minmax(0, 1fr) 52px minmax(76px, 0.8fr) auto;
+    padding: 6px;
+}
+
+.summon-card .summon-stat-slot-badge {
+    border-radius: 4px;
+    height: 100%;
+    min-height: 32px;
+    width: 28px;
+}
+
+.summon-card .summon-stat-title-input {
+    font-family: var(--font-serif);
+    font-size: 13px;
+    letter-spacing: 0;
+    min-height: 24px;
+    text-transform: none;
+}
+
+.summon-stat-table {
+    background: var(--column-separator);
+    border-bottom: var(--rule-w) solid var(--rule-line);
+    display: grid;
+    gap: 1px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.summon-stat-table .micro {
+    background: var(--paper-bg);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.summon-stat-table .micro > span {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--rule-line);
+    color: var(--header-fg);
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    padding: 3px 2px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.summon-stat-table .micro > input {
+    background: var(--slot-bg);
+    border: 0;
+    box-sizing: border-box;
+    color: var(--ink);
+    font: inherit;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    min-height: 28px;
+    min-width: 0;
+    outline: none;
+    padding: 4px;
+    text-align: center;
+    width: 100%;
+}
+
+.summon-stat-table .micro > input:focus,
+.summon-card .summon-attacks input:focus,
+.summon-card .summon-attacks textarea:focus,
+.summon-card .summon-traits input:focus,
+.summon-card .summon-notes textarea:focus {
+    background: var(--paper-bg-alt);
+}
+
+.summon-mid--active {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
+}
+
+.summon-mid--active .summon-traits {
+    border-right: 0;
+}
+
+.summon-mid--active .summon-traits .trait-row {
+    min-height: 100%;
+}
+
+.summon-card .summon-attacks input,
+.summon-card .summon-attacks textarea,
+.summon-card .summon-traits input,
+.summon-card .summon-notes textarea {
+    background: var(--slot-bg);
+}
+
+.summon-card .summon-notes textarea {
+    min-height: 54px;
+}
+
+.summon-card .summon-notes--skills {
+    border-bottom: var(--rule-w) solid var(--rule-line);
+}
+
+.summon-card .summon-notes--skills textarea {
+    min-height: 42px;
+}
+
 @media (max-width: 980px) {
     .summons-grid {
         grid-template-columns: 1fr;
@@ -4053,6 +4199,7 @@ input.sk-cell.sheet-input {
 
 .pv-current-temp {
     display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 6px;
 }
 
@@ -4168,3 +4315,104 @@ input.sk-cell.sheet-input {
     line-height: 1; cursor: pointer; padding: 0 6px;
 }
 .spell-detail-body { padding: 14px 16px; overflow-y: auto; font-size: 13px; line-height: 1.5; }
+
+/* ============================================================
+   Buffs / Efeitos — painel no vao abaixo dos atributos
+   ============================================================ */
+.buffs-panel {
+    border: var(--rule-w, 1px) solid var(--rule-line, #222);
+    background: var(--paper, #fff);
+    padding: 6px 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    /* cresce para ocupar o vao abaixo dos atributos, ate a altura das pericias */
+    flex: 1 1 auto;
+}
+.buffs-head {
+    font-family: var(--font-ui);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+.buffs-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-content: flex-start;
+    flex: 1 1 auto;      /* ocupa o miolo; empurra o "adicionar" para o rodape */
+    overflow: auto;
+    min-height: 0;
+}
+.buffs-add { margin-top: auto; }
+.buffs-empty {
+    font-size: 10px;
+    font-style: italic;
+    color: var(--ink-soft, #888);
+}
+.buff-chip {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--rule-line, #555);
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--calc-bg, #ececea);
+    line-height: 1;
+}
+.buff-chip .buff-toggle {
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 7px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.buff-chip .buff-del {
+    border: none;
+    border-left: 1px solid var(--rule-line, #aaa);
+    background: transparent;
+    color: var(--ink-soft, #999);
+    font-size: 11px;
+    line-height: 1;
+    padding: 0 5px;
+    cursor: pointer;
+}
+.buff-chip .buff-del:hover { color: #b00; }
+.buff-chip.is-on {
+    background: var(--header-bg, #1c1c1c);
+    border-color: var(--header-bg, #1c1c1c);
+}
+.buff-chip.is-on .buff-toggle { color: var(--header-fg, #fff); }
+.buff-chip.is-on .buff-del { color: #ccc; border-left-color: #555; }
+.buffs-add {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+.buffs-add .buffs-preset {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 10px;
+    padding: 2px 4px;
+    border: 1px solid var(--rule-line, #888);
+    background: #fff;
+}
+.buffs-add .buffs-add-btn {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border: 1px solid var(--rule-line, #555);
+    background: var(--calc-bg, #ececea);
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+}

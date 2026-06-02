@@ -1,0 +1,35 @@
+{% load static %}
+<div id="characterBuffsForm" class="buffs-panel" data-sheet-table="buffs"{% if oob %} hx-swap-oob="true"{% endif %}>
+    <div class="buffs-head">Buffs / Efeitos</div>
+
+    <div class="buffs-list">
+        {% for buff in character_buffs %}
+        <span class="buff-chip{% if buff.IsActive %} is-on{% endif %}" title="{{ buff.Notes }}">
+            <button type="button" class="buff-toggle"
+                    hx-post="{% url 'character:toggle-buff' character.pk buff.id %}"
+                    hx-target="#characterBuffsForm" hx-swap="outerHTML"
+                    aria-pressed="{% if buff.IsActive %}true{% else %}false{% endif %}">
+                {{ buff.Name }}
+            </button>
+            <button type="button" class="buff-del"
+                    hx-post="{% url 'character:delete-buff' character.pk buff.id %}"
+                    hx-target="#characterBuffsForm" hx-swap="outerHTML"
+                    aria-label="Remover {{ buff.Name }}">&times;</button>
+        </span>
+        {% empty %}
+        <span class="buffs-empty">Nenhum buff. Adicione um abaixo e clique para ativar.</span>
+        {% endfor %}
+    </div>
+
+    <form class="buffs-add" hx-post="{% url 'character:add-buff' character.pk %}"
+          hx-target="#characterBuffsForm" hx-swap="outerHTML">
+        {% csrf_token %}
+        <select name="preset" class="buffs-preset" aria-label="Buff pronto">
+            <option value="">+ adicionar buff…</option>
+            {% for p in buff_presets %}
+            <option value="{{ p.Name }}">{{ p.Name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="buffs-add-btn">Adicionar</button>
+    </form>
+</div>

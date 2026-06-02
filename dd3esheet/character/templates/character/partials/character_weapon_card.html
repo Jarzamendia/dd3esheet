@@ -1,4 +1,4 @@
-<form id="characterWeaponsForm"
+<form id="characterWeaponsForm"{% if oob %} hx-swap-oob="true"{% endif %}
       class="weapon-stack"
       data-sheet-table="weapon-attacks"
       aria-label="Armas e ataques"

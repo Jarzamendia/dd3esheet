@@ -1,0 +1,29 @@
+{% with status=character.characterstatus stats=character.characterstats %}
+<div class="defense-stack" id="characterDefenseSummary" data-sheet-table="defense-summary"{% if oob %} hx-swap-oob="true"{% endif %}>
+    <div class="defense-top">
+        <div class="inline-stat">
+            <div class="is-tag">TOQUE<span class="t-sub">Classe de Armadura</span></div>
+            <div class="is-slot is-slot-calc" data-derived="ACTouch" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACTouch|default_if_none:"-" }}</div>
+        </div>
+        <div class="inline-stat">
+            <div class="is-tag">SURPRESA<span class="t-sub">Classe de Armadura</span></div>
+            <div class="is-slot is-slot-calc" data-derived="ACFlatFooterd" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACFlatFooterd|default_if_none:"-" }}</div>
+        </div>
+    </div>
+    <div class="inline-stat inline-stat--iniciativa">
+        <div class="is-tag">INICIATIVA<span class="t-sub">Modificador</span></div>
+        <div class="is-total">
+            <div class="is-slot is-slot-calc" data-derived="Initiative" style="background: var(--calc-bg); color: var(--ink);">{{ status.Initiative|default_if_none:"-" }}</div>
+            <span class="label">Total</span>
+        </div>
+        <div class="is-meta">
+            <span class="label">Mod. Destreza</span>
+            <div class="slot slot--xs" data-derived="DexterityStatMod">{{ stats.DexterityStatMod|default_if_none:"-" }}</div>
+        </div>
+        <div class="is-meta">
+            <span class="label">Outros</span>
+            <div class="slot slot--xs">0</div>
+        </div>
+    </div>
+</div>
+{% endwith %}

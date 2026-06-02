@@ -40,6 +40,8 @@ Fichas:
 
 - `Borin Escudoferreo`: guerreiro humano nivel 5.
 - `Maelis Vorn`: maga elfa nivel 8, especialista em Evocacao.
+- `Thalara Verdefolha`: druida humana nivel 9, com companheiro animal, invocacoes ativas, recursos diarios, buffs e reputacao.
+- `Kael Rastrolongo`: ranger humano nivel 6, com companheiro animal, recursos diarios, trilhas de reputacao e magias preparadas.
 
 Observacao: no codigo, alguns textos possuem caracteres acentuados. Ao editar arquivos, preserve o encoding e evite regravar arquivos grandes sem necessidade.
 
@@ -56,8 +58,10 @@ Isso torna seguro rodar o seed varias vezes em desenvolvimento.
 ## Builders disponiveis
 
 ```python
-from character.seeds import seed_all, seed_admin, seed_fighter, seed_wizard
-from character.seeds import ADMIN_USERNAME, ADMIN_PASSWORD, FIGHTER_NAME, WIZARD_NAME
+from character.seeds import seed_all, seed_admin
+from character.seeds import seed_fighter, seed_wizard, seed_druid, seed_ranger
+from character.seeds import ADMIN_USERNAME, ADMIN_PASSWORD
+from character.seeds import FIGHTER_NAME, WIZARD_NAME, DRUID_NAME, RANGER_NAME
 ```
 
 ## Como os derivados sao calculados
@@ -75,4 +79,3 @@ Assim, mods, CA, saves e agarrar usam o mesmo calculo da edicao inline. `_recalc
 - Credenciais fixas sao apenas para ambiente local.
 - O seed mexe no banco `default`, nao no banco `sdr`.
 - O banco `db.sqlite3` e local e ignorado pelo git.
-

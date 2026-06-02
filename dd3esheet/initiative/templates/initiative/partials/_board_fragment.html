@@ -1,0 +1,12 @@
+<div class="init-round-bar">
+    <span class="init-round-bar__label">Round</span>
+    <span class="init-round-bar__value">{{ encounter.Round }}</span>
+</div>
+
+<ol class="init-list">
+    {% for c in combatants %}
+        {% include "initiative/partials/_combatant_row.html" with c=c %}
+    {% empty %}
+        <li class="init-empty">Nenhum combatente. {% if is_owner %}Adicione acima.{% endif %}</li>
+    {% endfor %}
+</ol>

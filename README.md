@@ -221,6 +221,8 @@ Prioridades de teste:
 - Uma conta admin (superusuario): `jarza` / `P@ssw0rd`.
 - Uma ficha completa de Guerreiro humano nivel 5 (`Borin Escudoférreo`).
 - Uma ficha completa de Mago elfo nivel 8 especialista em Evocacao (`Maelis Vorn`), com livro de magias e slots preparados.
+- Uma ficha completa de Druida humana nivel 9 (`Thalara Verdefolha`), com companheiro animal, invocacoes ativas, recursos diarios, buffs e reputacao.
+- Uma ficha completa de Ranger humano nivel 6 (`Kael Rastrolongo`), com companheiro animal, recursos diarios, reputacao e magias preparadas.
 
 Roda automaticamente no `docker compose up` (o `command` do servico `web` faz `migrate` -> `seed` -> `runserver`). Para rodar manualmente (afeta o banco `default`, que e `.gitignore`d):
 
@@ -235,7 +237,8 @@ docker compose exec web python manage.py seed
 Os mesmos builders sao importaveis e usados pelos testes (`character.tests.SeedTests`), garantindo que o app e os testes compartilhem os mesmos dados:
 
 ```python
-from character.seeds import seed_all, seed_admin, seed_fighter, seed_wizard
+from character.seeds import seed_all, seed_admin
+from character.seeds import seed_fighter, seed_wizard, seed_druid, seed_ranger
 ```
 
 Detalhes:

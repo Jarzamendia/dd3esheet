@@ -1,6 +1,6 @@
 """Seeds reutilizáveis para popular o banco com dados de exemplo/teste.
 
-Cria uma conta admin e duas fichas completas (Guerreiro nível 5, Mago nível 8).
+Cria uma conta admin e fichas completas (Guerreiro, Mago, Druida e Ranger).
 São a fonte única de dados de exemplo: a linha de comando e os testes usam as
 mesmas funções, evitando divergência entre o que se vê no app e o que os testes
 exercitam.
@@ -9,7 +9,7 @@ Uso:
   - Linha de comando: ``python manage.py seed``
   - Em testes::
 
-        from character.seeds import seed_all, seed_fighter, seed_wizard, seed_admin
+        from character.seeds import seed_all, seed_fighter, seed_wizard, seed_druid, seed_ranger, seed_admin
 
 Os builders são idempotentes: chamá-los de novo recria as fichas de exemplo do
 zero (apaga a anterior do mesmo dono/nome e cria uma nova completa), e a conta
@@ -24,10 +24,11 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from .models import (
-    Ability, Character, CharacterArmor, CharacterFeat, CharacterLanguages,
-    CharacterMoney, CharacterOtherItem, CharacterProtectionItem,
-    CharacterShield, CharacterSkill, CharacterSpell, CharacterSpellSlot,
-    CharacterWeapon,
+    Ability, Character, CharacterActiveEffect, CharacterArmor, CharacterBuff,
+    CharacterCompanion, CharacterContact, CharacterContract, CharacterDailyResource,
+    CharacterFaction, CharacterFeat, CharacterLanguages, CharacterMoney,
+    CharacterOtherItem, CharacterProtectionItem, CharacterShield, CharacterSkill,
+    CharacterSpell, CharacterSpellSlot, CharacterSummon, CharacterWeapon,
 )
 from .services import _bootstrap_character_siblings
 # Reusa o recálculo canônico do app para que os derivados da ficha (mods, CA,
@@ -41,6 +42,8 @@ ADMIN_EMAIL = 'jarza@example.com'
 
 FIGHTER_NAME = 'Borin Escudoférreo'
 WIZARD_NAME = 'Maelis Vorn'
+DRUID_NAME = 'Thalara Verdefolha'
+RANGER_NAME = 'Kael Rastrolongo'
 
 
 # ---------------------------------------------------------------------------
@@ -65,6 +68,41 @@ def _set_skill(character, name, ranks, ability_mod, misc=0):
     skill.SkillIsActive = True
     skill.save()
     return skill
+
+
+def _set_progress(character, campaign, xp):
+    return _apply(character.characterprogress, CampaignName=campaign, ExperiencePoints=xp)
+
+
+def _add_resource(character, name, source, maximum, used=0, refresh='Diário', checks=''):
+    remaining = max(int(maximum or 0) - int(used or 0), 0)
+    return CharacterDailyResource.objects.create(
+        Character=character, Name=name, Source=source, Maximum=maximum, Used=used,
+        Remaining=remaining, Refresh=refresh, Checks=checks,
+    )
+
+
+def _add_active_effect(character, name, source, modifier, rounds, notes=''):
+    return CharacterActiveEffect.objects.create(
+        Character=character, Name=name, Source=source, Modifier=modifier,
+        RoundsRemaining=rounds, Notes=notes,
+    )
+
+
+def _set_daily_notes(character, Preparation='', Spent=''):
+    return _apply(character.characterdailynotes, Preparation=Preparation, Spent=Spent)
+
+
+def _add_reputation(character, contact, faction, contract):
+    CharacterContact.objects.create(Character=character, **contact)
+    CharacterFaction.objects.create(Character=character, **faction)
+    CharacterContract.objects.create(Character=character, **contract)
+
+
+def _add_buff(character, **fields):
+    defaults = {'IsActive': False}
+    defaults.update(fields)
+    return CharacterBuff.objects.create(Character=character, **defaults)
 
 
 def _clear_children(character):
@@ -190,6 +228,28 @@ def seed_fighter(user):
 
     _apply(char.charactermoney, GP=200, SP=50, CP=0, PP=0)
     CharacterLanguages.objects.create(Character=char, Value='Comum')
+
+    _set_progress(char, 'Fronteira de Elsir', 10500)
+    _add_resource(char, 'Surto de Acao', 'Regra da mesa', 1, used=0, refresh='Encontro')
+    _add_active_effect(char, 'Postura defensiva', 'Tatica', '+2 CA contra o alvo marcado', 3)
+    _add_reputation(
+        char,
+        {
+            'Name': 'Capita Alandra', 'Location': 'Vau de Drellin',
+            'Relationship': 'Aliada', 'Favor': 'Pode pedir escolta',
+            'Notes': 'Serviu com Borin na milicia local.',
+        },
+        {
+            'Name': 'Guarda da Ponte', 'Reputation': 'Respeitado',
+            'Influence': 'Media', 'Risk': 'Baixo',
+            'Notes': 'Veteranos confiam em sua palavra.',
+        },
+        {
+            'Title': 'Escoltar o comboio de mantimentos', 'Party': 'Guarda da Ponte',
+            'Reward': '300 po', 'Deadline': 'Proxima lua cheia',
+            'Status': 'Aberto', 'Notes': 'Passar pela estrada velha.',
+        },
+    )
 
     return char
 
@@ -332,6 +392,352 @@ def seed_wizard(user):
     for name, level in _WIZARD_SPELLBOOK:
         CharacterSpell.objects.create(Character=char, Name=name, Level=level, Page='PHB')
 
+    _set_progress(char, 'Fronteira de Elsir', 28000)
+    _add_resource(char, 'Perola de Poder I', 'Item magico', 1, used=1, refresh='Diario')
+    _add_active_effect(char, 'Armadura Arcana', 'Magia', '+4 armadura', 480, 'Ja contabilizar manualmente se ativa.')
+    _add_buff(char, Name='Raposa Astuta', IntelligenceBonus=4, Notes='+4 INT por 8 minutos')
+    _add_reputation(
+        char,
+        {
+            'Name': 'Sibila de Brindol', 'Location': 'Biblioteca da Torre',
+            'Relationship': 'Mentora', 'Favor': 'Acesso a grimorios',
+            'Notes': 'Cobra relatorios sobre artefatos encontrados.',
+        },
+        {
+            'Name': 'Circulo dos Oito Sinais', 'Reputation': 'Membro',
+            'Influence': 'Alta', 'Risk': 'Medio',
+            'Notes': 'Rivais querem copiar o grimorio de Maelis.',
+        },
+        {
+            'Title': 'Catalogar o obelisco rachado', 'Party': 'Circulo dos Oito Sinais',
+            'Reward': 'Pergaminhos raros', 'Deadline': 'Antes do equinocio',
+            'Status': 'Em andamento', 'Notes': 'Levar amostras de runas.',
+        },
+    )
+
+    return char
+
+
+# ---------------------------------------------------------------------------
+# Druida nivel 9
+# ---------------------------------------------------------------------------
+
+_DRUID_PREPARED_SLOTS = [
+    (0, 'Criar Agua', 'normal', False),
+    (0, 'Detectar Magia', 'normal', False),
+    (0, 'Orientacao', 'normal', False),
+    (1, 'Enredar', 'normal', False),
+    (1, 'Presa Magica', 'normal', True),
+    (1, 'Curar Ferimentos Leves', 'normal', False),
+    (2, 'Esfera Flamejante', 'normal', False),
+    (2, 'Forca do Touro', 'normal', False),
+    (3, 'Invocar Aliado da Natureza III', 'normal', True),
+    (3, 'Dissipar Magia', 'normal', False),
+    (4, 'Pele Rochosa', 'normal', False),
+    (4, 'Tempestade de Gelo', 'normal', False),
+    (5, 'Invocar Aliado da Natureza V', 'normal', False),
+]
+
+
+def seed_druid(user):
+    """Druida humana nivel 9 com companheiro animal, invocacoes e recursos."""
+    char = _fresh_character(user, DRUID_NAME)
+    _apply(
+        char,
+        Class='Druid', Level='9', Race='Human', Alignment='N',
+        Deity='Obad-Hai', Size='M', Age='34', Sex='Feminino',
+        Heigth='1,70 m', Weight='66 kg', Eye='Verdes', Hair='Castanhos',
+        Skin='Queimada de sol',
+        Description='Guardia dos bosques que negocia com aldeias e espiritos.',
+    )
+    _apply(
+        char.characterstats,
+        Strength=12, Dexterity=14, Constitution=14,
+        Intelligence=12, Wisdom=18, Charisma=10,
+    )
+    _apply(
+        char.characterstatus,
+        TotalHitPoints=61, Speed=30, ACArmorBonus=3, ACShieldBonus=2,
+        ACNaturalArmor=0, ACDeflectionModifier=1, ACMiscModifier=0,
+        ACSizeModifier=0, DamageReduction=0,
+    )
+    _apply(
+        char.charactersavingthrows,
+        FortitudeBaseSave=6, ReflexBaseSave=3, WillBaseSave=6,
+    )
+    _apply(
+        char.characterattackmodifiers,
+        BBA=6, SpellResistence=0, GrapplerBBA=6,
+        GrapplerSizeModifier=0, GrapplerMiscModifier=0,
+    )
+
+    _recalculate_stats(char)
+
+    _set_skill(char, 'Concentracao', ranks=12, ability_mod=2)
+    _set_skill(char, 'Conhecimento', ranks=9, ability_mod=1, misc=2)
+    _set_skill(char, 'Adestrar Animais', ranks=12, ability_mod=0)
+    _set_skill(char, 'Sobrevivencia', ranks=12, ability_mod=4, misc=2)
+    _set_skill(char, 'Cura', ranks=8, ability_mod=4)
+    _set_skill(char, 'Ouvir', ranks=6, ability_mod=4)
+    _set_skill(char, 'Observar', ranks=6, ability_mod=4)
+
+    CharacterWeapon.objects.create(
+        Character=char, Name='Cimitarra', Attack='Cimitarra',
+        AttackBonus='+7', Damage='1d6+1', Critical='18-20/x2',
+        Range='-', Type='Corte', Notes='Arma druidica',
+    )
+    CharacterWeapon.objects.create(
+        Character=char, Name='Funda', Attack='Funda',
+        AttackBonus='+8', Damage='1d4+1', Critical='x2',
+        Range='15 m', Type='Concussao', Notes='Pedras comuns',
+        AmmunitionName='Balas de funda', AmmunitionCount='20',
+    )
+    CharacterArmor.objects.create(
+        Character=char, Name='Armadura de couro batido', Type='Leve',
+        ACBonus='+3', MaxDex='+5', CheckPenalty='-1', SpellFailure='15%',
+        Speed='9 m', Weigth='20 lb', SpecialProperties='Nao metalica',
+    )
+    CharacterShield.objects.create(
+        Character=char, Name='Escudo pesado de madeira', ACBonus='+2',
+        Weigth='10 lb', CheckPenalty='-2', SpellFailure='15%',
+    )
+    CharacterProtectionItem.objects.create(
+        Character=char, Name='Anel de Protecao +1', ACBonus='+1',
+        Weigth='-', SpecialProperties='Deflexao',
+    )
+
+    CharacterCompanion.objects.create(
+        Character=char, Type='animal', Name='Bruma', Species='Lobo atroz',
+        HitPoints=45, ArmorClass=16, Speed='15 m',
+        Skills='Ouvir +8, Observar +8, Furtividade +6, Sobrevivencia +5',
+        Feats='Rastrear, Derrubar Aprimorado',
+        SpecialAbilities='Vinculo, truques: atacar, defender, rastrear, guardar',
+        Notes='Companheiro animal; compartilha magias quando adjacente.',
+    )
+    CharacterSummon.objects.create(
+        Character=char, Name='Urso pardo convocado', SpellOrigin='Aliado da Natureza IV',
+        Level=4, HitPointsMax=51, HitPointsCurrent=38, ArmorClass=15,
+        Initiative='+1', Speed='12 m', BaseAttackBonus='+6', Grapple='+16',
+        Size='Grande', Attack='Garra +11 (1d8+8)',
+        FullAttack='2 garras +11 (1d8+8) e mordida +6 (2d6+4)',
+        AttackBonus='+11', Damage='1d8+8', SpecialAbility='Agarrar aprimorado',
+        Skills='Ouvir +6, Observar +6, Natacao +12',
+        RoundsTotal=9, RoundsRemaining=6, Highlighted=True,
+        SdrMonsterName='Brown Bear',
+    )
+    CharacterSummon.objects.create(
+        Character=char, Name='Unicornio aliado', SpellOrigin='Aliado da Natureza IV',
+        Level=4, HitPointsMax=42, HitPointsCurrent=42, ArmorClass=18,
+        Initiative='+3', Speed='18 m', BaseAttackBonus='+4', Grapple='+8',
+        Size='Grande', Attack='Chifre +11 (1d8+8)',
+        FullAttack='Chifre +11 (1d8+8) e 2 cascos +3 (1d4+2)',
+        AttackBonus='+11', Damage='1d8+8',
+        SpecialAbility='Circulo magico contra o mal, cura 3/dia',
+        Skills='Ouvir +11, Observar +11, Sobrevivencia +6',
+        RoundsTotal=9, RoundsRemaining=9, SdrMonsterName='Unicorn',
+    )
+
+    for name in ['Companheiro Animal', 'Empatia Selvagem', 'Passo sem Pegadas',
+                 'Resistir a Atracao da Natureza', 'Forma Selvagem 3/dia',
+                 'Imunidade a venenos']:
+        Ability.objects.create(Character=char, Name=name, Page='PHB')
+    for name in ['Magias Naturais', 'Foco em Magia (Conjuracao)', 'Invocacao Aprimorada',
+                 'Magia Estendida']:
+        CharacterFeat.objects.create(Character=char, Name=name, Page='PHB')
+
+    _apply(
+        char.characterspellcasting,
+        CasterClass='Druid', CastingAbility='Sabedoria (SAB)',
+        CastingMode='prepared_spontaneous',
+        SpontaneousConversion='Invocar Aliado da Natureza',
+    )
+    for level, name, slot_type, is_used in _DRUID_PREPARED_SLOTS:
+        CharacterSpellSlot.objects.create(
+            Character=char, Level=level, SlotType=slot_type,
+            PreparedSpellName=name, IsUsed=is_used,
+        )
+    for name, level in [
+        ('Enredar', 1), ('Presa Magica', 1), ('Forca do Touro', 2),
+        ('Invocar Aliado da Natureza III', 3), ('Pele Rochosa', 4),
+        ('Invocar Aliado da Natureza V', 5),
+    ]:
+        CharacterSpell.objects.create(Character=char, Name=name, Level=level, Page='PHB')
+
+    for name, page, weight in [
+        ('Azevinho e visco', 'PHB', '-'),
+        ('Bornal de ervas', 'PHB', '2 lb'),
+        ('Pergaminho de Comunhao com a Natureza', 'DMG', '-'),
+        ('Racoes para Bruma', 'PHB', '8 lb'),
+    ]:
+        CharacterOtherItem.objects.create(Character=char, Name=name, Page=page, Weigth=weight)
+    _apply(char.charactermoney, GP=350, SP=12, CP=0, PP=2)
+    for value in ['Comum', 'Druidico', 'Silvestre']:
+        CharacterLanguages.objects.create(Character=char, Value=value)
+
+    _set_progress(char, 'Fronteira de Elsir', 36000)
+    _set_daily_notes(
+        char,
+        Preparation='Preparar curas, controle de terreno e invocacoes antes da marcha.',
+        Spent='1 uso de Forma Selvagem gasto; Aliado da Natureza III convertido.',
+    )
+    _add_resource(char, 'Forma Selvagem', 'Druida 9', 3, used=1, refresh='Diario', checks='1')
+    _add_resource(char, 'Empatia Selvagem', 'Druida', 99, used=0, refresh='Livre')
+    _add_active_effect(char, 'Pele Rochosa', 'Magia', 'RD 10/adamante', 70, 'Limite 90 pontos.')
+    _add_buff(char, Name='Forca do Touro', StrengthBonus=4, IsActive=True, Notes='Ativa em forma selvagem')
+    _recalculate_stats(char)
+    _add_reputation(
+        char,
+        {
+            'Name': 'Ancia Meriel', 'Location': 'Bosque do Carvalho Partido',
+            'Relationship': 'Mentora', 'Favor': 'Ritual de purificacao',
+            'Notes': 'Desconfia de cidades muradas.',
+        },
+        {
+            'Name': 'Circulo Esmeralda', 'Reputation': 'Guardia',
+            'Influence': 'Alta', 'Risk': 'Medio',
+            'Notes': 'Protege rotas de animais e druidas locais.',
+        },
+        {
+            'Title': 'Selar a fenda do brejo', 'Party': 'Circulo Esmeralda',
+            'Reward': 'Favor do circulo', 'Deadline': 'Antes da cheia',
+            'Status': 'Urgente', 'Notes': 'Levar Bruma e evitar fogo.',
+        },
+    )
+    return char
+
+
+# ---------------------------------------------------------------------------
+# Ranger nivel 6
+# ---------------------------------------------------------------------------
+
+def seed_ranger(user):
+    """Ranger humano nivel 6 com companheiro animal e trilha de exploracao."""
+    char = _fresh_character(user, RANGER_NAME)
+    _apply(
+        char,
+        Class='Ranger', Level='6', Race='Human', Alignment='NG',
+        Deity='Ehlonna', Size='M', Age='29', Sex='Masculino',
+        Heigth='1,78 m', Weight='74 kg', Eye='Cinzentos', Hair='Escuros',
+        Skin='Morena',
+        Description='Batedor de fronteira que patrulha estradas e ruinas.',
+    )
+    _apply(
+        char.characterstats,
+        Strength=14, Dexterity=16, Constitution=12,
+        Intelligence=12, Wisdom=14, Charisma=10,
+    )
+    _apply(
+        char.characterstatus,
+        TotalHitPoints=45, Speed=30, ACArmorBonus=4, ACShieldBonus=0,
+        ACNaturalArmor=0, ACDeflectionModifier=0, ACMiscModifier=0,
+        ACSizeModifier=0, DamageReduction=0,
+    )
+    _apply(
+        char.charactersavingthrows,
+        FortitudeBaseSave=5, ReflexBaseSave=5, WillBaseSave=2,
+    )
+    _apply(
+        char.characterattackmodifiers,
+        BBA=6, SpellResistence=0, GrapplerBBA=6,
+        GrapplerSizeModifier=0, GrapplerMiscModifier=0,
+    )
+    _recalculate_stats(char)
+
+    _set_skill(char, 'Sobrevivencia', ranks=9, ability_mod=2, misc=2)
+    _set_skill(char, 'Esconder-se', ranks=9, ability_mod=3)
+    _set_skill(char, 'Furtividade', ranks=9, ability_mod=3)
+    _set_skill(char, 'Ouvir', ranks=9, ability_mod=2)
+    _set_skill(char, 'Observar', ranks=9, ability_mod=2)
+    _set_skill(char, 'Procurar', ranks=6, ability_mod=1)
+    _set_skill(char, 'Adestrar Animais', ranks=5, ability_mod=0)
+
+    CharacterWeapon.objects.create(
+        Character=char, Name='Arco Longo Composto +1', Attack='Arco Longo',
+        AttackBonus='+10/+5', Damage='1d8+3', Critical='x3',
+        Range='33 m', Type='Perfuracao', Notes='Inimigo predileto: goblinoides +4',
+        AmmunitionName='Flechas', AmmunitionCount='60',
+    )
+    CharacterWeapon.objects.create(
+        Character=char, Name='Espada Curta', Attack='Espada Curta',
+        AttackBonus='+8/+3', Damage='1d6+2', Critical='19-20/x2',
+        Range='-', Type='Perfuracao', Notes='Combate com duas armas',
+    )
+    CharacterArmor.objects.create(
+        Character=char, Name='Camisao de cota de malha +1', Type='Leve',
+        ACBonus='+5', MaxDex='+4', CheckPenalty='-1', SpellFailure='20%',
+        Speed='9 m', Weigth='25 lb', SpecialProperties='Mantem estilo de combate',
+    )
+    CharacterCompanion.objects.create(
+        Character=char, Type='animal', Name='Flecha', Species='Aguia',
+        HitPoints=18, ArmorClass=15, Speed='3 m, voo 24 m',
+        Skills='Ouvir +6, Observar +14, Sobrevivencia +2',
+        Feats='Prontidao, Acuidade com Arma',
+        SpecialAbilities='Vinculo, evasao, truques: atacar, vigiar, buscar',
+        Notes='Companheiro animal usado para reconhecimento aereo.',
+    )
+
+    for name in ['Rastrear', 'Empatia Selvagem', 'Estilo de Combate: Arquearia',
+                 'Inimigo Predileto: Goblinoides +4', 'Inimigo Predileto: Orcs +2',
+                 'Tolerancia', 'Companheiro Animal']:
+        Ability.objects.create(Character=char, Name=name, Page='PHB')
+    for name in ['Tiro Certeiro', 'Tiro Preciso', 'Rastrear (bonus)',
+                 'Tiro Rapido (estilo)', 'Vontade de Ferro']:
+        CharacterFeat.objects.create(Character=char, Name=name, Page='PHB')
+
+    _apply(
+        char.characterspellcasting,
+        CasterClass='Ranger', CastingAbility='Sabedoria (SAB)',
+        CastingMode='prepared', SpontaneousConversion='',
+    )
+    for level, name, slot_type, is_used in [
+        (1, 'Resistir a Energia', 'normal', False),
+        (1, 'Passos Longos', 'normal', True),
+    ]:
+        CharacterSpellSlot.objects.create(
+            Character=char, Level=level, SlotType=slot_type,
+            PreparedSpellName=name, IsUsed=is_used,
+        )
+    for name, level in [('Resistir a Energia', 1), ('Passos Longos', 1)]:
+        CharacterSpell.objects.create(Character=char, Name=name, Level=level, Page='PHB')
+
+    for name, page, weight in [
+        ('Kit de escalada', 'PHB', '5 lb'),
+        ('Armadilhas pequenas desmontaveis', 'PHB', '4 lb'),
+        ('Corda de seda (15 m)', 'PHB', '5 lb'),
+        ('Mapa das trilhas antigas', 'Campanha', '-'),
+    ]:
+        CharacterOtherItem.objects.create(Character=char, Name=name, Page=page, Weigth=weight)
+    _apply(char.charactermoney, GP=420, SP=18, CP=4, PP=0)
+    for value in ['Comum', 'Goblin', 'Orc']:
+        CharacterLanguages.objects.create(Character=char, Value=value)
+
+    _set_progress(char, 'Fronteira de Elsir', 17000)
+    _set_daily_notes(
+        char,
+        Preparation='Patrulha ao amanhecer; preparar Passos Longos se houver marcha forcada.',
+        Spent='Passos Longos gasto na exploracao do vale.',
+    )
+    _add_resource(char, 'Inimigo Predileto: goblinoides', 'Ranger 6', 4, used=0, refresh='Sempre ativo')
+    _add_resource(char, 'Racoes de Flecha', 'Companheiro animal', 3, used=1, refresh='Diario')
+    _add_active_effect(char, 'Passos Longos', 'Magia', '+3 m deslocamento', 60)
+    _add_reputation(
+        char,
+        {
+            'Name': 'Tessa da Trilha', 'Location': 'Estalagem da Encruzilhada',
+            'Relationship': 'Informante', 'Favor': 'Boatos de estrada',
+            'Notes': 'Conhece caravanas que sumiram ao norte.',
+        },
+        {
+            'Name': 'Patrulha do Vale', 'Reputation': 'Batedor confiavel',
+            'Influence': 'Media', 'Risk': 'Baixo',
+            'Notes': 'Pode requisitar abrigo em postos avancados.',
+        },
+        {
+            'Title': 'Encontrar o acampamento goblin', 'Party': 'Patrulha do Vale',
+            'Reward': '600 po', 'Deadline': 'Tres dias',
+            'Status': 'Investigando', 'Notes': 'Flecha viu fumaca alem do penhasco.',
+        },
+    )
     return char
 
 
@@ -340,7 +746,7 @@ def seed_wizard(user):
 # ---------------------------------------------------------------------------
 
 def seed_all():
-    """Cria a conta admin e as duas fichas de exemplo (de posse do admin).
+    """Cria a conta admin e as fichas de exemplo (de posse do admin).
 
     Em produção (DEBUG=False), a conta admin só é criada se SEED_ADMIN=true
     estiver no ambiente — evitar criação acidental de credenciais fracas em
@@ -362,4 +768,12 @@ def seed_all():
             )
     fighter = seed_fighter(admin)
     wizard = seed_wizard(admin)
-    return {'admin': admin, 'fighter': fighter, 'wizard': wizard}
+    druid = seed_druid(admin)
+    ranger = seed_ranger(admin)
+    return {
+        'admin': admin,
+        'fighter': fighter,
+        'wizard': wizard,
+        'druid': druid,
+        'ranger': ranger,
+    }

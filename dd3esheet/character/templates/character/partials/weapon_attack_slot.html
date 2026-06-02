@@ -7,7 +7,7 @@
     </div>
     <div class="attack-card-row">
         <input class="sheet-input" name="weapon_{{ slot }}_Attack" value="{% if w.Attack %}{{ w.Attack }}{% else %}{{ w.Name|default:'' }}{% endif %}" data-field="weapon.Attack" data-slot="{{ slot }}">
-        <input class="sheet-input" name="weapon_{{ slot }}_AttackBonus" value="{{ w.AttackBonus|default:'' }}" data-field="weapon.AttackBonus" data-slot="{{ slot }}">
+        <div class="attack-bonus-calc" data-derived="weapon.AttackBonus" data-slot="{{ slot }}" title="Bonus de ataque (calculado): BBA + mod. de habilidade + tamanho" style="background: var(--calc-bg); color: var(--ink);">{{ w.AttackBonus|default:'' }}</div>
         <input class="sheet-input" name="weapon_{{ slot }}_Damage" value="{{ w.Damage|default:'' }}" data-field="weapon.Damage" data-slot="{{ slot }}">
         <input class="sheet-input" name="weapon_{{ slot }}_Critical" value="{{ w.Critical|default:'' }}" data-field="weapon.Critical" data-slot="{{ slot }}">
     </div>

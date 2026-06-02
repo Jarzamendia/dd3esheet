@@ -1,9 +1,10 @@
 {% with stats=character.characterstats %}
-<form id="characterStatsForm"
+<form id="characterStatsForm"{% if oob %} hx-swap-oob="true"{% endif %}
       hx-post="{% url 'character:character' character.pk %}"
       hx-target="#characterStatsForm"
       hx-swap="outerHTML"
-      hx-trigger="input changed delay:700ms, change delay:300ms">
+      hx-sync="this:replace"
+      hx-trigger="input changed delay:500ms, change delay:300ms">
     {% csrf_token %}
 
     <div class="attrs" data-sheet-table="abilities" aria-live="polite">
@@ -17,45 +18,45 @@
 
         <div class="attr-row">
             <div class="attr-tag">FOR<span class="t-sub">Forca</span></div>
-            <input class="attr-cell sheet-input" name="Strength" data-field="Strength" value="{{ stats.Strength|default:'' }}" inputmode="numeric">
-            <div class="attr-cell attr-cell--calc" data-derived="StrengthStatMod">{{ stats.StrengthStatMod|default:"-" }}</div>
-            <input class="attr-cell sheet-input" name="StrengthTemp" data-field="StrengthTemp" value="{{ stats.StrengthTemp|default:'' }}" inputmode="numeric">
-            <input class="attr-cell sheet-input" name="StrengthModTemp" data-field="StrengthModTemp" value="{{ stats.StrengthModTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="Strength" name="Strength" data-field="Strength" value="{{ stats.Strength|default:'' }}" inputmode="numeric">
+            <div class="attr-cell attr-cell--calc" data-derived="StrengthStatMod">{{ stats.StrengthStatMod|default_if_none:"-" }}</div>
+            <input class="attr-cell sheet-input" id="StrengthTemp" name="StrengthTemp" data-field="StrengthTemp" value="{{ stats.StrengthTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="StrengthModTemp" name="StrengthModTemp" data-field="StrengthModTemp" value="{{ stats.StrengthModTemp|default:'' }}" inputmode="numeric">
         </div>
         <div class="attr-row">
             <div class="attr-tag">DES<span class="t-sub">Destreza</span></div>
-            <input class="attr-cell sheet-input" name="Dexterity" data-field="Dexterity" value="{{ stats.Dexterity|default:'' }}" inputmode="numeric">
-            <div class="attr-cell attr-cell--calc" data-derived="DexterityStatMod">{{ stats.DexterityStatMod|default:"-" }}</div>
-            <input class="attr-cell sheet-input" name="DexterityTemp" data-field="DexterityTemp" value="{{ stats.DexterityTemp|default:'' }}" inputmode="numeric">
-            <input class="attr-cell sheet-input" name="DexterityModTemp" data-field="DexterityModTemp" value="{{ stats.DexterityModTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="Dexterity" name="Dexterity" data-field="Dexterity" value="{{ stats.Dexterity|default:'' }}" inputmode="numeric">
+            <div class="attr-cell attr-cell--calc" data-derived="DexterityStatMod">{{ stats.DexterityStatMod|default_if_none:"-" }}</div>
+            <input class="attr-cell sheet-input" id="DexterityTemp" name="DexterityTemp" data-field="DexterityTemp" value="{{ stats.DexterityTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="DexterityModTemp" name="DexterityModTemp" data-field="DexterityModTemp" value="{{ stats.DexterityModTemp|default:'' }}" inputmode="numeric">
         </div>
         <div class="attr-row">
             <div class="attr-tag">CON<span class="t-sub">Constituicao</span></div>
-            <input class="attr-cell sheet-input" name="Constitution" data-field="Constitution" value="{{ stats.Constitution|default:'' }}" inputmode="numeric">
-            <div class="attr-cell attr-cell--calc" data-derived="ConstitutionStatMod">{{ stats.ConstitutionStatMod|default:"-" }}</div>
-            <input class="attr-cell sheet-input" name="ConstitutionTemp" data-field="ConstitutionTemp" value="{{ stats.ConstitutionTemp|default:'' }}" inputmode="numeric">
-            <input class="attr-cell sheet-input" name="ConstitutionModTemp" data-field="ConstitutionModTemp" value="{{ stats.ConstitutionModTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="Constitution" name="Constitution" data-field="Constitution" value="{{ stats.Constitution|default:'' }}" inputmode="numeric">
+            <div class="attr-cell attr-cell--calc" data-derived="ConstitutionStatMod">{{ stats.ConstitutionStatMod|default_if_none:"-" }}</div>
+            <input class="attr-cell sheet-input" id="ConstitutionTemp" name="ConstitutionTemp" data-field="ConstitutionTemp" value="{{ stats.ConstitutionTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="ConstitutionModTemp" name="ConstitutionModTemp" data-field="ConstitutionModTemp" value="{{ stats.ConstitutionModTemp|default:'' }}" inputmode="numeric">
         </div>
         <div class="attr-row">
             <div class="attr-tag">INT<span class="t-sub">Inteligencia</span></div>
-            <input class="attr-cell sheet-input" name="Intelligence" data-field="Intelligence" value="{{ stats.Intelligence|default:'' }}" inputmode="numeric">
-            <div class="attr-cell attr-cell--calc" data-derived="IntelligenceStatMod">{{ stats.IntelligenceStatMod|default:"-" }}</div>
-            <input class="attr-cell sheet-input" name="IntelligenceTemp" data-field="IntelligenceTemp" value="{{ stats.IntelligenceTemp|default:'' }}" inputmode="numeric">
-            <input class="attr-cell sheet-input" name="IntelligenceModTemp" data-field="IntelligenceModTemp" value="{{ stats.IntelligenceModTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="Intelligence" name="Intelligence" data-field="Intelligence" value="{{ stats.Intelligence|default:'' }}" inputmode="numeric">
+            <div class="attr-cell attr-cell--calc" data-derived="IntelligenceStatMod">{{ stats.IntelligenceStatMod|default_if_none:"-" }}</div>
+            <input class="attr-cell sheet-input" id="IntelligenceTemp" name="IntelligenceTemp" data-field="IntelligenceTemp" value="{{ stats.IntelligenceTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="IntelligenceModTemp" name="IntelligenceModTemp" data-field="IntelligenceModTemp" value="{{ stats.IntelligenceModTemp|default:'' }}" inputmode="numeric">
         </div>
         <div class="attr-row">
             <div class="attr-tag">SAB<span class="t-sub">Sabedoria</span></div>
-            <input class="attr-cell sheet-input" name="Wisdom" data-field="Wisdom" value="{{ stats.Wisdom|default:'' }}" inputmode="numeric">
-            <div class="attr-cell attr-cell--calc" data-derived="WisdomStatMod">{{ stats.WisdomStatMod|default:"-" }}</div>
-            <input class="attr-cell sheet-input" name="WisdomTemp" data-field="WisdomTemp" value="{{ stats.WisdomTemp|default:'' }}" inputmode="numeric">
-            <input class="attr-cell sheet-input" name="WisdomModTemp" data-field="WisdomModTemp" value="{{ stats.WisdomModTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="Wisdom" name="Wisdom" data-field="Wisdom" value="{{ stats.Wisdom|default:'' }}" inputmode="numeric">
+            <div class="attr-cell attr-cell--calc" data-derived="WisdomStatMod">{{ stats.WisdomStatMod|default_if_none:"-" }}</div>
+            <input class="attr-cell sheet-input" id="WisdomTemp" name="WisdomTemp" data-field="WisdomTemp" value="{{ stats.WisdomTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="WisdomModTemp" name="WisdomModTemp" data-field="WisdomModTemp" value="{{ stats.WisdomModTemp|default:'' }}" inputmode="numeric">
         </div>
         <div class="attr-row">
             <div class="attr-tag">CAR<span class="t-sub">Carisma</span></div>
-            <input class="attr-cell sheet-input" name="Charisma" data-field="Charisma" value="{{ stats.Charisma|default:'' }}" inputmode="numeric">
-            <div class="attr-cell attr-cell--calc" data-derived="CharismaStatMod">{{ stats.CharismaStatMod|default:"-" }}</div>
-            <input class="attr-cell sheet-input" name="CharismaTemp" data-field="CharismaTemp" value="{{ stats.CharismaTemp|default:'' }}" inputmode="numeric">
-            <input class="attr-cell sheet-input" name="CharismaModTemp" data-field="CharismaModTemp" value="{{ stats.CharismaModTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="Charisma" name="Charisma" data-field="Charisma" value="{{ stats.Charisma|default:'' }}" inputmode="numeric">
+            <div class="attr-cell attr-cell--calc" data-derived="CharismaStatMod">{{ stats.CharismaStatMod|default_if_none:"-" }}</div>
+            <input class="attr-cell sheet-input" id="CharismaTemp" name="CharismaTemp" data-field="CharismaTemp" value="{{ stats.CharismaTemp|default:'' }}" inputmode="numeric">
+            <input class="attr-cell sheet-input" id="CharismaModTemp" name="CharismaModTemp" data-field="CharismaModTemp" value="{{ stats.CharismaModTemp|default:'' }}" inputmode="numeric">
         </div>
     </div>
 </form>

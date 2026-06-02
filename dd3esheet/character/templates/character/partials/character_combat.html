@@ -16,33 +16,7 @@
     </div>
 
     <div class="lower-row">
-        <div class="defense-stack" data-sheet-table="defense-summary">
-            <div class="defense-top">
-                <div class="inline-stat">
-                    <div class="is-tag">TOQUE<span class="t-sub">Classe de Armadura</span></div>
-                    <div class="is-slot is-slot-calc" data-derived="ACTouch" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACTouch|default:"-" }}</div>
-                </div>
-                <div class="inline-stat">
-                    <div class="is-tag">SURPRESA<span class="t-sub">Classe de Armadura</span></div>
-                    <div class="is-slot is-slot-calc" data-derived="ACFlatFooterd" style="background: var(--calc-bg); color: var(--ink);">{{ status.ACFlatFooterd|default:"-" }}</div>
-                </div>
-            </div>
-            <div class="inline-stat inline-stat--iniciativa">
-                <div class="is-tag">INICIATIVA<span class="t-sub">Modificador</span></div>
-                <div class="is-total">
-                    <div class="is-slot is-slot-calc" data-derived="Initiative" style="background: var(--calc-bg); color: var(--ink);">{{ status.Initiative|default:"-" }}</div>
-                    <span class="label">Total</span>
-                </div>
-                <div class="is-meta">
-                    <span class="label">Mod. Destreza</span>
-                    <div class="slot slot--xs" data-derived="DexterityStatMod">{% with stats=character.characterstats %}{{ stats.DexterityStatMod|default:"-" }}{% endwith %}</div>
-                </div>
-                <div class="is-meta">
-                    <span class="label">Outros</span>
-                    <div class="slot slot--xs">0</div>
-                </div>
-            </div>
-        </div>
+        {% include "character/partials/character_defense_summary.html" %}
 
         {% include "character/partials/character_skills.html" %}
     </div>

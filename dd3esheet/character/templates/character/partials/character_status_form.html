@@ -1,5 +1,5 @@
 {% with status=character.characterstatus %}
-<form id="characterStatusForm" class="pvca-form" aria-live="polite"
+<form id="characterStatusForm"{% if oob %} hx-swap-oob="true"{% endif %} class="pvca-form" aria-live="polite"
       hx-post="{% url 'character:character' character.pk %}"
       hx-target="#characterStatusForm"
       hx-swap="outerHTML"

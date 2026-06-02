@@ -1,9 +1,10 @@
 {% with grad=character.characterskillgraduation %}
-<form id="characterSkillsForm" class="skills" data-sheet-table="skills" aria-live="polite"
+<form id="characterSkillsForm"{% if oob %} hx-swap-oob="true"{% endif %} class="skills" data-sheet-table="skills" aria-live="polite"
       hx-post="{% url 'character:character' character.pk %}"
       hx-target="#characterSkillsForm"
       hx-swap="outerHTML"
-      hx-trigger="input changed delay:700ms, change delay:300ms">
+      hx-sync="this:replace"
+      hx-trigger="input changed delay:500ms, change delay:300ms">
     {% csrf_token %}
 
     <div class="skills-header">
@@ -38,18 +39,18 @@
 
     {% for skill in character.skill_rows %}
     <div class="skill-row{% if skill.SkillIsActive %} is-checked{% endif %}">
-        <input class="sk-cb" type="checkbox" name="skill_{{ forloop.counter }}_SkillIsActive" data-field="SkillIsActive" data-slot="{{ forloop.counter }}" {% if skill.SkillIsActive %}checked{% endif %}>
-        <input class="sk-name sheet-input" name="skill_{{ forloop.counter }}_SkillName" data-field="SkillName" data-slot="{{ forloop.counter }}" value="{{ skill.SkillName|default:'' }}" readonly>
-        <input class="sk-specialization sheet-input" name="skill_{{ forloop.counter }}_SkillSpecialization" data-field="SkillSpecialization" data-slot="{{ forloop.counter }}" value="{{ skill.SkillSpecialization|default:'' }}">
+        <input class="sk-cb" type="checkbox" id="skill_{{ forloop.counter }}_SkillIsActive" name="skill_{{ forloop.counter }}_SkillIsActive" data-field="SkillIsActive" data-slot="{{ forloop.counter }}" {% if skill.SkillIsActive %}checked{% endif %}>
+        <input class="sk-name sheet-input" id="skill_{{ forloop.counter }}_SkillName" name="skill_{{ forloop.counter }}_SkillName" data-field="SkillName" data-slot="{{ forloop.counter }}" value="{{ skill.SkillName|default:'' }}" readonly>
+        <input class="sk-specialization sheet-input" id="skill_{{ forloop.counter }}_SkillSpecialization" name="skill_{{ forloop.counter }}_SkillSpecialization" data-field="SkillSpecialization" data-slot="{{ forloop.counter }}" value="{{ skill.SkillSpecialization|default:'' }}">
         <span class="sk-ability sk-cell sk-cell--calc" data-derived="SkillAbility" data-slot="{{ forloop.counter }}">{{ skill.SkillAbility|default:"-" }}</span>
         <span class="sk-trained-only" data-derived="SkillTrainedOnly" data-slot="{{ forloop.counter }}">{% if skill.IsTrainedOnly %}T{% endif %}</span>
-        <span class="sk-cell sk-cell--calc" data-derived="SkillModifier" data-slot="{{ forloop.counter }}">{{ skill.SkillModifier|default:"-" }}</span>
+        <span class="sk-cell sk-cell--calc" data-derived="SkillModifier" data-slot="{{ forloop.counter }}">{{ skill.SkillModifier|default_if_none:"-" }}</span>
         <span class="sk-op">=</span>
         <span class="sk-cell sk-cell--calc" data-derived="AbilityModifier" data-slot="{{ forloop.counter }}">{{ skill.AbilityModifier|default_if_none:"-" }}</span>
         <span class="sk-op">+</span>
-        <input class="sk-cell sheet-input" name="skill_{{ forloop.counter }}_Ranks" data-field="Ranks" data-slot="{{ forloop.counter }}" value="{{ skill.Ranks|default:'' }}" inputmode="numeric">
+        <input class="sk-cell sheet-input" id="skill_{{ forloop.counter }}_Ranks" name="skill_{{ forloop.counter }}_Ranks" data-field="Ranks" data-slot="{{ forloop.counter }}" value="{{ skill.Ranks|default:'' }}" inputmode="numeric">
         <span class="sk-op">+</span>
-        <input class="sk-cell sheet-input" name="skill_{{ forloop.counter }}_MiscModifier" data-field="MiscModifier" data-slot="{{ forloop.counter }}" value="{{ skill.MiscModifier|default:'' }}" inputmode="numeric">
+        <input class="sk-cell sheet-input" id="skill_{{ forloop.counter }}_MiscModifier" name="skill_{{ forloop.counter }}_MiscModifier" data-field="MiscModifier" data-slot="{{ forloop.counter }}" value="{{ skill.MiscModifier|default:'' }}" inputmode="numeric">
     </div>
     {% empty %}
     <div class="skill-row" style="justify-content: center; color: var(--ink-soft); font-style: italic; padding: 12px;">

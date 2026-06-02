@@ -1,0 +1,18 @@
+<form class="init-add" data-role="gm-controls"
+      hx-post="{% url 'initiative:add-combatant' encounter.Slug %}"
+      hx-target="#initiative-board" hx-swap="innerHTML"
+      hx-on::after-request="this.reset()">
+    {% csrf_token %}
+    <input type="text" name="Name" class="init-add__name" placeholder="Nome do combatente"
+           required maxlength="80">
+    <select name="Kind" class="init-add__kind" aria-label="Tipo">
+        <option value="enemy">Inimigo</option>
+        <option value="npc">NPC</option>
+        <option value="player">Jogador</option>
+    </select>
+    <input type="number" name="Initiative" class="init-add__init" placeholder="Init" value="0"
+           aria-label="Iniciativa">
+    <input type="number" name="ArmorClass" class="init-add__ac" placeholder="CA"
+           aria-label="Classe de Armadura">
+    <button type="submit" class="init-btn init-btn--primary">+ Adicionar</button>
+</form>

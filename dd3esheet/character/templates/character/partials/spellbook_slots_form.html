@@ -50,10 +50,12 @@
                                 aria-label="{% if row.slot.IsUsed %}Restaurar slot{% else %}Marcar como usada{% endif %} - {{ row.slot.PreparedSpellName|default:'slot' }}"
                                 data-field="spellSlot.IsUsed"
                                 data-slot="{{ row.index }}">
-                            {% if row.slot.IsUsed %}Restaurar{% else %}Marcar como usada{% endif %}
+                            <span class="btn-slot-cast-label">{% if row.slot.IsUsed %}Livre{% else %}Gasta{% endif %}</span>
                         </button>
                         {% else %}
-                        <button class="btn-slot-cast is-disabled" type="button" disabled title="Salve o slot para habilitar">Marcar como usada</button>
+                        <button class="btn-slot-cast is-disabled" type="button" disabled title="Salve o slot para habilitar">
+                            <span class="btn-slot-cast-label">Gasta</span>
+                        </button>
                         {% endif %}
                     </div>
                     {% if block.has_conversion %}

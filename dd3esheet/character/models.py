@@ -328,6 +328,23 @@ class CharacterActiveEffect(models.Model):
     RoundsRemaining = models.IntegerField(default=0, null=True, blank=True)
     Notes           = models.CharField(max_length=200, null=True, blank=True)
 
+class CharacterBuff(models.Model):
+    Character         = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    Name              = models.CharField(max_length=80)
+    IsActive          = models.BooleanField(default=False)
+    StrengthBonus     = models.IntegerField(default=0)
+    DexterityBonus    = models.IntegerField(default=0)
+    ConstitutionBonus = models.IntegerField(default=0)
+    IntelligenceBonus = models.IntegerField(default=0)
+    WisdomBonus       = models.IntegerField(default=0)
+    CharismaBonus     = models.IntegerField(default=0)
+    AttackBonus       = models.IntegerField(default=0)
+    ACBonus           = models.IntegerField(default=0)
+    SaveBonus         = models.IntegerField(default=0)
+    Notes             = models.CharField(max_length=200, blank=True)
+
+
 class CharacterDailyNotes(models.Model):
     Character   = models.OneToOneField(Character, on_delete=models.CASCADE, primary_key=True)
 
@@ -357,9 +374,17 @@ class CharacterSummon(models.Model):
     HitPointsMax = models.IntegerField(default=0)
     HitPointsCurrent = models.IntegerField(default=0)
     ArmorClass = models.IntegerField(default=0)
+    Initiative = models.CharField(max_length=50, blank=True)
+    Speed = models.CharField(max_length=100, blank=True)
+    BaseAttackBonus = models.CharField(max_length=50, blank=True)
+    Grapple = models.CharField(max_length=50, blank=True)
+    Size = models.CharField(max_length=100, blank=True)
+    Attack = models.CharField(max_length=500, blank=True)
+    FullAttack = models.TextField(blank=True)
     AttackBonus = models.CharField(max_length=200, blank=True)
     Damage = models.CharField(max_length=200, blank=True)
     SpecialAbility = models.CharField(max_length=500, blank=True)
+    Skills = models.TextField(blank=True)
     RoundsTotal = models.IntegerField(default=0)
     RoundsRemaining = models.IntegerField(default=0)
     Highlighted = models.BooleanField(default=False)

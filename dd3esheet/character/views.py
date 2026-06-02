@@ -1,6 +1,8 @@
+import logging
 import re
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db import models, transaction
@@ -9,7 +11,7 @@ from django.http import HttpResponse
 
 from .models import (
     Ability, Character, CharacterArmor, CharacterAttackModifiers,
-    CharacterActiveEffect, CharacterDailyNotes, CharacterDailyResource,
+    CharacterActiveEffect, CharacterBuff, CharacterDailyNotes, CharacterDailyResource,
     CharacterCompanion, CharacterContact, CharacterContract, CharacterFaction,
     CharacterFeat, CharacterLanguages, CharacterMoney, CharacterOtherItem,
     CharacterOtherItemObs, CharacterProgress, CharacterProtectionItem, CharacterSavingThrows,
@@ -20,21 +22,23 @@ from .models import (
 )
 from .forms import CharacterForm, CharacterStatsForm, CharacterCreateForm, CharacterIdentityForm
 from .services import _bootstrap_character_siblings, ensure_expandable_skill_slots
-from .constants import DEITY_SUGGESTIONS
+from .constants import DEITY_SUGGESTIONS, BUFF_PRESETS, BUFF_EFFECT_FIELDS
 from .calculations import (
     ABILITY_FIELDS, SKILL_ABILITY_BY_NAME, ability_modifier, armor_check_penalty_for_skill, cap_dex_to_armor,
     compute_armor_class, compute_attack_bonus, compute_grapple_total,
-    compute_save_total, compute_skill_row, compute_spell_save_dc, equipment_armor_class_bonuses,
+    compute_save_total, compute_spell_save_dc, equipment_armor_class_bonuses,
     bonus_spells_for_ability,
     load_limits_for_strength, daily_resource_remaining,
-    load_category_for_weight, parse_bonus,
-    is_trained_only_skill, skill_ability_key, skill_ability_modifier, skill_graduation_limits,
-    signed_bonus, skill_total, speed_for_load, total_carried_weight,
+    parse_bonus,
+    is_trained_only_skill, skill_ability_key, skill_graduation_limits,
+    signed_bonus, skill_total, total_carried_weight,
 )
 from .spellcasting import caster_config_for_class, numeric_slot_count, spellcasting_context
 from sdr.models import SDR_Monster
 from sdr.lookups import resolve_spell
 from sdr.models import SDR_Spell
+
+logger = logging.getLogger(__name__)
 
 _SPELLBOOK_SLOT_TOTAL = 20
 
@@ -47,16 +51,16 @@ _SPELLBOOK_PROFILE_FIELDS = [
 ]
 
 
-def _annotate_skill_rules(skills, stats=None):
+def _annotate_skill_rules(skills, stats=None, buff_ability=None):
+    buff_ability = buff_ability or {}
     for skill in skills:
         skill.IsTrainedOnly = is_trained_only_skill(skill.SkillName)
         if stats is not None:
             ability = SKILL_ABILITY_BY_NAME.get(skill.SkillName or '')
-            if ability:
-                raw = getattr(stats, ability, None)
-                skill.AbilityModifier = ability_modifier(raw) if raw else None
-            else:
-                skill.AbilityModifier = None
+            skill.AbilityModifier = (
+                _effective_ability_mod(stats, ability, buff_ability.get(ability, 0))
+                if ability else None
+            )
     return skills
 
 
@@ -73,12 +77,33 @@ def _ability_mod(value):
     return ability_modifier(value)
 
 
-def _first_nonblank_value(rows, field_name):
-    for row in rows:
-        value = row.get(field_name)
-        if value not in (None, ''):
-            return value
-    return None
+def _effective_ability_mod(stats, ability, buff_score_bonus=0):
+    """Mod efetivo (temp-aware): mod(VALOR + VALOR TEMPORARIO + buffs) + MOD TEMPORARIO.
+    VALOR TEMPORARIO e MOD TEMPORARIO sao ajustes que somam (em branco = 0);
+    buff_score_bonus = soma dos buffs ativos que afetam esse atributo.
+    Retorna None quando nada foi preenchido (mostra '-', nao -5)."""
+    base = _to_int(getattr(stats, ability, 0), 0)
+    temp_score = _to_int(getattr(stats, f'{ability}Temp', 0), 0)
+    temp_mod = _to_int(getattr(stats, f'{ability}ModTemp', 0), 0)
+    effective_score = base + temp_score + _to_int(buff_score_bonus, 0)
+    if effective_score <= 0 and temp_mod == 0:
+        return None
+    base_mod = ability_modifier(effective_score) if effective_score > 0 else 0
+    return base_mod + temp_mod
+
+
+def _active_buff_totals(character):
+    """Soma os efeitos dos buffs ATIVOS. Retorna (ability_bonus_dict, flat_dict)."""
+    ability_bonus = {a: 0 for a in ABILITY_FIELDS}
+    flat = {'AttackBonus': 0, 'ACBonus': 0, 'SaveBonus': 0}
+    for buff in _related_items(character, 'characterbuff_set', CharacterBuff):
+        if not buff.IsActive:
+            continue
+        for ability in ABILITY_FIELDS:
+            ability_bonus[ability] += _to_int(getattr(buff, f'{ability}Bonus'), 0)
+        for key in flat:
+            flat[key] += _to_int(getattr(buff, key), 0)
+    return ability_bonus, flat
 
 
 def _lowest_max_dex(armor_rows):
@@ -205,22 +230,29 @@ def _autosave_204():
 
 def _update_fields_from_post(instance, request, fields, prefix=''):
     changed = False
+    changes = []
     for field in fields:
         name = f'{prefix}{field}'
         if name not in request.POST:
             continue
         model_field = instance._meta.get_field(field)
         value = _clean_post_value(request.POST.get(name), model_field)
+        old = getattr(instance, field, None)
+        if old != value:
+            changes.append(f'{field}: {old!r}->{value!r}')
         setattr(instance, field, value)
         changed = True
     if changed:
         instance.save()
+    if changes:
+        logger.debug('persist %s(%s) %s', type(instance).__name__, prefix or '-', '; '.join(changes))
     return changed
 
 
 def _clamp_status_hit_points(status):
-    total = max(_to_int(status.TotalHitPoints, 0), 0)
-    current = max(min(_to_int(status.CurrentHitPoints, 0), total), 0)
+    # PV atual e temporario PODEM exceder o maximo (cura excedente, PV temporario,
+    # buffs). So aplicamos piso 0 — sem teto pelo TotalHitPoints.
+    current = max(_to_int(status.CurrentHitPoints, 0), 0)
     temporary = max(_to_int(status.TemporaryHitPoints, 0), 0)
     nonlethal = max(_to_int(status.NonLethalDamager, 0), 0)
 
@@ -278,6 +310,7 @@ def _sheet_character_queryset():
             Prefetch('characterspellslot_set', queryset=CharacterSpellSlot.objects.order_by('Level', 'SlotType', 'id')),
             Prefetch('characterspell_set', queryset=CharacterSpell.objects.order_by('Level', 'Name')),
             Prefetch('characterskill_set', queryset=CharacterSkill.objects.order_by('id')),
+            Prefetch('characterbuff_set', queryset=CharacterBuff.objects.order_by('id')),
         )
     )
 
@@ -600,10 +633,26 @@ def _save_daily_resources(char, request):
 
 
 def _recalculate_stats(character):
+    logger.debug('recalc start char=%s level=%s', character.pk, character.Level)
+    buff_ability, buff_flat = _active_buff_totals(character)
     with transaction.atomic():
         stats = character.characterstats
+        # MOD. DE HABILIDADE = mod(VALOR + VALOR TEMPORARIO + buffs) + MOD TEMPORARIO.
+        # VALOR TEMPORARIO e MOD TEMPORARIO sao ajustes que SOMAM (em branco = 0);
+        # ambos sao inputs do usuario e nao sao sobrescritos. So StatMod e derivado.
+        # Buffs ativos (Forca do Touro, etc.) somam ao score efetivo.
         for ability in ABILITY_FIELDS:
-            setattr(stats, f'{ability}StatMod', _ability_mod(getattr(stats, ability)))
+            base_score = _to_int(getattr(stats, ability), 0)
+            temp_score = _to_int(getattr(stats, f'{ability}Temp'), 0)
+            temp_mod = _to_int(getattr(stats, f'{ability}ModTemp'), 0)
+            buff_bonus = buff_ability.get(ability, 0)
+            mod = _effective_ability_mod(stats, ability, buff_bonus)
+            setattr(stats, f'{ability}StatMod', mod)
+            logger.debug(
+                'recalc char=%s %s base=%s +valorTemp=%s +modTemp=%s +buff=%s -> mod=%s',
+                character.pk, ability, base_score, temp_score, temp_mod, buff_bonus,
+                '-' if mod is None else f'{mod:+d}',
+            )
         stats.save(update_fields=[f'{a}StatMod' for a in ABILITY_FIELDS])
 
         graduation = character.characterskillgraduation
@@ -631,7 +680,6 @@ def _recalculate_stats(character):
         armor_ac = armor_rows[0]['ACBonus'] if armor_rows else None
         shield_ac = shield_rows[0]['ACBonus'] if shield_rows else None
         protection_bonuses = [r['ACBonus'] for r in protection_rows]
-        armor_speed = _first_nonblank_value(armor_rows, 'Speed')
         weight_values = (
             [r['Weigth'] for r in armor_rows]
             + [r['Weigth'] for r in shield_rows]
@@ -653,27 +701,33 @@ def _recalculate_stats(character):
             deflection=status.ACDeflectionModifier,
             misc=status.ACMiscModifier,
         )
+        # buffs planos de CA (Escudo da Fe, Pressa, etc.) somam aos tres valores
+        ac_buff = buff_flat['ACBonus']
+        status.ACTotal += ac_buff
+        status.ACTouch += ac_buff
+        status.ACFlatFooterd += ac_buff
         status.Initiative = stats.DexterityStatMod
 
         saves = character.charactersavingthrows
         saves.FortitudeAbilityModifier = stats.ConstitutionStatMod
         saves.ReflexAbilityModifier = stats.DexterityStatMod
         saves.WillAbilityModifier = stats.WisdomStatMod
+        save_buff = buff_flat['SaveBonus']  # buffs planos (Bencao, Heroismo, etc.)
         saves.TotalFortitude = compute_save_total(
             base=saves.FortitudeBaseSave, ability_mod=saves.FortitudeAbilityModifier,
             magic=saves.FortitudeMagicModifier, misc=saves.FortitudeMiscModifier,
             temporary=saves.FortitudeTemporaryModifier,
-        )
+        ) + save_buff
         saves.TotalReflex = compute_save_total(
             base=saves.ReflexBaseSave, ability_mod=saves.ReflexAbilityModifier,
             magic=saves.ReflexMagicModifier, misc=saves.ReflexMiscModifier,
             temporary=saves.ReflexTemporaryModifier,
-        )
+        ) + save_buff
         saves.TotalWill = compute_save_total(
             base=saves.WillBaseSave, ability_mod=saves.WillAbilityModifier,
             magic=saves.WillMagicModifier, misc=saves.WillMiscModifier,
             temporary=saves.WillTemporaryModifier,
-        )
+        ) + save_buff
         saves.save(update_fields=[
             'FortitudeAbilityModifier', 'ReflexAbilityModifier', 'WillAbilityModifier',
             'TotalFortitude', 'TotalReflex', 'TotalWill',
@@ -697,7 +751,7 @@ def _recalculate_stats(character):
                 bba=attack.BBA,
                 ability_mod=ability_mod,
                 size_mod=status.ACSizeModifier,
-                misc=0,
+                misc=buff_flat['AttackBonus'],  # buffs planos de ataque (Bencao, Cancao, etc.)
             )
             weapon.AttackBonus = signed_bonus(total_bonus)
         if weapons:
@@ -706,9 +760,10 @@ def _recalculate_stats(character):
         skills = list(CharacterSkill.objects.filter(Character=character))
         armor_penalty = _armor_check_penalty_total(armor_rows, shield_rows)
         for skill in skills:
-            skill.SkillAbility, skill.AbilityModifier = compute_skill_row(
-                skill_name=skill.SkillName, stats=stats,
-            )
+            ability = SKILL_ABILITY_BY_NAME.get(skill.SkillName or '')
+            # usa o mod EFETIVO (ja temp-aware) que acabou de ser gravado em StatMod
+            skill.SkillAbility = skill_ability_key(skill.SkillName)
+            skill.AbilityModifier = getattr(stats, f'{ability}StatMod') if ability else 0
             skill.SkillModifier = skill_total(
                 skill.AbilityModifier,
                 skill.Ranks,
@@ -727,22 +782,23 @@ def _recalculate_stats(character):
             encumbrance.PushOrDrag,
         ) = load_limits_for_strength(stats.Strength)
         encumbrance.TotalWCarried = total_carried_weight(weight_values)
-        load_category = load_category_for_weight(
-            encumbrance.TotalWCarried,
-            encumbrance.LightLoad,
-            encumbrance.MediumLoad,
-            encumbrance.HeavyLoad,
-        )
-        status.Speed = speed_for_load(status.Speed, load_category, armor_speed)
+        # Deslocamento e 100% manual: o valor digitado e a fonte da verdade e
+        # nao e sobrescrito pelo recalculo (a reducao por carga e aplicada a mao).
         encumbrance.save(update_fields=[
             'LightLoad', 'MediumLoad', 'HeavyLoad', 'LiftOverHEad',
             'LiftOffGround', 'PushOrDrag', 'TotalWCarried',
         ])
         status.save(update_fields=[
             'ACArmorBonus', 'ACShieldBonus', 'ACMiscModifier', 'ACDexModifier',
-            'ACTotal', 'ACTouch', 'ACFlatFooterd', 'Initiative', 'Speed',
+            'ACTotal', 'ACTouch', 'ACFlatFooterd', 'Initiative',
         ])
         _sync_spellcasting_rows(character, stats)
+    logger.info(
+        'recalc done char=%s CA=%s/toque=%s/surpresa=%s salvas=F%s/R%s/V%s agarrar=%s carga=%s/%s',
+        character.pk, status.ACTotal, status.ACTouch, status.ACFlatFooterd,
+        saves.TotalFortitude, saves.TotalReflex, saves.TotalWill,
+        attack.TotalGrappler, encumbrance.TotalWCarried, encumbrance.HeavyLoad,
+    )
 
 
 def _sheet_context(char, **extra):
@@ -771,13 +827,47 @@ def _sheet_context(char, **extra):
         'language_slots': _ordered_slots(char, 'characterlanguages_set', CharacterLanguages, 12),
         'spell_slots_edit': _ordered_slots(char, 'characterspellslot_set', CharacterSpellSlot, 20),
         'known_spell_slots': _ordered_slots(char, 'characterspell_set', CharacterSpell, 36),
+        'character_buffs': _related_items(char, 'characterbuff_set', CharacterBuff),
+        'buff_presets': BUFF_PRESETS,
     }
+    buff_ability, _ = _active_buff_totals(context['character'])
     context['character'].skill_rows = _annotate_skill_rules(
         _related_items(context['character'], 'characterskill_set', CharacterSkill),
         getattr(context['character'], 'characterstats', None),
+        buff_ability,
     )
     context.update(extra)
     return context
+
+
+# Cada seção derivada e seu id de container. Um campo-fonte editado em qualquer
+# seção pode mudar derivados que vivem em OUTRAS seções (ex.: Destreza muda CA,
+# Reflexos, Iniciativa e perícias). Como cada form só troca a si mesmo via
+# hx-target, as demais seções voltam como out-of-band swaps na mesma resposta.
+_DERIVED_OOB_SECTIONS = (
+    ('characterStatsForm', 'character/partials/character_attrs_form.html'),
+    ('characterSavesForm', 'character/partials/character_saves_form.html'),
+    ('characterAttackForm', 'character/partials/character_attack_form.html'),
+    ('characterWeaponsForm', 'character/partials/character_weapon_card.html'),
+    ('characterArmorForm', 'character/partials/character_armor_form.html'),
+    ('characterStatusForm', 'character/partials/character_status_form.html'),
+    ('characterDefenseSummary', 'character/partials/character_defense_summary.html'),
+    ('characterSkillsForm', 'character/partials/character_skills.html'),
+)
+
+
+def _render_recalculated(request, char, primary_template, primary_target, **primary_extra):
+    """Devolve o partial editado como swap principal e todas as demais seções
+    derivadas como out-of-band, para que um único edit atualize na tela toda a
+    cascata de valores calculados."""
+    context = _sheet_context(char, **primary_extra)
+    fragments = [render_to_string(primary_template, context, request=request)]
+    oob_context = {**context, 'oob': True}
+    for target, template in _DERIVED_OOB_SECTIONS:
+        if target == primary_target:
+            continue
+        fragments.append(render_to_string(template, oob_context, request=request))
+    return HttpResponse(''.join(fragments))
 
 
 @login_required
@@ -798,6 +888,12 @@ def character(request, pk):
         char = get_object_or_404(Character, pk=pk, User=request.user)
 
     if request.method == 'POST' and request.htmx:
+        posted = [k for k in request.POST if k != 'csrfmiddlewaretoken']
+        logger.info(
+            'sheet POST char=%s user=%s target=%s autosave=%s fields=%s',
+            char.pk, request.user.username, request.htmx.target,
+            _is_autosave(request), posted,
+        )
 
         if request.htmx.target == 'characterIdentityForm':
             form = CharacterIdentityForm(request.POST, instance=char)
@@ -807,6 +903,10 @@ def character(request, pk):
                     return _autosave_204()
                 char.refresh_from_db()
                 _recalculate_stats(char)
+                return _render_recalculated(
+                    request, char, 'character/partials/character_identity.html',
+                    'characterIdentityForm', characterIdentityForm=form,
+                )
             context = _sheet_context(char, characterIdentityForm=form)
             return render(request, 'character/partials/character_identity.html', context)
 
@@ -827,14 +927,14 @@ def character(request, pk):
                 'WisdomModTemp', 'CharismaModTemp',
             ])
             _save_repeating_slots(char, request, CharacterWeapon, 'weapon', [
-                'Attack', 'AttackBonus', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
+                'Attack', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
             ], 4)
-            if _is_autosave(request):
-                return _autosave_204()
+            # Recalcula e re-renderiza mesmo ao digitar (sem 204) para que os
+            # modificadores apareçam ao vivo; o htmx restaura foco/cursor pelo id.
             _recalculate_stats(char)
-            char.refresh_from_db()
-            context = _sheet_context(char)
-            return render(request, 'character/partials/character_attrs_form.html', context)
+            return _render_recalculated(
+                request, char, 'character/partials/character_attrs_form.html', 'characterStatsForm',
+            )
 
         if request.htmx.target == 'characterStatusForm':
             _update_fields_from_post(char.characterstatus, request, [
@@ -844,16 +944,18 @@ def character(request, pk):
             if _is_autosave(request):
                 return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_status_form.html', _sheet_context(char))
+            return _render_recalculated(
+                request, char, 'character/partials/character_status_form.html', 'characterStatusForm',
+            )
 
         if request.htmx.target == 'characterArmorForm':
             _update_fields_from_post(char.characterstatus, request, [
                 'ACSizeModifier', 'ACNaturalArmor', 'ACDeflectionModifier', 'DamageReduction',
             ])
-            if _is_autosave(request):
-                return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_armor_form.html', _sheet_context(char))
+            return _render_recalculated(
+                request, char, 'character/partials/character_armor_form.html', 'characterArmorForm',
+            )
 
         if request.htmx.target == 'characterSavesForm':
             _update_fields_from_post(char.charactersavingthrows, request, [
@@ -861,19 +963,19 @@ def character(request, pk):
                 'ReflexBaseSave', 'ReflexMagicModifier', 'ReflexMiscModifier',
                 'WillBaseSave', 'WillMagicModifier', 'WillMiscModifier',
             ])
-            if _is_autosave(request):
-                return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_saves_form.html', _sheet_context(char))
+            return _render_recalculated(
+                request, char, 'character/partials/character_saves_form.html', 'characterSavesForm',
+            )
 
         if request.htmx.target == 'characterAttackForm':
             _update_fields_from_post(char.characterattackmodifiers, request, [
-                'BBA', 'SpellResistence', 'GrapplerBBA', 'GrapplerSizeModifier', 'GrapplerMiscModifier',
+                'BBA', 'SpellResistence', 'GrapplerSizeModifier', 'GrapplerMiscModifier',
             ])
-            if _is_autosave(request):
-                return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_attack_form.html', _sheet_context(char))
+            return _render_recalculated(
+                request, char, 'character/partials/character_attack_form.html', 'characterAttackForm',
+            )
 
         if request.htmx.target == 'characterSkillsForm':
             skills = list(CharacterSkill.objects.filter(Character=char).order_by('id'))
@@ -884,19 +986,21 @@ def character(request, pk):
                     'SkillName', 'SkillSpecialization', 'Ranks', 'MiscModifier',
                 ], prefix)
                 skill.save()
-            if _is_autosave(request):
-                return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_skills.html', _sheet_context(char))
+            return _render_recalculated(
+                request, char, 'character/partials/character_skills.html', 'characterSkillsForm',
+            )
 
         if request.htmx.target == 'characterWeaponsForm':
             _save_repeating_slots(char, request, CharacterWeapon, 'weapon', [
-                'Attack', 'AttackBonus', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
+                'Attack', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
             ], 4)
             if _is_autosave(request):
                 return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_weapon_card.html', _sheet_context(char))
+            return _render_recalculated(
+                request, char, 'character/partials/character_weapon_card.html', 'characterWeaponsForm',
+            )
 
         if request.htmx.target == 'characterProgressForm':
             progress, _ = CharacterProgress.objects.get_or_create(Character=char)
@@ -921,14 +1025,18 @@ def character(request, pk):
             if _is_autosave(request):
                 return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_armor.html', _sheet_context(char))
+            return _render_recalculated(
+                request, char, 'character/partials/character_armor.html', 'characterEquipmentForm',
+            )
 
         if request.htmx.target == 'characterItemsForm':
             _save_repeating_slots(char, request, CharacterOtherItem, 'item', ['Name', 'Page', 'Weigth'], 32)
             if _is_autosave(request):
                 return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_items.html', _sheet_context(char))
+            return _render_recalculated(
+                request, char, 'character/partials/character_items.html', 'characterItemsForm',
+            )
 
         if request.htmx.target == 'characterMoneyForm':
             _update_fields_from_post(char.charactermoney, request, ['CP', 'SP', 'GP', 'PP'])
@@ -939,7 +1047,9 @@ def character(request, pk):
             if _is_autosave(request):
                 return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_money.html', _sheet_context(char))
+            return _render_recalculated(
+                request, char, 'character/partials/character_money.html', 'characterMoneyForm',
+            )
 
         if request.htmx.target == 'characterFeatsForm':
             _save_repeating_slots(char, request, CharacterFeat, 'feat', ['Name', 'Page'], 24)
@@ -990,8 +1100,10 @@ def companions(request, pk):
         if target == 'summonsGrid':
             _save_repeating_slots(char, request, CharacterSummon, 'summon', [
                 'Name', 'SpellOrigin', 'Level', 'HitPointsMax', 'HitPointsCurrent',
-                'ArmorClass', 'AttackBonus', 'Damage', 'SpecialAbility',
-                'RoundsTotal', 'RoundsRemaining', 'SdrMonsterName',
+                'ArmorClass', 'Initiative', 'Speed', 'BaseAttackBonus', 'Grapple',
+                'Size', 'Attack', 'FullAttack', 'AttackBonus', 'Damage',
+                'SpecialAbility', 'Skills', 'RoundsTotal', 'RoundsRemaining',
+                'SdrMonsterName',
             ], 9)
             return render(request, 'character/partials/companions_summons_grid.html', _companions_context(char))
 
@@ -1039,9 +1151,17 @@ def create_summon_from_monster(request, pk, monster_id):
         HitPointsMax=hit_points,
         HitPointsCurrent=hit_points,
         ArmorClass=_monster_armor_class(monster),
+        Initiative=monster.initiative or '',
+        Speed=monster.speed or '',
+        BaseAttackBonus=monster.base_attack or '',
+        Grapple=monster.grapple or '',
+        Size=monster.size or '',
+        Attack=monster.attack or '',
+        FullAttack=monster.full_attack or '',
         AttackBonus=_monster_attack_bonus(monster),
         Damage=_monster_damage(monster),
         SpecialAbility=(monster.special_abilities or '')[:500],
+        Skills=monster.skills or '',
         SdrMonsterName=monster.name or '',
     )
     return render(request, 'character/partials/companions_summons_grid.html', _companions_context(char))
@@ -1146,6 +1266,54 @@ def deleteCharacter(request, pk):
         char.delete()
         return redirect('character:home')
     return render(request, 'character/character_delete.html', {'obj': char})
+
+
+@login_required
+def toggle_buff(request, pk, buff_id):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    buff = get_object_or_404(CharacterBuff, pk=buff_id, Character=char)
+    buff.IsActive = not buff.IsActive
+    buff.save(update_fields=['IsActive'])
+    logger.info('buff toggle char=%s buff=%s ativo=%s', char.pk, buff.Name, buff.IsActive)
+    _recalculate_stats(char)
+    return _render_recalculated(
+        request, char, 'character/partials/character_buffs.html', 'characterBuffsForm',
+    )
+
+
+@login_required
+def add_buff(request, pk):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    preset = next(
+        (p for p in BUFF_PRESETS if p['Name'] == (request.POST.get('preset') or '').strip()),
+        None,
+    )
+    if preset:
+        CharacterBuff.objects.create(Character=char, **preset)
+    else:
+        name = _clean_text_value(request.POST.get('custom_name'), CharacterBuff._meta.get_field('Name'))
+        if name:
+            buff = CharacterBuff(Character=char, Name=name)
+            for field in BUFF_EFFECT_FIELDS:
+                setattr(buff, field, _clamp_int(_post_int(request, field)))
+            buff.Notes = _clean_text_value(request.POST.get('Notes'), CharacterBuff._meta.get_field('Notes'))
+            buff.save()
+    # buff novo nasce inativo -> nao precisa recalcular, so re-renderiza o painel
+    return render(request, 'character/partials/character_buffs.html', _sheet_context(char))
+
+
+@login_required
+def delete_buff(request, pk, buff_id):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    buff = get_object_or_404(CharacterBuff, pk=buff_id, Character=char)
+    was_active = buff.IsActive
+    buff.delete()
+    if was_active:
+        _recalculate_stats(char)
+        return _render_recalculated(
+            request, char, 'character/partials/character_buffs.html', 'characterBuffsForm',
+        )
+    return render(request, 'character/partials/character_buffs.html', _sheet_context(char))
 
 
 @login_required

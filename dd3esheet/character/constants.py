@@ -104,3 +104,27 @@ DEITY_SUGGESTIONS = [
     ('Wee Jas',            'LN'),
     ('Yondalla',           'LG'),
 ]
+
+
+# Buffs prontos (efeitos comuns de D&D 3.5e). Cada preset vira um CharacterBuff
+# que o jogador ativa/desativa. Bonus de atributo cascateiam pelo motor de
+# modificador efetivo; AttackBonus/ACBonus/SaveBonus sao bonus planos.
+BUFF_PRESETS = [
+    {'Name': 'Forca do Touro',      'StrengthBonus': 4,     'Notes': '+4 Forca (aprimoramento)'},
+    {'Name': 'Agilidade do Gato',   'DexterityBonus': 4,    'Notes': '+4 Destreza (aprimoramento)'},
+    {'Name': 'Vigor do Urso',       'ConstitutionBonus': 4, 'Notes': '+4 Constituicao (aprimoramento)'},
+    {'Name': 'Raposa Astuta',       'IntelligenceBonus': 4, 'Notes': '+4 Inteligencia (aprimoramento)'},
+    {'Name': 'Sabedoria da Coruja', 'WisdomBonus': 4,       'Notes': '+4 Sabedoria (aprimoramento)'},
+    {'Name': 'Esplendor da Aguia',  'CharismaBonus': 4,     'Notes': '+4 Carisma (aprimoramento)'},
+    {'Name': 'Bencao',              'AttackBonus': 1, 'SaveBonus': 1, 'Notes': '+1 ataque, +1 salvas vs medo'},
+    {'Name': 'Cancao do Bardo',     'AttackBonus': 1, 'SaveBonus': 1, 'Notes': '+1 ataque e dano, +1 vs encanto/medo'},
+    {'Name': 'Pressa',              'AttackBonus': 1, 'ACBonus': 1,   'Notes': '+1 ataque, +1 CA/Reflexos, +9m, acao extra'},
+    {'Name': 'Favor Divino',        'AttackBonus': 1, 'Notes': '+1 ataque e dano por 3 niveis (max +3)'},
+    {'Name': 'Escudo da Fe',        'ACBonus': 2, 'Notes': '+2 CA (deflexao)'},
+    {'Name': 'Heroismo',            'AttackBonus': 2, 'SaveBonus': 2, 'Notes': '+2 ataque, salvas e testes de pericia'},
+]
+
+BUFF_EFFECT_FIELDS = (
+    'StrengthBonus', 'DexterityBonus', 'ConstitutionBonus', 'IntelligenceBonus',
+    'WisdomBonus', 'CharismaBonus', 'AttackBonus', 'ACBonus', 'SaveBonus',
+)

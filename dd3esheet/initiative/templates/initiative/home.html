@@ -1,0 +1,36 @@
+{% extends "initiative/base_initiative.html" %}
+
+{% block title %}Iniciativa · Codex de Fichas{% endblock %}
+
+{% block content %}
+<main class="init-home" data-screen-label="initiative">
+    <header class="init-home__header">
+        <h1 class="init-home__title">Gerenciador de Iniciativas</h1>
+        <p class="init-home__subtitle">
+            Crie um encontro, adicione combatentes e compartilhe o link com a mesa.
+        </p>
+    </header>
+
+    <form class="init-create" method="post" action="{% url 'initiative:create-encounter' %}">
+        {% csrf_token %}
+        <input type="text" name="Name" maxlength="120"
+               placeholder="Nome do encontro (ex.: Emboscada na ponte)">
+        <button type="submit">+ Novo encontro</button>
+    </form>
+
+    <ul class="init-encounter-list">
+        {% for enc in encounters %}
+        <li class="init-encounter-card">
+            <a class="init-encounter-card__link" href="{% url 'initiative:board' enc.Slug %}">
+                {{ enc.Name }}
+            </a>
+            <span class="init-encounter-card__meta">
+                round {{ enc.Round }} · {{ enc.combatant_set.count }} combatente{{ enc.combatant_set.count|pluralize }}
+            </span>
+        </li>
+        {% empty %}
+        <li class="init-empty">Nenhum encontro ainda. Crie o primeiro acima!</li>
+        {% endfor %}
+    </ul>
+</main>
+{% endblock %}

@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'home.apps.HomeConfig',
     'character.apps.CharacterConfig',
     'sdr.apps.SdrConfig',
+    'initiative.apps.InitiativeConfig',
     'crispy_forms',
     'crispy_bootstrap5',
 ]
@@ -165,11 +166,19 @@ LOGGING = {
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
+        'app': {
+            'format': '{levelname} {asctime} {name} {message}',
+            'style': '{',
+        },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
+        },
+        'app_console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'app',
         },
     },
     'root': {
@@ -180,6 +189,13 @@ LOGGING = {
         'django': {
             'handlers': ['console'],
             'level': 'INFO' if DEBUG else 'WARNING',
+            'propagate': False,
+        },
+        # Logs da ficha: fluxo de POST/HTMX, persistencia e recalculo derivado.
+        # Nivel ajustavel por env CHARACTER_LOG_LEVEL (default DEBUG em dev).
+        'character': {
+            'handlers': ['app_console'],
+            'level': env('CHARACTER_LOG_LEVEL', default='DEBUG' if DEBUG else 'INFO'),
             'propagate': False,
         },
     },

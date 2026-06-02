@@ -1,9 +1,10 @@
 {% with saves=character.charactersavingthrows %}
-<form id="characterSavesForm" class="saves-form" aria-live="polite"
+<form id="characterSavesForm"{% if oob %} hx-swap-oob="true"{% endif %} class="saves-form" aria-live="polite"
       hx-post="{% url 'character:character' character.pk %}"
       hx-target="#characterSavesForm"
       hx-swap="outerHTML"
-      hx-trigger="input changed delay:700ms, change delay:300ms">
+      hx-sync="this:replace"
+      hx-trigger="input changed delay:500ms, change delay:300ms">
     {% csrf_token %}
 
     <div class="block-body">
@@ -20,45 +21,45 @@
 
             <div class="save-row">
                 <div class="save-tag">FORTITUDE<span class="t-sub">Constituicao</span></div>
-                <div class="save-slot save-slot--calc" data-derived="TotalFortitude">{{ saves.TotalFortitude|default:"-" }}</div>
+                <div class="save-slot save-slot--calc" data-derived="TotalFortitude">{{ saves.TotalFortitude|default_if_none:"-" }}</div>
                 <div class="save-op">=</div>
-                <input class="save-slot sheet-input" name="FortitudeBaseSave" data-field="FortitudeBaseSave" value="{{ saves.FortitudeBaseSave|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="FortitudeBaseSave" name="FortitudeBaseSave" data-field="FortitudeBaseSave" value="{{ saves.FortitudeBaseSave|default:'' }}" inputmode="numeric">
                 <div class="save-op">+</div>
-                <div class="save-slot save-slot--calc" data-derived="FortitudeAbilityModifier">{{ saves.FortitudeAbilityModifier|default:"-" }}</div>
+                <div class="save-slot save-slot--calc" data-derived="FortitudeAbilityModifier">{{ saves.FortitudeAbilityModifier|default_if_none:"-" }}</div>
                 <div class="save-op">+</div>
-                <input class="save-slot sheet-input" name="FortitudeMagicModifier" data-field="FortitudeMagicModifier" value="{{ saves.FortitudeMagicModifier|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="FortitudeMagicModifier" name="FortitudeMagicModifier" data-field="FortitudeMagicModifier" value="{{ saves.FortitudeMagicModifier|default:'' }}" inputmode="numeric">
                 <div class="save-op">+</div>
-                <input class="save-slot sheet-input" name="FortitudeMiscModifier" data-field="FortitudeMiscModifier" value="{{ saves.FortitudeMiscModifier|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="FortitudeMiscModifier" name="FortitudeMiscModifier" data-field="FortitudeMiscModifier" value="{{ saves.FortitudeMiscModifier|default:'' }}" inputmode="numeric">
                 <div class="save-op">+</div>
-                <input class="save-slot sheet-input" name="FortitudeTemporaryModifier" data-field="FortitudeTemporaryModifier" value="{{ saves.FortitudeTemporaryModifier|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="FortitudeTemporaryModifier" name="FortitudeTemporaryModifier" data-field="FortitudeTemporaryModifier" value="{{ saves.FortitudeTemporaryModifier|default:'' }}" inputmode="numeric">
             </div>
             <div class="save-row">
                 <div class="save-tag">REFLEXOS<span class="t-sub">Destreza</span></div>
-                <div class="save-slot save-slot--calc" data-derived="TotalReflex">{{ saves.TotalReflex|default:"-" }}</div>
+                <div class="save-slot save-slot--calc" data-derived="TotalReflex">{{ saves.TotalReflex|default_if_none:"-" }}</div>
                 <div class="save-op">=</div>
-                <input class="save-slot sheet-input" name="ReflexBaseSave" data-field="ReflexBaseSave" value="{{ saves.ReflexBaseSave|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="ReflexBaseSave" name="ReflexBaseSave" data-field="ReflexBaseSave" value="{{ saves.ReflexBaseSave|default:'' }}" inputmode="numeric">
                 <div class="save-op">+</div>
-                <div class="save-slot save-slot--calc" data-derived="ReflexAbilityModifier">{{ saves.ReflexAbilityModifier|default:"-" }}</div>
+                <div class="save-slot save-slot--calc" data-derived="ReflexAbilityModifier">{{ saves.ReflexAbilityModifier|default_if_none:"-" }}</div>
                 <div class="save-op">+</div>
-                <input class="save-slot sheet-input" name="ReflexMagicModifier" data-field="ReflexMagicModifier" value="{{ saves.ReflexMagicModifier|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="ReflexMagicModifier" name="ReflexMagicModifier" data-field="ReflexMagicModifier" value="{{ saves.ReflexMagicModifier|default:'' }}" inputmode="numeric">
                 <div class="save-op">+</div>
-                <input class="save-slot sheet-input" name="ReflexMiscModifier" data-field="ReflexMiscModifier" value="{{ saves.ReflexMiscModifier|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="ReflexMiscModifier" name="ReflexMiscModifier" data-field="ReflexMiscModifier" value="{{ saves.ReflexMiscModifier|default:'' }}" inputmode="numeric">
                 <div class="save-op">+</div>
-                <input class="save-slot sheet-input" name="ReflexTemporaryModifier" data-field="ReflexTemporaryModifier" value="{{ saves.ReflexTemporaryModifier|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="ReflexTemporaryModifier" name="ReflexTemporaryModifier" data-field="ReflexTemporaryModifier" value="{{ saves.ReflexTemporaryModifier|default:'' }}" inputmode="numeric">
             </div>
             <div class="save-row">
                 <div class="save-tag">VONTADE<span class="t-sub">Sabedoria</span></div>
-                <div class="save-slot save-slot--calc" data-derived="TotalWill">{{ saves.TotalWill|default:"-" }}</div>
+                <div class="save-slot save-slot--calc" data-derived="TotalWill">{{ saves.TotalWill|default_if_none:"-" }}</div>
                 <div class="save-op">=</div>
-                <input class="save-slot sheet-input" name="WillBaseSave" data-field="WillBaseSave" value="{{ saves.WillBaseSave|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="WillBaseSave" name="WillBaseSave" data-field="WillBaseSave" value="{{ saves.WillBaseSave|default:'' }}" inputmode="numeric">
                 <div class="save-op">+</div>
-                <div class="save-slot save-slot--calc" data-derived="WillAbilityModifier">{{ saves.WillAbilityModifier|default:"-" }}</div>
+                <div class="save-slot save-slot--calc" data-derived="WillAbilityModifier">{{ saves.WillAbilityModifier|default_if_none:"-" }}</div>
                 <div class="save-op">+</div>
-                <input class="save-slot sheet-input" name="WillMagicModifier" data-field="WillMagicModifier" value="{{ saves.WillMagicModifier|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="WillMagicModifier" name="WillMagicModifier" data-field="WillMagicModifier" value="{{ saves.WillMagicModifier|default:'' }}" inputmode="numeric">
                 <div class="save-op">+</div>
-                <input class="save-slot sheet-input" name="WillMiscModifier" data-field="WillMiscModifier" value="{{ saves.WillMiscModifier|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="WillMiscModifier" name="WillMiscModifier" data-field="WillMiscModifier" value="{{ saves.WillMiscModifier|default:'' }}" inputmode="numeric">
                 <div class="save-op">+</div>
-                <input class="save-slot sheet-input" name="WillTemporaryModifier" data-field="WillTemporaryModifier" value="{{ saves.WillTemporaryModifier|default:'' }}" inputmode="numeric">
+                <input class="save-slot sheet-input" id="WillTemporaryModifier" name="WillTemporaryModifier" data-field="WillTemporaryModifier" value="{{ saves.WillTemporaryModifier|default:'' }}" inputmode="numeric">
             </div>
         </div>
     </div>

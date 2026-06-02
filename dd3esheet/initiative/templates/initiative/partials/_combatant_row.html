@@ -1,0 +1,59 @@
+<li class="init-row{% if encounter.ActiveCombatant_id == c.id %} is-active{% endif %}" data-kind="{{ c.Kind }}">
+    <span class="init-token init-token--{{ c.Kind }}" title="{{ c.get_Kind_display }}">
+        {% include "initiative/partials/_combatant_sprite.html" with kind=c.Kind %}
+    </span>
+
+    <span class="init-cell init-initiative" title="Iniciativa">{{ c.Initiative }}</span>
+
+    <span class="init-cell init-name">
+        {{ c.Name }}
+        {% if c.ArmorClass != None %}<span class="init-ac">CA {{ c.ArmorClass }}</span>{% endif %}
+    </span>
+
+    <span class="init-cell init-damage" title="Dano acumulado">{{ c.DamageTaken }}</span>
+
+    {% if is_owner %}
+    <span class="init-damage-buttons" data-role="row-controls">
+        <button type="button" class="init-dmg init-dmg--down"
+                hx-post="{% url 'initiative:apply-damage' encounter.Slug c.id %}"
+                hx-vals='{"delta": -5}' hx-target="#initiative-board" hx-swap="innerHTML">−5</button>
+        <button type="button" class="init-dmg init-dmg--down"
+                hx-post="{% url 'initiative:apply-damage' encounter.Slug c.id %}"
+                hx-vals='{"delta": -1}' hx-target="#initiative-board" hx-swap="innerHTML">−1</button>
+        <button type="button" class="init-dmg init-dmg--up"
+                hx-post="{% url 'initiative:apply-damage' encounter.Slug c.id %}"
+                hx-vals='{"delta": 1}' hx-target="#initiative-board" hx-swap="innerHTML">+1</button>
+        <button type="button" class="init-dmg init-dmg--up"
+                hx-post="{% url 'initiative:apply-damage' encounter.Slug c.id %}"
+                hx-vals='{"delta": 5}' hx-target="#initiative-board" hx-swap="innerHTML">+5</button>
+    </span>
+
+    <form class="init-edit"
+          hx-post="{% url 'initiative:edit-combatant' encounter.Slug c.id %}"
+          hx-target="#initiative-board" hx-swap="innerHTML" hx-trigger="change">
+        {% csrf_token %}
+        <input type="hidden" name="Name" value="{{ c.Name }}">
+        <select name="Kind" class="init-edit__kind" aria-label="Tipo">
+            <option value="player" {% if c.Kind == 'player' %}selected{% endif %}>Jogador</option>
+            <option value="npc" {% if c.Kind == 'npc' %}selected{% endif %}>NPC</option>
+            <option value="enemy" {% if c.Kind == 'enemy' %}selected{% endif %}>Inimigo</option>
+        </select>
+        <input type="number" name="Initiative" value="{{ c.Initiative }}"
+               class="init-edit__init" aria-label="Iniciativa" title="Iniciativa">
+        <input type="number" name="ArmorClass" value="{{ c.ArmorClass|default_if_none:'' }}"
+               class="init-edit__ac" placeholder="CA" aria-label="Classe de Armadura">
+        <input type="text" name="Effects" value="{{ c.Effects }}"
+               class="init-edit__effects" placeholder="Efeitos" maxlength="200">
+        <input type="text" name="Notes" value="{{ c.Notes }}"
+               class="init-edit__notes" placeholder="Anotações" maxlength="300">
+    </form>
+
+    <button type="button" class="init-delete"
+            hx-post="{% url 'initiative:delete-combatant' encounter.Slug c.id %}"
+            hx-target="#initiative-board" hx-swap="innerHTML"
+            hx-confirm="Remover {{ c.Name }} do encontro?" title="Remover">✕</button>
+    {% else %}
+    {% if c.Effects %}<span class="init-cell init-effects" title="Efeitos">{{ c.Effects }}</span>{% endif %}
+    {% if c.Notes %}<span class="init-cell init-notes" title="Anotações">{{ c.Notes }}</span>{% endif %}
+    {% endif %}
+</li>

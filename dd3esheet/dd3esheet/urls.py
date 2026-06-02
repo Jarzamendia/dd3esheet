@@ -7,4 +7,5 @@ urlpatterns = [
     path('', include('home.urls')),
     path('character/', include('character.urls')),
     path('sdr/', include('sdr.urls')),
+    path('iniciativa/', include('initiative.urls')),
 ]

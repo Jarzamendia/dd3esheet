@@ -14,6 +14,7 @@ from .models import (
     CharacterSpellcasting, CharacterSpellSlot, CharacterSpell, CharacterFeat,
     CharacterMagicDayUse, CharacterSummon,
     CharacterCompanion, CharacterContact, CharacterContract, CharacterFaction,
+    CharacterDailyResource, CharacterActiveEffect, CharacterBuff, CharacterDailyNotes,
 )
 from sdr.models import SDR_Class, SDR_Monster
 
@@ -330,6 +331,14 @@ class CharacterSheetCssTests(TestCase):
         self.assertIn('.ca-cell {\n    display: flex;\n    flex-direction: column;', css)
         self.assertNotIn('.ca-cell {\n    display: flex;\n    flex-direction: column-reverse;', css)
 
+    def test_spellbook_slot_rows_prioritize_spell_name_space(self):
+        css_path = settings.BASE_DIR / 'static' / 'css' / 'character_sheet.css'
+        css = css_path.read_text(encoding='utf-8')
+
+        self.assertIn('grid-template-columns: 68px minmax(0, 1fr) 48px;', css)
+        self.assertIn('.btn-slot-cast-label', css)
+        self.assertIn('font-size: 8px;', css)
+
 # ---------------------------------------------------------------------------
 # Phase C — identity inline editing + SDR
 # ---------------------------------------------------------------------------
@@ -396,6 +405,7 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'name="Strength"')
         self.assertContains(resp, 'name="DexterityTemp"')
+        # VALOR e MOD TEMPORARIO sao ajustes editaveis que somam ao mod base
         self.assertContains(resp, 'name="StrengthModTemp"')
         self.assertContains(resp, 'hx-target="#characterStatsForm"')
 
@@ -410,18 +420,8 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
                 'Intelligence': '10',
                 'Wisdom': '8',
                 'Charisma': '18',
-                'StrengthTemp': '20',
-                'StrengthModTemp': '8',
-                'DexterityTemp': '',
-                'DexterityModTemp': '',
-                'ConstitutionTemp': '',
-                'ConstitutionModTemp': '',
-                'IntelligenceTemp': '',
-                'IntelligenceModTemp': '',
-                'WisdomTemp': '',
-                'WisdomModTemp': '',
-                'CharismaTemp': '',
-                'CharismaModTemp': '',
+                'StrengthTemp': '2',
+                'StrengthModTemp': '1',
             },
             HTTP_HX_REQUEST='true',
             HTTP_HX_TARGET='characterStatsForm',
@@ -430,9 +430,40 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         self.char.characterstats.refresh_from_db()
         self.assertEqual(self.char.characterstats.Strength, 16)
-        self.assertEqual(self.char.characterstats.StrengthTemp, 20)
-        self.assertEqual(self.char.characterstats.StrengthModTemp, 8)
+        # VALOR e MOD TEMPORARIO persistem como digitados (sao inputs/ajustes)
+        self.assertEqual(self.char.characterstats.StrengthTemp, 2)
+        self.assertEqual(self.char.characterstats.StrengthModTemp, 1)
+        # MOD. DE HABILIDADE = mod(16+2) + 1 = +4 + 1 = +5
+        self.assertEqual(self.char.characterstats.StrengthStatMod, 5)
         self.assertContains(resp, 'name="Strength"')
+
+    def test_temporary_adjustments_add_to_modifier_and_cascade(self):
+        # VALOR TEMPORARIO e MOD TEMPORARIO sao ajustes que SOMAM ao mod base
+        # e cascateiam em agarrar e pericias.
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {
+                'Strength': '14', 'Dexterity': '10', 'Constitution': '10',
+                'Intelligence': '10', 'Wisdom': '10', 'Charisma': '10',
+                'StrengthTemp': '4', 'StrengthModTemp': '1',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterStatsForm',
+        )
+        self.assertEqual(resp.status_code, 200)
+        stats = self.char.characterstats
+        stats.refresh_from_db()
+        # FOR base 14 (+2): mod(14+4) + 1 = +4 + 1 = +5
+        self.assertEqual(stats.StrengthStatMod, 5)
+        # sem ajuste, DES usa o base (mod 10 = 0)
+        self.assertEqual(stats.DexterityStatMod, 0)
+        # cascata: agarrar usa a FOR efetiva (+5)
+        self.char.characterattackmodifiers.refresh_from_db()
+        self.assertEqual(self.char.characterattackmodifiers.GrapplerStrModifier, 5)
+        # cascata: pericia de FOR (Escalar) usa o mod efetivo
+        escalar = CharacterSkill.objects.get(Character=self.char, SkillName='Escalar')
+        self.assertEqual(escalar.AbilityModifier, 5)
 
     def test_htmx_post_stats_recalculates_skills_graduation_and_load(self):
         skill = CharacterSkill.objects.get(Character=self.char, SkillName='Escalar')
@@ -471,6 +502,35 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
         self.assertEqual(self.char.characterotheritemobs.LightLoad, 76)
         self.assertEqual(self.char.characterotheritemobs.HeavyLoad, 230)
         self.assertEqual(self.char.characterotheritemobs.TotalWCarried, 65)
+
+    def test_htmx_post_stats_oob_refreshes_dependent_sections(self):
+        # Editar um atributo precisa atualizar na tela TODOS os derivados que
+        # dependem dele, mesmo os que vivem em outras secoes/partials. Como cada
+        # form so troca a si mesmo (hx-target), as secoes irmas voltam como
+        # out-of-band swaps (hx-swap-oob) na mesma resposta.
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {
+                'Strength': '10', 'Dexterity': '18', 'Constitution': '10',
+                'Intelligence': '10', 'Wisdom': '10', 'Charisma': '10',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterStatsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        # form editado volta como swap principal
+        self.assertContains(resp, 'id="characterStatsForm"')
+        # secoes dependentes voltam como out-of-band
+        self.assertIn('hx-swap-oob="true"', content)
+        self.assertIn('id="characterArmorForm"', content)       # CA depende da Destreza
+        self.assertIn('id="characterSavesForm"', content)       # Reflexos depende da Destreza
+        self.assertIn('id="characterDefenseSummary"', content)  # Toque/Surpresa/Iniciativa
+        self.assertIn('id="characterSkillsForm"', content)      # pericias de Destreza
+        # o proprio form editado nao deve voltar duplicado como OOB
+        self.assertNotIn('id="characterStatsForm" hx-swap-oob', content)
 
     def test_skills_render_key_ability_and_specialization_slots(self):
         self.client.force_login(self.user)
@@ -672,7 +732,9 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
         self.assertEqual(self.char.characterstatus.ACTotal, 17)
         self.assertEqual(swim.SkillModifier, -2)
 
-    def test_htmx_post_status_recalculates_speed_from_base_speed_and_load(self):
+    def test_htmx_post_status_speed_is_manual_and_persists_unreduced(self):
+        # Deslocamento e 100% manual: o valor digitado persiste como base, sem
+        # reducao automatica por carga sobrescrevendo a fonte.
         self.char.characterstats.Strength = 10
         self.char.characterstats.save()
         CharacterOtherItem.objects.create(Character=self.char, Name='Big chest', Weigth='120 lb')
@@ -687,7 +749,22 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.char.characterstatus.refresh_from_db()
-        self.assertEqual(self.char.characterstatus.Speed, 20)
+        self.assertEqual(self.char.characterstatus.Speed, 30)
+
+    def test_recalculate_does_not_mutate_typed_speed(self):
+        # Regressao: _recalculate_stats nao pode encolher o Speed a cada chamada
+        # (antes: 30 -> 20 -> 15 -> 5 sob sobrecarga).
+        from .views import _recalculate_stats
+        self.char.characterstats.Strength = 10
+        self.char.characterstats.save()
+        CharacterOtherItem.objects.create(Character=self.char, Name='Big chest', Weigth='120 lb')
+        self.char.characterstatus.Speed = 30
+        self.char.characterstatus.save()
+
+        for _ in range(3):
+            _recalculate_stats(self.char)
+            self.char.characterstatus.refresh_from_db()
+            self.assertEqual(self.char.characterstatus.Speed, 30)
 
     def test_htmx_post_stats_persists_spell_save_dc_and_bonus_spells(self):
         self.char.Class = 'Wizard'
@@ -777,7 +854,9 @@ class HitPointTrackingTest(TransactionTestCase):
         self.url = reverse('character:character', kwargs={'pk': self.char.pk})
         self.client.force_login(self.user)
 
-    def test_status_post_clamps_and_persists_current_and_temporary_hit_points(self):
+    def test_status_post_allows_hit_points_above_max_and_floors_negatives(self):
+        # PV atual e temporario PODEM exceder o maximo (cura excedente, PV
+        # temporario, buffs). So ha piso 0; nao ha teto pelo TotalHitPoints.
         resp = self.client.post(
             self.url,
             {
@@ -794,7 +873,7 @@ class HitPointTrackingTest(TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         self.char.characterstatus.refresh_from_db()
         self.assertEqual(self.char.characterstatus.TotalHitPoints, 24)
-        self.assertEqual(self.char.characterstatus.CurrentHitPoints, 24)
+        self.assertEqual(self.char.characterstatus.CurrentHitPoints, 99)
         self.assertEqual(self.char.characterstatus.TemporaryHitPoints, 7)
         self.assertEqual(self.char.characterstatus.NonLethalDamager, 0)
 
@@ -1456,6 +1535,14 @@ class SpellbookPageTest(TransactionTestCase):
         # Wizard nv 8 INT 18 -> level 1 capacity should be at least 4 (4 per day + bonus)
         self.assertContains(resp, 'Restam')
 
+    def test_spellbook_slot_toggle_uses_compact_visible_label(self):
+        resp = self.client.get(self.url)
+
+        self.assertContains(resp, 'class="spell-used-toggle btn-slot-cast')
+        self.assertContains(resp, '<span class="btn-slot-cast-label">Gasta</span>', html=True)
+        self.assertContains(resp, 'aria-label="Marcar como usada - ')
+        self.assertNotContains(resp, '>Marcar como usada</button>')
+
     def test_spellbook_slot_post_persists_prepared_spell_name(self):
         payload = {
             'slot_1_Level': '1',
@@ -1522,7 +1609,7 @@ class QueryCountTest(TransactionTestCase):
             resp = self.client.get(reverse('character:character', kwargs={'pk': self.char.pk}))
 
         self.assertEqual(resp.status_code, 200)
-        self.assertLessEqual(len(queries), 15)
+        self.assertLessEqual(len(queries), 16)
 
     def test_home_render_keeps_character_card_query_count_bounded(self):
         second = Character.objects.create(User=self.user, Name='Second')
@@ -1907,18 +1994,57 @@ class SeedTests(TestCase):
             (char.characterstats.Intelligence - 10) // 2,
         )
 
+    def test_seed_druid_uses_summons_resources_buffs_and_reputation(self):
+        from .seeds import seed_admin, seed_druid
+        char = seed_druid(seed_admin())
+        self.assertEqual(char.Class, 'Druid')
+        self.assertEqual(char.Level, '9')
+        self.assertTrue(CharacterCompanion.objects.filter(Character=char, Type='animal').exists())
+        self.assertTrue(CharacterSummon.objects.filter(Character=char, Name__icontains='Urso').exists())
+        self.assertTrue(CharacterDailyResource.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterActiveEffect.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterBuff.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterContact.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterFaction.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterContract.objects.filter(Character=char).exists())
+        self.assertEqual(char.characterspellcasting.CasterClass, 'Druid')
+        self.assertEqual(char.characterspellcasting.CastingMode, 'prepared_spontaneous')
+
+    def test_seed_ranger_has_animal_companion_and_full_sheet_sections(self):
+        from .seeds import seed_admin, seed_ranger
+        char = seed_ranger(seed_admin())
+        self.assertEqual(char.Class, 'Ranger')
+        self.assertEqual(char.Level, '6')
+        companion = CharacterCompanion.objects.get(Character=char, Type='animal')
+        self.assertTrue(companion.Name)
+        self.assertTrue(companion.Skills)
+        self.assertTrue(CharacterDailyResource.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterContact.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterFaction.objects.filter(Character=char).exists())
+        self.assertTrue(CharacterContract.objects.filter(Character=char).exists())
+        self.assertGreaterEqual(CharacterWeapon.objects.filter(Character=char).count(), 2)
+
     def test_seed_all_is_idempotent_and_owned_by_admin(self):
-        from .seeds import seed_all, seed_admin, FIGHTER_NAME, WIZARD_NAME
+        from .seeds import (
+            seed_all, seed_admin, FIGHTER_NAME, WIZARD_NAME,
+            DRUID_NAME, RANGER_NAME,
+        )
         first = seed_all()
         second = seed_all()
         admin = seed_admin()
         self.assertEqual(Character.objects.filter(Name=FIGHTER_NAME).count(), 1)
         self.assertEqual(Character.objects.filter(Name=WIZARD_NAME).count(), 1)
+        self.assertEqual(Character.objects.filter(Name=DRUID_NAME).count(), 1)
+        self.assertEqual(Character.objects.filter(Name=RANGER_NAME).count(), 1)
         self.assertEqual(second['fighter'].User, admin)
         self.assertEqual(second['wizard'].User, admin)
+        self.assertEqual(second['druid'].User, admin)
+        self.assertEqual(second['ranger'].User, admin)
         # ids estáveis entre execuções (URLs /character/<id> não mudam)
         self.assertEqual(first['fighter'].pk, second['fighter'].pk)
         self.assertEqual(first['wizard'].pk, second['wizard'].pk)
+        self.assertEqual(first['druid'].pk, second['druid'].pk)
+        self.assertEqual(first['ranger'].pk, second['ranger'].pk)
         # rodar de novo não duplica filhos
         self.assertEqual(CharacterSkill.objects.filter(Character=second['fighter']).count(), 41)
 
@@ -2101,8 +2227,8 @@ class RecalculateQueryBudget(TransactionTestCase):
         with CaptureQueriesContext(connections['default']) as ctx:
             _recalculate_stats(self.char)
         self.assertLessEqual(
-            len(ctx.captured_queries), 22,
-            f"_recalculate_stats usou {len(ctx.captured_queries)} queries (budget: 22)"
+            len(ctx.captured_queries), 23,
+            f"_recalculate_stats usou {len(ctx.captured_queries)} queries (budget: 23)"
         )
 
 
@@ -2255,6 +2381,34 @@ class SubPageWidthTest(TransactionTestCase):
         self.assertIsNotNone(m, '.sheet-utility rule not found in CSS')
         self.assertIn('1280px', m.group(1), '.sheet-utility max-width must be 1280px')
 
+    def test_buffs_panel_uses_available_lateral_space(self):
+        # O painel de buffs deve ocupar o vao lateral disponivel antes da
+        # tabela de pericias, nao ficar preso na largura da coluna de atributos.
+        import re
+        css = self._css_text()
+        grid = re.search(r'\.main-grid\s*\{([^}]+)\}', css)
+        area = re.search(r'\.abilities-area\s*\{([^}]+)\}', css)
+        target = re.search(r'#characterBuffsForm\s*\{([^}]+)\}', css)
+        panel = re.search(r'\.buffs-panel\s*\{([^}]+)\}', css)
+        self.assertIsNotNone(grid, '.main-grid rule not found')
+        self.assertIsNotNone(area, '.abilities-area rule not found')
+        self.assertIsNotNone(target, '#characterBuffsForm rule not found')
+        self.assertIsNotNone(panel, '.buffs-panel rule not found')
+        self.assertRegex(grid.group(1), r'"buffs\s+buffs\s+skills"')
+        self.assertIn('align-self', area.group(1))
+        self.assertIn('grid-area: buffs', target.group(1))
+        self.assertIn('flex', panel.group(1))
+
+    def test_pv_current_temp_boxes_sit_side_by_side(self):
+        # PV Atual e Temporario devem ficar lado a lado (2 colunas); sem
+        # grid-template-columns o segundo quadrado cai para a linha de baixo.
+        import re
+        css = self._css_text()
+        m = re.search(r'\.pv-current-temp\s*\{([^}]+)\}', css)
+        self.assertIsNotNone(m, '.pv-current-temp rule not found in CSS')
+        self.assertIn('grid-template-columns', m.group(1),
+                      '.pv-current-temp precisa definir 2 colunas lado a lado')
+
 
 # ---------------------------------------------------------------------------
 # T4.2 — Renomear "Companheiros" → "Aliados" na UI
@@ -2391,6 +2545,7 @@ class SummonsGridTest(TransactionTestCase):
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         self.user = make_user(username='summongrid')
         from .services import _bootstrap_character_siblings
         self.char = Character.objects.create(User=self.user, Name='Summoner')
@@ -2425,12 +2580,61 @@ class SummonsGridTest(TransactionTestCase):
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, 'data-summon-card="active"', count=3)
 
+    def test_summon_cards_render_paper_style_blank_fields(self):
+        resp = self.client.get(self.url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-sheet-table="summon-active-card"', count=3)
+        self.assertContains(resp, 'class="summon-stat-table"', count=3)
+        self.assertContains(resp, 'data-field="summon.Name"', count=3)
+        self.assertContains(resp, 'data-field="summon.Initiative"', count=3)
+        self.assertContains(resp, 'data-field="summon.Speed"', count=3)
+        self.assertContains(resp, 'data-field="summon.BaseAttackBonus"', count=3)
+        self.assertContains(resp, 'data-field="summon.Grapple"', count=3)
+        self.assertContains(resp, 'data-field="summon.Size"', count=3)
+        self.assertContains(resp, 'data-field="summon.Attack"', count=3)
+        self.assertContains(resp, 'data-field="summon.FullAttack"', count=3)
+        self.assertContains(resp, 'data-field="summon.Skills"', count=3)
+        self.assertContains(resp, 'data-field="summon.SpecialAbility"', count=3)
+        self.assertContains(resp, 'aria-label="Espaco para observacoes da invocacao"', count=3)
+
+    def test_htmx_post_persists_full_stat_block_fields(self):
+        resp = self.client.post(
+            self.url,
+            {
+                'summon_1_Name': 'Urso atroz',
+                'summon_1_Initiative': '+1',
+                'summon_1_Speed': '12m',
+                'summon_1_ArmorClass': '17',
+                'summon_1_BaseAttackBonus': '+9',
+                'summon_1_Grapple': '+23',
+                'summon_1_Size': 'Grande',
+                'summon_1_Attack': 'Garra +19 (2d4+10)',
+                'summon_1_FullAttack': '2x Garras +19 (2d4+10) e Mordida +13 (2d8+5)',
+                'summon_1_Skills': 'Ouvir +10, Observar +10, Natacao +13',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='summonsGrid',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        summon = CharacterSummon.objects.get(Character=self.char)
+        self.assertEqual(summon.Initiative, '+1')
+        self.assertEqual(summon.Speed, '12m')
+        self.assertEqual(summon.BaseAttackBonus, '+9')
+        self.assertEqual(summon.Grapple, '+23')
+        self.assertEqual(summon.Size, 'Grande')
+        self.assertEqual(summon.Attack, 'Garra +19 (2d4+10)')
+        self.assertEqual(summon.FullAttack, '2x Garras +19 (2d4+10) e Mordida +13 (2d8+5)')
+        self.assertEqual(summon.Skills, 'Ouvir +10, Observar +10, Natacao +13')
+
 
 class SummonHighlightToggleTest(TransactionTestCase):
     databases = ('default', 'sdr')
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         self.user = make_user(username='summonhl')
         self.other = make_user(username='summonother')
         from .services import _bootstrap_character_siblings
@@ -2472,12 +2676,20 @@ class SummonAutocompleteTests(TransactionTestCase):
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         SDR_Monster.objects.using('sdr').all().delete()
         self.monster = SDR_Monster.objects.using('sdr').create(
             name='Wolf',
+            size='Medium',
             hit_dice='2d8+4 (13 hp)',
+            initiative='+2',
+            speed='50 ft.',
             armor_class='14',
+            base_attack='+1',
+            grapple='+2',
             attack='Bite +3 melee (1d6+1)',
+            full_attack='Bite +3 melee (1d6+1)',
+            skills='Hide +2, Listen +3, Move Silently +3, Spot +3',
             special_abilities='Trip',
         )
         self.user = make_user(username='summonsearch')
@@ -2506,6 +2718,14 @@ class SummonAutocompleteTests(TransactionTestCase):
         self.assertEqual(summon.ArmorClass, 14)
         self.assertEqual(summon.AttackBonus, '+3')
         self.assertEqual(summon.Damage, '1d6+1')
+        self.assertEqual(summon.Size, 'Medium')
+        self.assertEqual(summon.Initiative, '+2')
+        self.assertEqual(summon.Speed, '50 ft.')
+        self.assertEqual(summon.BaseAttackBonus, '+1')
+        self.assertEqual(summon.Grapple, '+2')
+        self.assertEqual(summon.Attack, 'Bite +3 melee (1d6+1)')
+        self.assertEqual(summon.FullAttack, 'Bite +3 melee (1d6+1)')
+        self.assertEqual(summon.Skills, 'Hide +2, Listen +3, Move Silently +3, Spot +3')
         self.assertEqual(summon.SpecialAbility, 'Trip')
 
     def test_short_or_missing_query_returns_empty_without_500(self):
@@ -2932,8 +3152,8 @@ class AutosaveCoverageTest(TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b'spell-detail-trigger', resp.content)
 
-    # P2 — recalculating forms autosave
-    def test_recalculating_forms_autosave_returns_204(self):
+    # P2 — formularios sem calculo visivel mantem autosave leve (204) ao digitar
+    def test_data_forms_autosave_returns_204(self):
         url = reverse('character:character', args=[self.char.pk])
         cases = [
             ('characterIdentityForm', {
@@ -2942,12 +3162,7 @@ class AutosaveCoverageTest(TransactionTestCase):
                 'Age': '', 'Sex': '', 'Heigth': '', 'Weight': '',
                 'Eye': '', 'Hair': '', 'Skin': '',
             }),
-            ('characterStatsForm', {'Strength': '14'}),
             ('characterStatusForm', {'TotalHitPoints': '20'}),
-            ('characterArmorForm', {'ACSizeModifier': '0'}),
-            ('characterSavesForm', {'FortitudeBaseSave': '2'}),
-            ('characterAttackForm', {'BBA': '1'}),
-            ('characterSkillsForm', {'skill_1_Ranks': '2'}),
             ('characterWeaponsForm', {'weapon_1_Attack': 'Longsword'}),
             ('characterEquipmentForm', {'armor_Name': 'Chain Shirt'}),
             ('characterItemsForm', {'item_1_Name': 'Rope'}),
@@ -2957,6 +3172,23 @@ class AutosaveCoverageTest(TransactionTestCase):
             with self.subTest(target=target):
                 resp = self._autosave(url, target, payload)
                 self.assertEqual(resp.status_code, 204, f'Expected 204 for {target}')
+
+    # P2 — formularios com calculo visivel re-renderizam ao vivo, ja ao digitar
+    # (input/autosave), nao so no blur. Reproduz "digitei 12 e o mod nao virou 1".
+    def test_calc_forms_autosave_renders_recalculated_values(self):
+        url = reverse('character:character', args=[self.char.pk])
+        for target in ('characterSavesForm', 'characterAttackForm',
+                       'characterArmorForm', 'characterSkillsForm'):
+            with self.subTest(target=target):
+                resp = self._autosave(url, target, {})
+                self.assertEqual(resp.status_code, 200, f'Expected 200 for {target}')
+                self.assertGreater(len(resp.content), 0)
+        resp = self._autosave(url, 'characterStatsForm', {
+            'Strength': '12', 'Dexterity': '10', 'Constitution': '10',
+            'Intelligence': '10', 'Wisdom': '10', 'Charisma': '10',
+        })
+        self.assertEqual(resp.status_code, 200)
+        self.assertRegex(resp.content.decode(), r'data-derived="StrengthStatMod"[^>]*>\s*1\s*<')
 
     def test_recalculating_forms_blur_still_returns_200(self):
         url = reverse('character:character', args=[self.char.pk])
@@ -3013,22 +3245,65 @@ class CharacterLayoutBugFixTests(TransactionTestCase):
         self.assertGreater(len(matches), 0,
             'Esperava AbilityModifier=3 para Escalar (Strength=16) no HTML')
 
-    # Bug 2 — characterStatusForm retorna só seu próprio form
-    def test_status_form_swap_does_not_include_armor_form(self):
+    # Mod. de habilidade 0 (atributo = 10) precisa aparecer como "0", nao "-".
+    # O filtro |default trata 0 como vazio; derivados numericos usam |default_if_none.
+    def test_derived_zero_renders_as_zero_not_dash(self):
+        resp = self._post_htmx('characterStatsForm', {
+            'Strength': '10', 'Dexterity': '10', 'Constitution': '10',
+            'Intelligence': '10', 'Wisdom': '10', 'Charisma': '10',
+        })
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertRegex(content, r'data-derived="StrengthStatMod"[^>]*>\s*0\s*<')
+        # save total derivado tambem deve mostrar 0
+        self.assertRegex(content, r'data-derived="TotalFortitude"[^>]*>\s*0\s*<')
+
+    # Logs diagnosticos: o POST e o recalculo devem explicar o que aconteceu,
+    # inclusive POR QUE um mod efetivo sai baixo (VALOR TEMPORARIO sobrescreve).
+    def test_stats_post_emits_diagnostic_logs(self):
+        with self.assertLogs('character', level='DEBUG') as cm:
+            self._post_htmx('characterStatsForm', {'Strength': '14', 'StrengthTemp': '4', 'StrengthModTemp': '1'})
+        blob = '\n'.join(cm.output)
+        self.assertIn('sheet POST', blob)
+        self.assertIn('recalc done', blob)
+        # a decisao por habilidade aparece com os ajustes temporarios e o mod final
+        self.assertRegex(blob, r'Strength base=14 \+valorTemp=4 \+modTemp=1 \+buff=0 -> mod=\+5')
+
+    # Habilidade em branco (score 0/nao preenchido) deve mostrar "-" no mod,
+    # nunca -5 (que seria mod de um score 0 real). Caixa de valor vazia -> mod vazio.
+    def test_blank_ability_score_shows_dash_not_minus_five(self):
+        resp = self._post_htmx('characterStatsForm', {
+            'Strength': '', 'Dexterity': '', 'Constitution': '',
+            'Intelligence': '', 'Wisdom': '', 'Charisma': '',
+        })
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertNotRegex(content, r'data-derived="StrengthStatMod"[^>]*>\s*-5\s*<')
+        self.assertRegex(content, r'data-derived="StrengthStatMod"[^>]*>\s*-\s*<')
+        self.char.characterstats.refresh_from_db()
+        self.assertIsNone(self.char.characterstats.StrengthStatMod)
+
+    # O form editado e o swap principal; as secoes derivadas voltam como
+    # out-of-band (hx-swap-oob) para atualizar na tela sem duplicar/aninhar.
+    def test_status_form_swap_refreshes_dependent_sections_as_oob(self):
         resp = self._post_htmx('characterStatusForm', {'TotalHitPoints': '30'})
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode()
-        self.assertIn('id="characterStatusForm"', content)
-        self.assertNotIn('id="characterArmorForm"', content)
-        self.assertNotIn('id="characterSkillsForm"', content)
+        # swap principal: aparece uma unica vez e sem marca de OOB
+        self.assertEqual(content.count('id="characterStatusForm"'), 1)
+        self.assertNotIn('id="characterStatusForm" hx-swap-oob', content)
+        # secoes dependentes voltam como OOB
+        self.assertIn('id="characterArmorForm" hx-swap-oob="true"', content)
+        self.assertIn('id="characterSkillsForm" hx-swap-oob="true"', content)
 
-    # Bug 2 — characterArmorForm retorna só seu próprio form
-    def test_armor_form_swap_does_not_include_status_form(self):
+    def test_armor_form_swap_refreshes_dependent_sections_as_oob(self):
         resp = self._post_htmx('characterArmorForm', {'ACSizeModifier': '0'})
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode()
-        self.assertIn('id="characterArmorForm"', content)
-        self.assertNotIn('id="characterStatusForm"', content)
+        self.assertEqual(content.count('id="characterArmorForm"'), 1)
+        self.assertNotIn('id="characterArmorForm" hx-swap-oob', content)
+        self.assertIn('id="characterStatusForm" hx-swap-oob="true"', content)
+        self.assertIn('id="characterDefenseSummary" data-sheet-table="defense-summary" hx-swap-oob="true"', content)
 
     # Bug 3 — ACArmorBonus/ACShieldBonus/ACMiscModifier são somente-leitura
     def test_armor_ac_fields_are_readonly_calc_not_inputs(self):
@@ -3041,27 +3316,171 @@ class CharacterLayoutBugFixTests(TransactionTestCase):
         self.assertIn('data-derived="ACArmorBonus"', content)
         self.assertIn('data-derived="ACShieldBonus"', content)
 
-    # Bug 4 — characterSavesForm retorna só seu próprio form
-    def test_saves_form_swap_does_not_include_stats_form(self):
+    # Bonus de Ataque (arma) e Agarrar-BBA sao auto-derivados: o recalculo os
+    # sobrescreve, entao nao podem ser inputs editaveis (o valor digitado seria
+    # descartado). Viram celulas de calculo somente-leitura.
+    def test_weapon_attack_bonus_is_readonly_derived_not_input(self):
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertNotIn('name="weapon_1_AttackBonus"', content)
+        self.assertIn('data-derived="weapon.AttackBonus"', content)
+
+    def test_grappler_bba_is_readonly_derived_not_input(self):
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertNotIn('name="GrapplerBBA"', content)
+        self.assertIn('data-derived="GrapplerBBA"', content)
+
+    def test_saves_form_swap_refreshes_dependent_sections_as_oob(self):
         resp = self._post_htmx('characterSavesForm', {'FortitudeBaseSave': '2'})
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode()
-        self.assertIn('id="characterSavesForm"', content)
-        self.assertNotIn('id="characterStatsForm"', content)
-        self.assertNotIn('id="characterAttackForm"', content)
+        self.assertEqual(content.count('id="characterSavesForm"'), 1)
+        self.assertNotIn('id="characterSavesForm" hx-swap-oob', content)
+        self.assertIn('id="characterStatsForm" hx-swap-oob="true"', content)
+        self.assertIn('id="characterAttackForm" hx-swap-oob="true"', content)
 
-    # Bug 4 — characterAttackForm retorna só seu próprio form
-    def test_attack_form_swap_does_not_include_saves_form(self):
+    def test_attack_form_swap_refreshes_dependent_sections_as_oob(self):
         resp = self._post_htmx('characterAttackForm', {'BBA': '5'})
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode()
-        self.assertIn('id="characterAttackForm"', content)
-        self.assertNotIn('id="characterSavesForm"', content)
+        self.assertEqual(content.count('id="characterAttackForm"'), 1)
+        self.assertNotIn('id="characterAttackForm" hx-swap-oob', content)
+        self.assertIn('id="characterSavesForm" hx-swap-oob="true"', content)
 
-    # characterStatsForm também deve retornar só seu próprio form (mesma causa raiz do bug 4)
-    def test_stats_form_swap_does_not_include_saves_form(self):
+    def test_stats_form_swap_refreshes_dependent_sections_as_oob(self):
         resp = self._post_htmx('characterStatsForm', {'Strength': '14'})
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode()
-        self.assertIn('id="characterStatsForm"', content)
-        self.assertNotIn('id="characterSavesForm"', content)
+        self.assertEqual(content.count('id="characterStatsForm"'), 1)
+        self.assertNotIn('id="characterStatsForm" hx-swap-oob', content)
+        self.assertIn('id="characterSavesForm" hx-swap-oob="true"', content)
+
+
+class CharacterBuffTests(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user(username='buffs')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Buffer')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:character', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.user)
+
+    def test_active_ability_buff_raises_effective_modifier_and_cascades(self):
+        from .views import _recalculate_stats
+        from .models import CharacterBuff
+        s = self.char.characterstats
+        s.Strength = 14
+        s.save()
+        CharacterBuff.objects.create(
+            Character=self.char, Name='Forca do Touro', StrengthBonus=4, IsActive=True)
+        _recalculate_stats(self.char)
+        s.refresh_from_db()
+        # base 14 (+2) + buff +4 no score = 18 -> +4
+        self.assertEqual(s.StrengthStatMod, 4)
+        # cascata: agarrar usa a FOR efetiva
+        self.char.characterattackmodifiers.refresh_from_db()
+        self.assertEqual(self.char.characterattackmodifiers.GrapplerStrModifier, 4)
+        # cascata: pericia de FOR
+        escalar = CharacterSkill.objects.get(Character=self.char, SkillName='Escalar')
+        self.assertEqual(escalar.AbilityModifier, 4)
+
+    def test_inactive_buff_has_no_effect(self):
+        from .views import _recalculate_stats
+        from .models import CharacterBuff
+        s = self.char.characterstats
+        s.Strength = 14
+        s.save()
+        CharacterBuff.objects.create(
+            Character=self.char, Name='Forca do Touro', StrengthBonus=4, IsActive=False)
+        _recalculate_stats(self.char)
+        s.refresh_from_db()
+        self.assertEqual(s.StrengthStatMod, 2)
+
+    def test_flat_buffs_apply_to_attack_ac_and_saves(self):
+        from .views import _recalculate_stats
+        from .models import CharacterBuff
+        CharacterWeapon.objects.create(
+            Character=self.char, Name='Espada', Attack='Espada', Range='-', Type='Corte')
+        s = self.char.characterstats
+        s.Strength = 14
+        s.save()
+        status = self.char.characterstatus
+        # baseline sem buff
+        _recalculate_stats(self.char)
+        status.refresh_from_db()
+        ac_base = status.ACTotal
+        CharacterBuff.objects.create(
+            Character=self.char, Name='Heroismo', AttackBonus=2, ACBonus=2, SaveBonus=2, IsActive=True)
+        _recalculate_stats(self.char)
+        weapon = CharacterWeapon.objects.get(Character=self.char)
+        # ataque corpo-a-corpo: BBA(0) + FOR(+2) + tamanho(0) + buff(+2) = +4
+        self.assertEqual(weapon.AttackBonus, '+4')
+        status.refresh_from_db()
+        self.char.charactersavingthrows.refresh_from_db()
+        self.assertEqual(status.ACTotal, ac_base + 2)
+        # Reflexos: base 0 + DES mod 0 + buff salvas 2 = 2
+        self.assertEqual(self.char.charactersavingthrows.TotalReflex, 2)
+
+    def test_toggle_buff_endpoint_flips_active_and_recalculates(self):
+        from .models import CharacterBuff
+        s = self.char.characterstats
+        s.Strength = 14
+        s.save()
+        buff = CharacterBuff.objects.create(
+            Character=self.char, Name='Forca do Touro', StrengthBonus=4, IsActive=False)
+        resp = self.client.post(
+            reverse('character:toggle-buff', kwargs={'pk': self.char.pk, 'buff_id': buff.id}),
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET='characterBuffsForm',
+        )
+        self.assertEqual(resp.status_code, 200)
+        buff.refresh_from_db()
+        self.assertTrue(buff.IsActive)
+        s.refresh_from_db()
+        self.assertEqual(s.StrengthStatMod, 4)
+        # cascata OOB: a tabela de atributos volta na resposta
+        self.assertIn('id="characterStatsForm"', resp.content.decode())
+
+    def test_add_buff_from_preset_creates_inactive_buff(self):
+        from .models import CharacterBuff
+        resp = self.client.post(
+            reverse('character:add-buff', kwargs={'pk': self.char.pk}),
+            {'preset': 'Agilidade do Gato'},
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET='characterBuffsForm',
+        )
+        self.assertEqual(resp.status_code, 200)
+        buff = CharacterBuff.objects.get(Character=self.char, Name='Agilidade do Gato')
+        self.assertEqual(buff.DexterityBonus, 4)
+        self.assertFalse(buff.IsActive)
+
+    def test_delete_buff_removes_and_recalculates(self):
+        from .models import CharacterBuff
+        buff = CharacterBuff.objects.create(
+            Character=self.char, Name='Forca do Touro', StrengthBonus=4, IsActive=True)
+        resp = self.client.post(
+            reverse('character:delete-buff', kwargs={'pk': self.char.pk, 'buff_id': buff.id}),
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET='characterBuffsForm',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(CharacterBuff.objects.filter(id=buff.id).exists())
+
+    def test_buffs_panel_renders_on_character_sheet(self):
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'id="characterBuffsForm"')
+
+    def test_buff_actions_require_owner(self):
+        from .models import CharacterBuff
+        buff = CharacterBuff.objects.create(Character=self.char, Name='X', IsActive=False)
+        other = make_user(username='intruder')
+        self.client.force_login(other)
+        resp = self.client.post(
+            reverse('character:toggle-buff', kwargs={'pk': self.char.pk, 'buff_id': buff.id}),
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET='characterBuffsForm',
+        )
+        self.assertEqual(resp.status_code, 404)
