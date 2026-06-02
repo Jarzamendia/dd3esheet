@@ -1,20 +1,34 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-page-head">
+        <div>
+            <h1 class="sdr-page-title">Domínios</h1>
+            <p class="sdr-page-desc">{{ page_description }}</p>
+        </div>
+    </header>
 
-<h1>Domínios</h1>
+    {% include "sdr/partials/_filter_bar.html" %}
 
-<form method="get">
-    {{ filtered_domains.form.as_p }}
-    <input type="submit" class="btn btn-primary" value="Filtrar">
-</form>
+    <div class="sdr-results-head">
+        <div class="sdr-results-count">{{ results_count }} resultado{{ results_count|pluralize }}</div>
+    </div>
 
-<br>
-
-{% for domain in filtered_domains.qs %}
-<div>
-    <a href="{% url 'sdr:domain' domain.id %}"><p>{{ domain.name }}</p></a>
-</div>
-{% endfor %}
-
+    {% if filtered_domains.qs %}
+        <section class="sdr-list-cards">
+            {% for domain in filtered_domains.qs %}
+                <a class="sdr-result-card" href="{% url 'sdr:domain' domain.id %}">
+                    <span class="sdr-result-card__badge">DOM</span>
+                    <h2 class="sdr-result-card__title">{{ domain.name }}</h2>
+                    <div class="sdr-inline-facts">
+                        {% if domain.spell_1 %}<span class="sdr-chip">1º círculo</span>{% endif %}
+                        {% if domain.spell_2 %}<span class="sdr-chip">2º círculo</span>{% endif %}
+                    </div>
+                    <p class="sdr-result-card__summary">{{ domain.granted_powers|truncatewords:26 }}</p>
+                </a>
+            {% endfor %}
+        </section>
+    {% else %}
+        <p class="sdr-empty">Nenhum resultado para os filtros.</p>
+    {% endif %}
 {% endblock %}

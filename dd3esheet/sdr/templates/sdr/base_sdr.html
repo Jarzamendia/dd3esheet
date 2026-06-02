@@ -1,0 +1,28 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | Codex de Fichas{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/sdr.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<main class="sheet sdr-sheet{% if sdr_sheet_wide %} sdr-sheet--wide{% endif %}">
+    <nav class="sdr-breadcrumbs" aria-label="Breadcrumb">
+        {% for crumb in breadcrumbs %}
+            {% if crumb.url %}
+                <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+            {% else %}
+                <span aria-current="page">{{ crumb.label }}</span>
+            {% endif %}
+            {% if not forloop.last %}
+                <span class="sdr-breadcrumbs__sep">›</span>
+            {% endif %}
+        {% endfor %}
+    </nav>
+
+    {% block sdr_content %}{% endblock %}
+</main>
+{% endblock %}

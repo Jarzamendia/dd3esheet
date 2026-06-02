@@ -1,62 +1,59 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-detail-header">
+        <div>
+            <h1 class="sdr-detail-title">{{ detail_title }}</h1>
+            {% if detail_subtitle %}<p class="sdr-detail-subtitle">{{ detail_subtitle }}</p>{% endif %}
+        </div>
+        <a class="sdr-backlink" href="{{ back_url }}">‹ {{ back_label }}</a>
+    </header>
 
-<h1>{{ dnd_class.name }}</h1>
+    {% include "sdr/partials/_detail_rows.html" with rows=summary_rows %}
+    {% include "sdr/partials/_text_sections.html" with sections=text_sections %}
 
-<table class="table table-sm">
-    <tr><th>Tipo</th><td>{{ dnd_class.type }}</td></tr>
-    <tr><th>Alinhamento</th><td>{{ dnd_class.alignment }}</td></tr>
-    <tr><th>Dado de vida</th><td>{{ dnd_class.hit_die }}</td></tr>
-    <tr><th>Atributo de magia</th><td>{{ dnd_class.spell_stat }}</td></tr>
-    <tr><th>Pontos de perícia</th><td>{{ dnd_class.skill_points }} + mod {{ dnd_class.skill_points_ability }}</td></tr>
-    <tr><th>Proficiências</th><td>{{ dnd_class.proficiencies }}</td></tr>
-    <tr><th>Perícias da classe</th><td>{{ dnd_class.class_skills }}</td></tr>
-</table>
+    {% if progression_rows %}
+        <section class="sdr-section">
+            <h2>Tabela de Progressão</h2>
+            <div class="sdr-progress-wrap">
+                <table class="sdr-progress-table">
+                    <thead>
+                        <tr>
+                            <th>Nível</th>
+                            <th>BBA</th>
+                            <th>Fort</th>
+                            <th>Ref</th>
+                            <th>Vont</th>
+                            <th>Especial</th>
+                            {% for level in progression_slot_levels %}
+                                <th>{{ level }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in progression_rows %}
+                            <tr>
+                                <td>{{ row.level|default:"—" }}</td>
+                                <td>{{ row.base_attack_bonus|default:"—" }}</td>
+                                <td>{{ row.fort_save|default:"—" }}</td>
+                                <td>{{ row.ref_save|default:"—" }}</td>
+                                <td>{{ row.will_save|default:"—" }}</td>
+                                <td>{{ row.special|default:"—" }}</td>
+                                {% for slot in row.slots %}
+                                    <td>{{ slot|default:"—" }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% endif %}
 
-{% if class_table %}
-<h2>Tabela de Progressão</h2>
-<table class="table table-sm table-bordered">
-    <thead>
-        <tr>
-            <th>Nível</th>
-            <th>BAB</th>
-            <th>Fort</th>
-            <th>Ref</th>
-            <th>Will</th>
-            <th>Especial</th>
-            <th>0</th><th>1</th><th>2</th><th>3</th>
-            <th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in class_table %}
-        <tr>
-            <td>{{ row.level }}</td>
-            <td>{{ row.base_attack_bonus }}</td>
-            <td>{{ row.fort_save }}</td>
-            <td>{{ row.ref_save }}</td>
-            <td>{{ row.will_save }}</td>
-            <td>{{ row.special }}</td>
-            <td>{{ row.slots_0 }}</td>
-            <td>{{ row.slots_1 }}</td>
-            <td>{{ row.slots_2 }}</td>
-            <td>{{ row.slots_3 }}</td>
-            <td>{{ row.slots_4 }}</td>
-            <td>{{ row.slots_5 }}</td>
-            <td>{{ row.slots_6 }}</td>
-            <td>{{ row.slots_7 }}</td>
-            <td>{{ row.slots_8 }}</td>
-            <td>{{ row.slots_9 }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% endif %}
-
-{% if dnd_class.full_text %}
-<h2>Descrição completa</h2>
-{{ dnd_class.full_text|safe }}
-{% endif %}
-
+    {% if fallback_full_text %}
+        <section class="sdr-section">
+            <h2>Texto Completo</h2>
+            <div class="sdr-richtext">{{ fallback_full_text|safe }}</div>
+        </section>
+    {% endif %}
 {% endblock %}

@@ -1,25 +1,21 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-detail-header">
+        <div>
+            <h1 class="sdr-detail-title">{{ detail_title }}</h1>
+            {% if detail_subtitle %}<p class="sdr-detail-subtitle">{{ detail_subtitle }}</p>{% endif %}
+        </div>
+        <a class="sdr-backlink" href="{{ back_url }}">‹ {{ back_label }}</a>
+    </header>
 
-<h1>{{ item.name }}</h1>
+    {% include "sdr/partials/_detail_rows.html" with rows=summary_rows %}
+    {% include "sdr/partials/_text_sections.html" with sections=text_sections %}
 
-<table class="table table-sm">
-    <tbody>
-        {% if item.category %}<tr><th>Categoria</th><td>{{ item.category }}</td></tr>{% endif %}
-        {% if item.subcategory %}<tr><th>Subcategoria</th><td>{{ item.subcategory }}</td></tr>{% endif %}
-        {% if item.price %}<tr><th>Preço</th><td>{{ item.price }}</td></tr>{% endif %}
-        {% if item.cost %}<tr><th>Custo de fabricação</th><td>{{ item.cost }}</td></tr>{% endif %}
-        {% if item.weight %}<tr><th>Peso</th><td>{{ item.weight }}</td></tr>{% endif %}
-        {% if item.aura %}<tr><th>Aura</th><td>{{ item.aura }}</td></tr>{% endif %}
-        {% if item.caster_level %}<tr><th>Nível de conjurador</th><td>{{ item.caster_level }}</td></tr>{% endif %}
-        {% if item.special_ability %}<tr><th>Habilidade especial</th><td>{{ item.special_ability }}</td></tr>{% endif %}
-        {% if item.prereq %}<tr><th>Pré-requisitos</th><td>{{ item.prereq }}</td></tr>{% endif %}
-    </tbody>
-</table>
-
-{% if item.full_text %}
-{{ item.full_text|safe }}
-{% endif %}
-
+    {% if fallback_full_text %}
+        <section class="sdr-section">
+            <h2>Texto Completo</h2>
+            <div class="sdr-richtext">{{ fallback_full_text|safe }}</div>
+        </section>
+    {% endif %}
 {% endblock %}

@@ -1,0 +1,6 @@
+{% for section in sections %}
+    <section class="sdr-section">
+        <h2>{{ section.title }}</h2>
+        <div class="sdr-richtext">{{ section.content|linebreaksbr }}</div>
+    </section>
+{% endfor %}

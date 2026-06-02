@@ -1,26 +1,34 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-page-head">
+        <div>
+            <h1 class="sdr-page-title">Magias</h1>
+            <p class="sdr-page-desc">{{ page_description }}</p>
+        </div>
+    </header>
 
-<h1>Spells</h1>
+    {% include "sdr/partials/_filter_bar.html" %}
 
-<form method="get">
-    {{ filtered_spells.form.as_p}}
-    <input type="submit" class="btn btn-primary" value="Submit">
-</form>
+    <div class="sdr-results-head">
+        <div class="sdr-results-count">{{ results_count }} resultado{{ results_count|pluralize }}</div>
+    </div>
 
-<br>
-
-{% for spell in filtered_spells.qs %}
-<div>
-
-    <a href="{% url 'sdr:spell' spell.id %}"> <p>{{spell.name}}</p></a>
-    
-    {{spell.short_description}}
-
-</div>
-
-{% endfor %}
-
-
+    {% if filtered_spells.qs %}
+        <section class="sdr-list-cards">
+            {% for spell in filtered_spells.qs %}
+                <a class="sdr-result-card" href="{% url 'sdr:spell' spell.id %}">
+                    <div class="sdr-result-card__meta">{{ spell.school|default:"Escola não informada" }}</div>
+                    <h2 class="sdr-result-card__title">{{ spell.name }}</h2>
+                    <div class="sdr-inline-facts">
+                        {% if spell.level %}<span class="sdr-chip">{{ spell.level }}</span>{% endif %}
+                        {% if spell.components %}<span class="sdr-chip">{{ spell.components }}</span>{% endif %}
+                    </div>
+                    <p class="sdr-result-card__summary">{{ spell.short_description|default:spell.description|truncatewords:28 }}</p>
+                </a>
+            {% endfor %}
+        </section>
+    {% else %}
+        <p class="sdr-empty">Nenhum resultado para os filtros.</p>
+    {% endif %}
 {% endblock %}

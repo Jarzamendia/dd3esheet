@@ -1,21 +1,47 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-page-head">
+        <div>
+            <h1 class="sdr-page-title">Equipamentos</h1>
+            <p class="sdr-page-desc">{{ page_description }}</p>
+        </div>
+    </header>
 
-<h1>Equipamentos</h1>
+    {% include "sdr/partials/_filter_bar.html" %}
 
-<form method="get">
-    {{ filtered_equipment.form.as_p }}
-    <input type="submit" class="btn btn-primary" value="Filtrar">
-</form>
+    <div class="sdr-results-head">
+        <div class="sdr-results-count">{{ results_count }} resultado{{ results_count|pluralize }}</div>
+    </div>
 
-<br>
-
-{% for eq in filtered_equipment.qs %}
-<div>
-    <a href="{% url 'sdr:equipment_detail' eq.id %}"><p>{{ eq.name }}</p></a>
-    <small>{{ eq.category }}{% if eq.subcategory %} — {{ eq.subcategory }}{% endif %} | {{ eq.cost }}</small>
-</div>
-{% endfor %}
-
+    {% if filtered_equipment.qs %}
+        <div class="sdr-table-wrap">
+            <table class="sdr-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Família</th>
+                        <th>Categoria</th>
+                        <th>Tipo</th>
+                        <th>Custo</th>
+                        <th>Peso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for eq in filtered_equipment.qs %}
+                        <tr>
+                            <td><a href="{% url 'sdr:equipment_detail' eq.id %}">{{ eq.name }}</a></td>
+                            <td>{{ eq.family|default:"—" }}</td>
+                            <td>{{ eq.category|default:"—" }}</td>
+                            <td>{{ eq.type|default:"—" }}</td>
+                            <td>{{ eq.cost|default:"—" }}</td>
+                            <td>{{ eq.weight|default:"—" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="sdr-empty">Nenhum resultado para os filtros.</p>
+    {% endif %}
 {% endblock %}
