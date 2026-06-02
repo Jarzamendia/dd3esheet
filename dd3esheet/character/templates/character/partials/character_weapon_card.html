@@ -5,7 +5,7 @@
       hx-post="{% url 'character:character' character.pk %}"
       hx-target="#characterWeaponsForm"
       hx-swap="outerHTML"
-      hx-trigger="change delay:300ms">
+      hx-trigger="input changed delay:700ms, change delay:300ms">
     {% csrf_token %}
     {% for w in weapon_slots %}
         {% include "character/partials/weapon_attack_slot.html" with slot=forloop.counter %}

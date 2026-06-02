@@ -835,6 +835,7 @@ class CharacterAuxiliaryPageTests(TransactionTestCase):
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         self.user = make_user()
         self.other = make_user('mallory')
         from .services import _bootstrap_character_siblings
@@ -1274,6 +1275,7 @@ class CharacterSpellcastingRenderTests(TransactionTestCase):
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         self.user = make_user()
         from .services import _bootstrap_character_siblings
         self.char = Character.objects.create(User=self.user, Name='Caster', Class='Cleric', Level='1')
@@ -2262,6 +2264,7 @@ class AlliesRenameTest(TransactionTestCase):
 
     def setUp(self):
         setup_sdr_class_table()
+        setup_sdr_spell_table()
         self.user = make_user(username='aliasuser')
         from .services import _bootstrap_character_siblings
         self.char = Character.objects.create(User=self.user, Name='AliasTest')
@@ -2590,3 +2593,381 @@ class SpellbookSDRResolveTests(TestCase):
         self._post_level(1, [("Bola de Fogo Tropical", "")])
         spell = CharacterSpell.objects.get(Character=self.char, Level=1)
         self.assertIsNone(spell.SDRSpellId)
+
+
+# ---------------------------------------------------------------------------
+# T9 — spellbook render: sdr_lookup, tooltip, trigger, datalist
+# ---------------------------------------------------------------------------
+
+class SpellbookLevelRenderTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_spell_table()
+
+    def setUp(self):
+        from sdr.models import SDR_Spell
+        SDR_Spell.objects.using('sdr').all().delete()
+        self.sdr_mm = SDR_Spell(
+            name="Magic Missile", school="Evocation", level="Sor/Wiz 1",
+            casting_time="1 ação padrão",
+            short_description="1 missil mais 1 a cada 2 niveis",
+        )
+        self.sdr_mm.save(using='sdr')
+        self.user = make_user(); self.user.set_password('pw'); self.user.save()
+        self.char = make_character(self.user)
+        self.client.force_login(self.user)
+
+    def test_known_spell_renders_data_sdr_id_and_trigger(self):
+        CharacterSpell.objects.create(
+            Character=self.char, Name="Magic Missile", Level=1, SDRSpellId=self.sdr_mm.id,
+        )
+        url = reverse('character:spellbook', args=[self.char.pk])
+        resp = self.client.get(url)
+        body = resp.content.decode()
+        self.assertIn(f'data-sdr-id="{self.sdr_mm.id}"', body)
+        self.assertIn('class="spell-detail-trigger"', body)
+        self.assertIn('class="spell-tooltip"', body)
+        self.assertIn('1 missil mais 1 a cada 2 niveis', body)
+
+    def test_homebrew_spell_renders_without_sdr_attrs(self):
+        CharacterSpell.objects.create(
+            Character=self.char, Name="Bola Tropical", Level=1, SDRSpellId=None,
+        )
+        url = reverse('character:spellbook', args=[self.char.pk])
+        body = self.client.get(url).content.decode()
+        self.assertNotIn('spell-detail-trigger', body)
+        self.assertNotIn('class="spell-tooltip"', body)
+
+    def test_datalist_is_rendered_once(self):
+        url = reverse('character:spellbook', args=[self.char.pk])
+        body = self.client.get(url).content.decode()
+        self.assertEqual(body.count('id="spell-suggestions"'), 1)
+        self.assertIn('value="Magic Missile"', body)
+
+
+# ---------------------------------------------------------------------------
+# T5 — spell_detail view
+# ---------------------------------------------------------------------------
+
+class SpellDetailViewTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_spell_table()
+
+    def setUp(self):
+        from sdr.models import SDR_Spell
+        SDR_Spell.objects.using('sdr').all().delete()
+        self.spell = SDR_Spell(
+            name="Magic Missile",
+            full_text="<p>Conjuras misseis magicos.</p>",
+            school="Evocation", level="Sor/Wiz 1",
+        )
+        self.spell.save(using='sdr')
+        self.owner = make_user('owner')
+        self.owner.set_password('pw'); self.owner.save()
+        self.stranger = make_user('stranger')
+        self.stranger.set_password('pw'); self.stranger.save()
+        self.char = make_character(self.owner)
+
+    def test_owner_gets_dialog_partial(self):
+        self.client.force_login(self.owner)
+        url = reverse('character:spell-detail', args=[self.char.pk, self.spell.id])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'Magic Missile', resp.content)
+        self.assertIn(b'Conjuras misseis magicos', resp.content)
+
+    def test_unknown_sdr_id_returns_404(self):
+        self.client.force_login(self.owner)
+        url = reverse('character:spell-detail', args=[self.char.pk, 99999])
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_stranger_gets_404(self):
+        self.client.force_login(self.stranger)
+        url = reverse('character:spell-detail', args=[self.char.pk, self.spell.id])
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_anonymous_redirected_or_blocked(self):
+        url = reverse('character:spell-detail', args=[self.char.pk, self.spell.id])
+        resp = self.client.get(url)
+        self.assertIn(resp.status_code, (302, 401, 403))
+
+
+# ---------------------------------------------------------------------------
+# T10 — domain_spells includes sdr_id
+# ---------------------------------------------------------------------------
+
+def setup_sdr_domain_table():
+    with connections['sdr'].cursor() as cursor:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS domain (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                granted_powers TEXT,
+                spell_1 TEXT, spell_2 TEXT, spell_3 TEXT, spell_4 TEXT,
+                spell_5 TEXT, spell_6 TEXT, spell_7 TEXT, spell_8 TEXT, spell_9 TEXT,
+                full_text TEXT,
+                reference TEXT
+            )
+        """)
+
+
+class DomainSpellsResolveTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_spell_table()
+        setup_sdr_domain_table()
+
+    def test_domain_spells_includes_sdr_id_when_known(self):
+        from sdr.models import SDR_Spell, SDR_Domain
+        from character.spellcasting import domain_spells
+        SDR_Spell.objects.using('sdr').all().delete()
+        SDR_Domain.objects.using('sdr').all().delete()
+        sdr = SDR_Spell(name="Bless", school="Enchantment", level="Clr 1")
+        sdr.save(using='sdr')
+        d = SDR_Domain(name="Good", spell_1="Bless")
+        d.save(using='sdr')
+        rows = domain_spells("Good")
+        row1 = next(r for r in rows if r['level'] == 1)
+        self.assertEqual(row1['name'], "Bless")
+        self.assertEqual(row1['sdr_id'], sdr.id)
+
+    def test_domain_spells_sdr_id_none_when_unknown(self):
+        from sdr.models import SDR_Spell, SDR_Domain
+        from character.spellcasting import domain_spells
+        SDR_Spell.objects.using('sdr').all().delete()
+        SDR_Domain.objects.using('sdr').all().delete()
+        d = SDR_Domain(name="Custom", spell_1="Homebrew Spell")
+        d.save(using='sdr')
+        rows = domain_spells("Custom")
+        row1 = next(r for r in rows if r['level'] == 1)
+        self.assertEqual(row1['name'], "Homebrew Spell")
+        self.assertIsNone(row1['sdr_id'])
+
+
+# ---------------------------------------------------------------------------
+# T11 — _summon_nature_rows includes sdr_id
+# ---------------------------------------------------------------------------
+
+class SummonNatureRowsResolveTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_spell_table()
+
+    def test_summon_rows_have_sdr_id_when_known(self):
+        from sdr.models import SDR_Spell
+        from character.views import _summon_nature_rows
+        SDR_Spell.objects.using('sdr').all().delete()
+        sdr = SDR_Spell(
+            name="Aliado da Natureza I",
+            altname="Summon Nature's Ally I",
+            school="Conjuration", level="Drd 1",
+        )
+        sdr.save(using='sdr')
+        rows = _summon_nature_rows()
+        row1 = next(r for r in rows if r['level'] == 1)
+        self.assertEqual(row1['sdr_id'], sdr.id)
+
+    def test_summon_rows_sdr_id_none_when_unknown(self):
+        from sdr.models import SDR_Spell
+        from character.views import _summon_nature_rows
+        SDR_Spell.objects.using('sdr').all().delete()
+        rows = _summon_nature_rows()
+        self.assertTrue(all(r['sdr_id'] is None for r in rows))
+
+
+# ---------------------------------------------------------------------------
+# Entrega B — Autosave: POST with HX-Autosave header → 204, no re-render
+# ---------------------------------------------------------------------------
+
+class AutosaveOnInputTest(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_class_table()
+        setup_sdr_spell_table()
+
+    def setUp(self):
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Autosave Test')
+        _bootstrap_character_siblings(self.char)
+        self.client.force_login(self.user)
+
+    def _autosave_post(self, url, target, data):
+        return self.client.post(
+            url,
+            data=data,
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET=target,
+            HTTP_HX_AUTOSAVE='1',
+        )
+
+    def test_feats_autosave_returns_204_and_persists(self):
+        url = reverse('character:character', args=[self.char.pk])
+        resp = self._autosave_post(url, 'characterFeatsForm', {
+            'feat_1_Name': 'Iniciativa Aprimorada',
+            'feat_1_Page': '100',
+        })
+        self.assertEqual(resp.status_code, 204)
+        self.assertEqual(resp.content, b'')
+        from .models import CharacterFeat
+        feat = CharacterFeat.objects.filter(Character=self.char).first()
+        self.assertIsNotNone(feat)
+        self.assertEqual(feat.Name, 'Iniciativa Aprimorada')
+
+    def test_specials_autosave_returns_204_and_persists(self):
+        url = reverse('character:character', args=[self.char.pk])
+        resp = self._autosave_post(url, 'characterSpecialsForm', {
+            'ability_1_Name': 'Missão Épica',
+            'ability_1_Page': '50',
+        })
+        self.assertEqual(resp.status_code, 204)
+        from .models import Ability
+        ability = Ability.objects.filter(Character=self.char).first()
+        self.assertIsNotNone(ability)
+        self.assertEqual(ability.Name, 'Missão Épica')
+
+    def test_reputation_contacts_autosave_returns_204_and_persists(self):
+        url = reverse('character:reputation', args=[self.char.pk])
+        resp = self._autosave_post(url, 'reputationContactsForm', {
+            'contact_1_Name': 'Tharivol',
+            'contact_1_Location': 'Waterdeep',
+            'contact_1_Relationship': 'Aliado',
+        })
+        self.assertEqual(resp.status_code, 204)
+        from .models import CharacterContact
+        contact = CharacterContact.objects.filter(Character=self.char).first()
+        self.assertIsNotNone(contact)
+        self.assertEqual(contact.Name, 'Tharivol')
+
+    def test_derived_field_without_autosave_header_still_renders(self):
+        url = reverse('character:character', args=[self.char.pk])
+        resp = self.client.post(
+            url,
+            data={'feat_1_Name': 'Power Attack', 'feat_1_Page': '98'},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterFeatsForm',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertGreater(len(resp.content), 0)
+
+
+# ---------------------------------------------------------------------------
+# Retrabalho B — AutosaveCoverageTest: P1.1, P1.2 e P2
+# ---------------------------------------------------------------------------
+
+class AutosaveCoverageTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        setup_sdr_spell_table()
+        from sdr.models import SDR_Spell
+        SDR_Spell.objects.using('sdr').all().delete()
+        self.mm = SDR_Spell(name='Magic Missile', school='Evocation', level='Sor/Wiz 1')
+        self.mm.save(using='sdr')
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Coverage', Class='Fighter', Level='1')
+        _bootstrap_character_siblings(self.char)
+        self.client.force_login(self.user)
+
+    def _autosave(self, url, target, data):
+        return self.client.post(url, data=data,
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET=target, HTTP_HX_AUTOSAVE='1')
+
+    def _blur(self, url, target, data):
+        return self.client.post(url, data=data,
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET=target)
+
+    # P1.1 — daily_resources
+    def test_daily_resources_autosave_returns_204_and_persists(self):
+        from .models import CharacterDailyNotes
+        url = reverse('character:daily-resources', args=[self.char.pk])
+        resp = self._autosave(url, 'dailyResourcesForm', {'Preparation': 'Orar ao acordar'})
+        self.assertEqual(resp.status_code, 204)
+        notes = CharacterDailyNotes.objects.get(Character=self.char)
+        self.assertEqual(notes.Preparation, 'Orar ao acordar')
+
+    def test_daily_resources_blur_returns_200_and_rerenders(self):
+        url = reverse('character:daily-resources', args=[self.char.pk])
+        resp = self._blur(url, 'dailyResourcesForm', {'Preparation': 'Planejar missao'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertGreater(len(resp.content), 0)
+
+    # P1.2 — spellbook level autosave + blur re-render
+    def test_spellbook_level_autosave_returns_204_and_persists(self):
+        url = reverse('character:spellbook', args=[self.char.pk])
+        resp = self._autosave(url, 'spellbookLevel1Form', {
+            'spellbook_1_1_Name': 'Fireball',
+            'spellbook_1_1_Page': '275',
+        })
+        self.assertEqual(resp.status_code, 204)
+        spell = CharacterSpell.objects.filter(Character=self.char, Level=1).first()
+        self.assertIsNotNone(spell)
+        self.assertEqual(spell.Name, 'Fireball')
+
+    def test_spellbook_level_blur_returns_200_and_reveals_sdr_trigger(self):
+        url = reverse('character:spellbook', args=[self.char.pk])
+        resp = self._blur(url, 'spellbookLevel1Form', {
+            'spellbook_1_1_Name': 'Magic Missile',
+            'spellbook_1_1_Page': '251',
+        })
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'spell-detail-trigger', resp.content)
+
+    # P2 — recalculating forms autosave
+    def test_recalculating_forms_autosave_returns_204(self):
+        url = reverse('character:character', args=[self.char.pk])
+        cases = [
+            ('characterIdentityForm', {
+                'Name': 'Coverage', 'Class': 'Fighter', 'Level': '1',
+                'Race': '', 'Alignment': '', 'Deity': '', 'Size': '',
+                'Age': '', 'Sex': '', 'Heigth': '', 'Weight': '',
+                'Eye': '', 'Hair': '', 'Skin': '',
+            }),
+            ('characterStatsForm', {'Strength': '14'}),
+            ('characterStatusForm', {'TotalHitPoints': '20'}),
+            ('characterArmorForm', {'ACSizeModifier': '0'}),
+            ('characterSavesForm', {'FortitudeBaseSave': '2'}),
+            ('characterAttackForm', {'BBA': '1'}),
+            ('characterSkillsForm', {'skill_1_Ranks': '2'}),
+            ('characterWeaponsForm', {'weapon_1_Attack': 'Longsword'}),
+            ('characterEquipmentForm', {'armor_Name': 'Chain Shirt'}),
+            ('characterItemsForm', {'item_1_Name': 'Rope'}),
+            ('characterMoneyForm', {'GP': '30'}),
+        ]
+        for target, payload in cases:
+            with self.subTest(target=target):
+                resp = self._autosave(url, target, payload)
+                self.assertEqual(resp.status_code, 204, f'Expected 204 for {target}')
+
+    def test_recalculating_forms_blur_still_returns_200(self):
+        url = reverse('character:character', args=[self.char.pk])
+        cases = [
+            ('characterStatsForm', {'Strength': '14'}),
+            ('characterStatusForm', {'TotalHitPoints': '20'}),
+            ('characterEquipmentForm', {'armor_Name': 'Chain Shirt'}),
+            ('characterItemsForm', {'item_1_Name': 'Rope'}),
+            ('characterMoneyForm', {'GP': '30'}),
+        ]
+        for target, payload in cases:
+            with self.subTest(target=target):
+                resp = self._blur(url, target, payload)
+                self.assertEqual(resp.status_code, 200)
+                self.assertGreater(len(resp.content), 0)

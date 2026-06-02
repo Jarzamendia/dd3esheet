@@ -1,0 +1,20 @@
+<article class="spell-detail">
+    <header class="spell-detail-head">
+        <div>
+            <h2>{{ spell.name }}</h2>
+            {% if spell.altname %}<p class="spell-detail-altname">{{ spell.altname }}</p>{% endif %}
+        </div>
+        <form method="dialog" class="spell-detail-close-form">
+            <button type="submit" class="spell-detail-close" aria-label="Fechar">×</button>
+        </form>
+    </header>
+    <div class="spell-detail-body">
+        {% if spell.full_text %}
+            {{ spell.full_text|safe }}
+        {% else %}
+            <p><strong>{{ spell.school }}{% if spell.level %} — Nv {{ spell.level }}{% endif %}</strong></p>
+            {% if spell.short_description %}<p>{{ spell.short_description }}</p>{% endif %}
+            {% if spell.description %}<div>{{ spell.description|safe }}</div>{% endif %}
+        {% endif %}
+    </div>
+</article>

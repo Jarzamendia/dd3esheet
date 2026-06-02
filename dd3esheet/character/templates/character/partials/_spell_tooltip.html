@@ -1,0 +1,23 @@
+{% comment %}
+Renderiza um <aside class="spell-tooltip"> com a ficha técnica curta.
+Espera no contexto:
+  - sdr: instância de SDR_Spell (não vazia)
+{% endcomment %}
+<aside class="spell-tooltip" role="tooltip">
+    <span class="spell-tooltip-school">
+        {{ sdr.school|default:"" }}{% if sdr.level %} — Nv {{ sdr.level }}{% endif %}
+    </span>
+    <dl>
+        {% if sdr.casting_time %}<dt>Conjuração</dt><dd>{{ sdr.casting_time }}</dd>{% endif %}
+        {% if sdr.components %}<dt>Componentes</dt><dd>{{ sdr.components }}</dd>{% endif %}
+        {% if sdr.range %}<dt>Alcance</dt><dd>{{ sdr.range }}</dd>{% endif %}
+        {% if sdr.target %}<dt>Alvo</dt><dd>{{ sdr.target }}</dd>{% endif %}
+        {% if sdr.area %}<dt>Área</dt><dd>{{ sdr.area }}</dd>{% endif %}
+        {% if sdr.duration %}<dt>Duração</dt><dd>{{ sdr.duration }}</dd>{% endif %}
+        {% if sdr.saving_throw %}<dt>Resistência</dt><dd>{{ sdr.saving_throw }}</dd>{% endif %}
+        {% if sdr.spell_resistance %}<dt>RM</dt><dd>{{ sdr.spell_resistance }}</dd>{% endif %}
+    </dl>
+    {% if sdr.short_description %}
+        <p class="spell-tooltip-desc">{{ sdr.short_description }}</p>
+    {% endif %}
+</aside>

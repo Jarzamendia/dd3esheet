@@ -4055,3 +4055,116 @@ input.sk-cell.sheet-input {
     display: grid;
     gap: 6px;
 }
+
+/* ============================================================
+   Autosave — indicador de estado discreto
+   ============================================================ */
+.autosave-indicator {
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    padding: 4px 10px;
+    background: var(--header-bg, #222);
+    color: var(--header-fg, #fff);
+    font-size: 11px;
+    border-radius: 3px;
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* ============================================================
+   Magia SDR — wrap, tooltip ao hover e dialog ao clicar
+   ============================================================ */
+.spell-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+.spell-input-wrap .sheet-input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.spell-detail-trigger {
+    flex: 0 0 auto;
+    background: none;
+    border: 1px solid var(--rule-line);
+    border-radius: 3px;
+    padding: 0 6px;
+    font-size: 12px;
+    line-height: 22px;
+    cursor: pointer;
+    color: var(--ink);
+}
+.spell-detail-trigger:hover { background: var(--header-bg); color: var(--header-fg); }
+
+.spell-name-link[data-sdr-id]:not([data-sdr-id=""]) {
+    position: relative;
+    cursor: pointer;
+    text-decoration: underline dotted;
+}
+
+.spell-tooltip {
+    display: none;
+    position: absolute;
+    z-index: 200;
+    top: 100%;
+    left: 0;
+    width: 320px;
+    max-width: 90vw;
+    margin-top: 4px;
+    padding: 10px 12px;
+    background: var(--paper-bg, #fff);
+    border: 1px solid var(--rule-line, #333);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--ink, #111);
+    pointer-events: none;
+}
+.spell-tooltip dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; }
+.spell-tooltip dt { font-weight: 700; }
+.spell-tooltip dd { margin: 0; }
+.spell-tooltip .spell-tooltip-school {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.spell-tooltip .spell-tooltip-desc {
+    margin-top: 6px;
+    font-style: italic;
+}
+.spell-input-wrap[data-sdr-id]:not([data-sdr-id=""]):hover .spell-tooltip,
+.spell-name-link[data-sdr-id]:not([data-sdr-id=""]):hover .spell-tooltip {
+    display: block;
+}
+
+.spell-detail-dialog {
+    width: min(720px, 92vw);
+    max-height: 88vh;
+    padding: 0;
+    border: 1px solid var(--rule-line, #333);
+    background: var(--paper-bg, #fff);
+    color: var(--ink, #111);
+}
+.spell-detail-dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+.spell-detail { display: flex; flex-direction: column; max-height: 88vh; }
+.spell-detail-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 1px solid var(--rule-line, #333);
+    background: var(--header-bg, #222); color: var(--header-fg, #fff);
+}
+.spell-detail-head h2 { margin: 0; font-size: 16px; }
+.spell-detail-altname { margin: 2px 0 0; font-size: 11px; opacity: 0.85; }
+.spell-detail-close-form { margin: 0; }
+.spell-detail-close {
+    background: none; border: 0; color: inherit; font-size: 22px;
+    line-height: 1; cursor: pointer; padding: 0 6px;
+}
+.spell-detail-body { padding: 14px 16px; overflow-y: auto; font-size: 13px; line-height: 1.5; }

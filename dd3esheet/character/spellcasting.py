@@ -96,10 +96,18 @@ def domain_spells(domain_name):
     domain = SDR_Domain.objects.using('sdr').filter(name=domain_name).first()
     if not domain:
         return []
-    return [
-        {'level': level, 'name': getattr(domain, f'spell_{level}') or ''}
-        for level in range(1, 10)
-    ]
+    from sdr.lookups import resolve_spell
+    rows = []
+    for level in range(1, 10):
+        name = getattr(domain, f'spell_{level}') or ''
+        match = resolve_spell(name) if name else None
+        rows.append({
+            'level': level,
+            'name': name,
+            'sdr_id': match.id if match else None,
+            'sdr': match,
+        })
+    return rows
 
 
 def _related_list(character, related_name, order_by):

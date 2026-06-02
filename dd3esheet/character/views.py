@@ -1,6 +1,7 @@
 import re
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db import models, transaction
 from django.db.models import Prefetch
@@ -33,6 +34,7 @@ from .calculations import (
 from .spellcasting import caster_config_for_class, numeric_slot_count, spellcasting_context
 from sdr.models import SDR_Monster
 from sdr.lookups import resolve_spell
+from sdr.models import SDR_Spell
 
 _SPELLBOOK_SLOT_TOTAL = 20
 
@@ -184,6 +186,14 @@ def _clean_post_value(raw_value, model_field):
     if isinstance(model_field, models.BooleanField):
         return raw_value in ('on', 'true', '1', 'yes')
     return _clean_text_value(raw_value, model_field)
+
+
+def _is_autosave(request):
+    return request.headers.get('HX-Autosave') == '1'
+
+
+def _autosave_204():
+    return HttpResponse(status=204)
 
 
 def _update_fields_from_post(instance, request, fields, prefix=''):
@@ -390,9 +400,26 @@ def _spellbook_level_rows(character, level):
     return spells + [None]
 
 
+def _build_sdr_lookup_for_spells(spells):
+    ids = {s.SDRSpellId for s in spells if s and s.SDRSpellId}
+    if not ids:
+        return {}
+    return {
+        sdr.id: sdr
+        for sdr in SDR_Spell.objects.using('sdr').filter(id__in=ids)
+    }
+
+
+def _sdr_spell_suggestions():
+    return list(
+        SDR_Spell.objects.using('sdr').only('id', 'name', 'school', 'level').order_by('name')
+    )
+
+
 def _spellbook_level_context(char, level, spellcasting=None):
     spellcasting = spellcasting or spellcasting_context(char)
     spells = _spellbook_level_rows(char, level)
+    sdr_lookup = _build_sdr_lookup_for_spells(spells)
     return {
         'character': char,
         'spellcasting': spellcasting,
@@ -403,7 +430,9 @@ def _spellbook_level_context(char, level, spellcasting=None):
             'form_id': f'spellbookLevel{level}Form',
             'spells': spells,
             'count': len([spell for spell in spellcasting['known_spells'] if spell.Level == level]),
+            'sdr_lookup': sdr_lookup,
         },
+        'sdr_spell_suggestions': _sdr_spell_suggestions(),
     }
 
 
@@ -474,6 +503,7 @@ def _spellbook_context(char, **extra):
         'spellbook_slot_levels': _spellbook_slot_levels(char, spellcasting),
         'spellbook_profile_fields': _SPELLBOOK_PROFILE_FIELDS,
         'spellbook_levels': [_spellbook_level_context(char, level, spellcasting)['spellbook_level'] for level in range(10)],
+        'sdr_spell_suggestions': _sdr_spell_suggestions(),
     }
     context.update(extra)
     return context
@@ -515,62 +545,22 @@ def _companions_context(char, **extra):
 
 
 def _summon_nature_rows():
-    return [
-        {
-            'level': 1,
-            'spell': 'Aliado da Natureza I',
-            'quantity': '1 criatura de 1o nivel',
-            'examples': 'Rato atroz, aguia, macaco, coruja, lobo, vibora pequena',
-        },
-        {
-            'level': 2,
-            'spell': 'Aliado da Natureza II',
-            'quantity': '1 de 2o, 1d3 de 1o',
-            'examples': 'Urso negro, crocodilo, texugo atroz, morcego atroz, elemental pequeno',
-        },
-        {
-            'level': 3,
-            'spell': 'Aliado da Natureza III',
-            'quantity': '1 de 3o, 1d3 de 2o, 1d4+1 de 1o',
-            'examples': 'Gorila, doninha atroz, lobo atroz, leao, thoqqua',
-        },
-        {
-            'level': 4,
-            'spell': 'Aliado da Natureza IV',
-            'quantity': '1 de 4o, 1d3 de 3o, 1d4+1 menores',
-            'examples': 'Urso pardo, aguia gigante, elemental medio, tigre, unicornio',
-        },
-        {
-            'level': 5,
-            'spell': 'Aliado da Natureza V',
-            'quantity': '1 de 5o, 1d3 de 4o, 1d4+1 menores',
-            'examples': 'Urso polar, leao atroz, elemental grande, grifo, rinoceronte',
-        },
-        {
-            'level': 6,
-            'spell': 'Aliado da Natureza VI',
-            'quantity': '1 de 6o, 1d3 de 5o, 1d4+1 menores',
-            'examples': 'Urso atroz, elemental enorme, elefante, girallon, megaraptor',
-        },
-        {
-            'level': 7,
-            'spell': 'Aliado da Natureza VII',
-            'quantity': '1 de 7o, 1d3 de 6o, 1d4+1 menores',
-            'examples': 'Tigre atroz, elemental maior, djinni, triceratopo, tiranossauro',
-        },
-        {
-            'level': 8,
-            'spell': 'Aliado da Natureza VIII',
-            'quantity': '1 de 8o, 1d3 de 7o, 1d4+1 menores',
-            'examples': 'Elemental anciao, roc, salamandra nobre, baleia cachalote',
-        },
-        {
-            'level': 9,
-            'spell': 'Aliado da Natureza IX',
-            'quantity': '1 de 9o, 1d3 de 8o, 1d4+1 menores',
-            'examples': 'Elemental anciao, grifo celestial, unicornios e aliados maiores',
-        },
+    raw = [
+        {'level': 1, 'spell': 'Aliado da Natureza I',    'quantity': '1 criatura de 1o nivel',           'examples': 'Rato atroz, aguia, macaco, coruja, lobo, vibora pequena'},
+        {'level': 2, 'spell': 'Aliado da Natureza II',   'quantity': '1 de 2o, 1d3 de 1o',               'examples': 'Urso negro, crocodilo, texugo atroz, morcego atroz, elemental pequeno'},
+        {'level': 3, 'spell': 'Aliado da Natureza III',  'quantity': '1 de 3o, 1d3 de 2o, 1d4+1 de 1o', 'examples': 'Gorila, doninha atroz, lobo atroz, leao, thoqqua'},
+        {'level': 4, 'spell': 'Aliado da Natureza IV',   'quantity': '1 de 4o, 1d3 de 3o, 1d4+1 menores','examples': 'Urso pardo, aguia gigante, elemental medio, tigre, unicornio'},
+        {'level': 5, 'spell': 'Aliado da Natureza V',    'quantity': '1 de 5o, 1d3 de 4o, 1d4+1 menores','examples': 'Urso polar, leao atroz, elemental grande, grifo, rinoceronte'},
+        {'level': 6, 'spell': 'Aliado da Natureza VI',   'quantity': '1 de 6o, 1d3 de 5o, 1d4+1 menores','examples': 'Urso atroz, elemental enorme, elefante, girallon, megaraptor'},
+        {'level': 7, 'spell': 'Aliado da Natureza VII',  'quantity': '1 de 7o, 1d3 de 6o, 1d4+1 menores','examples': 'Tigre atroz, elemental maior, djinni, triceratopo, tiranossauro'},
+        {'level': 8, 'spell': 'Aliado da Natureza VIII', 'quantity': '1 de 8o, 1d3 de 7o, 1d4+1 menores','examples': 'Elemental anciao, roc, salamandra nobre, baleia cachalote'},
+        {'level': 9, 'spell': 'Aliado da Natureza IX',   'quantity': '1 de 9o, 1d3 de 8o, 1d4+1 menores','examples': 'Elemental anciao, grifo celestial, unicornios e aliados maiores'},
     ]
+    for row in raw:
+        sdr = resolve_spell(row['spell'])
+        row['sdr_id'] = sdr.id if sdr else None
+        row['sdr'] = sdr
+    return raw
 
 
 def _reputation_context(char, **extra):
@@ -805,6 +795,8 @@ def character(request, pk):
             form = CharacterIdentityForm(request.POST, instance=char)
             if form.is_valid():
                 form.save()
+                if _is_autosave(request):
+                    return _autosave_204()
                 char.refresh_from_db()
                 _recalculate_stats(char)
             context = _sheet_context(char, characterIdentityForm=form)
@@ -829,6 +821,8 @@ def character(request, pk):
             _save_repeating_slots(char, request, CharacterWeapon, 'weapon', [
                 'Attack', 'AttackBonus', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
             ], 4)
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             char.refresh_from_db()
             context = _sheet_context(char)
@@ -839,6 +833,8 @@ def character(request, pk):
                 'TotalHitPoints', 'CurrentHitPoints', 'TemporaryHitPoints', 'NonLethalDamager', 'Speed',
             ])
             _clamp_status_hit_points(char.characterstatus)
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_combat.html', _sheet_context(char))
 
@@ -847,6 +843,8 @@ def character(request, pk):
                 'ACArmorBonus', 'ACShieldBonus', 'ACSizeModifier', 'ACNaturalArmor',
                 'ACDeflectionModifier', 'ACMiscModifier', 'DamageReduction',
             ])
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_combat.html', _sheet_context(char))
 
@@ -856,6 +854,8 @@ def character(request, pk):
                 'ReflexBaseSave', 'ReflexMagicModifier', 'ReflexMiscModifier',
                 'WillBaseSave', 'WillMagicModifier', 'WillMiscModifier',
             ])
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_stats.html', _sheet_context(char))
 
@@ -863,6 +863,8 @@ def character(request, pk):
             _update_fields_from_post(char.characterattackmodifiers, request, [
                 'BBA', 'SpellResistence', 'GrapplerBBA', 'GrapplerSizeModifier', 'GrapplerMiscModifier',
             ])
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_stats.html', _sheet_context(char))
 
@@ -875,6 +877,8 @@ def character(request, pk):
                     'SkillName', 'SkillSpecialization', 'Ranks', 'MiscModifier',
                 ], prefix)
                 skill.save()
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_skills.html', _sheet_context(char))
 
@@ -882,12 +886,16 @@ def character(request, pk):
             _save_repeating_slots(char, request, CharacterWeapon, 'weapon', [
                 'Attack', 'AttackBonus', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
             ], 4)
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_weapon_card.html', _sheet_context(char))
 
         if request.htmx.target == 'characterProgressForm':
             progress, _ = CharacterProgress.objects.get_or_create(Character=char)
             _update_fields_from_post(progress, request, ['ExperiencePoints', 'CampaignName'])
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/character_progress.html', _sheet_context(char))
 
         if request.htmx.target == 'characterEquipmentForm':
@@ -903,11 +911,15 @@ def character(request, pk):
             _save_repeating_slots(char, request, CharacterProtectionItem, 'protection', [
                 'Name', 'ACBonus', 'Weigth', 'SpecialProperties',
             ], 5)
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_armor.html', _sheet_context(char))
 
         if request.htmx.target == 'characterItemsForm':
             _save_repeating_slots(char, request, CharacterOtherItem, 'item', ['Name', 'Page', 'Weigth'], 32)
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_items.html', _sheet_context(char))
 
@@ -917,16 +929,22 @@ def character(request, pk):
                 'LightLoad', 'MediumLoad', 'HeavyLoad', 'LiftOverHEad', 'LiftOffGround',
                 'PushOrDrag', 'TotalWCarried',
             ])
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_money.html', _sheet_context(char))
 
         if request.htmx.target == 'characterFeatsForm':
             _save_repeating_slots(char, request, CharacterFeat, 'feat', ['Name', 'Page'], 24)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/character_feats.html', _sheet_context(char))
 
         if request.htmx.target == 'characterSpecialsForm':
             _save_repeating_slots(char, request, Ability, 'ability', ['Name', 'Page'], 12)
             _save_repeating_slots(char, request, CharacterLanguages, 'language', ['Value'], 12)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/character_specials.html', _sheet_context(char))
 
         if request.htmx.target == 'characterSpellsForm':
@@ -952,11 +970,15 @@ def companions(request, pk):
             _save_typed_companion_slots(char, request, 'animal', 'animalCompanion', [
                 'Name', 'Species', 'HitPoints', 'ArmorClass', 'Speed', 'SpecialAbilities',
             ], 4)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/companions_animal_form.html', _companions_context(char))
         if target == 'familiarsForm':
             _save_typed_companion_slots(char, request, 'familiar', 'familiar', [
                 'Name', 'Species', 'HitPoints', 'ArmorClass', 'Speed', 'SpecialAbilities', 'Notes',
             ], 4)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/companions_familiar_form.html', _companions_context(char))
         if target == 'summonsGrid':
             _save_repeating_slots(char, request, CharacterSummon, 'summon', [
@@ -1040,6 +1062,8 @@ def spellbook(request, pk):
                 level = None
             if level is not None and 0 <= level <= 9:
                 _save_spellbook_level(char, request, level)
+                if _is_autosave(request):
+                    return _autosave_204()
                 return render(request, 'character/partials/spellbook_level_form.html', _spellbook_level_context(char, level))
 
     return render(request, 'character/spellbook.html', _spellbook_context(char))
@@ -1055,6 +1079,8 @@ def dailyResources(request, pk):
         ], 12)
         notes, _ = CharacterDailyNotes.objects.get_or_create(Character=char)
         _update_fields_from_post(notes, request, ['Preparation', 'Spent'])
+        if _is_autosave(request):
+            return _autosave_204()
         return render(request, 'character/daily_resources.html', _daily_resources_context(char))
 
     return render(request, 'character/daily_resources.html', _daily_resources_context(char))
@@ -1068,18 +1094,24 @@ def reputation(request, pk):
             _save_repeating_slots(char, request, CharacterContact, 'contact', [
                 'Name', 'Location', 'Relationship', 'Favor', 'Notes',
             ], 16)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/reputation_contacts_form.html', _reputation_context(char))
 
         if request.htmx.target == 'reputationFactionsForm':
             _save_repeating_slots(char, request, CharacterFaction, 'faction', [
                 'Name', 'Reputation', 'Influence', 'Risk', 'Notes',
             ], 10)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/reputation_factions_form.html', _reputation_context(char))
 
         if request.htmx.target == 'reputationContractsForm':
             _save_repeating_slots(char, request, CharacterContract, 'contract', [
                 'Title', 'Party', 'Reward', 'Deadline', 'Status', 'Notes',
             ], 12)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/reputation_contracts_form.html', _reputation_context(char))
 
     return render(request, 'character/reputation.html', _reputation_context(char))
@@ -1117,3 +1149,10 @@ def toggleSpellSlot(request, pk, slot_id):
         slot.IsUsed = not slot.IsUsed
         slot.save(update_fields=['IsUsed'])
     return render(request, 'character/partials/spellbook_slots_form.html', _spellbook_context(char))
+
+
+@login_required
+def spell_detail(request, pk, sdr_id):
+    get_object_or_404(Character, pk=pk, User=request.user)
+    spell = get_object_or_404(SDR_Spell.objects.using('sdr'), id=sdr_id)
+    return render(request, 'character/partials/spell_detail_dialog.html', {'spell': spell})
