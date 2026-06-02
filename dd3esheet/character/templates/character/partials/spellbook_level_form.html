@@ -9,7 +9,7 @@
           hx-post="{% url 'character:spellbook' character.pk %}"
           hx-target="#{{ spellbook_level.form_id }}"
           hx-swap="outerHTML"
-          hx-trigger="change delay:300ms">
+          hx-trigger="input changed delay:500ms, change delay:300ms">
         {% csrf_token %}
         <div class="spellbook-level-grid" data-sheet-table="spellbook-level-{{ spellbook_level.level }}">
             <div class="spellbook-head">Livro</div>

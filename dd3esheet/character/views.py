@@ -643,6 +643,8 @@ def character(request, pk):
             form = CharacterIdentityForm(request.POST, instance=char)
             if form.is_valid():
                 form.save()
+                if _is_autosave(request):
+                    return _autosave_204()
                 char.refresh_from_db()
                 _recalculate_stats(char)
             context = _sheet_context(char, characterIdentityForm=form)
@@ -667,6 +669,8 @@ def character(request, pk):
             _save_repeating_slots(char, request, CharacterWeapon, 'weapon', [
                 'Attack', 'AttackBonus', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
             ], 4)
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             char.refresh_from_db()
             context = _sheet_context(char)
@@ -674,6 +678,8 @@ def character(request, pk):
 
         if request.htmx.target == 'characterStatusForm':
             _update_fields_from_post(char.characterstatus, request, ['TotalHitPoints', 'NonLethalDamager', 'Speed'])
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_combat.html', _sheet_context(char))
 
@@ -682,6 +688,8 @@ def character(request, pk):
                 'ACArmorBonus', 'ACShieldBonus', 'ACSizeModifier', 'ACNaturalArmor',
                 'ACDeflectionModifier', 'ACMiscModifier', 'DamageReduction',
             ])
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_combat.html', _sheet_context(char))
 
@@ -691,6 +699,8 @@ def character(request, pk):
                 'ReflexBaseSave', 'ReflexMagicModifier', 'ReflexMiscModifier',
                 'WillBaseSave', 'WillMagicModifier', 'WillMiscModifier',
             ])
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_stats.html', _sheet_context(char))
 
@@ -698,6 +708,8 @@ def character(request, pk):
             _update_fields_from_post(char.characterattackmodifiers, request, [
                 'BBA', 'SpellResistence', 'GrapplerBBA', 'GrapplerSizeModifier', 'GrapplerMiscModifier',
             ])
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_stats.html', _sheet_context(char))
 
@@ -710,6 +722,8 @@ def character(request, pk):
                     'SkillName', 'SkillSpecialization', 'Ranks', 'MiscModifier',
                 ], prefix)
                 skill.save()
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_skills.html', _sheet_context(char))
 
@@ -717,6 +731,8 @@ def character(request, pk):
             _save_repeating_slots(char, request, CharacterWeapon, 'weapon', [
                 'Attack', 'AttackBonus', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
             ], 4)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/character_weapon_card.html', _sheet_context(char))
 
         if request.htmx.target == 'characterProgressForm':
@@ -739,11 +755,15 @@ def character(request, pk):
             _save_repeating_slots(char, request, CharacterProtectionItem, 'protection', [
                 'Name', 'ACBonus', 'Weigth', 'SpecialProperties',
             ], 5)
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_armor.html', _sheet_context(char))
 
         if request.htmx.target == 'characterItemsForm':
             _save_repeating_slots(char, request, CharacterOtherItem, 'item', ['Name', 'Page', 'Weigth'], 32)
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_items.html', _sheet_context(char))
 
@@ -753,6 +773,8 @@ def character(request, pk):
                 'LightLoad', 'MediumLoad', 'HeavyLoad', 'LiftOverHEad', 'LiftOffGround',
                 'PushOrDrag', 'TotalWCarried',
             ])
+            if _is_autosave(request):
+                return _autosave_204()
             _recalculate_stats(char)
             return render(request, 'character/partials/character_money.html', _sheet_context(char))
 
@@ -828,6 +850,8 @@ def spellbook(request, pk):
                 level = None
             if level is not None and 0 <= level <= 9:
                 _save_spellbook_level(char, request, level)
+                if _is_autosave(request):
+                    return _autosave_204()
                 return render(request, 'character/partials/spellbook_level_form.html', _spellbook_level_context(char, level))
 
     return render(request, 'character/spellbook.html', _spellbook_context(char))

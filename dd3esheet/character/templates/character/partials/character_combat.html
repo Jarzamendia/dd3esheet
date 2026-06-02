@@ -14,7 +14,7 @@
               hx-post="{% url 'character:character' character.pk %}"
               hx-target="#characterStatusForm"
               hx-swap="outerHTML"
-              hx-trigger="change delay:300ms">
+              hx-trigger="input changed delay:700ms, change delay:300ms">
             {% csrf_token %}
 
             <div class="pv-row" data-sheet-table="hit-points">
@@ -41,7 +41,7 @@
               hx-post="{% url 'character:character' character.pk %}"
               hx-target="#characterArmorForm"
               hx-swap="outerHTML"
-              hx-trigger="change delay:300ms">
+              hx-trigger="input changed delay:700ms, change delay:300ms">
             {% csrf_token %}
 
             <div class="ca-row" data-sheet-table="armor-class">

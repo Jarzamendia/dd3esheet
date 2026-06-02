@@ -2472,3 +2472,109 @@ class AutosaveOnInputTest(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertGreater(len(resp.content), 0)
+
+
+# ---------------------------------------------------------------------------
+# Retrabalho B — AutosaveCoverageTest: P1.1, P1.2 e P2
+# ---------------------------------------------------------------------------
+
+class AutosaveCoverageTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        setup_sdr_spell_table()
+        from sdr.models import SDR_Spell
+        SDR_Spell.objects.using('sdr').all().delete()
+        self.mm = SDR_Spell(name='Magic Missile', school='Evocation', level='Sor/Wiz 1')
+        self.mm.save(using='sdr')
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Coverage', Class='Fighter', Level='1')
+        _bootstrap_character_siblings(self.char)
+        self.client.force_login(self.user)
+
+    def _autosave(self, url, target, data):
+        return self.client.post(url, data=data,
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET=target, HTTP_HX_AUTOSAVE='1')
+
+    def _blur(self, url, target, data):
+        return self.client.post(url, data=data,
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET=target)
+
+    # P1.1 — daily_resources
+    def test_daily_resources_autosave_returns_204_and_persists(self):
+        from .models import CharacterDailyNotes
+        url = reverse('character:daily-resources', args=[self.char.pk])
+        resp = self._autosave(url, 'dailyResourcesForm', {'Preparation': 'Orar ao acordar'})
+        self.assertEqual(resp.status_code, 204)
+        notes = CharacterDailyNotes.objects.get(Character=self.char)
+        self.assertEqual(notes.Preparation, 'Orar ao acordar')
+
+    def test_daily_resources_blur_returns_200_and_rerenders(self):
+        url = reverse('character:daily-resources', args=[self.char.pk])
+        resp = self._blur(url, 'dailyResourcesForm', {'Preparation': 'Planejar missao'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertGreater(len(resp.content), 0)
+
+    # P1.2 — spellbook level autosave + blur re-render
+    def test_spellbook_level_autosave_returns_204_and_persists(self):
+        url = reverse('character:spellbook', args=[self.char.pk])
+        resp = self._autosave(url, 'spellbookLevel1Form', {
+            'spellbook_1_1_Name': 'Fireball',
+            'spellbook_1_1_Page': '275',
+        })
+        self.assertEqual(resp.status_code, 204)
+        spell = CharacterSpell.objects.filter(Character=self.char, Level=1).first()
+        self.assertIsNotNone(spell)
+        self.assertEqual(spell.Name, 'Fireball')
+
+    def test_spellbook_level_blur_returns_200_and_reveals_sdr_trigger(self):
+        url = reverse('character:spellbook', args=[self.char.pk])
+        resp = self._blur(url, 'spellbookLevel1Form', {
+            'spellbook_1_1_Name': 'Magic Missile',
+            'spellbook_1_1_Page': '251',
+        })
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'spell-detail-trigger', resp.content)
+
+    # P2 — recalculating forms autosave
+    def test_recalculating_forms_autosave_returns_204(self):
+        url = reverse('character:character', args=[self.char.pk])
+        cases = [
+            ('characterIdentityForm', {
+                'Name': 'Coverage', 'Class': 'Fighter', 'Level': '1',
+                'Race': '', 'Alignment': '', 'Deity': '', 'Size': '',
+                'Age': '', 'Sex': '', 'Heigth': '', 'Weight': '',
+                'Eye': '', 'Hair': '', 'Skin': '',
+            }),
+            ('characterStatsForm', {'Strength': '14'}),
+            ('characterStatusForm', {'TotalHitPoints': '20'}),
+            ('characterArmorForm', {'ACSizeModifier': '0'}),
+            ('characterSavesForm', {'FortitudeBaseSave': '2'}),
+            ('characterAttackForm', {'BBA': '1'}),
+            ('characterSkillsForm', {'skill_1_Ranks': '2'}),
+            ('characterWeaponsForm', {'weapon_1_Attack': 'Longsword'}),
+            ('characterEquipmentForm', {'armor_Name': 'Chain Shirt'}),
+            ('characterItemsForm', {'item_1_Name': 'Rope'}),
+            ('characterMoneyForm', {'GP': '30'}),
+        ]
+        for target, payload in cases:
+            with self.subTest(target=target):
+                resp = self._autosave(url, target, payload)
+                self.assertEqual(resp.status_code, 204, f'Expected 204 for {target}')
+
+    def test_recalculating_forms_blur_still_returns_200(self):
+        url = reverse('character:character', args=[self.char.pk])
+        cases = [
+            ('characterStatsForm', {'Strength': '14'}),
+            ('characterStatusForm', {'TotalHitPoints': '20'}),
+            ('characterEquipmentForm', {'armor_Name': 'Chain Shirt'}),
+            ('characterItemsForm', {'item_1_Name': 'Rope'}),
+            ('characterMoneyForm', {'GP': '30'}),
+        ]
+        for target, payload in cases:
+            with self.subTest(target=target):
+                resp = self._blur(url, target, payload)
+                self.assertEqual(resp.status_code, 200)
+                self.assertGreater(len(resp.content), 0)
