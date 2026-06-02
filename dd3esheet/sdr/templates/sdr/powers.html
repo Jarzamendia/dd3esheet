@@ -1,21 +1,35 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-page-head">
+        <div>
+            <h1 class="sdr-page-title">Poderes Psiônicos</h1>
+            <p class="sdr-page-desc">{{ page_description }}</p>
+        </div>
+    </header>
 
-<h1>Poderes Psiônicos</h1>
+    {% include "sdr/partials/_filter_bar.html" %}
 
-<form method="get">
-    {{ filtered_powers.form.as_p }}
-    <input type="submit" class="btn btn-primary" value="Filtrar">
-</form>
+    <div class="sdr-results-head">
+        <div class="sdr-results-count">{{ results_count }} resultado{{ results_count|pluralize }}</div>
+    </div>
 
-<br>
-
-{% for power in filtered_powers.qs %}
-<div>
-    <a href="{% url 'sdr:power' power.id %}"><p>{{ power.name }}</p></a>
-    <small>{{ power.discipline }} | Nível: {{ power.level }} | PP: {{ power.power_points }}</small>
-</div>
-{% endfor %}
-
+    {% if filtered_powers.qs %}
+        <section class="sdr-list-cards">
+            {% for power in filtered_powers.qs %}
+                <a class="sdr-result-card" href="{% url 'sdr:power' power.id %}">
+                    <span class="sdr-result-card__badge">PSI</span>
+                    <h2 class="sdr-result-card__title">{{ power.name }}</h2>
+                    <div class="sdr-inline-facts">
+                        {% if power.discipline %}<span class="sdr-chip">{{ power.discipline }}</span>{% endif %}
+                        {% if power.level %}<span class="sdr-chip">{{ power.level }}</span>{% endif %}
+                        {% if power.power_points %}<span class="sdr-chip">{{ power.power_points }} PP</span>{% endif %}
+                    </div>
+                    <p class="sdr-result-card__summary">{{ power.short_description|default:power.description|truncatewords:26 }}</p>
+                </a>
+            {% endfor %}
+        </section>
+    {% else %}
+        <p class="sdr-empty">Nenhum resultado para os filtros.</p>
+    {% endif %}
 {% endblock %}

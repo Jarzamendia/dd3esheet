@@ -1,0 +1,10 @@
+{% if rows %}
+    <dl class="sdr-detail-grid">
+        {% for row in rows %}
+            <div class="sdr-detail-row">
+                <dt>{{ row.label }}</dt>
+                <dd>{{ row.value|linebreaksbr }}</dd>
+            </div>
+        {% endfor %}
+    </dl>
+{% endif %}

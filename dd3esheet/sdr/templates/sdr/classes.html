@@ -1,21 +1,35 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-page-head">
+        <div>
+            <h1 class="sdr-page-title">Classes</h1>
+            <p class="sdr-page-desc">{{ page_description }}</p>
+        </div>
+    </header>
 
-<h1>Classes</h1>
+    {% include "sdr/partials/_filter_bar.html" %}
 
-<form method="get">
-    {{ filtered_classes.form.as_p }}
-    <input type="submit" class="btn btn-primary" value="Filtrar">
-</form>
+    <div class="sdr-results-head">
+        <div class="sdr-results-count">{{ results_count }} resultado{{ results_count|pluralize }}</div>
+    </div>
 
-<br>
-
-{% for cls in filtered_classes.qs %}
-<div>
-    <a href="{% url 'sdr:class' cls.id %}"><p>{{ cls.name }}</p></a>
-    <small>{{ cls.type }} — Dado de vida: {{ cls.hit_die }}</small>
-</div>
-{% endfor %}
-
+    {% if filtered_classes.qs %}
+        <section class="sdr-list-cards">
+            {% for dnd_class in filtered_classes.qs %}
+                <a class="sdr-result-card" href="{% url 'sdr:class' dnd_class.id %}">
+                    <span class="sdr-result-card__badge">CLA</span>
+                    <h2 class="sdr-result-card__title">{{ dnd_class.name }}</h2>
+                    <div class="sdr-inline-facts">
+                        {% if dnd_class.type %}<span class="sdr-chip">{{ dnd_class.type }}</span>{% endif %}
+                        {% if dnd_class.hit_die %}<span class="sdr-chip">{{ dnd_class.hit_die }}</span>{% endif %}
+                        {% if dnd_class.spell_stat %}<span class="sdr-chip">{{ dnd_class.spell_stat }}</span>{% endif %}
+                    </div>
+                    <p class="sdr-result-card__summary">{{ dnd_class.class_skills|default:dnd_class.proficiencies|truncatewords:26 }}</p>
+                </a>
+            {% endfor %}
+        </section>
+    {% else %}
+        <p class="sdr-empty">Nenhum resultado para os filtros.</p>
+    {% endif %}
 {% endblock %}

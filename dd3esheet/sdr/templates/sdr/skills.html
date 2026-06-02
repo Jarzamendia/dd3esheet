@@ -1,25 +1,35 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-page-head">
+        <div>
+            <h1 class="sdr-page-title">Perícias</h1>
+            <p class="sdr-page-desc">{{ page_description }}</p>
+        </div>
+    </header>
 
-<h1>Perícias</h1>
+    {% include "sdr/partials/_filter_bar.html" %}
 
-<form method="get">
-    {{ filtered_skills.form.as_p }}
-    <input type="submit" class="btn btn-primary" value="Filtrar">
-</form>
+    <div class="sdr-results-head">
+        <div class="sdr-results-count">{{ results_count }} resultado{{ results_count|pluralize }}</div>
+    </div>
 
-<br>
-
-{% for skill in filtered_skills.qs %}
-<div>
-    <a href="{% url 'sdr:skill' skill.id %}"><p>{{ skill.name }}</p></a>
-    <small>
-        Atributo: {{ skill.key_ability }}
-        {% if skill.trained == "Yes" %} | Somente treinado{% endif %}
-        {% if skill.armor_check == "Yes" %} | Penalidade de armadura{% endif %}
-    </small>
-</div>
-{% endfor %}
-
+    {% if filtered_skills.qs %}
+        <section class="sdr-list-cards">
+            {% for skill in filtered_skills.qs %}
+                <a class="sdr-result-card" href="{% url 'sdr:skill' skill.id %}">
+                    <span class="sdr-result-card__badge">SKL</span>
+                    <h2 class="sdr-result-card__title">{{ skill.name }}</h2>
+                    <div class="sdr-inline-facts">
+                        {% if skill.key_ability %}<span class="sdr-chip">{{ skill.key_ability }}</span>{% endif %}
+                        {% if skill.trained %}<span class="sdr-chip">Treino: {{ skill.trained }}</span>{% endif %}
+                        {% if skill.armor_check %}<span class="sdr-chip">Armadura: {{ skill.armor_check }}</span>{% endif %}
+                    </div>
+                    <p class="sdr-result-card__summary">{{ skill.description|truncatewords:26 }}</p>
+                </a>
+            {% endfor %}
+        </section>
+    {% else %}
+        <p class="sdr-empty">Nenhum resultado para os filtros.</p>
+    {% endif %}
 {% endblock %}

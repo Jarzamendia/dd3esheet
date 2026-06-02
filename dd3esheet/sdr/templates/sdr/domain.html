@@ -1,29 +1,21 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-detail-header">
+        <div>
+            <h1 class="sdr-detail-title">{{ detail_title }}</h1>
+            {% if detail_subtitle %}<p class="sdr-detail-subtitle">{{ detail_subtitle }}</p>{% endif %}
+        </div>
+        <a class="sdr-backlink" href="{{ back_url }}">‹ {{ back_label }}</a>
+    </header>
 
-<h1>Domínio: {{ domain.name }}</h1>
+    {% include "sdr/partials/_text_sections.html" with sections=text_sections %}
+    {% include "sdr/partials/_detail_list.html" with title="Magias Concedidas" rows=domain_spells %}
 
-<h2>Poderes concedidos</h2>
-<p>{{ domain.granted_powers }}</p>
-
-<h2>Magias do Domínio</h2>
-<table class="table table-sm">
-    <tbody>
-        {% if domain.spell_1 %}<tr><th>1°</th><td>{{ domain.spell_1 }}</td></tr>{% endif %}
-        {% if domain.spell_2 %}<tr><th>2°</th><td>{{ domain.spell_2 }}</td></tr>{% endif %}
-        {% if domain.spell_3 %}<tr><th>3°</th><td>{{ domain.spell_3 }}</td></tr>{% endif %}
-        {% if domain.spell_4 %}<tr><th>4°</th><td>{{ domain.spell_4 }}</td></tr>{% endif %}
-        {% if domain.spell_5 %}<tr><th>5°</th><td>{{ domain.spell_5 }}</td></tr>{% endif %}
-        {% if domain.spell_6 %}<tr><th>6°</th><td>{{ domain.spell_6 }}</td></tr>{% endif %}
-        {% if domain.spell_7 %}<tr><th>7°</th><td>{{ domain.spell_7 }}</td></tr>{% endif %}
-        {% if domain.spell_8 %}<tr><th>8°</th><td>{{ domain.spell_8 }}</td></tr>{% endif %}
-        {% if domain.spell_9 %}<tr><th>9°</th><td>{{ domain.spell_9 }}</td></tr>{% endif %}
-    </tbody>
-</table>
-
-{% if domain.full_text %}
-{{ domain.full_text|safe }}
-{% endif %}
-
+    {% if fallback_full_text %}
+        <section class="sdr-section">
+            <h2>Texto Completo</h2>
+            <div class="sdr-richtext">{{ fallback_full_text|safe }}</div>
+        </section>
+    {% endif %}
 {% endblock %}

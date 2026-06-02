@@ -1,21 +1,34 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-page-head">
+        <div>
+            <h1 class="sdr-page-title">Talentos</h1>
+            <p class="sdr-page-desc">{{ page_description }}</p>
+        </div>
+    </header>
 
-<h1>Feats</h1>
+    {% include "sdr/partials/_filter_bar.html" %}
 
-<form method="get">
-    {{ filtered_feats.form.as_p }}
-    <input type="submit" class="btn btn-primary" value="Filtrar">
-</form>
+    <div class="sdr-results-head">
+        <div class="sdr-results-count">{{ results_count }} resultado{{ results_count|pluralize }}</div>
+    </div>
 
-<br>
-
-{% for feat in filtered_feats.qs %}
-<div>
-    <a href="{% url 'sdr:feat' feat.id %}"><p>{{ feat.name }}</p></a>
-    {% if feat.type %}<small>{{ feat.type }}</small>{% endif %}
-</div>
-{% endfor %}
-
+    {% if filtered_feats.qs %}
+        <section class="sdr-list-cards">
+            {% for feat in filtered_feats.qs %}
+                <a class="sdr-result-card" href="{% url 'sdr:feat' feat.id %}">
+                    <span class="sdr-result-card__badge">TAL</span>
+                    <h2 class="sdr-result-card__title">{{ feat.name }}</h2>
+                    <div class="sdr-inline-facts">
+                        {% if feat.type %}<span class="sdr-chip">{{ feat.type }}</span>{% endif %}
+                        {% if feat.prerequisite %}<span class="sdr-chip">Pré-requisito</span>{% endif %}
+                    </div>
+                    <p class="sdr-result-card__summary">{{ feat.benefit|default:feat.special|truncatewords:26 }}</p>
+                </a>
+            {% endfor %}
+        </section>
+    {% else %}
+        <p class="sdr-empty">Nenhum resultado para os filtros.</p>
+    {% endif %}
 {% endblock %}

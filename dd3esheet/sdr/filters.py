@@ -1,131 +1,138 @@
 import django_filters
 
 from .models import (
-    SDR_Class, SDR_Domain, SDR_Equipment, SDR_Feat,
-    SDR_Item, SDR_Monster, SDR_Power, SDR_Skill, SDR_Spell,
+    SDR_Class,
+    SDR_Domain,
+    SDR_Equipment,
+    SDR_Feat,
+    SDR_Item,
+    SDR_Monster,
+    SDR_Power,
+    SDR_Skill,
+    SDR_Spell,
 )
 
 
-class SpellsFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_expr='icontains')
-    school = django_filters.CharFilter(lookup_expr='icontains')
-    level = django_filters.CharFilter(lookup_expr='icontains')
-    components = django_filters.CharFilter(lookup_expr='icontains')
+class BaseSdrFilterSet(django_filters.FilterSet):
+    query_model = None
+
+    def __init__(self, *args, **kwargs):
+        queryset = kwargs.get("queryset")
+        if queryset is None and self.query_model is not None:
+            kwargs["queryset"] = self.query_model.objects.using("sdr")
+        super().__init__(*args, **kwargs)
+
+        for bound_field in self.form.visible_fields():
+            bound_field.field.widget.attrs.update(
+                {
+                    "class": "sdr-filter-input",
+                    "placeholder": bound_field.label,
+                }
+            )
+
+
+class SpellsFilter(BaseSdrFilterSet):
+    query_model = SDR_Spell
+
+    name = django_filters.CharFilter(lookup_expr="icontains", label="Nome")
+    school = django_filters.CharFilter(lookup_expr="icontains", label="Escola")
+    level = django_filters.CharFilter(lookup_expr="icontains", label="Nível")
+    components = django_filters.CharFilter(lookup_expr="icontains", label="Componentes")
 
     class Meta:
         model = SDR_Spell
         fields = ["name", "school", "level", "components"]
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('queryset', SDR_Spell.objects.using('sdr'))
-        super().__init__(*args, **kwargs)
 
+class MonsterFilter(BaseSdrFilterSet):
+    query_model = SDR_Monster
 
-class MonsterFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_expr='icontains')
-    family = django_filters.CharFilter(lookup_expr='icontains')
-    type = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr="icontains", label="Nome")
+    family = django_filters.CharFilter(lookup_expr="icontains", label="Família")
+    type = django_filters.CharFilter(lookup_expr="icontains", label="Tipo")
 
     class Meta:
         model = SDR_Monster
         fields = ["name", "family", "type"]
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('queryset', SDR_Monster.objects.using('sdr'))
-        super().__init__(*args, **kwargs)
 
+class ClassFilter(BaseSdrFilterSet):
+    query_model = SDR_Class
 
-class ClassFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_expr='icontains')
-    type = django_filters.CharFilter(lookup_expr='icontains')
-    alignment = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr="icontains", label="Nome")
+    type = django_filters.CharFilter(lookup_expr="icontains", label="Tipo")
+    alignment = django_filters.CharFilter(lookup_expr="icontains", label="Alinhamento")
 
     class Meta:
         model = SDR_Class
         fields = ["name", "type", "alignment"]
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('queryset', SDR_Class.objects.using('sdr'))
-        super().__init__(*args, **kwargs)
 
+class DomainFilter(BaseSdrFilterSet):
+    query_model = SDR_Domain
 
-class DomainFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr="icontains", label="Nome")
 
     class Meta:
         model = SDR_Domain
         fields = ["name"]
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('queryset', SDR_Domain.objects.using('sdr'))
-        super().__init__(*args, **kwargs)
 
+class EquipmentFilter(BaseSdrFilterSet):
+    query_model = SDR_Equipment
 
-class EquipmentFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_expr='icontains')
-    family = django_filters.CharFilter(lookup_expr='icontains')
-    category = django_filters.CharFilter(lookup_expr='icontains')
-    type = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr="icontains", label="Nome")
+    family = django_filters.CharFilter(lookup_expr="icontains", label="Família")
+    category = django_filters.CharFilter(lookup_expr="icontains", label="Categoria")
+    type = django_filters.CharFilter(lookup_expr="icontains", label="Tipo")
 
     class Meta:
         model = SDR_Equipment
         fields = ["name", "family", "category", "type"]
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('queryset', SDR_Equipment.objects.using('sdr'))
-        super().__init__(*args, **kwargs)
 
+class FeatFilter(BaseSdrFilterSet):
+    query_model = SDR_Feat
 
-class FeatFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_expr='icontains')
-    type = django_filters.CharFilter(lookup_expr='icontains')
-    prerequisite = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr="icontains", label="Nome")
+    type = django_filters.CharFilter(lookup_expr="icontains", label="Tipo")
+    prerequisite = django_filters.CharFilter(lookup_expr="icontains", label="Pré-requisito")
 
     class Meta:
         model = SDR_Feat
         fields = ["name", "type", "prerequisite"]
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('queryset', SDR_Feat.objects.using('sdr'))
-        super().__init__(*args, **kwargs)
 
+class ItemFilter(BaseSdrFilterSet):
+    query_model = SDR_Item
 
-class ItemFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_expr='icontains')
-    category = django_filters.CharFilter(lookup_expr='icontains')
-    subcategory = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr="icontains", label="Nome")
+    category = django_filters.CharFilter(lookup_expr="icontains", label="Categoria")
+    subcategory = django_filters.CharFilter(lookup_expr="icontains", label="Subcategoria")
 
     class Meta:
         model = SDR_Item
         fields = ["name", "category", "subcategory"]
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('queryset', SDR_Item.objects.using('sdr'))
-        super().__init__(*args, **kwargs)
 
+class PowerFilter(BaseSdrFilterSet):
+    query_model = SDR_Power
 
-class PowerFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_expr='icontains')
-    discipline = django_filters.CharFilter(lookup_expr='icontains')
-    level = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr="icontains", label="Nome")
+    discipline = django_filters.CharFilter(lookup_expr="icontains", label="Disciplina")
+    level = django_filters.CharFilter(lookup_expr="icontains", label="Nível")
 
     class Meta:
         model = SDR_Power
         fields = ["name", "discipline", "level"]
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('queryset', SDR_Power.objects.using('sdr'))
-        super().__init__(*args, **kwargs)
 
+class SkillFilter(BaseSdrFilterSet):
+    query_model = SDR_Skill
 
-class SkillFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_expr='icontains')
-    key_ability = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr="icontains", label="Nome")
+    key_ability = django_filters.CharFilter(lookup_expr="icontains", label="Habilidade-chave")
 
     class Meta:
         model = SDR_Skill
         fields = ["name", "key_ability"]
-
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('queryset', SDR_Skill.objects.using('sdr'))
-        super().__init__(*args, **kwargs)

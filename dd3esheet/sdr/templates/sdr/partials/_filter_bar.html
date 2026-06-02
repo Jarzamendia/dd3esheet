@@ -1,0 +1,12 @@
+<form method="get" class="sdr-filter-bar">
+    {% for field in filterset.form.visible_fields %}
+        <label class="sdr-filter-field">
+            <span class="sdr-filter-field__label">{{ field.label }}</span>
+            {{ field }}
+        </label>
+    {% endfor %}
+    <div class="sdr-filter-actions">
+        <button type="submit" class="btn-paper btn-paper--primary">Filtrar</button>
+        <a href="{{ request.path }}" class="btn-paper">Limpar</a>
+    </div>
+</form>

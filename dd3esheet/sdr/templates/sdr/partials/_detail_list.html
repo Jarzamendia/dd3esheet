@@ -1,0 +1,13 @@
+{% if rows %}
+    <section class="sdr-section">
+        <h2>{{ title }}</h2>
+        <ul class="sdr-detail-list">
+            {% for row in rows %}
+                <li>
+                    <strong>{{ row.label }}</strong>
+                    <span>{{ row.value }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endif %}

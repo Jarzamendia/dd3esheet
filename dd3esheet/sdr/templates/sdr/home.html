@@ -1,19 +1,21 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-page-head">
+        <div class="sdr-hero-copy">
+            <h1 class="sdr-page-title">Referência — D&amp;D 3.5</h1>
+            <p class="sdr-page-desc">{{ page_description }}</p>
+        </div>
+    </header>
 
-<h1>D&D 3.5 — Referência</h1>
-
-<ul>
-    <li><a href="{% url 'sdr:classes' %}">Classes</a></li>
-    <li><a href="{% url 'sdr:domains' %}">Domínios</a></li>
-    <li><a href="{% url 'sdr:equipment' %}">Equipamentos</a></li>
-    <li><a href="{% url 'sdr:feats' %}">Feats</a></li>
-    <li><a href="{% url 'sdr:items' %}">Itens Mágicos</a></li>
-    <li><a href="{% url 'sdr:monsters' %}">Monstros</a></li>
-    <li><a href="{% url 'sdr:powers' %}">Poderes Psiônicos</a></li>
-    <li><a href="{% url 'sdr:skills' %}">Perícias</a></li>
-    <li><a href="{% url 'sdr:spells' %}">Magias</a></li>
-</ul>
-
+    <section class="sdr-hub-grid">
+        {% for category in categories %}
+            <a class="sdr-hub-card" href="{{ category.url }}">
+                <span class="sdr-hub-card__badge">{{ category.badge }}</span>
+                <h2 class="sdr-hub-card__title">{{ category.title }}</h2>
+                <p class="sdr-hub-card__desc">{{ category.description }}</p>
+                <span class="sdr-chip">Abrir seção</span>
+            </a>
+        {% endfor %}
+    </section>
 {% endblock %}

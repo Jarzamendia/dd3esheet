@@ -1,24 +1,35 @@
-{% extends "main.html" %}
+{% extends "sdr/base_sdr.html" %}
 
-{% block content %}
+{% block sdr_content %}
+    <header class="sdr-page-head">
+        <div>
+            <h1 class="sdr-page-title">Monstros</h1>
+            <p class="sdr-page-desc">{{ page_description }}</p>
+        </div>
+    </header>
 
-<h1>Monsters</h1>
+    {% include "sdr/partials/_filter_bar.html" %}
 
-<form method="get">
-    {{ filtered_monsters.form.as_p}}
-    <input type="submit" class="btn btn-primary" value="Submit">
-</form>
+    <div class="sdr-results-head">
+        <div class="sdr-results-count">{{ results_count }} resultado{{ results_count|pluralize }}</div>
+    </div>
 
-<br>
-
-{% for monster in filtered_monsters.qs %}
-<div>
-
-    <a href="{% url 'sdr:monster' monster.id %}"> <p>{{monster.name}}</p></a>
-
-</div>
-
-{% endfor %}
-
-
+    {% if filtered_monsters.qs %}
+        <section class="sdr-list-cards">
+            {% for monster in filtered_monsters.qs %}
+                <a class="sdr-result-card" href="{% url 'sdr:monster' monster.id %}">
+                    <span class="sdr-result-card__badge">MON</span>
+                    <h2 class="sdr-result-card__title">{{ monster.name }}</h2>
+                    <div class="sdr-inline-facts">
+                        {% if monster.family %}<span class="sdr-chip">{{ monster.family }}</span>{% endif %}
+                        {% if monster.type %}<span class="sdr-chip">{{ monster.type }}</span>{% endif %}
+                        {% if monster.challenge_rating %}<span class="sdr-chip">ND {{ monster.challenge_rating }}</span>{% endif %}
+                    </div>
+                    <p class="sdr-result-card__summary">{{ monster.special_qualities|default:monster.full_text|truncatewords:26 }}</p>
+                </a>
+            {% endfor %}
+        </section>
+    {% else %}
+        <p class="sdr-empty">Nenhum resultado para os filtros.</p>
+    {% endif %}
 {% endblock %}
