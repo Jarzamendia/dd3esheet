@@ -10,74 +10,9 @@
                 <div class="pvca-head-label">Deslocamento</div>
             </div>
 
-        <form id="characterStatusForm" class="pvca-form" aria-live="polite"
-              hx-post="{% url 'character:character' character.pk %}"
-              hx-target="#characterStatusForm"
-              hx-swap="outerHTML"
-              hx-trigger="input changed delay:700ms, change delay:300ms">
-            {% csrf_token %}
+        {% include "character/partials/character_status_form.html" %}
 
-            <div class="pv-row" data-sheet-table="hit-points">
-                <div class="tag-black">
-                    <span class="t-main">PV</span>
-                    <span class="t-sub">Pontos de Vida</span>
-                </div>
-                <div class="pv-total-cell">
-                    <input class="slot slot--lg sheet-input" name="TotalHitPoints" data-field="TotalHitPoints" value="{{ status.TotalHitPoints|default:'' }}" inputmode="numeric" title="PV total">
-                </div>
-                <div class="pv-cell pv-cell--wide">
-                    <div class="pv-current-temp">
-                        <input class="slot slot--lg sheet-input" name="CurrentHitPoints" value="{{ status.CurrentHitPoints|default:'' }}" inputmode="numeric" title="PVs atuais">
-                        <input class="slot slot--lg sheet-input" name="TemporaryHitPoints" value="{{ status.TemporaryHitPoints|default:'' }}" inputmode="numeric" title="PVs temporarios">
-                    </div>
-                </div>
-                <div class="pv-cell">
-                    <input class="slot slot--lg sheet-input" name="NonLethalDamager" data-field="NonLethalDamager" value="{{ status.NonLethalDamager|default:'' }}" inputmode="numeric" title="Dano por contusao">
-                </div>
-                <div class="pv-cell">
-                    <input class="slot slot--lg sheet-input" name="Speed" data-field="Speed" value="{{ status.Speed|default:'' }}" inputmode="numeric" title="Deslocamento">
-                </div>
-            </div>
-        </form>
-
-        <form id="characterArmorForm" class="pvca-form" aria-live="polite"
-              hx-post="{% url 'character:character' character.pk %}"
-              hx-target="#characterArmorForm"
-              hx-swap="outerHTML"
-              hx-trigger="input changed delay:700ms, change delay:300ms">
-            {% csrf_token %}
-
-            <div class="ca-row" data-sheet-table="armor-class">
-                <div class="tag-black">
-                    <span class="t-main">CA</span>
-                    <span class="t-sub">Classe de Armadura</span>
-                </div>
-                <div class="ca-total-cell">
-                    <div class="slot slot--lg slot--calc" data-derived="ACTotal" title="CA total">{{ status.ACTotal|default:"-" }}</div>
-                </div>
-                <div class="ca-breakdown">
-                    <span class="op">=</span>
-                    <span class="op f-display">10 +</span>
-                    <div class="ca-cell"><input class="slot sheet-input" name="ACArmorBonus" data-field="ACArmorBonus" value="{{ status.ACArmorBonus|default:'' }}" inputmode="numeric"><span class="label">Armadura</span></div>
-                    <span class="op">+</span>
-                    <div class="ca-cell"><input class="slot sheet-input" name="ACShieldBonus" data-field="ACShieldBonus" value="{{ status.ACShieldBonus|default:'' }}" inputmode="numeric"><span class="label">Escudo</span></div>
-                    <span class="op">+</span>
-                    <div class="ca-cell"><div class="slot slot--calc" data-derived="ACDexModifier">{{ status.ACDexModifier|default:"-" }}</div><span class="label">Destreza</span></div>
-                    <span class="op">+</span>
-                    <div class="ca-cell"><input class="slot sheet-input" name="ACSizeModifier" data-field="ACSizeModifier" value="{{ status.ACSizeModifier|default:'' }}" inputmode="numeric"><span class="label">Tamanho</span></div>
-                    <span class="op">+</span>
-                    <div class="ca-cell"><input class="slot sheet-input" name="ACNaturalArmor" data-field="ACNaturalArmor" value="{{ status.ACNaturalArmor|default:'' }}" inputmode="numeric"><span class="label">Natural</span></div>
-                    <span class="op">+</span>
-                    <div class="ca-cell"><input class="slot sheet-input" name="ACDeflectionModifier" data-field="ACDeflectionModifier" value="{{ status.ACDeflectionModifier|default:'' }}" inputmode="numeric"><span class="label">Deflexao</span></div>
-                    <span class="op">+</span>
-                    <div class="ca-cell"><input class="slot sheet-input" name="ACMiscModifier" data-field="ACMiscModifier" value="{{ status.ACMiscModifier|default:'' }}" inputmode="numeric"><span class="label">Outros</span></div>
-                </div>
-                <div class="ca-rd-cell">
-                    <input class="slot slot--lg sheet-input" name="DamageReduction" data-field="DamageReduction" value="{{ status.DamageReduction|default:'' }}" inputmode="numeric" title="Reducao de Dano">
-                    <span class="label">Reducao de Dano</span>
-                </div>
-            </div>
-        </form>
+        {% include "character/partials/character_armor_form.html" %}
     </div>
 
     <div class="lower-row">

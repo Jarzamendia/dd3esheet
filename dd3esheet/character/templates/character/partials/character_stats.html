@@ -1,133 +1,10 @@
-{% with stats=character.characterstats saves=character.charactersavingthrows atk=character.characterattackmodifiers %}
 <section class="col-attrs">
 
-    <form id="characterStatsForm"
-          hx-post="{% url 'character:character' character.pk %}"
-          hx-target="#characterStatsForm"
-          hx-swap="outerHTML"
-          hx-trigger="input changed delay:700ms, change delay:300ms">
-        {% csrf_token %}
-
-        <div class="attrs" data-sheet-table="abilities" aria-live="polite">
-            <div class="attrs-head">
-                <div class="ah-title">HABILIDADE</div>
-                <div><span class="ah-label ah-main">VALOR</span></div>
-                <div><span class="ah-label">MOD. DE<br>HABILIDADE</span></div>
-                <div><span class="ah-label">VALOR<br>TEMPORARIO</span></div>
-                <div><span class="ah-label">MOD.<br>TEMPORARIO</span></div>
-            </div>
-
-            <div class="attr-row">
-                <div class="attr-tag">FOR<span class="t-sub">Forca</span></div>
-                <input class="attr-cell sheet-input" name="Strength" data-field="Strength" value="{{ stats.Strength|default:'' }}" inputmode="numeric">
-                <div class="attr-cell attr-cell--calc" data-derived="StrengthStatMod">{{ stats.StrengthStatMod|default:"-" }}</div>
-                <input class="attr-cell sheet-input" name="StrengthTemp" data-field="StrengthTemp" value="{{ stats.StrengthTemp|default:'' }}" inputmode="numeric">
-                <input class="attr-cell sheet-input" name="StrengthModTemp" data-field="StrengthModTemp" value="{{ stats.StrengthModTemp|default:'' }}" inputmode="numeric">
-            </div>
-            <div class="attr-row">
-                <div class="attr-tag">DES<span class="t-sub">Destreza</span></div>
-                <input class="attr-cell sheet-input" name="Dexterity" data-field="Dexterity" value="{{ stats.Dexterity|default:'' }}" inputmode="numeric">
-                <div class="attr-cell attr-cell--calc" data-derived="DexterityStatMod">{{ stats.DexterityStatMod|default:"-" }}</div>
-                <input class="attr-cell sheet-input" name="DexterityTemp" data-field="DexterityTemp" value="{{ stats.DexterityTemp|default:'' }}" inputmode="numeric">
-                <input class="attr-cell sheet-input" name="DexterityModTemp" data-field="DexterityModTemp" value="{{ stats.DexterityModTemp|default:'' }}" inputmode="numeric">
-            </div>
-            <div class="attr-row">
-                <div class="attr-tag">CON<span class="t-sub">Constituicao</span></div>
-                <input class="attr-cell sheet-input" name="Constitution" data-field="Constitution" value="{{ stats.Constitution|default:'' }}" inputmode="numeric">
-                <div class="attr-cell attr-cell--calc" data-derived="ConstitutionStatMod">{{ stats.ConstitutionStatMod|default:"-" }}</div>
-                <input class="attr-cell sheet-input" name="ConstitutionTemp" data-field="ConstitutionTemp" value="{{ stats.ConstitutionTemp|default:'' }}" inputmode="numeric">
-                <input class="attr-cell sheet-input" name="ConstitutionModTemp" data-field="ConstitutionModTemp" value="{{ stats.ConstitutionModTemp|default:'' }}" inputmode="numeric">
-            </div>
-            <div class="attr-row">
-                <div class="attr-tag">INT<span class="t-sub">Inteligencia</span></div>
-                <input class="attr-cell sheet-input" name="Intelligence" data-field="Intelligence" value="{{ stats.Intelligence|default:'' }}" inputmode="numeric">
-                <div class="attr-cell attr-cell--calc" data-derived="IntelligenceStatMod">{{ stats.IntelligenceStatMod|default:"-" }}</div>
-                <input class="attr-cell sheet-input" name="IntelligenceTemp" data-field="IntelligenceTemp" value="{{ stats.IntelligenceTemp|default:'' }}" inputmode="numeric">
-                <input class="attr-cell sheet-input" name="IntelligenceModTemp" data-field="IntelligenceModTemp" value="{{ stats.IntelligenceModTemp|default:'' }}" inputmode="numeric">
-            </div>
-            <div class="attr-row">
-                <div class="attr-tag">SAB<span class="t-sub">Sabedoria</span></div>
-                <input class="attr-cell sheet-input" name="Wisdom" data-field="Wisdom" value="{{ stats.Wisdom|default:'' }}" inputmode="numeric">
-                <div class="attr-cell attr-cell--calc" data-derived="WisdomStatMod">{{ stats.WisdomStatMod|default:"-" }}</div>
-                <input class="attr-cell sheet-input" name="WisdomTemp" data-field="WisdomTemp" value="{{ stats.WisdomTemp|default:'' }}" inputmode="numeric">
-                <input class="attr-cell sheet-input" name="WisdomModTemp" data-field="WisdomModTemp" value="{{ stats.WisdomModTemp|default:'' }}" inputmode="numeric">
-            </div>
-            <div class="attr-row">
-                <div class="attr-tag">CAR<span class="t-sub">Carisma</span></div>
-                <input class="attr-cell sheet-input" name="Charisma" data-field="Charisma" value="{{ stats.Charisma|default:'' }}" inputmode="numeric">
-                <div class="attr-cell attr-cell--calc" data-derived="CharismaStatMod">{{ stats.CharismaStatMod|default:"-" }}</div>
-                <input class="attr-cell sheet-input" name="CharismaTemp" data-field="CharismaTemp" value="{{ stats.CharismaTemp|default:'' }}" inputmode="numeric">
-                <input class="attr-cell sheet-input" name="CharismaModTemp" data-field="CharismaModTemp" value="{{ stats.CharismaModTemp|default:'' }}" inputmode="numeric">
-            </div>
-        </div>
-    </form>
+    {% include "character/partials/character_attrs_form.html" %}
 
     <div class="attack-stack">
         <div class="saves-area">
-            <form id="characterSavesForm" class="saves-form" aria-live="polite"
-                  hx-post="{% url 'character:character' character.pk %}"
-                  hx-target="#characterSavesForm"
-                  hx-swap="outerHTML"
-                  hx-trigger="input changed delay:700ms, change delay:300ms">
-                {% csrf_token %}
-
-                <div class="block-body">
-                    <div class="saves" data-sheet-table="saving-throws">
-                        <div class="saves-head">
-                            <div class="sh-name">Teste de Resistencia</div>
-                            <div class="sh-total">Total</div>
-                            <div class="sh-base">Bonus<br>Base</div>
-                            <div class="sh-mod">Mod. de<br>Habilidade</div>
-                            <div class="sh-magic">Mod.<br>Magico</div>
-                            <div class="sh-misc">Outros</div>
-                            <div class="sh-temp">Mod.<br>Temporario</div>
-                        </div>
-
-                        <div class="save-row">
-                            <div class="save-tag">FORTITUDE<span class="t-sub">Constituicao</span></div>
-                            <div class="save-slot save-slot--calc" data-derived="TotalFortitude">{{ saves.TotalFortitude|default:"-" }}</div>
-                            <div class="save-op">=</div>
-                            <input class="save-slot sheet-input" name="FortitudeBaseSave" data-field="FortitudeBaseSave" value="{{ saves.FortitudeBaseSave|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <div class="save-slot save-slot--calc" data-derived="FortitudeAbilityModifier">{{ saves.FortitudeAbilityModifier|default:"-" }}</div>
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="FortitudeMagicModifier" data-field="FortitudeMagicModifier" value="{{ saves.FortitudeMagicModifier|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="FortitudeMiscModifier" data-field="FortitudeMiscModifier" value="{{ saves.FortitudeMiscModifier|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="FortitudeTemporaryModifier" data-field="FortitudeTemporaryModifier" value="{{ saves.FortitudeTemporaryModifier|default:'' }}" inputmode="numeric">
-                        </div>
-                        <div class="save-row">
-                            <div class="save-tag">REFLEXOS<span class="t-sub">Destreza</span></div>
-                            <div class="save-slot save-slot--calc" data-derived="TotalReflex">{{ saves.TotalReflex|default:"-" }}</div>
-                            <div class="save-op">=</div>
-                            <input class="save-slot sheet-input" name="ReflexBaseSave" data-field="ReflexBaseSave" value="{{ saves.ReflexBaseSave|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <div class="save-slot save-slot--calc" data-derived="ReflexAbilityModifier">{{ saves.ReflexAbilityModifier|default:"-" }}</div>
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="ReflexMagicModifier" data-field="ReflexMagicModifier" value="{{ saves.ReflexMagicModifier|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="ReflexMiscModifier" data-field="ReflexMiscModifier" value="{{ saves.ReflexMiscModifier|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="ReflexTemporaryModifier" data-field="ReflexTemporaryModifier" value="{{ saves.ReflexTemporaryModifier|default:'' }}" inputmode="numeric">
-                        </div>
-                        <div class="save-row">
-                            <div class="save-tag">VONTADE<span class="t-sub">Sabedoria</span></div>
-                            <div class="save-slot save-slot--calc" data-derived="TotalWill">{{ saves.TotalWill|default:"-" }}</div>
-                            <div class="save-op">=</div>
-                            <input class="save-slot sheet-input" name="WillBaseSave" data-field="WillBaseSave" value="{{ saves.WillBaseSave|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <div class="save-slot save-slot--calc" data-derived="WillAbilityModifier">{{ saves.WillAbilityModifier|default:"-" }}</div>
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="WillMagicModifier" data-field="WillMagicModifier" value="{{ saves.WillMagicModifier|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="WillMiscModifier" data-field="WillMiscModifier" value="{{ saves.WillMiscModifier|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="WillTemporaryModifier" data-field="WillTemporaryModifier" value="{{ saves.WillTemporaryModifier|default:'' }}" inputmode="numeric">
-                        </div>
-                    </div>
-                </div>
-            </form>
+            {% include "character/partials/character_saves_form.html" %}
 
             <div class="mod-conds">
                 <div class="mc-head">Mod. Condicionais</div>
@@ -136,53 +13,10 @@
         </div>
 
         <div class="combat-stack">
-            <form id="characterAttackForm" class="block" aria-live="polite"
-                  hx-post="{% url 'character:character' character.pk %}"
-                  hx-target="#characterAttackForm"
-                  hx-swap="outerHTML"
-                  hx-trigger="input changed delay:700ms, change delay:300ms">
-                {% csrf_token %}
-
-                <div class="block-body">
-                    <div class="bab-row" data-sheet-table="base-attack">
-                        <div class="bab-box">
-                            <div class="bb-label">Bonus Base de Ataque</div>
-                            <input class="bb-slot sheet-input" name="BBA" data-field="BBA" value="{{ atk.BBA|default:'' }}" inputmode="numeric">
-                        </div>
-                        <div class="sr-box">
-                            <div class="sr-label">Resistencia<br>a Magia</div>
-                            <input class="sr-slot sheet-input" name="SpellResistence" data-field="SpellResistence" value="{{ atk.SpellResistence|default:'' }}" inputmode="numeric">
-                        </div>
-                    </div>
-
-                    <div class="agarrar" data-sheet-table="grapple">
-                        <div class="agarrar-row">
-                            <div class="save-tag">AGARRAR<span class="t-sub">Modificador</span></div>
-                            <div class="save-slot save-slot--calc" data-derived="TotalGrappler">{{ atk.TotalGrappler|default:"-" }}</div>
-                            <div class="save-op">=</div>
-                            <input class="save-slot sheet-input" name="GrapplerBBA" data-field="GrapplerBBA" value="{{ atk.GrapplerBBA|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <div class="save-slot save-slot--calc" data-derived="GrapplerStrModifier">{{ atk.GrapplerStrModifier|default:"-" }}</div>
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="GrapplerSizeModifier" data-field="GrapplerSizeModifier" value="{{ atk.GrapplerSizeModifier|default:'' }}" inputmode="numeric">
-                            <div class="save-op">+</div>
-                            <input class="save-slot sheet-input" name="GrapplerMiscModifier" data-field="GrapplerMiscModifier" value="{{ atk.GrapplerMiscModifier|default:'' }}" inputmode="numeric">
-                        </div>
-                        <div class="agarrar-head">
-                            <div class="ah-tag">&nbsp;</div>
-                            <div class="ah-total">Total</div>
-                            <div class="ah-base">Bonus<br>Base</div>
-                            <div class="ah-for">Mod. de<br>Forca</div>
-                            <div class="ah-size">Mod. de<br>Tamanho</div>
-                            <div class="ah-misc">Outros</div>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            {% include "character/partials/character_attack_form.html" %}
         </div>
 
         {% include "character/partials/character_weapon_card.html" %}
     </div>
 
 </section>
-{% endwith %}

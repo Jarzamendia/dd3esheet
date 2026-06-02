@@ -22,7 +22,7 @@ from .forms import CharacterForm, CharacterStatsForm, CharacterCreateForm, Chara
 from .services import _bootstrap_character_siblings, ensure_expandable_skill_slots
 from .constants import DEITY_SUGGESTIONS
 from .calculations import (
-    ABILITY_FIELDS, ability_modifier, armor_check_penalty_for_skill, cap_dex_to_armor,
+    ABILITY_FIELDS, SKILL_ABILITY_BY_NAME, ability_modifier, armor_check_penalty_for_skill, cap_dex_to_armor,
     compute_armor_class, compute_attack_bonus, compute_grapple_total,
     compute_save_total, compute_skill_row, compute_spell_save_dc, equipment_armor_class_bonuses,
     bonus_spells_for_ability,
@@ -47,9 +47,16 @@ _SPELLBOOK_PROFILE_FIELDS = [
 ]
 
 
-def _annotate_skill_rules(skills):
+def _annotate_skill_rules(skills, stats=None):
     for skill in skills:
         skill.IsTrainedOnly = is_trained_only_skill(skill.SkillName)
+        if stats is not None:
+            ability = SKILL_ABILITY_BY_NAME.get(skill.SkillName or '')
+            if ability:
+                raw = getattr(stats, ability, None)
+                skill.AbilityModifier = ability_modifier(raw) if raw else None
+            else:
+                skill.AbilityModifier = None
     return skills
 
 
@@ -766,7 +773,8 @@ def _sheet_context(char, **extra):
         'known_spell_slots': _ordered_slots(char, 'characterspell_set', CharacterSpell, 36),
     }
     context['character'].skill_rows = _annotate_skill_rules(
-        _related_items(context['character'], 'characterskill_set', CharacterSkill)
+        _related_items(context['character'], 'characterskill_set', CharacterSkill),
+        getattr(context['character'], 'characterstats', None),
     )
     context.update(extra)
     return context
@@ -826,7 +834,7 @@ def character(request, pk):
             _recalculate_stats(char)
             char.refresh_from_db()
             context = _sheet_context(char)
-            return render(request, 'character/partials/character_stats.html', context)
+            return render(request, 'character/partials/character_attrs_form.html', context)
 
         if request.htmx.target == 'characterStatusForm':
             _update_fields_from_post(char.characterstatus, request, [
@@ -836,17 +844,16 @@ def character(request, pk):
             if _is_autosave(request):
                 return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_combat.html', _sheet_context(char))
+            return render(request, 'character/partials/character_status_form.html', _sheet_context(char))
 
         if request.htmx.target == 'characterArmorForm':
             _update_fields_from_post(char.characterstatus, request, [
-                'ACArmorBonus', 'ACShieldBonus', 'ACSizeModifier', 'ACNaturalArmor',
-                'ACDeflectionModifier', 'ACMiscModifier', 'DamageReduction',
+                'ACSizeModifier', 'ACNaturalArmor', 'ACDeflectionModifier', 'DamageReduction',
             ])
             if _is_autosave(request):
                 return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_combat.html', _sheet_context(char))
+            return render(request, 'character/partials/character_armor_form.html', _sheet_context(char))
 
         if request.htmx.target == 'characterSavesForm':
             _update_fields_from_post(char.charactersavingthrows, request, [
@@ -857,7 +864,7 @@ def character(request, pk):
             if _is_autosave(request):
                 return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_stats.html', _sheet_context(char))
+            return render(request, 'character/partials/character_saves_form.html', _sheet_context(char))
 
         if request.htmx.target == 'characterAttackForm':
             _update_fields_from_post(char.characterattackmodifiers, request, [
@@ -866,7 +873,7 @@ def character(request, pk):
             if _is_autosave(request):
                 return _autosave_204()
             _recalculate_stats(char)
-            return render(request, 'character/partials/character_stats.html', _sheet_context(char))
+            return render(request, 'character/partials/character_attack_form.html', _sheet_context(char))
 
         if request.htmx.target == 'characterSkillsForm':
             skills = list(CharacterSkill.objects.filter(Character=char).order_by('id'))
