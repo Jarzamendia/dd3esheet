@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from sdr.models import SDR_ClassTable, SDR_Domain
+from .calculations import ability_modifier, bonus_spells_for_ability, compute_spell_save_dc
 
 
 CASTER_CONFIG = {
@@ -49,25 +50,12 @@ class SpellLevelSummary:
     used_slots: int
     remaining_slots: str
 
-
-def ability_modifier(score):
-    if score is None:
-        return 0
-    return (score - 10) // 2
-
-
 def spell_save_dc(spell_level, ability_score):
-    return 10 + int(spell_level) + ability_modifier(ability_score)
+    return compute_spell_save_dc(spell_level, ability_modifier(ability_score))
 
 
 def bonus_spells_for_level(ability_score, spell_level):
-    spell_level = int(spell_level)
-    if spell_level == 0:
-        return 0
-    mod = ability_modifier(ability_score)
-    if mod < spell_level:
-        return 0
-    return 1 + ((mod - spell_level) // 4)
+    return bonus_spells_for_ability(ability_score, spell_level)
 
 
 def numeric_slot_count(value):

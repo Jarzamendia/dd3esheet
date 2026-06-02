@@ -111,124 +111,21 @@
 
         <section class="companion-section" data-section="summon-creatures">
             <header class="companion-section-header">
-                <span onclick="toggleCompanionSection('summon-creatures')" role="button">🐾 Criaturas Invocadas</span>
+                <span onclick="toggleCompanionSection('summon-creatures')" role="button">🐾 Invoca&ccedil;&otilde;es Ativas</span>
                 <span class="chevron" onclick="toggleCompanionSection('summon-creatures')" role="button">▾</span>
             </header>
             <div class="companion-section-body">
-        {% for slot in "1234" %}
-        <article class="summon-stat-card" data-sheet-table="summon-card" data-slot="{{ forloop.counter }}">
-            <header class="summon-stat-card-title">
-                <span class="summon-stat-slot-badge" aria-hidden="true">{{ forloop.counter }}</span>
-                <div class="summon-stat-title-field summon-stat-title-field--name">
-                    <span class="summon-stat-title-label">Criatura</span>
-                    <input class="summon-stat-title-input" data-field="summon.Name"
-                           data-slot="{{ forloop.counter }}" placeholder="Ex.: Urso atroz">
-                </div>
-                <div class="summon-stat-title-field summon-stat-title-field--level">
-                    <span class="summon-stat-title-label">Nv</span>
-                    <input class="summon-stat-title-input" data-field="summon.SpellLevel"
-                           data-slot="{{ forloop.counter }}" placeholder="6">
-                </div>
-                <div class="summon-stat-title-field summon-stat-title-field--source">
-                    <span class="summon-stat-title-label">Fonte / Pg</span>
-                    <input class="summon-stat-title-input" data-field="summon.Source"
-                           data-slot="{{ forloop.counter }}" placeholder="LDM 18">
-                </div>
-            </header>
+                <form class="summon-search-form"
+                      hx-get="{% url 'character:summon-search' character.pk %}"
+                      hx-target="#summon-search-results"
+                      hx-swap="outerHTML"
+                      hx-trigger="keyup changed delay:300ms from:#summon-search-input">
+                    <label for="summon-search-input" class="label">Buscar no SRD</label>
+                    <input id="summon-search-input" class="sheet-input" type="search" name="q" placeholder="Ex.: Wolf, Dire Bear, Celestial Eagle">
+                    <div id="summon-search-results"></div>
+                </form>
 
-            <div class="summon-stat-card-body">
-                {# linha 1: barra compacta de combate (7 col) #}
-                <div class="summon-combat-strip">
-                    <div class="micro"><span>Iniciativa</span>
-                        <input data-field="summon.Initiative" data-slot="{{ forloop.counter }}"></div>
-                    <div class="micro"><span>Deslocamento</span>
-                        <input data-field="summon.Speed" data-slot="{{ forloop.counter }}"></div>
-                    <div class="micro"><span>CA (n/t/s)</span>
-                        <input data-field="summon.ArmorClass" data-slot="{{ forloop.counter }}"></div>
-                    <div class="micro"><span>BBA / Agarrar</span>
-                        <input data-field="summon.AttackBonusGrapple" data-slot="{{ forloop.counter }}"></div>
-                    <div class="micro"><span>DV</span>
-                        <input data-field="summon.HitDice" data-slot="{{ forloop.counter }}"></div>
-                    <div class="micro"><span>PV</span>
-                        <input data-field="summon.HitPoints" data-slot="{{ forloop.counter }}"></div>
-                    <div class="micro"><span>Tamanho</span>
-                        <input data-field="summon.Size" data-slot="{{ forloop.counter }}"></div>
-                </div>
-
-                {# linha 2: ataques (esq), atributos (centro), saves+icone (dir) #}
-                <div class="summon-mid">
-                    <div class="summon-attacks">
-                        <label class="attack-row attack-row--single">
-                            <span class="rl">Ataque</span>
-                            <input data-field="summon.Attack" data-slot="{{ forloop.counter }}"
-                                   placeholder="Ex.: garra +14 (1d8+8)">
-                        </label>
-                        <label class="attack-row attack-row--multi">
-                            <span class="rl">Completo</span>
-                            <textarea data-field="summon.FullAttack" data-slot="{{ forloop.counter }}"
-                                      placeholder="Ex.: 2 garras +14 (1d8+8) e mordida +9 (2d6+4)"></textarea>
-                        </label>
-                    </div>
-
-                    <div class="summon-attrs">
-                        <div class="ah"></div><div class="ah">Base</div><div class="ah">Mod</div><div class="ah">Total</div>
-
-                        <div class="an">FOR</div>
-                        <input class="av" data-field="summon.StrengthBase"  data-slot="{{ forloop.counter }}">
-                        <input class="av" data-field="summon.StrengthMod"   data-slot="{{ forloop.counter }}">
-                        <input class="av" data-field="summon.StrengthTotal" data-slot="{{ forloop.counter }}">
-
-                        <div class="an">DES</div>
-                        <input class="av" data-field="summon.DexterityBase"  data-slot="{{ forloop.counter }}">
-                        <input class="av" data-field="summon.DexterityMod"   data-slot="{{ forloop.counter }}">
-                        <input class="av" data-field="summon.DexterityTotal" data-slot="{{ forloop.counter }}">
-
-                        <div class="an">CON</div>
-                        <input class="av" data-field="summon.ConstitutionBase"  data-slot="{{ forloop.counter }}">
-                        <input class="av" data-field="summon.ConstitutionMod"   data-slot="{{ forloop.counter }}">
-                        <input class="av" data-field="summon.ConstitutionTotal" data-slot="{{ forloop.counter }}">
-                    </div>
-
-                    <aside class="summon-saves-aside">
-                        <svg class="summon-stat-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-                            <ellipse cx="8" cy="13" rx="2.6" ry="3.4"/>
-                            <ellipse cx="24" cy="13" rx="2.6" ry="3.4"/>
-                            <ellipse cx="13" cy="7" rx="2.3" ry="3"/>
-                            <ellipse cx="19" cy="7" rx="2.3" ry="3"/>
-                            <path d="M16 15c-4.4 0-7.5 3.2-7.5 7 0 3.1 2.1 5 5 5 1.2 0 1.9-.5 2.5-.5s1.3.5 2.5.5c2.9 0 5-1.9 5-5 0-3.8-3.1-7-7.5-7z"/>
-                        </svg>
-                        <div class="saves-list">
-                            <label><span>Fort</span><input data-field="summon.SaveFort" data-slot="{{ forloop.counter }}"></label>
-                            <label><span>Ref</span><input data-field="summon.SaveRef"  data-slot="{{ forloop.counter }}"></label>
-                            <label><span>Von</span><input data-field="summon.SaveWill" data-slot="{{ forloop.counter }}"></label>
-                        </div>
-                    </aside>
-                </div>
-
-                {# linha 3: traits compactos + anotacoes (notes ocupa 2 cols pra casar a coluna de traits com a de attacks) #}
-                <div class="summon-bottom">
-                    <div class="summon-traits">
-                        <label class="trait-row">
-                            <span class="rl">Especiais</span>
-                            <input data-field="summon.SpecialAttacks" data-slot="{{ forloop.counter }}">
-                        </label>
-                        <label class="trait-row">
-                            <span class="rl">Qualidades</span>
-                            <input data-field="summon.Qualities" data-slot="{{ forloop.counter }}">
-                        </label>
-                        <label class="trait-row">
-                            <span class="rl">Per&iacute;cias</span>
-                            <input data-field="summon.Skills" data-slot="{{ forloop.counter }}">
-                        </label>
-                    </div>
-                    <div class="summon-notes">
-                        <header>Anota&ccedil;&otilde;es</header>
-                        <textarea data-field="summon.Notes" data-slot="{{ forloop.counter }}"></textarea>
-                    </div>
-                </div>
-            </div>
-        </article>
-        {% endfor %}
+                {% include "character/partials/companions_summons_grid.html" %}
             </div>{# /companion-section-body (summon-creatures) #}
         </section>{# /companion-section (summon-creatures) #}
     </section>{# /companion-block--summons #}

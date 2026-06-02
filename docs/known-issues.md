@@ -39,3 +39,14 @@ Regra de seguranca:
 
 O app `character` possui testes que exercitam consultas SDR, mas o app `sdr` em si ainda precisa de cobertura propria para listagens e detalhes.
 
+## Campos derivaveis ainda manuais
+
+Checklist da Entrega A do `AGENT2.md`. O objetivo e zerar esta lista.
+
+- `CharacterWeapon.AttackBonus` ainda e digitado manualmente nos cards de arma. Deve ser derivado de `BBA` + mod. de atributo correto (FOR corpo a corpo, DES a distancia) + tamanho + misc.
+- `CharacterAttackModifiers.GrapplerBBA` ainda duplica `BBA` como entrada manual, apesar de representar o mesmo componente base do total de agarrar.
+- `CharacterStatus.ACDexModifier` ainda usa a Destreza cheia; nao respeita o teto de `MaxDex` da armadura/escudo equipado.
+- `CharacterSkill.SkillModifier` ainda ignora penalidade de armadura/escudo nas pericias afetadas por armadura. `Natacao` tambem nao dobra essa penalidade.
+- `CharacterStatus.Speed` ainda pode ser digitado manualmente no bloco de combate; deveria ser recalculado a partir do deslocamento da armadura equipada e da categoria de carga.
+- `CharacterMagicDayUse.SpellSaveDC` e `CharacterMagicDayUse.BonusSpells` nao sao persistidos. A UI mostra valores calculados em memoria, sem gravar o estado derivado por nivel.
+

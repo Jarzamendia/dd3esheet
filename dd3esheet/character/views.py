@@ -1,7 +1,10 @@
+import re
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db import models, transaction
 from django.db.models import Prefetch
+from django.http import HttpResponse
 
 from .models import (
     Ability, Character, CharacterArmor, CharacterAttackModifiers,
@@ -9,7 +12,8 @@ from .models import (
     CharacterCompanion, CharacterContact, CharacterContract, CharacterFaction,
     CharacterFeat, CharacterLanguages, CharacterMoney, CharacterOtherItem,
     CharacterOtherItemObs, CharacterProgress, CharacterProtectionItem, CharacterSavingThrows,
-    CharacterShield, CharacterSkill, CharacterSkillGraduation,
+    CharacterShield, CharacterSkill, CharacterSkillGraduation, CharacterMagicDayUse,
+    CharacterSummon,
     CharacterSpell, CharacterSpellSlot, CharacterSpellcasting,
     CharacterStatus, CharacterWeapon,
 )
@@ -17,13 +21,17 @@ from .forms import CharacterForm, CharacterStatsForm, CharacterCreateForm, Chara
 from .services import _bootstrap_character_siblings, ensure_expandable_skill_slots
 from .constants import DEITY_SUGGESTIONS
 from .calculations import (
-    ABILITY_FIELDS, ability_modifier, compute_armor_class, compute_grapple_total,
-    compute_save_total, compute_skill_row, equipment_armor_class_bonuses,
+    ABILITY_FIELDS, ability_modifier, armor_check_penalty_for_skill, cap_dex_to_armor,
+    compute_armor_class, compute_attack_bonus, compute_grapple_total,
+    compute_save_total, compute_skill_row, compute_spell_save_dc, equipment_armor_class_bonuses,
+    bonus_spells_for_ability,
     load_limits_for_strength, daily_resource_remaining,
+    load_category_for_weight, parse_bonus,
     is_trained_only_skill, skill_ability_key, skill_ability_modifier, skill_graduation_limits,
-    skill_total, total_carried_weight,
+    signed_bonus, skill_total, speed_for_load, total_carried_weight,
 )
-from .spellcasting import numeric_slot_count, spellcasting_context
+from .spellcasting import caster_config_for_class, numeric_slot_count, spellcasting_context
+from sdr.models import SDR_Monster
 from sdr.lookups import resolve_spell
 
 _SPELLBOOK_SLOT_TOTAL = 20
@@ -54,6 +62,93 @@ def _to_int(value, default=0):
 
 def _ability_mod(value):
     return ability_modifier(value)
+
+
+def _first_nonblank_value(rows, field_name):
+    for row in rows:
+        value = row.get(field_name)
+        if value not in (None, ''):
+            return value
+    return None
+
+
+def _lowest_max_dex(armor_rows):
+    values = [parse_bonus(row.get('MaxDex')) for row in armor_rows if row.get('MaxDex') not in (None, '')]
+    if not values:
+        return None
+    return min(values)
+
+
+def _armor_check_penalty_total(armor_rows, shield_rows):
+    return sum(parse_bonus(row.get('CheckPenalty')) for row in [*armor_rows, *shield_rows])
+
+
+def _weapon_uses_ranged_bonus(weapon):
+    range_text = (weapon.Range or '').strip()
+    if range_text and range_text not in ('-', '—'):
+        return True
+
+    notes = (weapon.Notes or '').lower()
+    weapon_type = (weapon.Type or '').lower()
+    if 'corpo a corpo' in notes:
+        return False
+    return 'dist' in notes or 'dist' in weapon_type
+
+
+def _sync_spellcasting_rows(character, stats):
+    if character.Class not in ('Wizard', 'Sorcerer', 'Cleric', 'Druid'):
+        CharacterMagicDayUse.objects.filter(Character=character).delete()
+        return
+
+    config = caster_config_for_class(character.Class)
+    ability_score = getattr(stats, config['ability'], 0) or 0
+    ability_mod = ability_modifier(ability_score)
+    existing = {
+        row.Level: row
+        for row in CharacterMagicDayUse.objects.filter(Character=character, Level__gte=0, Level__lte=9)
+    }
+    to_create = []
+    to_update = []
+
+    for level in range(10):
+        row = existing.get(level)
+        if row is None:
+            row = CharacterMagicDayUse(Character=character, Level=level)
+            to_create.append(row)
+        else:
+            to_update.append(row)
+        row.SpellSaveDC = compute_spell_save_dc(level, ability_mod)
+        row.BonusSpells = bonus_spells_for_ability(ability_score, level)
+
+    if to_create:
+        CharacterMagicDayUse.objects.bulk_create(to_create)
+    if to_update:
+        CharacterMagicDayUse.objects.bulk_update(to_update, ['SpellSaveDC', 'BonusSpells'])
+
+
+def _summon_slot_count(character):
+    active_count = CharacterSummon.objects.filter(Character=character).count()
+    return max(active_count + 1, 3)
+
+
+def _monster_hit_points(monster):
+    match = re.search(r'\((\d+)\s*hp\)', monster.hit_dice or '', re.IGNORECASE)
+    return _to_int(match.group(1), 0) if match else 0
+
+
+def _monster_armor_class(monster):
+    match = re.search(r'\d+', monster.armor_class or '')
+    return _to_int(match.group(0), 0) if match else 0
+
+
+def _monster_attack_bonus(monster):
+    match = re.search(r'([+-]\d+)', monster.attack or '')
+    return match.group(1) if match else ''
+
+
+def _monster_damage(monster):
+    match = re.search(r'\(([^)]+)\)', monster.attack or '')
+    return match.group(1) if match else ''
 
 
 def _xp_to_next_level(level, current_xp):
@@ -104,6 +199,26 @@ def _update_fields_from_post(instance, request, fields, prefix=''):
     if changed:
         instance.save()
     return changed
+
+
+def _clamp_status_hit_points(status):
+    total = max(_to_int(status.TotalHitPoints, 0), 0)
+    current = max(min(_to_int(status.CurrentHitPoints, 0), total), 0)
+    temporary = max(_to_int(status.TemporaryHitPoints, 0), 0)
+    nonlethal = max(_to_int(status.NonLethalDamager, 0), 0)
+
+    changed_fields = []
+    if status.CurrentHitPoints != current:
+        status.CurrentHitPoints = current
+        changed_fields.append('CurrentHitPoints')
+    if status.TemporaryHitPoints != temporary:
+        status.TemporaryHitPoints = temporary
+        changed_fields.append('TemporaryHitPoints')
+    if status.NonLethalDamager != nonlethal:
+        status.NonLethalDamager = nonlethal
+        changed_fields.append('NonLethalDamager')
+    if changed_fields:
+        status.save(update_fields=changed_fields)
 
 
 def _ordered_slots(character, related_name, model, count):
@@ -372,12 +487,14 @@ def _companions_context(char, **extra):
     familiars = list(companions_qs.filter(Type__iexact='familiar').order_by('id')[:4])
     while len(familiars) < 4:
         familiars.append(None)
+    summon_slots = _ordered_slots(char, 'charactersummon_set', CharacterSummon, _summon_slot_count(char))
     context = {
         'character': char,
         'animal_companions': animals,
         'familiars': familiars,
         'animal_companion': animals[0],
         'familiar': familiars[0],
+        'summon_slots': summon_slots,
         'companion_skills': [
             ('Esconder-se', 'DES'),
             ('Ouvir', 'SAB'),
@@ -497,15 +614,27 @@ def _recalculate_stats(character):
         graduation.save(update_fields=['MaxGraduation', 'OtherClassMaxGraduation'])
 
         status = character.characterstatus
+        _clamp_status_hit_points(status)
         # Fetch each equipment type once; reuse ACBonus and Weigth from same queryset
-        armor_rows = list(CharacterArmor.objects.filter(Character=character).order_by('id').values('ACBonus', 'Weigth'))
-        shield_rows = list(CharacterShield.objects.filter(Character=character).order_by('id').values('ACBonus', 'Weigth'))
+        armor_rows = list(
+            CharacterArmor.objects
+            .filter(Character=character)
+            .order_by('id')
+            .values('ACBonus', 'Weigth', 'MaxDex', 'CheckPenalty', 'Speed')
+        )
+        shield_rows = list(
+            CharacterShield.objects
+            .filter(Character=character)
+            .order_by('id')
+            .values('ACBonus', 'Weigth', 'CheckPenalty')
+        )
         protection_rows = list(CharacterProtectionItem.objects.filter(Character=character).values('ACBonus', 'Weigth'))
         other_weights = list(CharacterOtherItem.objects.filter(Character=character).values_list('Weigth', flat=True))
 
         armor_ac = armor_rows[0]['ACBonus'] if armor_rows else None
         shield_ac = shield_rows[0]['ACBonus'] if shield_rows else None
         protection_bonuses = [r['ACBonus'] for r in protection_rows]
+        armor_speed = _first_nonblank_value(armor_rows, 'Speed')
         weight_values = (
             [r['Weigth'] for r in armor_rows]
             + [r['Weigth'] for r in shield_rows]
@@ -517,7 +646,7 @@ def _recalculate_stats(character):
             status.ACArmorBonus, status.ACShieldBonus, status.ACMiscModifier = equipment_armor_class_bonuses(
                 armor_ac, shield_ac, protection_bonuses,
             )
-        status.ACDexModifier = stats.DexterityStatMod
+        status.ACDexModifier = cap_dex_to_armor(stats.DexterityStatMod, _lowest_max_dex(armor_rows))
         status.ACTotal, status.ACTouch, status.ACFlatFooterd = compute_armor_class(
             armor_bonus=status.ACArmorBonus,
             shield_bonus=status.ACShieldBonus,
@@ -528,10 +657,6 @@ def _recalculate_stats(character):
             misc=status.ACMiscModifier,
         )
         status.Initiative = stats.DexterityStatMod
-        status.save(update_fields=[
-            'ACArmorBonus', 'ACShieldBonus', 'ACMiscModifier', 'ACDexModifier',
-            'ACTotal', 'ACTouch', 'ACFlatFooterd', 'Initiative',
-        ])
 
         saves = character.charactersavingthrows
         saves.FortitudeAbilityModifier = stats.ConstitutionStatMod
@@ -558,6 +683,7 @@ def _recalculate_stats(character):
         ])
 
         attack = character.characterattackmodifiers
+        attack.GrapplerBBA = attack.BBA
         attack.GrapplerStrModifier = stats.StrengthStatMod
         attack.TotalGrappler = compute_grapple_total(
             bba=attack.GrapplerBBA,
@@ -565,9 +691,23 @@ def _recalculate_stats(character):
             size_mod=attack.GrapplerSizeModifier,
             misc=attack.GrapplerMiscModifier,
         )
-        attack.save(update_fields=['GrapplerStrModifier', 'TotalGrappler'])
+        attack.save(update_fields=['GrapplerBBA', 'GrapplerStrModifier', 'TotalGrappler'])
+
+        weapons = list(CharacterWeapon.objects.filter(Character=character).order_by('id'))
+        for weapon in weapons:
+            ability_mod = stats.DexterityStatMod if _weapon_uses_ranged_bonus(weapon) else stats.StrengthStatMod
+            total_bonus = compute_attack_bonus(
+                bba=attack.BBA,
+                ability_mod=ability_mod,
+                size_mod=status.ACSizeModifier,
+                misc=0,
+            )
+            weapon.AttackBonus = signed_bonus(total_bonus)
+        if weapons:
+            CharacterWeapon.objects.bulk_update(weapons, ['AttackBonus'])
 
         skills = list(CharacterSkill.objects.filter(Character=character))
+        armor_penalty = _armor_check_penalty_total(armor_rows, shield_rows)
         for skill in skills:
             skill.SkillAbility, skill.AbilityModifier = compute_skill_row(
                 skill_name=skill.SkillName, stats=stats,
@@ -575,7 +715,7 @@ def _recalculate_stats(character):
             skill.SkillModifier = skill_total(
                 skill.AbilityModifier,
                 skill.Ranks,
-                skill.MiscModifier,
+                (skill.MiscModifier or 0) + armor_check_penalty_for_skill(skill.SkillName, armor_penalty),
                 trained_only=is_trained_only_skill(skill.SkillName),
             )
         CharacterSkill.objects.bulk_update(skills, ['SkillAbility', 'AbilityModifier', 'SkillModifier'])
@@ -590,10 +730,22 @@ def _recalculate_stats(character):
             encumbrance.PushOrDrag,
         ) = load_limits_for_strength(stats.Strength)
         encumbrance.TotalWCarried = total_carried_weight(weight_values)
+        load_category = load_category_for_weight(
+            encumbrance.TotalWCarried,
+            encumbrance.LightLoad,
+            encumbrance.MediumLoad,
+            encumbrance.HeavyLoad,
+        )
+        status.Speed = speed_for_load(status.Speed, load_category, armor_speed)
         encumbrance.save(update_fields=[
             'LightLoad', 'MediumLoad', 'HeavyLoad', 'LiftOverHEad',
             'LiftOffGround', 'PushOrDrag', 'TotalWCarried',
         ])
+        status.save(update_fields=[
+            'ACArmorBonus', 'ACShieldBonus', 'ACMiscModifier', 'ACDexModifier',
+            'ACTotal', 'ACTouch', 'ACFlatFooterd', 'Initiative', 'Speed',
+        ])
+        _sync_spellcasting_rows(character, stats)
 
 
 def _sheet_context(char, **extra):
@@ -683,7 +835,10 @@ def character(request, pk):
             return render(request, 'character/partials/character_stats.html', context)
 
         if request.htmx.target == 'characterStatusForm':
-            _update_fields_from_post(char.characterstatus, request, ['TotalHitPoints', 'NonLethalDamager', 'Speed'])
+            _update_fields_from_post(char.characterstatus, request, [
+                'TotalHitPoints', 'CurrentHitPoints', 'TemporaryHitPoints', 'NonLethalDamager', 'Speed',
+            ])
+            _clamp_status_hit_points(char.characterstatus)
             _recalculate_stats(char)
             return render(request, 'character/partials/character_combat.html', _sheet_context(char))
 
@@ -727,6 +882,7 @@ def character(request, pk):
             _save_repeating_slots(char, request, CharacterWeapon, 'weapon', [
                 'Attack', 'AttackBonus', 'Damage', 'Critical', 'Range', 'Type', 'Notes', 'AmmunitionName',
             ], 4)
+            _recalculate_stats(char)
             return render(request, 'character/partials/character_weapon_card.html', _sheet_context(char))
 
         if request.htmx.target == 'characterProgressForm':
@@ -802,8 +958,64 @@ def companions(request, pk):
                 'Name', 'Species', 'HitPoints', 'ArmorClass', 'Speed', 'SpecialAbilities', 'Notes',
             ], 4)
             return render(request, 'character/partials/companions_familiar_form.html', _companions_context(char))
+        if target == 'summonsGrid':
+            _save_repeating_slots(char, request, CharacterSummon, 'summon', [
+                'Name', 'SpellOrigin', 'Level', 'HitPointsMax', 'HitPointsCurrent',
+                'ArmorClass', 'AttackBonus', 'Damage', 'SpecialAbility',
+                'RoundsTotal', 'RoundsRemaining', 'SdrMonsterName',
+            ], 9)
+            return render(request, 'character/partials/companions_summons_grid.html', _companions_context(char))
 
     return render(request, 'character/companions.html', _companions_context(char))
+
+
+@login_required
+def toggle_summon_highlight(request, pk, summon_id):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    summon = get_object_or_404(CharacterSummon, pk=summon_id, Character=char)
+    summon.Highlighted = not summon.Highlighted
+    summon.save(update_fields=['Highlighted'])
+    return render(request, 'character/partials/companions_summons_grid.html', _companions_context(char))
+
+
+@login_required
+def summon_search(request, pk):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    query = (request.GET.get('q') or '').strip()
+    if len(query) < 2:
+        return HttpResponse('')
+
+    monsters = (
+        SDR_Monster.objects
+        .using('sdr')
+        .filter(name__icontains=query)
+        .order_by('name')[:10]
+    )
+    if not monsters:
+        return HttpResponse('')
+    return render(request, 'character/partials/companions_summon_search_results.html', {
+        'character': char,
+        'monsters': monsters,
+    })
+
+
+@login_required
+def create_summon_from_monster(request, pk, monster_id):
+    char = get_object_or_404(Character, pk=pk, User=request.user)
+    monster = get_object_or_404(SDR_Monster.objects.using('sdr'), pk=monster_id)
+    hit_points = _monster_hit_points(monster)
+    CharacterSummon.objects.create(
+        Character=char,
+        Name=monster.name or '',
+        HitPointsMax=hit_points,
+        HitPointsCurrent=hit_points,
+        ArmorClass=_monster_armor_class(monster),
+        AttackBonus=_monster_attack_bonus(monster),
+        Damage=_monster_damage(monster),
+        SpecialAbility=(monster.special_abilities or '')[:500],
+        SdrMonsterName=monster.name or '',
+    )
+    return render(request, 'character/partials/companions_summons_grid.html', _companions_context(char))
 
 
 @login_required
