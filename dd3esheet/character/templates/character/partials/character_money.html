@@ -4,7 +4,7 @@
           hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterMoneySection"
           hx-swap="outerHTML"
-          hx-trigger="change delay:300ms">
+          hx-trigger="input changed delay:700ms, change delay:300ms">
         {% csrf_token %}
         <div class="section-title-band"><span>Dinheiro &amp; Capacidade de Carga</span></div>
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; padding: 10px; background: var(--paper-bg);

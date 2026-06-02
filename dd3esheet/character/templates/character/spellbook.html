@@ -35,6 +35,14 @@
         {% endfor %}
     </section>
 
+    {% if sdr_spell_suggestions %}
+    <datalist id="spell-suggestions">
+        {% for s in sdr_spell_suggestions %}
+            <option value="{{ s.name }}">{{ s.school }}{% if s.level %} — Nv {{ s.level }}{% endif %}</option>
+        {% endfor %}
+    </datalist>
+    {% endif %}
+
 </main>
 
 {% endblock %}

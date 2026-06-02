@@ -1,0 +1,157 @@
+<form id="familiarsForm"
+      hx-post="{% url 'character:companions' character.pk %}"
+      hx-target="#familiarsForm"
+      hx-swap="none"
+      hx-trigger="input changed delay:500ms"
+      hx-headers='{"HX-Autosave": "1"}'>
+    {% csrf_token %}
+    {% for companion in familiars %}
+    <div class="companion-slot" data-slot="{{ forloop.counter }}" data-active="{% if forloop.first %}true{% else %}false{% endif %}">
+        <article class="companion-block companion-block--familiar" data-sheet-table="familiar">
+            <div class="section-title-band"><span>Familiar {{ forloop.counter }}</span></div>
+
+            <div class="companion-name-line">
+                <input class="field-slot"
+                       name="familiar_{{ forloop.counter }}_Name"
+                       value="{{ companion.Name|default:'' }}"
+                       data-field="familiar.Name" data-slot="{{ forloop.counter }}"
+                       placeholder="Nome do Familiar">
+                <div class="subtitle">Familiar — Mago/Feiticeiro Nv {{ character.Level|default:"-" }}</div>
+            </div>
+
+            <div class="companion-quickstats">
+                <div class="field">
+                    <input class="field-slot field-slot--center"
+                           name="familiar_{{ forloop.counter }}_HitPoints"
+                           value="{{ companion.HitPoints|default:'' }}" inputmode="numeric"
+                           data-field="familiar.HitPoints" data-slot="{{ forloop.counter }}">
+                    <span class="label">PV</span>
+                </div>
+                <div class="field">
+                    <input class="field-slot field-slot--center"
+                           name="familiar_{{ forloop.counter }}_ArmorClass"
+                           value="{{ companion.ArmorClass|default:'' }}" inputmode="numeric"
+                           data-field="familiar.ArmorClass" data-slot="{{ forloop.counter }}">
+                    <span class="label">CA</span>
+                </div>
+                <div class="field">
+                    <input class="field-slot field-slot--center"
+                           name="familiar_{{ forloop.counter }}_Speed"
+                           value="{{ companion.Speed|default:'' }}"
+                           data-field="familiar.Speed" data-slot="{{ forloop.counter }}">
+                    <span class="label">Desloc.</span>
+                </div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.Initiative" data-slot="{{ forloop.counter }}"><span class="label">Inic.</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.SpellResistance" data-slot="{{ forloop.counter }}"><span class="label">RM</span></div>
+            </div>
+
+            <div class="companion-identity-grid">
+                <div class="field">
+                    <input class="field-slot"
+                           name="familiar_{{ forloop.counter }}_Species"
+                           value="{{ companion.Species|default:'' }}"
+                           data-field="familiar.Species" data-slot="{{ forloop.counter }}">
+                    <span class="label">Especie</span>
+                </div>
+                <div class="field"><input class="field-slot" data-field="familiar.Type" data-slot="{{ forloop.counter }}"><span class="label">Tipo</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.Size" data-slot="{{ forloop.counter }}"><span class="label">Tamanho</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.MasterLevel" data-slot="{{ forloop.counter }}"><span class="label">Nivel Mestre</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.IntelligenceFamiliar" data-slot="{{ forloop.counter }}"><span class="label">INT Familiar</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.NaturalArmorAdjustment" data-slot="{{ forloop.counter }}"><span class="label">Armadura Nat.</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.BaseSpeed" data-slot="{{ forloop.counter }}"><span class="label">Desloc. Base</span></div>
+            </div>
+
+            <div class="companion-stat-grid" data-sheet-table="familiar-abilities">
+                <div class="companion-mini-head">Hab.</div>
+                <div class="companion-mini-head">FOR</div>
+                <div class="companion-mini-head">DES</div>
+                <div class="companion-mini-head">CON</div>
+                <div class="companion-mini-head">INT</div>
+                <div class="companion-mini-head">SAB</div>
+                <div class="companion-mini-head">CAR</div>
+                <div class="companion-row-head">Valor</div>
+                <input class="sheet-input" data-field="familiar.Strength" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiar.Dexterity" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiar.Constitution" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiar.IntelligenceScore" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiar.Wisdom" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiar.Charisma" data-slot="{{ forloop.counter }}">
+                <div class="companion-row-head">Mod.</div>
+                <div class="companion-calc" data-derived="familiar.StrengthMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="familiar.DexterityMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="familiar.ConstitutionMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="familiar.IntelligenceMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="familiar.WisdomMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="familiar.CharismaMod" data-slot="{{ forloop.counter }}"></div>
+            </div>
+
+            <div class="companion-defense-grid" data-sheet-table="familiar-defense">
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.HitPointsTotal" data-slot="{{ forloop.counter }}"><span class="label">PV Total</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.CurrentHitPoints" data-slot="{{ forloop.counter }}"><span class="label">PV Atual</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.NonlethalDamage" data-slot="{{ forloop.counter }}"><span class="label">Dano Contusao</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.ArmorClassDetail" data-slot="{{ forloop.counter }}"><span class="label">CA</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.TouchArmorClass" data-slot="{{ forloop.counter }}"><span class="label">Toque</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.FlatFootedArmorClass" data-slot="{{ forloop.counter }}"><span class="label">Surpresa</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.InitiativeDetail" data-slot="{{ forloop.counter }}"><span class="label">Iniciativa</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.SpellResistanceDetail" data-slot="{{ forloop.counter }}"><span class="label">RM</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.AlertnessBonus" data-slot="{{ forloop.counter }}"><span class="label">Prontidao</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.EmpathicLinkRange" data-slot="{{ forloop.counter }}"><span class="label">Vinculo</span></div>
+            </div>
+
+            <div class="companion-save-grid" data-sheet-table="familiar-saves">
+                <div class="companion-mini-head">Fortitude</div>
+                <div class="companion-mini-head">Reflexos</div>
+                <div class="companion-mini-head">Vontade</div>
+                <input class="sheet-input" data-field="familiar.Fortitude" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiar.Reflex" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiar.Will" data-slot="{{ forloop.counter }}">
+            </div>
+
+            <div class="companion-attack-table" data-sheet-table="familiar-attacks">
+                <div class="companion-mini-head">Ataque</div>
+                <div class="companion-mini-head">Bonus</div>
+                <div class="companion-mini-head">Dano</div>
+                <div class="companion-mini-head">Critico</div>
+                <div class="companion-mini-head">Tipo</div>
+                {% for atk in "12" %}
+                <input class="sheet-input" data-field="familiarAttack.Name" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiarAttack.Bonus" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiarAttack.Damage" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiarAttack.Critical" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiarAttack.Type" data-slot="{{ forloop.counter }}">
+                {% endfor %}
+            </div>
+
+            <div class="companion-skill-table" data-sheet-table="familiar-skills">
+                <div class="companion-mini-head">Pericia</div>
+                <div class="companion-mini-head">Hab.</div>
+                <div class="companion-mini-head">Ranks</div>
+                <div class="companion-mini-head">Misc</div>
+                <div class="companion-mini-head">Total</div>
+                {% for skill, ability in companion_skills %}
+                <div class="companion-skill-name" data-field="familiarSkill.Name" data-slot="{{ forloop.counter }}">{{ skill }}</div>
+                <div class="companion-skill-ability" data-field="familiarSkill.Ability" data-slot="{{ forloop.counter }}">{{ ability }}</div>
+                <input class="sheet-input" data-field="familiarSkill.Ranks" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="familiarSkill.MiscModifier" data-slot="{{ forloop.counter }}">
+                <div class="companion-calc" data-derived="familiarSkill.Total" data-slot="{{ forloop.counter }}"></div>
+                {% endfor %}
+            </div>
+
+            <div class="companion-text-grid">
+                <div class="companion-notes" data-sheet-table="familiar-special-abilities">
+                    <label class="label" for="familiar-specials-{{ forloop.counter }}">Habilidades especiais</label>
+                    <textarea id="familiar-specials-{{ forloop.counter }}"
+                              name="familiar_{{ forloop.counter }}_SpecialAbilities"
+                              data-field="familiar.SpecialAbilities" data-slot="{{ forloop.counter }}">{{ companion.SpecialAbilities|default:'' }}</textarea>
+                </div>
+                <div class="companion-notes" data-sheet-table="familiar-notes">
+                    <label class="label" for="familiar-notes-{{ forloop.counter }}">Notas</label>
+                    <textarea id="familiar-notes-{{ forloop.counter }}"
+                              name="familiar_{{ forloop.counter }}_Notes"
+                              data-field="familiar.Notes" data-slot="{{ forloop.counter }}">{{ companion.Notes|default:'' }}</textarea>
+                </div>
+            </div>
+        </article>
+    </div>
+    {% endfor %}
+</form>

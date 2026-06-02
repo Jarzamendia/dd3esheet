@@ -2,19 +2,19 @@
 <section class="col-right">
 
     <div class="pvca-stack" data-sheet-table="hit-points-and-armor-class">
-        <div class="pvca-headrow pv-headrow">
-            <div class="pvca-headrow-spacer"></div>
-            <div class="pvca-head-label">TOTAL</div>
-            <div class="pvca-head-label pvca-head-label--wide">Ferimentos / PVs Atuais</div>
-            <div class="pvca-head-label">Dano por Contusao</div>
-            <div class="pvca-head-label">Deslocamento</div>
-        </div>
+            <div class="pvca-headrow pv-headrow">
+                <div class="pvca-headrow-spacer"></div>
+                <div class="pvca-head-label">TOTAL</div>
+                <div class="pvca-head-label pvca-head-label--wide">PV Atual / Temporario</div>
+                <div class="pvca-head-label">Dano por Contusao</div>
+                <div class="pvca-head-label">Deslocamento</div>
+            </div>
 
         <form id="characterStatusForm" class="pvca-form" aria-live="polite"
               hx-post="{% url 'character:character' character.pk %}"
               hx-target="#characterStatusForm"
               hx-swap="outerHTML"
-              hx-trigger="change delay:300ms">
+              hx-trigger="input changed delay:700ms, change delay:300ms">
             {% csrf_token %}
 
             <div class="pv-row" data-sheet-table="hit-points">
@@ -26,7 +26,10 @@
                     <input class="slot slot--lg sheet-input" name="TotalHitPoints" data-field="TotalHitPoints" value="{{ status.TotalHitPoints|default:'' }}" inputmode="numeric" title="PV total">
                 </div>
                 <div class="pv-cell pv-cell--wide">
-                    <input class="slot slot--lg sheet-input" value="{{ status.TotalHitPoints|default:'' }}" data-derived="CurrentHitPoints" title="Ferimentos / PVs atuais">
+                    <div class="pv-current-temp">
+                        <input class="slot slot--lg sheet-input" name="CurrentHitPoints" value="{{ status.CurrentHitPoints|default:'' }}" inputmode="numeric" title="PVs atuais">
+                        <input class="slot slot--lg sheet-input" name="TemporaryHitPoints" value="{{ status.TemporaryHitPoints|default:'' }}" inputmode="numeric" title="PVs temporarios">
+                    </div>
                 </div>
                 <div class="pv-cell">
                     <input class="slot slot--lg sheet-input" name="NonLethalDamager" data-field="NonLethalDamager" value="{{ status.NonLethalDamager|default:'' }}" inputmode="numeric" title="Dano por contusao">
@@ -41,7 +44,7 @@
               hx-post="{% url 'character:character' character.pk %}"
               hx-target="#characterArmorForm"
               hx-swap="outerHTML"
-              hx-trigger="change delay:300ms">
+              hx-trigger="input changed delay:700ms, change delay:300ms">
             {% csrf_token %}
 
             <div class="ca-row" data-sheet-table="armor-class">

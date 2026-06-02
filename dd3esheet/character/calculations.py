@@ -112,6 +112,32 @@ TRAINED_ONLY_SKILLS = {
 }
 
 
+ARMOR_CHECK_PENALTY_SKILLS = {
+    'Equilibrio',
+    'Escalar',
+    'Arte da Fuga',
+    'Esconder-se',
+    'Saltar',
+    'Furtividade',
+    'Cavalgar',
+    'Prestidigitacao',
+    'Natacao',
+    'Acrobacia',
+    'Usar Cordas',
+    'Balance',
+    'Climb',
+    'EscapeArtist',
+    'Hide',
+    'Jump',
+    'MoveSilently',
+    'Ride',
+    'SleightofHand',
+    'Swim',
+    'Tumble',
+    'UseRope',
+}
+
+
 _LOAD_LIMITS = {
     1: (3, 6, 10),
     2: (6, 13, 20),
@@ -217,6 +243,15 @@ def parse_weight(value):
     return float(match.group(0).replace(',', '.'))
 
 
+def parse_speed(value):
+    if value in (None, ''):
+        return 0
+    match = re.search(r'\d+', str(value))
+    if not match:
+        return 0
+    return int(match.group(0))
+
+
 def total_carried_weight(values):
     return round(sum(parse_weight(value) for value in values))
 
@@ -266,3 +301,72 @@ def compute_skill_row(*, skill_name, stats):
     ability_key = skill_ability_key(skill_name)
     ability_mod = skill_ability_modifier(skill_name, stats)
     return ability_key, ability_mod
+
+
+def compute_attack_bonus(*, bba, ability_mod, size_mod, misc):
+    return to_int(bba) + to_int(ability_mod) + to_int(size_mod) + to_int(misc)
+
+
+def cap_dex_to_armor(dex_mod, max_dex):
+    if max_dex in (None, ''):
+        return to_int(dex_mod)
+    return min(to_int(dex_mod), to_int(max_dex))
+
+
+def armor_check_penalty_for_skill(skill_name, total_penalty):
+    skill_name = skill_name or ''
+    penalty = to_int(total_penalty)
+    if skill_name not in ARMOR_CHECK_PENALTY_SKILLS:
+        return 0
+    if skill_name in ('Natacao', 'Swim'):
+        return penalty * 2
+    return penalty
+
+
+def load_category_for_weight(total_weight, light_load, medium_load, heavy_load):
+    total_weight = to_int(total_weight)
+    if total_weight <= to_int(light_load):
+        return 'light'
+    if total_weight <= to_int(medium_load):
+        return 'medium'
+    if total_weight <= to_int(heavy_load):
+        return 'heavy'
+    return 'overloaded'
+
+
+def speed_for_load(base_speed, load_category, armor_speed):
+    armor_speed_value = parse_speed(armor_speed)
+    if armor_speed_value:
+        return armor_speed_value
+
+    base_speed = to_int(base_speed)
+    if load_category not in ('medium', 'heavy', 'overloaded'):
+        return base_speed
+
+    if base_speed >= 60:
+        return base_speed - 20
+    if base_speed >= 40:
+        return base_speed - 10
+    if base_speed == 30:
+        return 20
+    if base_speed == 20:
+        return 15
+    return max(base_speed - 10, 5)
+
+
+def compute_spell_save_dc(spell_level, casting_ability_mod):
+    return 10 + to_int(spell_level) + to_int(casting_ability_mod)
+
+
+def bonus_spells_for_ability(ability_score, spell_level):
+    spell_level = to_int(spell_level)
+    if spell_level <= 0:
+        return 0
+    mod = ability_modifier(ability_score)
+    if mod < spell_level:
+        return 0
+    return ((mod - spell_level) // 4) + 1
+
+
+def signed_bonus(value):
+    return f'{to_int(value):+d}'

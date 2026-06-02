@@ -1,11 +1,3 @@
-<div class="spell-profile-strip" data-sheet-table="spellcasting-profile">
-    <div><span class="label">Modo</span><input class="sheet-input" name="spellcasting_CastingMode" value="{{ spellcasting.profile.CastingMode|default:spellcasting.config.mode }}" data-field="spellcasting.CastingMode"></div>
-    <div><span class="label">Dominio 1</span><input class="sheet-input" name="spellcasting_Domain1" value="{{ spellcasting.profile.Domain1|default:'' }}" data-field="spellcasting.Domain1"></div>
-    <div><span class="label">Dominio 2</span><input class="sheet-input" name="spellcasting_Domain2" value="{{ spellcasting.profile.Domain2|default:'' }}" data-field="spellcasting.Domain2"></div>
-    <div><span class="label">Escola</span><input class="sheet-input" name="spellcasting_SpecializedSchool" value="{{ spellcasting.profile.SpecializedSchool|default:'' }}" data-field="spellcasting.SpecializedSchool"></div>
-    <div><span class="label">Conversao</span><input class="sheet-input" name="spellcasting_SpontaneousConversion" value="{{ spellcasting.profile.SpontaneousConversion|default:spellcasting.config.conversion }}" data-field="spellcasting.SpontaneousConversion"></div>
-</div>
-
 <div class="spells-summary" data-sheet-table="spellcasting-summary">
     <div class="sm-corner">Nivel</div>
     {% for row in spellcasting.levels %}

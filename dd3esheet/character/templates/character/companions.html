@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load dict_extras %}
 {% block title %}{{ character.Name|default:"Ficha" }} - Aliados{% endblock %}
 
 {% block content %}
@@ -25,252 +26,42 @@
         </div>
     </header>
 
-    {% include "character/partials/companions_form.html" %}
-
     <section class="companions-grid">
         <section class="companion-section" data-section="animal"
                  {% if not animal_companion or not animal_companion.Name %}data-collapsed="true"{% endif %}>
-            <header class="companion-section-header" onclick="toggleCompanionSection('animal')">
-                <span>🐾 Companheiro Animal</span>
-                <span class="chevron">▾</span>
+            <header class="companion-section-header">
+                <span onclick="toggleCompanionSection('animal')" role="button">🐾 Companheiro Animal</span>
+                <nav class="companion-slot-tabs" aria-label="Slots do companheiro animal">
+                    {% for companion in animal_companions %}
+                    <button type="button"
+                            class="companion-slot-tab{% if forloop.first %} is-active{% endif %}"
+                            data-section="animal" data-slot-target="{{ forloop.counter }}"
+                            onclick="switchCompanionSlot('animal', {{ forloop.counter }})">{{ forloop.counter }}</button>
+                    {% endfor %}
+                </nav>
+                <span class="chevron" onclick="toggleCompanionSection('animal')" role="button">▾</span>
             </header>
             <div class="companion-section-body">
-        <article class="companion-block companion-block--animal" data-sheet-table="animal-companion">
-            <div class="section-title-band"><span>Companheiro Animal</span></div>
-
-            <div class="companion-name-line">
-                <input class="field-slot" data-field="animalCompanion.Name" placeholder="Nome do Companheiro">
-                <div class="subtitle">Companheiro Animal — Nível {{ character.Level|default:"-" }}</div>
-            </div>
-
-            <div class="companion-quickstats">
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.HitPoints"><span class="label">PV</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.ArmorClass"><span class="label">CA</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.BaseSpeed"><span class="label">Desloc.</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.Initiative"><span class="label">Inic.</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.SpellResistance"><span class="label">RM</span></div>
-            </div>
-
-            <div class="companion-identity-grid">
-                <div class="field"><input class="field-slot" data-field="animalCompanion.Species"><span class="label">Especie</span></div>
-                <div class="field"><input class="field-slot" data-field="animalCompanion.Type"><span class="label">Tipo</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.Sex"><span class="label">Sexo</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.Size"><span class="label">Tamanho</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.EffectiveLevel"><span class="label">Nivel Efetivo</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.HitDice"><span class="label">Dados de Vida</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.BaseSpeed"><span class="label">Desloc. Base</span></div>
-            </div>
-
-            <div class="companion-stat-grid" data-sheet-table="animal-companion-abilities">
-                <div class="companion-mini-head">Hab.</div>
-                <div class="companion-mini-head">FOR</div>
-                <div class="companion-mini-head">DES</div>
-                <div class="companion-mini-head">CON</div>
-                <div class="companion-mini-head">INT</div>
-                <div class="companion-mini-head">SAB</div>
-                <div class="companion-mini-head">CAR</div>
-                <div class="companion-row-head">Valor</div>
-                <input class="sheet-input" data-field="animalCompanion.Strength">
-                <input class="sheet-input" data-field="animalCompanion.Dexterity">
-                <input class="sheet-input" data-field="animalCompanion.Constitution">
-                <input class="sheet-input" data-field="animalCompanion.Intelligence">
-                <input class="sheet-input" data-field="animalCompanion.Wisdom">
-                <input class="sheet-input" data-field="animalCompanion.Charisma">
-                <div class="companion-row-head">Mod.</div>
-                <div class="companion-calc" data-derived="animalCompanion.StrengthMod"></div>
-                <div class="companion-calc" data-derived="animalCompanion.DexterityMod"></div>
-                <div class="companion-calc" data-derived="animalCompanion.ConstitutionMod"></div>
-                <div class="companion-calc" data-derived="animalCompanion.IntelligenceMod"></div>
-                <div class="companion-calc" data-derived="animalCompanion.WisdomMod"></div>
-                <div class="companion-calc" data-derived="animalCompanion.CharismaMod"></div>
-            </div>
-
-            <div class="companion-defense-grid" data-sheet-table="animal-companion-defense">
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.HitPoints"><span class="label">PV Total</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.CurrentHitPoints"><span class="label">PV Atual</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.NonlethalDamage"><span class="label">Dano Contusao</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.ArmorClass"><span class="label">CA</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.TouchArmorClass"><span class="label">Toque</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.FlatFootedArmorClass"><span class="label">Surpresa</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.Initiative"><span class="label">Iniciativa</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.NaturalArmor"><span class="label">Armadura Natural</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.DamageReduction"><span class="label">RD</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.SpellResistance"><span class="label">RM</span></div>
-            </div>
-
-            <div class="companion-save-grid" data-sheet-table="animal-companion-saves">
-                <div class="companion-mini-head">Fortitude</div>
-                <div class="companion-mini-head">Reflexos</div>
-                <div class="companion-mini-head">Vontade</div>
-                <input class="sheet-input" data-field="animalCompanion.Fortitude">
-                <input class="sheet-input" data-field="animalCompanion.Reflex">
-                <input class="sheet-input" data-field="animalCompanion.Will">
-            </div>
-
-            <div class="companion-attack-table" data-sheet-table="animal-companion-attacks">
-                <div class="companion-mini-head">Ataque</div>
-                <div class="companion-mini-head">Bonus</div>
-                <div class="companion-mini-head">Dano</div>
-                <div class="companion-mini-head">Critico</div>
-                <div class="companion-mini-head">Tipo</div>
-                {% for slot in "123" %}
-                <input class="sheet-input" data-field="animalCompanionAttack.Name" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="animalCompanionAttack.Bonus" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="animalCompanionAttack.Damage" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="animalCompanionAttack.Critical" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="animalCompanionAttack.Type" data-slot="{{ forloop.counter }}">
-                {% endfor %}
-            </div>
-
-            <div class="companion-skill-table" data-sheet-table="animal-companion-skills">
-                <div class="companion-mini-head">Pericia</div>
-                <div class="companion-mini-head">Hab.</div>
-                <div class="companion-mini-head">Ranks</div>
-                <div class="companion-mini-head">Misc</div>
-                <div class="companion-mini-head">Total</div>
-                {% for skill, ability in companion_skills %}
-                <div class="companion-skill-name" data-field="animalCompanionSkill.Name" data-slot="{{ forloop.counter }}">{{ skill }}</div>
-                <div class="companion-skill-ability" data-field="animalCompanionSkill.Ability" data-slot="{{ forloop.counter }}">{{ ability }}</div>
-                <input class="sheet-input" data-field="animalCompanionSkill.Ranks" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="animalCompanionSkill.MiscModifier" data-slot="{{ forloop.counter }}">
-                <div class="companion-calc" data-derived="animalCompanionSkill.Total" data-slot="{{ forloop.counter }}"></div>
-                {% endfor %}
-            </div>
-
-            <div class="companion-text-grid">
-                <div class="companion-notes" data-sheet-table="animal-companion-special-abilities">
-                    <label class="label" for="animal-companion-specials">Habilidades especiais</label>
-                    <textarea id="animal-companion-specials" data-field="animalCompanion.SpecialAbilities"></textarea>
-                </div>
-                <div class="companion-notes" data-sheet-table="animal-companion-tricks">
-                    <label class="label" for="animal-companion-tricks">Truques</label>
-                    <textarea id="animal-companion-tricks" data-field="animalCompanion.Tricks"></textarea>
-                </div>
-            </div>
-        </article>
+                {% include "character/partials/companions_animal_form.html" %}
             </div>{# /companion-section-body (animal) #}
         </section>{# /companion-section (animal) #}
 
         <section class="companion-section" data-section="familiar"
                  {% if not familiar or not familiar.Name %}data-collapsed="true"{% endif %}>
-            <header class="companion-section-header" onclick="toggleCompanionSection('familiar')">
-                <span>🧙 Familiar</span>
-                <span class="chevron">▾</span>
+            <header class="companion-section-header">
+                <span onclick="toggleCompanionSection('familiar')" role="button">🧙 Familiar</span>
+                <nav class="companion-slot-tabs" aria-label="Slots do familiar">
+                    {% for companion in familiars %}
+                    <button type="button"
+                            class="companion-slot-tab{% if forloop.first %} is-active{% endif %}"
+                            data-section="familiar" data-slot-target="{{ forloop.counter }}"
+                            onclick="switchCompanionSlot('familiar', {{ forloop.counter }})">{{ forloop.counter }}</button>
+                    {% endfor %}
+                </nav>
+                <span class="chevron" onclick="toggleCompanionSection('familiar')" role="button">▾</span>
             </header>
             <div class="companion-section-body">
-        <article class="companion-block companion-block--familiar" data-sheet-table="familiar">
-            <div class="section-title-band"><span>Familiar</span></div>
-
-            <div class="companion-name-line">
-                <input class="field-slot" data-field="familiar.Name" placeholder="Nome do Familiar">
-                <div class="subtitle">Familiar — Mago/Feiticeiro Nv {{ character.Level|default:"-" }}</div>
-            </div>
-
-            <div class="companion-quickstats">
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.HitPoints"><span class="label">PV</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.ArmorClass"><span class="label">CA</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.BaseSpeed"><span class="label">Desloc.</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.Initiative"><span class="label">Inic.</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.SpellResistance"><span class="label">RM</span></div>
-            </div>
-
-            <div class="companion-identity-grid">
-                <div class="field"><input class="field-slot" data-field="familiar.Species"><span class="label">Especie</span></div>
-                <div class="field"><input class="field-slot" data-field="familiar.Type"><span class="label">Tipo</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.Size"><span class="label">Tamanho</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.MasterLevel"><span class="label">Nivel Mestre</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.Intelligence"><span class="label">INT Familiar</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.NaturalArmorAdjustment"><span class="label">Armadura Nat.</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.BaseSpeed"><span class="label">Desloc. Base</span></div>
-            </div>
-
-            <div class="companion-stat-grid" data-sheet-table="familiar-abilities">
-                <div class="companion-mini-head">Hab.</div>
-                <div class="companion-mini-head">FOR</div>
-                <div class="companion-mini-head">DES</div>
-                <div class="companion-mini-head">CON</div>
-                <div class="companion-mini-head">INT</div>
-                <div class="companion-mini-head">SAB</div>
-                <div class="companion-mini-head">CAR</div>
-                <div class="companion-row-head">Valor</div>
-                <input class="sheet-input" data-field="familiar.Strength">
-                <input class="sheet-input" data-field="familiar.Dexterity">
-                <input class="sheet-input" data-field="familiar.Constitution">
-                <input class="sheet-input" data-field="familiar.IntelligenceScore">
-                <input class="sheet-input" data-field="familiar.Wisdom">
-                <input class="sheet-input" data-field="familiar.Charisma">
-                <div class="companion-row-head">Mod.</div>
-                <div class="companion-calc" data-derived="familiar.StrengthMod"></div>
-                <div class="companion-calc" data-derived="familiar.DexterityMod"></div>
-                <div class="companion-calc" data-derived="familiar.ConstitutionMod"></div>
-                <div class="companion-calc" data-derived="familiar.IntelligenceMod"></div>
-                <div class="companion-calc" data-derived="familiar.WisdomMod"></div>
-                <div class="companion-calc" data-derived="familiar.CharismaMod"></div>
-            </div>
-
-            <div class="companion-defense-grid" data-sheet-table="familiar-defense">
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.HitPoints"><span class="label">PV Total</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.CurrentHitPoints"><span class="label">PV Atual</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.NonlethalDamage"><span class="label">Dano Contusao</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.ArmorClass"><span class="label">CA</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.TouchArmorClass"><span class="label">Toque</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.FlatFootedArmorClass"><span class="label">Surpresa</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.Initiative"><span class="label">Iniciativa</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.SpellResistance"><span class="label">RM</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.AlertnessBonus"><span class="label">Prontidao</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="familiar.EmpathicLinkRange"><span class="label">Vinculo</span></div>
-            </div>
-
-            <div class="companion-save-grid" data-sheet-table="familiar-saves">
-                <div class="companion-mini-head">Fortitude</div>
-                <div class="companion-mini-head">Reflexos</div>
-                <div class="companion-mini-head">Vontade</div>
-                <input class="sheet-input" data-field="familiar.Fortitude">
-                <input class="sheet-input" data-field="familiar.Reflex">
-                <input class="sheet-input" data-field="familiar.Will">
-            </div>
-
-            <div class="companion-attack-table" data-sheet-table="familiar-attacks">
-                <div class="companion-mini-head">Ataque</div>
-                <div class="companion-mini-head">Bonus</div>
-                <div class="companion-mini-head">Dano</div>
-                <div class="companion-mini-head">Critico</div>
-                <div class="companion-mini-head">Tipo</div>
-                {% for slot in "12" %}
-                <input class="sheet-input" data-field="familiarAttack.Name" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="familiarAttack.Bonus" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="familiarAttack.Damage" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="familiarAttack.Critical" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="familiarAttack.Type" data-slot="{{ forloop.counter }}">
-                {% endfor %}
-            </div>
-
-            <div class="companion-skill-table" data-sheet-table="familiar-skills">
-                <div class="companion-mini-head">Pericia</div>
-                <div class="companion-mini-head">Hab.</div>
-                <div class="companion-mini-head">Ranks</div>
-                <div class="companion-mini-head">Misc</div>
-                <div class="companion-mini-head">Total</div>
-                {% for skill, ability in companion_skills %}
-                <div class="companion-skill-name" data-field="familiarSkill.Name" data-slot="{{ forloop.counter }}">{{ skill }}</div>
-                <div class="companion-skill-ability" data-field="familiarSkill.Ability" data-slot="{{ forloop.counter }}">{{ ability }}</div>
-                <input class="sheet-input" data-field="familiarSkill.Ranks" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="familiarSkill.MiscModifier" data-slot="{{ forloop.counter }}">
-                <div class="companion-calc" data-derived="familiarSkill.Total" data-slot="{{ forloop.counter }}"></div>
-                {% endfor %}
-            </div>
-
-            <div class="companion-text-grid">
-                <div class="companion-notes" data-sheet-table="familiar-special-abilities">
-                    <label class="label" for="familiar-specials">Habilidades especiais</label>
-                    <textarea id="familiar-specials" data-field="familiar.SpecialAbilities"></textarea>
-                </div>
-                <div class="companion-notes" data-sheet-table="familiar-notes">
-                    <label class="label" for="familiar-notes">Notas</label>
-                    <textarea id="familiar-notes" data-field="familiar.Notes"></textarea>
-                </div>
-            </div>
-        </article>
+                {% include "character/partials/companions_familiar_form.html" %}
             </div>{# /companion-section-body (familiar) #}
         </section>{# /companion-section (familiar) #}
     </section>{# /companions-grid #}
@@ -278,111 +69,81 @@
     <section class="companion-block companion-block--summons" data-sheet-table="summons">
         <div class="section-title-band"><span>Invoca&ccedil;&otilde;es</span></div>
 
-        <div class="summon-rules-grid" data-sheet-table="summon-nature-rules">
-            <div class="summon-rule-card">
-                <span class="label">Magia principal do druida</span>
-                <strong>Aliado da Natureza I-IX</strong>
-                <span data-derived="summonNature.SpontaneousCasting">Pode perder uma magia preparada para conjurar Aliado da Natureza do mesmo nivel ou menor.</span>
-            </div>
-            <div class="summon-rule-card">
-                <span class="label">Tempo / alcance / duracao</span>
-                <strong>1 rodada - Curto - 1 rodada/nível</strong>
-                <span data-derived="summonNature.CommonRules">Criaturas aparecem juntas, a ate 9 m entre si, e agem no turno do conjurador.</span>
-            </div>
-            <div class="summon-rule-card">
-                <span class="label">Ajustes frequentes</span>
-                <strong>Ambiente, alinhamento e talentos</strong>
-                <span data-field="summonNature.CommonAdjustments">Aquaticas exigem agua. Anote Aprimorar Invocacao, templates e buffs aqui.</span>
-            </div>
-        </div>
+        <section class="companion-section" data-section="summon-spells">
+            <header class="companion-section-header">
+                <span onclick="toggleCompanionSection('summon-spells')" role="button">📜 Magias de Invoca&ccedil;&atilde;o</span>
+                <span class="chevron" onclick="toggleCompanionSection('summon-spells')" role="button">▾</span>
+            </header>
+            <div class="companion-section-body">
+                <div class="summon-rules-grid" data-sheet-table="summon-nature-rules">
+                    <div class="summon-rule-card">
+                        <span class="label">Magia principal do druida</span>
+                        <strong>Aliado da Natureza I-IX</strong>
+                        <span data-derived="summonNature.SpontaneousCasting">Pode perder uma magia preparada para conjurar Aliado da Natureza do mesmo nivel ou menor.</span>
+                    </div>
+                    <div class="summon-rule-card">
+                        <span class="label">Tempo / alcance / duracao</span>
+                        <strong>1 rodada - Curto - 1 rodada/nível</strong>
+                        <span data-derived="summonNature.CommonRules">Criaturas aparecem juntas, a ate 9 m entre si, e agem no turno do conjurador.</span>
+                    </div>
+                    <div class="summon-rule-card">
+                        <span class="label">Ajustes frequentes</span>
+                        <strong>Ambiente, alinhamento e talentos</strong>
+                        <span data-field="summonNature.CommonAdjustments">Aquaticas exigem agua. Anote Aprimorar Invocacao, templates e buffs aqui.</span>
+                    </div>
+                </div>
 
-        <div class="summon-nature-table" data-sheet-table="summon-nature-reference">
-            <div class="summons-head">Nv</div>
-            <div class="summons-head">Magia</div>
-            <div class="summons-head">Quantidade</div>
-            <div class="summons-head">Opcoes comuns</div>
-            <div class="summons-head">Favorito</div>
-            {% for row in summon_nature_rows %}
-            <div class="summon-level" data-slot="{{ row.level }}">{{ row.level }}</div>
-            <div class="summon-spell-name" data-field="summonNature.Spell" data-slot="{{ row.level }}">{{ row.spell }}</div>
-            <div class="summon-quantity" data-derived="summonNature.QuantityRule" data-slot="{{ row.level }}">{{ row.quantity }}</div>
-            <div class="summon-examples" data-derived="summonNature.Examples" data-slot="{{ row.level }}">{{ row.examples }}</div>
-            <input class="sheet-input" data-field="summonNature.FavoriteCreature" data-slot="{{ row.level }}">
-            {% endfor %}
-        </div>
+                <div class="summon-nature-table" data-sheet-table="summon-nature-reference">
+                    <div class="summons-head">Nv</div>
+                    <div class="summons-head">Magia</div>
+                    <div class="summons-head">Quantidade</div>
+                    <div class="summons-head">Opcoes comuns</div>
+                    <div class="summons-head">Favorito</div>
+                    {% for row in summon_nature_rows %}
+                    <div class="summon-level" data-slot="{{ row.level }}">{{ row.level }}</div>
+                    <div class="summon-spell-name" data-field="summonNature.Spell" data-slot="{{ row.level }}">
+                        <span class="spell-name-link"
+                              data-sdr-id="{% if row.sdr_id %}{{ row.sdr_id }}{% endif %}"
+                              {% if row.sdr_id %}
+                              hx-get="{% url 'character:spell-detail' character.pk row.sdr_id %}"
+                              hx-target="#spell-detail-dialog"
+                              hx-swap="innerHTML"
+                              onclick="document.getElementById('spell-detail-dialog').showModal()"
+                              {% endif %}>
+                            {{ row.spell }}
+                        </span>
+                        {% if row.sdr %}
+                            {% with sdr=row.sdr %}{% include "character/partials/_spell_tooltip.html" %}{% endwith %}
+                        {% endif %}
+                    </div>
+                    <div class="summon-quantity" data-derived="summonNature.QuantityRule" data-slot="{{ row.level }}">{{ row.quantity }}</div>
+                    <div class="summon-examples" data-derived="summonNature.Examples" data-slot="{{ row.level }}">{{ row.examples }}</div>
+                    <input class="sheet-input" data-field="summonNature.FavoriteCreature" data-slot="{{ row.level }}">
+                    {% endfor %}
+                </div>
+            </div>{# /companion-section-body (summon-spells) #}
+        </section>{# /companion-section (summon-spells) #}
 
-        <div class="summon-creature-sheet" data-sheet-table="active-summon-creature">
-            <div class="section-title-band section-title-band--small"><span>Criatura Invocada em Destaque</span></div>
-            <div class="summon-creature-identity">
-                <div class="field"><input class="field-slot" data-field="activeSummon.Name"><span class="label">Criatura</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="activeSummon.SpellLevel"><span class="label">Nv Magia</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="activeSummon.Quantity"><span class="label">Quantidade</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="activeSummon.RoundsRemaining"><span class="label">Rodadas</span></div>
-                <div class="field"><input class="field-slot field-slot--center" data-field="activeSummon.Template"><span class="label">Template / Buff</span></div>
-            </div>
-            <div class="summon-creature-combat">
-                <div class="companion-mini-head">PV</div>
-                <div class="companion-mini-head">CA</div>
-                <div class="companion-mini-head">Toque</div>
-                <div class="companion-mini-head">Fort</div>
-                <div class="companion-mini-head">Ref</div>
-                <div class="companion-mini-head">Von</div>
-                <div class="companion-mini-head">Desloc.</div>
-                <div class="companion-mini-head">Sentidos</div>
-                <input class="sheet-input" data-field="activeSummon.HitPoints">
-                <input class="sheet-input" data-field="activeSummon.ArmorClass">
-                <input class="sheet-input" data-field="activeSummon.TouchArmorClass">
-                <input class="sheet-input" data-field="activeSummon.Fortitude">
-                <input class="sheet-input" data-field="activeSummon.Reflex">
-                <input class="sheet-input" data-field="activeSummon.Will">
-                <input class="sheet-input" data-field="activeSummon.Speed">
-                <input class="sheet-input" data-field="activeSummon.Senses">
-            </div>
-            <div class="summon-creature-attacks" data-sheet-table="active-summon-attacks">
-                <div class="companion-mini-head">Ataque</div>
-                <div class="companion-mini-head">Bonus</div>
-                <div class="companion-mini-head">Dano</div>
-                <div class="companion-mini-head">Critico</div>
-                <div class="companion-mini-head">Especial</div>
-                {% for slot in "123" %}
-                <input class="sheet-input" data-field="activeSummonAttack.Name" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="activeSummonAttack.Bonus" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="activeSummonAttack.Damage" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="activeSummonAttack.Critical" data-slot="{{ forloop.counter }}">
-                <input class="sheet-input" data-field="activeSummonAttack.Special" data-slot="{{ forloop.counter }}">
-                {% endfor %}
-            </div>
-            <div class="companion-notes companion-notes--summon" data-sheet-table="active-summon-notes">
-                <label class="label" for="active-summon-notes">Habilidades, ordens e notas</label>
-                <textarea id="active-summon-notes" data-field="activeSummon.Notes"></textarea>
-            </div>
-        </div>
+        <section class="companion-section" data-section="summon-creatures">
+            <header class="companion-section-header">
+                <span onclick="toggleCompanionSection('summon-creatures')" role="button">🐾 Invoca&ccedil;&otilde;es Ativas</span>
+                <span class="chevron" onclick="toggleCompanionSection('summon-creatures')" role="button">▾</span>
+            </header>
+            <div class="companion-section-body">
+                <form class="summon-search-form"
+                      hx-get="{% url 'character:summon-search' character.pk %}"
+                      hx-target="#summon-search-results"
+                      hx-swap="outerHTML"
+                      hx-trigger="keyup changed delay:300ms from:#summon-search-input">
+                    <label for="summon-search-input" class="label">Buscar no SRD</label>
+                    <input id="summon-search-input" class="sheet-input" type="search" name="q" placeholder="Ex.: Wolf, Dire Bear, Celestial Eagle">
+                    <div id="summon-search-results"></div>
+                </form>
 
-        <div class="summons-table" data-sheet-table="summon-list">
-            <div class="summons-head">Ativa</div>
-            <div class="summons-head">Nv</div>
-            <div class="summons-head">Criatura</div>
-            <div class="summons-head">Fonte</div>
-            <div class="summons-head">Rodadas</div>
-            <div class="summons-head">PV</div>
-            <div class="summons-head">CA</div>
-            <div class="summons-head">Ataque</div>
-            <div class="summons-head">Dano</div>
-            <div class="summons-head">Notas</div>
-            {% for slot in "123456789012" %}
-            <input type="checkbox" data-field="summon.IsActive" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input" data-field="summon.SpellLevel" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input" data-field="summon.Name" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input" data-field="summon.Source" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input" data-field="summon.RoundsRemaining" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input" data-field="summon.HitPoints" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input" data-field="summon.ArmorClass" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input" data-field="summon.Attack" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input" data-field="summon.Damage" data-slot="{{ forloop.counter }}">
-            <input class="sheet-input" data-field="summon.Notes" data-slot="{{ forloop.counter }}">
-            {% endfor %}
-        </div>
-    </section>
+                {% include "character/partials/companions_summons_grid.html" %}
+            </div>{# /companion-section-body (summon-creatures) #}
+        </section>{# /companion-section (summon-creatures) #}
+    </section>{# /companion-block--summons #}
 
 </main>
 
@@ -393,6 +154,28 @@ function toggleCompanionSection(section) {
     var collapsed = el.getAttribute('data-collapsed') === 'true';
     el.setAttribute('data-collapsed', collapsed ? 'false' : 'true');
 }
+
+function switchCompanionSlot(section, slot) {
+    var root = document.querySelector('.companion-section[data-section="' + section + '"]');
+    if (!root) return;
+    root.querySelectorAll('.companion-slot').forEach(function (el) {
+        el.setAttribute('data-active', el.getAttribute('data-slot') === String(slot) ? 'true' : 'false');
+    });
+    root.querySelectorAll('.companion-slot-tab').forEach(function (btn) {
+        btn.classList.toggle('is-active', btn.getAttribute('data-slot-target') === String(slot));
+    });
+}
+
+document.body.addEventListener('htmx:afterSwap', function (evt) {
+    if (!evt.target) return;
+    if (evt.target.id !== 'animalCompanionsForm' && evt.target.id !== 'familiarsForm') return;
+    var section = evt.target.id === 'animalCompanionsForm' ? 'animal' : 'familiar';
+    var root = document.querySelector('.companion-section[data-section="' + section + '"]');
+    if (!root) return;
+    var activeBtn = root.querySelector('.companion-slot-tab.is-active');
+    var slot = activeBtn ? activeBtn.getAttribute('data-slot-target') : '1';
+    switchCompanionSlot(section, slot);
+});
 </script>
 
 {% endblock %}

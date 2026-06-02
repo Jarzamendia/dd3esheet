@@ -2,8 +2,9 @@
     <form id="characterFeatsForm" class="feats-form"
           hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterFeatsSection"
-          hx-swap="outerHTML"
-          hx-trigger="change delay:300ms">
+          hx-swap="none"
+          hx-trigger="input changed delay:500ms"
+          hx-headers='{"HX-Autosave": "1"}'>
         {% csrf_token %}
         <div class="section-title-band"><span>Talentos</span></div>
         <div class="list-block">

@@ -5,7 +5,7 @@
           hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterStatsForm"
           hx-swap="outerHTML"
-          hx-trigger="change delay:300ms">
+          hx-trigger="input changed delay:700ms, change delay:300ms">
         {% csrf_token %}
 
         <div class="attrs" data-sheet-table="abilities" aria-live="polite">
@@ -68,7 +68,7 @@
                   hx-post="{% url 'character:character' character.pk %}"
                   hx-target="#characterSavesForm"
                   hx-swap="outerHTML"
-                  hx-trigger="change delay:300ms">
+                  hx-trigger="input changed delay:700ms, change delay:300ms">
                 {% csrf_token %}
 
                 <div class="block-body">
@@ -140,7 +140,7 @@
                   hx-post="{% url 'character:character' character.pk %}"
                   hx-target="#characterAttackForm"
                   hx-swap="outerHTML"
-                  hx-trigger="change delay:300ms">
+                  hx-trigger="input changed delay:700ms, change delay:300ms">
                 {% csrf_token %}
 
                 <div class="block-body">

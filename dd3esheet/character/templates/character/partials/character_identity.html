@@ -8,7 +8,7 @@ ID HTMX: #characterIdentityForm
       hx-post="{% url 'character:character' character.pk %}"
       hx-target="#characterIdentityForm"
       hx-swap="outerHTML"
-      hx-trigger="change delay:300ms">
+      hx-trigger="input changed delay:700ms, change delay:300ms">
     {% csrf_token %}
 
     <div class="id-fields">

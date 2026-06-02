@@ -1,0 +1,16 @@
+<div class="spell-profile-strip" data-sheet-table="spellcasting-profile">
+    <div>
+        <span class="label">Modo</span>
+        {% with current_mode=spellcasting.profile.CastingMode|default:spellcasting.config.mode %}
+        <select class="sheet-input" name="spellcasting_CastingMode" data-field="spellcasting.CastingMode">
+            {% for value, label in spellcasting.casting_modes %}
+            <option value="{{ value }}" {% if current_mode == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        {% endwith %}
+    </div>
+    <div><span class="label">Dominio 1</span><input class="sheet-input" name="spellcasting_Domain1" value="{{ spellcasting.profile.Domain1|default:'' }}" data-field="spellcasting.Domain1"></div>
+    <div><span class="label">Dominio 2</span><input class="sheet-input" name="spellcasting_Domain2" value="{{ spellcasting.profile.Domain2|default:'' }}" data-field="spellcasting.Domain2"></div>
+    <div><span class="label">Escola</span><input class="sheet-input" name="spellcasting_SpecializedSchool" value="{{ spellcasting.profile.SpecializedSchool|default:'' }}" data-field="spellcasting.SpecializedSchool"></div>
+    <div><span class="label">Conversao</span><input class="sheet-input" name="spellcasting_SpontaneousConversion" value="{{ spellcasting.profile.SpontaneousConversion|default:spellcasting.config.conversion }}" data-field="spellcasting.SpontaneousConversion"></div>
+</div>

@@ -322,3 +322,236 @@ final.
 1. Cole o **prompt do Codex** primeiro. Ele vai trabalhar as 6 tasks pendentes em sequência.
 2. Cole o **prompt do Sonnet** em seguida, em outra sessão. Ele fica em standby até o Codex avisar que T2.3 está mergeada.
 3. Quando o Sonnet finalizar T3.2, todas as 19 tasks do PLAN.md devem estar ✅.
+
+---
+
+# Rodada 3 — Fase 4 (backlog UX/Feature)
+
+Origem: [`NEW.md`](../NEW.md). As Fases 0–3 já estão fechadas; esta rodada cobre as 8 tasks novas T4.1–T4.8 do `PLAN.md`. Ambos os agentes podem começar em paralelo desde o primeiro minuto: T4.1 e T4.5 são totalmente independentes.
+
+## Agente 1 — Sonnet (Fase 4 / Sprint A + B — UI/CSS dos Aliados)
+
+```
+Você é o Agente 1 (Sonnet) trabalhando no repositório dd3esheet
+(Django 4.2 + HTMX, ficha de D&D 3.5, código em dd3esheet/).
+
+Estado atual: ver "Status atual" no topo de PLAN.md. As Fases 0–3
+estão 100% concluídas. A Fase 4 (backlog de UX/Feature, fonte
+NEW.md) tem 8 tasks pendentes. Você é dono de 4:
+
+  T4.1  Padronizar max-width das sub-páginas em 1280px
+        Editar dd3esheet/static/css/character_sheet.css:
+        igualar .companions-sheet e .sheet-utility a
+        max-width: 1280px (hoje estão em 1180px).
+        Teste SubPageWidthTest: assertContains de classe
+        nas 3 sub-páginas (companions, daily-resources,
+        reputation). Commit "T4.1: largura unificada 1280px".
+
+  T4.2  Renomear "Companheiros" → "Aliados" na UI
+        Mudar SÓ os rótulos visíveis (h1, nav, <title>) em
+        companions.html, character.html, daily_resources.html,
+        reputation.html. NÃO mexer em urls.py, view companions,
+        model CharacterCompanion, paths de partials.
+        Teste AlliesRenameTest. Commit "T4.2: renomear
+        Companheiros para Aliados na UI".
+
+  T4.3  Redesign do bloco Nome do Aliado/Familiar
+        Em companions.html, envolver o input Name em
+        .companion-name-line ocupando 100% de largura.
+        CSS em character_sheet.css: Cinzel/Bold/uppercase
+        para o input, EB Garamond itálico para subtítulo,
+        linha tracejada. Adicionar .companion-quickstats
+        em grid de 5 colunas (PV, CA, Desloc, Inic, RM).
+        Conferir se Cinzel e EB Garamond estão carregadas
+        em templates/main.html; se não, adicionar Google
+        Fonts. Teste CompanionNameLineTest.
+        Commit "T4.3: redesign do bloco Nome do Aliado".
+
+  T4.4  Stack vertical + accordion Animal/Familiar
+        Pré-requisito: T4.3 mergeada (mesmo arquivo).
+        Em companions.html, reorganizar Animal Companion e
+        Familiar em fluxo vertical (não lado a lado). Cada
+        seção em <section.companion-section> com header
+        clicável (🐾 Companheiro Animal / 🧙‍♂️ Familiar) e
+        atributo data-collapsed iniciando "true" se o Name
+        estiver vazio. CSS:
+          .companion-section[data-collapsed="true"]
+            .companion-section-body { display: none; }
+        JS vanilla mínimo toggleCompanionSection(section).
+        Teste CompanionCollapseTest (data-collapsed conforme
+        Name preenchido ou não). Commit "T4.4: stack vertical
+        e accordion para Animal/Familiar".
+
+Convenções não-negociáveis:
+- Working dir Django: dd3esheet/.
+- Models de character/ usam PascalCase. Não tocar nos models
+  nestas tasks (são puramente UI).
+- dnd35.sqlite3 é read-only. Toda query SDR usa .using('sdr').
+- TDD: teste antes ou junto. python manage.py test verde ao
+  fim de cada task.
+- NÃO adicionar trailer Co-Authored-By em commits.
+
+Ordem sugerida:
+1. T4.1 (CSS trivial, isolado).
+2. T4.2 (rename de UI, isolado).
+3. T4.3 (redesign do Name; cria classes que T4.4 vai herdar).
+4. T4.4 (depende de T4.3 — mesmo arquivo).
+
+Coordenação com o Codex (Agente 2):
+- Codex está nas tasks T4.5–T4.8 (Livro de Magias + Summons).
+  Ele edita companions.html para adicionar a seção
+  "Invocações Ativas" (T4.6), então sincronize por commit
+  para evitar conflito no mesmo arquivo.
+- Codex também adiciona link de aba para o Livro de Magias
+  (T4.5) nas 4 sub-páginas, podendo colidir com T4.2.
+  Quem mergear depois faz rebase manual.
+
+Entregue cada task em commit/PR separado nomeado
+"T<id>: <título>". Em cada PR inclua:
+- diff dos arquivos,
+- comandos de teste executados (saída de manage.py test),
+- nota se algum item da Fase 4 mudou de premissa.
+
+Pode começar por T4.1.
+```
+
+## Agente 2 — Codex (Fase 4 / Sprint C + D — Livro de Magias + Summons)
+
+```
+Você é o Agente 2 (Codex) trabalhando no repositório dd3esheet
+(Django 4.2 + HTMX, ficha de D&D 3.5, código em dd3esheet/).
+
+Estado atual: ver "Status atual" no topo de PLAN.md. As Fases 0–3
+estão 100% concluídas. A Fase 4 (backlog UX/Feature, fonte
+NEW.md) tem 8 tasks; você é dono de 4:
+
+  T4.5  Sub-página "Livro de Magias" + enxugar character_spells.html
+        Criar view spellbook(request, pk) em character/views.py
+        análoga a companions/reputation. Adicionar URL
+        path('<int:pk>/spellbook/', views.spellbook,
+             name='spellbook') em character/urls.py.
+        Novo template character/templates/character/spellbook.html
+        com header de slots (reusar partial) + magias agrupadas
+        por SpellLevel (0..9) em accordion/abas.
+        Em character_spells.html: REMOVER as duas <table>
+        grandes (Slots Preparados de 20 linhas, Conhecidas/
+        Grimório de 36 linhas), manter Resumo + Grid de Slots
+        Diários, acrescentar
+          <a class="btn btn-arcane"
+             href="{% url 'character:spellbook' character.pk %}">
+             📖 Abrir Livro de Magias
+          </a>.
+        Adicionar item de aba "Livro de Magias" em character.html,
+        companions.html, daily_resources.html, reputation.html.
+        Edição HTMX no spellbook segue o padrão do dispatcher
+        (target único por seção, partial dedicado).
+        Testes SpellbookPageTest + CharacterSpellsLeanTest.
+        Validar com a ficha do seed Maelis Vorn (mago nv 8).
+        Commit "T4.5: sub-página Livro de Magias".
+
+  T4.6  Modelo CharacterSummon + grid 3 colunas
+        Criar model em character/models.py (PascalCase):
+        CharacterSummon(Character FK, Name, SpellOrigin, Level,
+        HitPointsMax, HitPointsCurrent, ArmorClass, AttackBonus,
+        Damage, SpecialAbility, RoundsTotal, RoundsRemaining,
+        SdrMonsterName, CreatedAt; Meta.ordering=
+        ('-RoundsRemaining','CreatedAt')).
+        Migration NUMERADA conforme estado real (provavelmente
+        0007_charactersummon — confirme com showmigrations).
+        Integrar à view companions(request, pk): adicionar
+        seção "Invocações Ativas" em companions.html com
+        .summons-grid em grid de 3 colunas. Endpoint HTMX de
+        criar/editar slot segue padrão _save_repeating_slots.
+        Testes CharacterSummonModelTest + SummonsGridTest.
+        Commit "T4.6: CharacterSummon e grid de invocações".
+
+  T4.7  Sistema de favoritos (★)
+        Pré-requisito: T4.6 mergeada.
+        Migration: adicionar Highlighted = BooleanField(
+        default=False) em CharacterSummon. Atualizar
+        Meta.ordering = ('-Highlighted','-RoundsRemaining',
+        'CreatedAt').
+        View toggle_summon_highlight(request, pk, summon_id)
+        validando dono via get_object_or_404, fazendo flip
+        com save(update_fields=['Highlighted']) e retornando
+        o partial do grid. URL toggle-summon-highlight.
+        Botão ★/☆ no card com hx-post / hx-target="#summons-grid".
+        Teste SummonHighlightToggleTest (flip + ordering +
+        não-dono 404). Commit "T4.7: favoritos em invocações".
+
+  T4.8  Autopreenchimento de Summon via SRD
+        Pré-requisito: T4.6 mergeada (T4.7 pode rodar em
+        paralelo — campos independentes).
+        Confirmar nome real do model SDR em sdr/models.py
+        (provavelmente Monster ou SdrMonster) e seus campos
+        (name, hp, ac, attacks, special_abilities).
+        Endpoint summon_search(request) GET ?q=...:
+          q = request.GET.get('q','').strip()
+          if len(q) < 2: return HttpResponse('')
+          hits = SdrMonster.objects.using('sdr')
+                  .filter(name__icontains=q)
+                  .order_by('name')[:10]
+          → render partial character/partials/summon_search_results.html
+        Endpoint create_summon_from_monster(request, pk, monster_id)
+        cria CharacterSummon com campos mapeados do
+        SdrMonster, gravando SdrMonsterName=monster.name.
+        UI: input com hx-trigger="keyup changed delay:300ms"
+        e hx-get="{% url 'character:summon-search' %}";
+        cada hit no dropdown com hx-post para criar.
+        Teste SummonSrdIntegrationTest (TransactionTestCase
+        com databases={'default','sdr'}, usar
+        setup_sdr_class_table-style para popular tabela de
+        teste). Casos: q='wolf' retorna ≥1; q='' retorna
+        vazio; create_summon_from_monster persiste os
+        campos esperados. Commit "T4.8: autopreencher
+        Summon via SRD".
+
+Convenções não-negociáveis:
+- Working dir Django: dd3esheet/.
+- Models de character/ usam PascalCase (Name, Strength,
+  ACTotal). Mantenha em CharacterSummon.
+- requirements.txt está em UTF-8 desde T0.1.
+- dnd35.sqlite3 é read-only. Toda query SDR usa .using('sdr').
+- HTMX dispatcher: cada novo POST de seção precisa de target
+  único e partial dedicado. Padrão: render do partial com
+  _sheet_context(char) ou subset coerente.
+- Novas migrations via `makemigrations character --name <nome>`
+  dentro do container.
+- TDD: teste antes ou junto. python manage.py test verde ao
+  fim de cada task.
+- NÃO adicionar trailer Co-Authored-By em commits.
+
+Ordem sugerida:
+1. T4.5 (isolado, alto impacto — pode mergear cedo).
+2. T4.6 (cria base para T4.7 e T4.8).
+3. T4.7 e T4.8 em paralelo (campos independentes; cuidar
+   da numeração de migrations sequencial).
+
+Coordenação com o Sonnet (Agente 1):
+- Sonnet está em T4.1–T4.4 (CSS + companions.html). Você edita
+  companions.html em T4.6 para adicionar a seção "Invocações
+  Ativas". Sincronize por commit/branch para evitar conflito.
+- Em T4.5 você adiciona item de aba "Livro de Magias" em 4
+  templates. Pode colidir com T4.2 do Sonnet (rename de
+  Companheiros → Aliados). Quem mergear depois faz rebase
+  manual — mudanças são pontuais.
+
+Entregue cada task em commit/PR separado nomeado
+"T<id>: <título>". Em cada PR inclua:
+- diff dos arquivos,
+- nome e conteúdo da migration criada (se houver),
+- saída de python manage.py test,
+- nota sobre regressão ou bloqueio.
+
+Pode começar por T4.5.
+```
+
+## Como usar (Rodada 3)
+
+1. Abra duas sessões CLI separadas na raiz do repo.
+2. Cole o **prompt do Sonnet** numa, o **do Codex** noutra.
+3. Ambos podem começar imediatamente em paralelo — T4.1 e T4.5 não compartilham arquivo.
+4. Pontos de coordenação para sincronizar via commit/branch:
+   - `companions.html` (T4.4 do Sonnet vs T4.6 do Codex);
+   - itens de aba de nav nos 4 templates (T4.2 do Sonnet vs T4.5 do Codex).
+5. Quando os 8 commits "T4.x: ..." estiverem em `main`, marcar o painel de status do `PLAN.md` como 27/27 ✅ e encerrar a Fase 4.

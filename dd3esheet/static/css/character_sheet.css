@@ -2490,36 +2490,144 @@ input.sk-cell.sheet-input {
     color: var(--rubric);
     font-weight: 700;
 }
-.spell-slot-table {
+.spellbook-slot-form {
+    display: block;
+    margin: 10px 0 14px;
+}
+.spellbook-slot-band {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--header-bg);
+    color: var(--header-fg);
+    padding: 5px 10px;
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.spellbook-slot-band .sl-meta {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: none;
+    color: rgba(255, 255, 255, 0.78);
+}
+.spellbook-slot-grid {
     display: grid;
-    grid-template-columns: 34px 74px minmax(0, 1fr) 42px minmax(80px, 0.8fr);
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    padding: 8px 0 0;
+}
+.spellbook-slot-card {
+    border: var(--rule-w) solid var(--rule-line);
+    background: var(--paper-bg);
+    display: flex;
+    flex-direction: column;
+}
+.spellbook-slot-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 8px;
+    background: var(--header-bg);
+    color: var(--header-fg);
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.spellbook-slot-card-head .ssc-counter {
+    font-family: var(--font-serif);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: rgba(255, 255, 255, 0.92);
+}
+.spellbook-slot-card-head .ssc-counter strong {
+    color: #fff;
+    font-size: 13px;
+}
+.spellbook-slot-rows {
+    display: flex;
+    flex-direction: column;
     gap: 1px;
     background: var(--column-separator);
 }
-.spell-slot-table > div {
+.spellbook-slot-row {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) 140px;
+    gap: 1px;
+    background: var(--column-separator);
+    align-items: stretch;
+}
+.spellbook-slot-row > * {
     background: var(--slot-bg);
-    min-height: 24px;
-    padding: 3px 5px;
-    color: var(--rubric);
-    font-family: var(--font-serif);
-    font-size: 12px;
+    padding: 4px 6px;
     display: flex;
     align-items: center;
+    min-height: 32px;
 }
-.spell-slot-head {
-    background: var(--header-bg) !important;
-    color: var(--header-fg) !important;
-    font-family: var(--font-display) !important;
-    font-size: 8px !important;
+.spellbook-slot-row.is-used .ssr-name input,
+.spellbook-slot-row.is-used .ssr-conv input {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+}
+.spellbook-slot-row .ssr-toggle {
+    justify-content: stretch;
+    padding: 3px;
+}
+.spellbook-slot-row .ssr-conv {
+    grid-column: 1 / -1;
+    border-top: 1px dashed var(--rule-hair);
+}
+.btn-slot-cast {
+    width: 100%;
+    border: var(--rule-w) solid var(--rule-line);
+    background: var(--paper-bg);
+    color: var(--rubric);
+    font-family: var(--font-display);
+    font-size: 10px;
     font-weight: 700;
-    justify-content: center;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+    padding: 6px 8px;
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
-.spell-slot-empty {
-    grid-column: 1 / -1;
-    color: var(--ink-soft) !important;
+.btn-slot-cast:hover:not(:disabled) {
+    background: var(--rubric);
+    border-color: var(--rubric);
+    color: #fff;
+}
+.btn-slot-cast.is-used {
+    background: var(--rubric);
+    border-color: var(--rubric);
+    color: #fff;
+}
+.btn-slot-cast.is-used:hover {
+    background: var(--header-bg);
+    border-color: var(--header-bg);
+}
+.btn-slot-cast:disabled,
+.btn-slot-cast.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+.spellbook-slot-row .sheet-input {
+    background: transparent;
+    width: 100%;
+    min-height: 22px;
+}
+.spellbook-slot-empty {
+    color: var(--ink-soft);
     font-style: italic;
+    padding: 8px 2px;
 }
 .sp-check.is-used {
     background:
@@ -2628,13 +2736,17 @@ input.sk-cell.sheet-input {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     padding: 8px 12px;
-    cursor: pointer;
     font-family: 'Cinzel', serif;
     font-weight: 600;
     background: var(--slot-bg, #f5f0e8);
     border-bottom: var(--rule-w) solid var(--rule-line);
     user-select: none;
+}
+.companion-section-header > span[role="button"],
+.companion-section-header .chevron[role="button"] {
+    cursor: pointer;
 }
 .companion-section-header:hover {
     background: var(--paper-bg);
@@ -2647,6 +2759,31 @@ input.sk-cell.sheet-input {
 }
 .companion-section-body {
     padding: 0;
+}
+.companion-slot-tabs {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: auto;
+}
+.companion-slot-tab {
+    border: var(--rule-w) solid var(--rule-line);
+    background: var(--paper-bg);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 4px 9px;
+    min-width: 26px;
+    cursor: pointer;
+}
+.companion-slot-tab:hover,
+.companion-slot-tab.is-active {
+    background: var(--header-bg);
+    color: var(--header-fg);
+}
+.companion-slot[data-active="false"] {
+    display: none;
 }
 .companion-name-line {
     padding: 10px 10px 4px;
@@ -2930,6 +3067,386 @@ input.sk-cell.sheet-input {
     background: var(--slot-bg);
 }
 
+/* -------- Cards de criatura invocada (estilo bloco de stats) ------------ */
+.summon-stat-card {
+    border: var(--rule-w) solid var(--rule-line);
+    background: var(--paper-bg);
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+}
+.summon-stat-card-title {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--header-bg);
+    color: var(--header-fg);
+    font-family: 'Cinzel', serif;
+    border-bottom: var(--rule-w) solid var(--rule-line);
+}
+.summon-stat-slot-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    min-width: 28px;
+    border: 1px solid var(--header-fg);
+    border-radius: 50%;
+    color: var(--header-fg);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1;
+    align-self: center;
+}
+.summon-stat-title-field {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.summon-stat-title-field--name   { flex: 3 1 220px; }
+.summon-stat-title-field--level  { flex: 0 0 70px; }
+.summon-stat-title-field--source { flex: 1 1 160px; }
+.summon-stat-title-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--header-fg);
+    opacity: 0.7;
+    line-height: 1;
+}
+.summon-stat-title-input {
+    background: var(--paper-bg);
+    color: var(--ink);
+    border: 1px solid var(--rule-line);
+    border-radius: 2px;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 3px 6px;
+    outline: none;
+    width: 100%;
+    min-width: 0;
+}
+.summon-stat-title-input:focus {
+    box-shadow: 0 0 0 2px var(--rubric);
+}
+.summon-stat-title-input::placeholder {
+    color: var(--ink-soft);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    opacity: 0.6;
+}
+
+.summon-stat-card-body {
+    display: flex;
+    flex-direction: column;
+    background: var(--paper-bg);
+}
+
+/* ---- 1. barra de combate compacta (label em cima, input embaixo) ------ */
+.summon-combat-strip {
+    display: grid;
+    grid-template-columns: 1.1fr 1.2fr 1.1fr 1.2fr 0.7fr 0.7fr 1fr;
+    border-bottom: var(--rule-w) solid var(--rule-line);
+}
+.summon-combat-strip .micro {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--rule-line);
+    min-width: 0;
+}
+.summon-combat-strip .micro:last-child { border-right: none; }
+.summon-combat-strip .micro > span {
+    background: var(--header-bg);
+    color: var(--header-fg);
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: center;
+    padding: 3px 4px;
+    line-height: 1.1;
+    border-bottom: 1px solid var(--rule-line);
+}
+.summon-combat-strip .micro > input {
+    border: none;
+    background: var(--paper-bg);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    padding: 4px 6px;
+    outline: none;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    font-variant-numeric: tabular-nums;
+}
+.summon-combat-strip .micro > input:focus { background: var(--paper-bg-alt); }
+
+/* ---- 2. linha do meio: ataques + atributos + saves -------------------- */
+.summon-mid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr) 130px;
+    border-bottom: var(--rule-w) solid var(--rule-line);
+}
+
+.summon-attacks {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--rule-line);
+    min-height: 0;
+}
+.summon-attacks .attack-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    border-bottom: 1px solid var(--rule-line);
+}
+.summon-attacks .attack-row:last-child { border-bottom: none; }
+.summon-attacks .attack-row--single { min-height: 30px; }
+.summon-attacks .attack-row--multi  { flex: 1 1 auto; min-height: 60px; }
+.summon-attacks .rl {
+    background: var(--slot-bg, #f5f0e8);
+    color: var(--ink);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    padding: 6px 4px;
+    border-right: 1px solid var(--rule-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.summon-attacks input,
+.summon-attacks textarea {
+    border: none;
+    background: var(--paper-bg);
+    color: var(--ink);
+    font: inherit;
+    font-size: 13px;
+    padding: 6px 8px;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    resize: none;
+    line-height: 1.35;
+}
+.summon-attacks textarea { font-family: inherit; }
+.summon-attacks input:focus,
+.summon-attacks textarea:focus { background: var(--paper-bg-alt); }
+.summon-attacks input::placeholder,
+.summon-attacks textarea::placeholder {
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+}
+
+.summon-attrs {
+    display: grid;
+    grid-template-columns: 56px repeat(3, 1fr);
+    grid-auto-rows: minmax(24px, auto);
+    border-right: 1px solid var(--rule-line);
+}
+.summon-attrs > * {
+    border-right: 1px solid var(--rule-line);
+    border-bottom: 1px solid var(--rule-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    min-width: 0;
+    padding: 2px 4px;
+    box-sizing: border-box;
+}
+.summon-attrs > *:nth-child(4n) { border-right: none; }
+.summon-attrs > *:nth-last-child(-n+4) { border-bottom: none; }
+.summon-attrs .ah {
+    background: var(--header-bg);
+    color: var(--header-fg);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.summon-attrs .an {
+    background: var(--slot-bg, #f5f0e8);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+}
+.summon-attrs input.av {
+    border: none;
+    border-right: 1px solid var(--rule-line);
+    border-bottom: 1px solid var(--rule-line);
+    background: var(--paper-bg);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 2px 4px;
+    outline: none;
+    font-variant-numeric: tabular-nums;
+}
+.summon-attrs input.av:focus { background: var(--paper-bg-alt); }
+
+.summon-saves-aside {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 8px;
+    background: var(--paper-bg);
+}
+.summon-stat-icon {
+    width: 36px;
+    height: 36px;
+    fill: var(--ink);
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+.summon-saves-aside .saves-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+.summon-saves-aside .saves-list label {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+}
+.summon-saves-aside .saves-list input {
+    border: 1px solid var(--rule-line);
+    background: var(--paper-bg);
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    padding: 1px 4px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    font-variant-numeric: tabular-nums;
+}
+.summon-saves-aside .saves-list input:focus { background: var(--paper-bg-alt); }
+
+/* ---- 3. rodape: traits (esq) + anotacoes (dir, span 2 cols)
+   mesma grade do summon-mid pra que .summon-traits e .summon-attacks
+   tenham largura identica e os inputs casem horizontalmente ---------- */
+.summon-bottom {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr) 130px;
+}
+.summon-notes { grid-column: span 2; }
+
+.summon-traits {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--rule-line);
+}
+.summon-traits .trait-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    border-bottom: 1px solid var(--rule-line);
+    min-height: 28px;
+}
+.summon-traits .trait-row:last-child { border-bottom: none; }
+.summon-traits .rl {
+    background: var(--slot-bg, #f5f0e8);
+    color: var(--ink);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    padding: 6px 4px;
+    border-right: 1px solid var(--rule-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.summon-traits input {
+    border: none;
+    background: var(--paper-bg);
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+    padding: 4px 8px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+.summon-traits input:focus { background: var(--paper-bg-alt); }
+
+.summon-notes {
+    display: flex;
+    flex-direction: column;
+}
+.summon-notes > header {
+    background: var(--header-bg);
+    color: var(--header-fg);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: center;
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--rule-line);
+}
+.summon-notes textarea {
+    flex: 1;
+    border: none;
+    background: var(--paper-bg);
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+    padding: 6px 8px;
+    resize: vertical;
+    outline: none;
+    min-height: 60px;
+}
+.summon-notes textarea:focus { background: var(--paper-bg-alt); }
+
+@media (max-width: 900px) {
+    .summon-combat-strip { grid-template-columns: repeat(4, 1fr); }
+    .summon-combat-strip .micro { border-bottom: 1px solid var(--rule-line); }
+    .summon-mid,
+    .summon-bottom { grid-template-columns: 1fr; }
+    .summon-attacks,
+    .summon-attrs,
+    .summon-traits { border-right: none; border-bottom: 1px solid var(--rule-line); }
+}
+
 /* -------- Paginas auxiliares: recursos / reputacao ---------------------- */
 .sheet-utility {
     max-width: 1280px;
@@ -2982,8 +3499,7 @@ input.sk-cell.sheet-input {
     min-width: 760px;
 }
 .effect-table {
-    grid-template-columns: minmax(130px, 1.1fr) 90px minmax(120px, 1fr) 64px minmax(160px, 1.3fr);
-    min-width: 620px;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 90px) minmax(0, 1fr) minmax(0, 64px) minmax(0, 1.3fr);
 }
 .contact-table {
     grid-template-columns: minmax(130px, 1.2fr) 100px 90px 80px minmax(170px, 1.4fr);
@@ -3455,3 +3971,200 @@ input.sk-cell.sheet-input {
         display: none;
     }
 }
+
+/* AGENT2: summons grid */
+.summon-search-form {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.summon-search-results {
+    display: grid;
+    gap: 6px;
+}
+
+.summon-search-result {
+    background: rgba(255, 251, 244, 0.96);
+    border: 1px solid rgba(87, 52, 34, 0.2);
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.summons-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.summon-card {
+    background: rgba(255, 250, 240, 0.96);
+    border: 1px solid rgba(87, 52, 34, 0.18);
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(87, 52, 34, 0.08);
+    padding: 14px;
+}
+
+.summon-card--empty {
+    border-style: dashed;
+    opacity: 0.82;
+}
+
+.summon-card-head {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.summon-highlight-toggle {
+    background: transparent;
+    border: 0;
+    color: #9a6c1c;
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    padding: 0;
+}
+
+.summon-card-fields {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.summon-card-fields label {
+    display: grid;
+    gap: 4px;
+}
+
+.summon-card-fields__wide {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 980px) {
+    .summons-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pv-current-temp {
+    display: grid;
+    gap: 6px;
+}
+
+/* ============================================================
+   Autosave — indicador de estado discreto
+   ============================================================ */
+.autosave-indicator {
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    padding: 4px 10px;
+    background: var(--header-bg, #222);
+    color: var(--header-fg, #fff);
+    font-size: 11px;
+    border-radius: 3px;
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* ============================================================
+   Magia SDR — wrap, tooltip ao hover e dialog ao clicar
+   ============================================================ */
+.spell-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+.spell-input-wrap .sheet-input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.spell-detail-trigger {
+    flex: 0 0 auto;
+    background: none;
+    border: 1px solid var(--rule-line);
+    border-radius: 3px;
+    padding: 0 6px;
+    font-size: 12px;
+    line-height: 22px;
+    cursor: pointer;
+    color: var(--ink);
+}
+.spell-detail-trigger:hover { background: var(--header-bg); color: var(--header-fg); }
+
+.spell-name-link[data-sdr-id]:not([data-sdr-id=""]) {
+    position: relative;
+    cursor: pointer;
+    text-decoration: underline dotted;
+}
+
+.spell-tooltip {
+    display: none;
+    position: absolute;
+    z-index: 200;
+    top: 100%;
+    left: 0;
+    width: 320px;
+    max-width: 90vw;
+    margin-top: 4px;
+    padding: 10px 12px;
+    background: var(--paper-bg, #fff);
+    border: 1px solid var(--rule-line, #333);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--ink, #111);
+    pointer-events: none;
+}
+.spell-tooltip dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; }
+.spell-tooltip dt { font-weight: 700; }
+.spell-tooltip dd { margin: 0; }
+.spell-tooltip .spell-tooltip-school {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.spell-tooltip .spell-tooltip-desc {
+    margin-top: 6px;
+    font-style: italic;
+}
+.spell-input-wrap[data-sdr-id]:not([data-sdr-id=""]):hover .spell-tooltip,
+.spell-name-link[data-sdr-id]:not([data-sdr-id=""]):hover .spell-tooltip {
+    display: block;
+}
+
+.spell-detail-dialog {
+    width: min(720px, 92vw);
+    max-height: 88vh;
+    padding: 0;
+    border: 1px solid var(--rule-line, #333);
+    background: var(--paper-bg, #fff);
+    color: var(--ink, #111);
+}
+.spell-detail-dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+.spell-detail { display: flex; flex-direction: column; max-height: 88vh; }
+.spell-detail-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 1px solid var(--rule-line, #333);
+    background: var(--header-bg, #222); color: var(--header-fg, #fff);
+}
+.spell-detail-head h2 { margin: 0; font-size: 16px; }
+.spell-detail-altname { margin: 2px 0 0; font-size: 11px; opacity: 0.85; }
+.spell-detail-close-form { margin: 0; }
+.spell-detail-close {
+    background: none; border: 0; color: inherit; font-size: 22px;
+    line-height: 1; cursor: pointer; padding: 0 6px;
+}
+.spell-detail-body { padding: 14px 16px; overflow-y: auto; font-size: 13px; line-height: 1.5; }

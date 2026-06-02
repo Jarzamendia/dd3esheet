@@ -1,0 +1,155 @@
+<form id="animalCompanionsForm"
+      hx-post="{% url 'character:companions' character.pk %}"
+      hx-target="#animalCompanionsForm"
+      hx-swap="none"
+      hx-trigger="input changed delay:500ms"
+      hx-headers='{"HX-Autosave": "1"}'>
+    {% csrf_token %}
+    {% for companion in animal_companions %}
+    <div class="companion-slot" data-slot="{{ forloop.counter }}" data-active="{% if forloop.first %}true{% else %}false{% endif %}">
+        <article class="companion-block companion-block--animal" data-sheet-table="animal-companion">
+            <div class="section-title-band"><span>Companheiro Animal {{ forloop.counter }}</span></div>
+
+            <div class="companion-name-line">
+                <input class="field-slot"
+                       name="animalCompanion_{{ forloop.counter }}_Name"
+                       value="{{ companion.Name|default:'' }}"
+                       data-field="animalCompanion.Name" data-slot="{{ forloop.counter }}"
+                       placeholder="Nome do Companheiro">
+                <div class="subtitle">Companheiro Animal — Nível {{ character.Level|default:"-" }}</div>
+            </div>
+
+            <div class="companion-quickstats">
+                <div class="field">
+                    <input class="field-slot field-slot--center"
+                           name="animalCompanion_{{ forloop.counter }}_HitPoints"
+                           value="{{ companion.HitPoints|default:'' }}" inputmode="numeric"
+                           data-field="animalCompanion.HitPoints" data-slot="{{ forloop.counter }}">
+                    <span class="label">PV</span>
+                </div>
+                <div class="field">
+                    <input class="field-slot field-slot--center"
+                           name="animalCompanion_{{ forloop.counter }}_ArmorClass"
+                           value="{{ companion.ArmorClass|default:'' }}" inputmode="numeric"
+                           data-field="animalCompanion.ArmorClass" data-slot="{{ forloop.counter }}">
+                    <span class="label">CA</span>
+                </div>
+                <div class="field">
+                    <input class="field-slot field-slot--center"
+                           name="animalCompanion_{{ forloop.counter }}_Speed"
+                           value="{{ companion.Speed|default:'' }}"
+                           data-field="animalCompanion.Speed" data-slot="{{ forloop.counter }}">
+                    <span class="label">Desloc.</span>
+                </div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.Initiative" data-slot="{{ forloop.counter }}"><span class="label">Inic.</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.SpellResistance" data-slot="{{ forloop.counter }}"><span class="label">RM</span></div>
+            </div>
+
+            <div class="companion-identity-grid">
+                <div class="field">
+                    <input class="field-slot"
+                           name="animalCompanion_{{ forloop.counter }}_Species"
+                           value="{{ companion.Species|default:'' }}"
+                           data-field="animalCompanion.Species" data-slot="{{ forloop.counter }}">
+                    <span class="label">Especie</span>
+                </div>
+                <div class="field"><input class="field-slot" data-field="animalCompanion.Type" data-slot="{{ forloop.counter }}"><span class="label">Tipo</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.Sex" data-slot="{{ forloop.counter }}"><span class="label">Sexo</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.Size" data-slot="{{ forloop.counter }}"><span class="label">Tamanho</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.EffectiveLevel" data-slot="{{ forloop.counter }}"><span class="label">Nivel Efetivo</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.HitDice" data-slot="{{ forloop.counter }}"><span class="label">Dados de Vida</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.BaseSpeed" data-slot="{{ forloop.counter }}"><span class="label">Desloc. Base</span></div>
+            </div>
+
+            <div class="companion-stat-grid" data-sheet-table="animal-companion-abilities">
+                <div class="companion-mini-head">Hab.</div>
+                <div class="companion-mini-head">FOR</div>
+                <div class="companion-mini-head">DES</div>
+                <div class="companion-mini-head">CON</div>
+                <div class="companion-mini-head">INT</div>
+                <div class="companion-mini-head">SAB</div>
+                <div class="companion-mini-head">CAR</div>
+                <div class="companion-row-head">Valor</div>
+                <input class="sheet-input" data-field="animalCompanion.Strength" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanion.Dexterity" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanion.Constitution" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanion.Intelligence" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanion.Wisdom" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanion.Charisma" data-slot="{{ forloop.counter }}">
+                <div class="companion-row-head">Mod.</div>
+                <div class="companion-calc" data-derived="animalCompanion.StrengthMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="animalCompanion.DexterityMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="animalCompanion.ConstitutionMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="animalCompanion.IntelligenceMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="animalCompanion.WisdomMod" data-slot="{{ forloop.counter }}"></div>
+                <div class="companion-calc" data-derived="animalCompanion.CharismaMod" data-slot="{{ forloop.counter }}"></div>
+            </div>
+
+            <div class="companion-defense-grid" data-sheet-table="animal-companion-defense">
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.HitPointsTotal" data-slot="{{ forloop.counter }}"><span class="label">PV Total</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.CurrentHitPoints" data-slot="{{ forloop.counter }}"><span class="label">PV Atual</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.NonlethalDamage" data-slot="{{ forloop.counter }}"><span class="label">Dano Contusao</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.ArmorClassDetail" data-slot="{{ forloop.counter }}"><span class="label">CA</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.TouchArmorClass" data-slot="{{ forloop.counter }}"><span class="label">Toque</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.FlatFootedArmorClass" data-slot="{{ forloop.counter }}"><span class="label">Surpresa</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.InitiativeDetail" data-slot="{{ forloop.counter }}"><span class="label">Iniciativa</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.NaturalArmor" data-slot="{{ forloop.counter }}"><span class="label">Armadura Natural</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.DamageReduction" data-slot="{{ forloop.counter }}"><span class="label">RD</span></div>
+                <div class="field"><input class="field-slot field-slot--center" data-field="animalCompanion.SpellResistanceDetail" data-slot="{{ forloop.counter }}"><span class="label">RM</span></div>
+            </div>
+
+            <div class="companion-save-grid" data-sheet-table="animal-companion-saves">
+                <div class="companion-mini-head">Fortitude</div>
+                <div class="companion-mini-head">Reflexos</div>
+                <div class="companion-mini-head">Vontade</div>
+                <input class="sheet-input" data-field="animalCompanion.Fortitude" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanion.Reflex" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanion.Will" data-slot="{{ forloop.counter }}">
+            </div>
+
+            <div class="companion-attack-table" data-sheet-table="animal-companion-attacks">
+                <div class="companion-mini-head">Ataque</div>
+                <div class="companion-mini-head">Bonus</div>
+                <div class="companion-mini-head">Dano</div>
+                <div class="companion-mini-head">Critico</div>
+                <div class="companion-mini-head">Tipo</div>
+                {% for atk in "123" %}
+                <input class="sheet-input" data-field="animalCompanionAttack.Name" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanionAttack.Bonus" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanionAttack.Damage" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanionAttack.Critical" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanionAttack.Type" data-slot="{{ forloop.counter }}">
+                {% endfor %}
+            </div>
+
+            <div class="companion-skill-table" data-sheet-table="animal-companion-skills">
+                <div class="companion-mini-head">Pericia</div>
+                <div class="companion-mini-head">Hab.</div>
+                <div class="companion-mini-head">Ranks</div>
+                <div class="companion-mini-head">Misc</div>
+                <div class="companion-mini-head">Total</div>
+                {% for skill, ability in companion_skills %}
+                <div class="companion-skill-name" data-field="animalCompanionSkill.Name" data-slot="{{ forloop.counter }}">{{ skill }}</div>
+                <div class="companion-skill-ability" data-field="animalCompanionSkill.Ability" data-slot="{{ forloop.counter }}">{{ ability }}</div>
+                <input class="sheet-input" data-field="animalCompanionSkill.Ranks" data-slot="{{ forloop.counter }}">
+                <input class="sheet-input" data-field="animalCompanionSkill.MiscModifier" data-slot="{{ forloop.counter }}">
+                <div class="companion-calc" data-derived="animalCompanionSkill.Total" data-slot="{{ forloop.counter }}"></div>
+                {% endfor %}
+            </div>
+
+            <div class="companion-text-grid">
+                <div class="companion-notes" data-sheet-table="animal-companion-special-abilities">
+                    <label class="label" for="animal-companion-specials-{{ forloop.counter }}">Habilidades especiais</label>
+                    <textarea id="animal-companion-specials-{{ forloop.counter }}"
+                              name="animalCompanion_{{ forloop.counter }}_SpecialAbilities"
+                              data-field="animalCompanion.SpecialAbilities" data-slot="{{ forloop.counter }}">{{ companion.SpecialAbilities|default:'' }}</textarea>
+                </div>
+                <div class="companion-notes" data-sheet-table="animal-companion-tricks">
+                    <label class="label" for="animal-companion-tricks-{{ forloop.counter }}">Truques</label>
+                    <textarea id="animal-companion-tricks-{{ forloop.counter }}" data-field="animalCompanion.Tricks" data-slot="{{ forloop.counter }}"></textarea>
+                </div>
+            </div>
+        </article>
+    </div>
+    {% endfor %}
+</form>
