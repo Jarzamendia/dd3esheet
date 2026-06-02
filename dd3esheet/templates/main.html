@@ -60,6 +60,8 @@
         Codex de Fichas · {% now "Y" %} · um lugar pro seu personagem caber inteiro
     </footer>
 
+    <div id="autosave-indicator" class="autosave-indicator" aria-live="polite" hidden></div>
+
     <script src="{% static 'htmx.min.js' %}"></script>
     {% load django_htmx %}
     {% django_htmx_script %}
@@ -68,6 +70,32 @@
         const token = document.querySelector('[name=csrfmiddlewaretoken]');
         if (token) event.detail.headers['X-CSRFToken'] = token.value;
       });
+
+      (function () {
+        var ind = document.getElementById('autosave-indicator');
+        var hideTimer;
+        function showInd(text) {
+          if (!ind) return;
+          clearTimeout(hideTimer);
+          ind.textContent = text;
+          ind.hidden = false;
+        }
+        document.body.addEventListener('htmx:beforeRequest', function (e) {
+          if (e.detail.requestConfig && e.detail.requestConfig.headers['HX-Autosave']) {
+            showInd('salvando…');
+          }
+        });
+        document.body.addEventListener('htmx:afterRequest', function (e) {
+          if (e.detail.requestConfig && e.detail.requestConfig.headers['HX-Autosave']) {
+            if (e.detail.failed) {
+              showInd('erro ✗');
+            } else {
+              showInd('salvo ✓');
+              hideTimer = setTimeout(function () { if (ind) ind.hidden = true; }, 2000);
+            }
+          }
+        });
+      })();
     </script>
 
     {% block extra_js %}{% endblock %}

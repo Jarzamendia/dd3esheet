@@ -2393,3 +2393,82 @@ class SummonNatureRowsResolveTests(TestCase):
         SDR_Spell.objects.using('sdr').all().delete()
         rows = _summon_nature_rows()
         self.assertTrue(all(r['sdr_id'] is None for r in rows))
+
+
+# ---------------------------------------------------------------------------
+# Entrega B — Autosave: POST with HX-Autosave header → 204, no re-render
+# ---------------------------------------------------------------------------
+
+class AutosaveOnInputTest(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_class_table()
+        setup_sdr_spell_table()
+
+    def setUp(self):
+        self.user = make_user()
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Autosave Test')
+        _bootstrap_character_siblings(self.char)
+        self.client.force_login(self.user)
+
+    def _autosave_post(self, url, target, data):
+        return self.client.post(
+            url,
+            data=data,
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET=target,
+            HTTP_HX_AUTOSAVE='1',
+        )
+
+    def test_feats_autosave_returns_204_and_persists(self):
+        url = reverse('character:character', args=[self.char.pk])
+        resp = self._autosave_post(url, 'characterFeatsForm', {
+            'feat_1_Name': 'Iniciativa Aprimorada',
+            'feat_1_Page': '100',
+        })
+        self.assertEqual(resp.status_code, 204)
+        self.assertEqual(resp.content, b'')
+        from .models import CharacterFeat
+        feat = CharacterFeat.objects.filter(Character=self.char).first()
+        self.assertIsNotNone(feat)
+        self.assertEqual(feat.Name, 'Iniciativa Aprimorada')
+
+    def test_specials_autosave_returns_204_and_persists(self):
+        url = reverse('character:character', args=[self.char.pk])
+        resp = self._autosave_post(url, 'characterSpecialsForm', {
+            'ability_1_Name': 'Missão Épica',
+            'ability_1_Page': '50',
+        })
+        self.assertEqual(resp.status_code, 204)
+        from .models import Ability
+        ability = Ability.objects.filter(Character=self.char).first()
+        self.assertIsNotNone(ability)
+        self.assertEqual(ability.Name, 'Missão Épica')
+
+    def test_reputation_contacts_autosave_returns_204_and_persists(self):
+        url = reverse('character:reputation', args=[self.char.pk])
+        resp = self._autosave_post(url, 'reputationContactsForm', {
+            'contact_1_Name': 'Tharivol',
+            'contact_1_Location': 'Waterdeep',
+            'contact_1_Relationship': 'Aliado',
+        })
+        self.assertEqual(resp.status_code, 204)
+        from .models import CharacterContact
+        contact = CharacterContact.objects.filter(Character=self.char).first()
+        self.assertIsNotNone(contact)
+        self.assertEqual(contact.Name, 'Tharivol')
+
+    def test_derived_field_without_autosave_header_still_renders(self):
+        url = reverse('character:character', args=[self.char.pk])
+        resp = self.client.post(
+            url,
+            data={'feat_1_Name': 'Power Attack', 'feat_1_Page': '98'},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterFeatsForm',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertGreater(len(resp.content), 0)

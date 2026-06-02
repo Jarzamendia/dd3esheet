@@ -3,8 +3,9 @@
       data-sheet-table="contracts"
       hx-post="{% url 'character:reputation' character.pk %}"
       hx-target="#reputationContractsForm"
-      hx-swap="outerHTML"
-      hx-trigger="change delay:300ms">
+      hx-swap="none"
+      hx-trigger="input changed delay:500ms"
+      hx-headers='{"HX-Autosave": "1"}'>
     {% csrf_token %}
     <div class="section-title-band"><span>Contratos, Promessas e Dividas</span></div>
     <div class="contract-table">

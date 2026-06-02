@@ -4,8 +4,9 @@
           aria-label="Experiencia e campanha"
           hx-post="{% url 'character:character' character.pk %}"
           hx-target="#characterProgressSection"
-          hx-swap="outerHTML"
-          hx-trigger="change delay:300ms">
+          hx-swap="none"
+          hx-trigger="input changed delay:500ms"
+          hx-headers='{"HX-Autosave": "1"}'>
         {% csrf_token %}
         <div class="progress-table" data-sheet-table="campaign-progress">
             <div class="progress-head">Campanha</div>

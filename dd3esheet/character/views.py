@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db import models, transaction
 from django.db.models import Prefetch
@@ -90,6 +91,14 @@ def _clean_post_value(raw_value, model_field):
     if isinstance(model_field, models.BooleanField):
         return raw_value in ('on', 'true', '1', 'yes')
     return _clean_text_value(raw_value, model_field)
+
+
+def _is_autosave(request):
+    return request.headers.get('HX-Autosave') == '1'
+
+
+def _autosave_204():
+    return HttpResponse(status=204)
 
 
 def _update_fields_from_post(instance, request, fields, prefix=''):
@@ -713,6 +722,8 @@ def character(request, pk):
         if request.htmx.target == 'characterProgressForm':
             progress, _ = CharacterProgress.objects.get_or_create(Character=char)
             _update_fields_from_post(progress, request, ['ExperiencePoints', 'CampaignName'])
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/character_progress.html', _sheet_context(char))
 
         if request.htmx.target == 'characterEquipmentForm':
@@ -747,11 +758,15 @@ def character(request, pk):
 
         if request.htmx.target == 'characterFeatsForm':
             _save_repeating_slots(char, request, CharacterFeat, 'feat', ['Name', 'Page'], 24)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/character_feats.html', _sheet_context(char))
 
         if request.htmx.target == 'characterSpecialsForm':
             _save_repeating_slots(char, request, Ability, 'ability', ['Name', 'Page'], 12)
             _save_repeating_slots(char, request, CharacterLanguages, 'language', ['Value'], 12)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/character_specials.html', _sheet_context(char))
 
         if request.htmx.target == 'characterSpellsForm':
@@ -777,11 +792,15 @@ def companions(request, pk):
             _save_typed_companion_slots(char, request, 'animal', 'animalCompanion', [
                 'Name', 'Species', 'HitPoints', 'ArmorClass', 'Speed', 'SpecialAbilities',
             ], 4)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/companions_animal_form.html', _companions_context(char))
         if target == 'familiarsForm':
             _save_typed_companion_slots(char, request, 'familiar', 'familiar', [
                 'Name', 'Species', 'HitPoints', 'ArmorClass', 'Speed', 'SpecialAbilities', 'Notes',
             ], 4)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/companions_familiar_form.html', _companions_context(char))
 
     return render(request, 'character/companions.html', _companions_context(char))
@@ -824,6 +843,8 @@ def dailyResources(request, pk):
         ], 12)
         notes, _ = CharacterDailyNotes.objects.get_or_create(Character=char)
         _update_fields_from_post(notes, request, ['Preparation', 'Spent'])
+        if _is_autosave(request):
+            return _autosave_204()
         return render(request, 'character/daily_resources.html', _daily_resources_context(char))
 
     return render(request, 'character/daily_resources.html', _daily_resources_context(char))
@@ -837,18 +858,24 @@ def reputation(request, pk):
             _save_repeating_slots(char, request, CharacterContact, 'contact', [
                 'Name', 'Location', 'Relationship', 'Favor', 'Notes',
             ], 16)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/reputation_contacts_form.html', _reputation_context(char))
 
         if request.htmx.target == 'reputationFactionsForm':
             _save_repeating_slots(char, request, CharacterFaction, 'faction', [
                 'Name', 'Reputation', 'Influence', 'Risk', 'Notes',
             ], 10)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/reputation_factions_form.html', _reputation_context(char))
 
         if request.htmx.target == 'reputationContractsForm':
             _save_repeating_slots(char, request, CharacterContract, 'contract', [
                 'Title', 'Party', 'Reward', 'Deadline', 'Status', 'Notes',
             ], 12)
+            if _is_autosave(request):
+                return _autosave_204()
             return render(request, 'character/partials/reputation_contracts_form.html', _reputation_context(char))
 
     return render(request, 'character/reputation.html', _reputation_context(char))
