@@ -1,0 +1,46 @@
+<form id="summonsGrid"
+      class="summons-grid-shell"
+      hx-post="{% url 'character:companions' character.pk %}"
+      hx-target="#summonsGrid"
+      hx-swap="outerHTML"
+      hx-trigger="change delay:300ms">
+    {% csrf_token %}
+    <div class="summons-grid">
+        {% for summon in summon_slots %}
+        <article class="summon-card{% if not summon %} summon-card--empty{% endif %}"
+                 {% if summon %}data-summon-card="active"{% else %}data-summon-card="empty"{% endif %}>
+            <header class="summon-card-head">
+                <div>
+                    <span class="label">Invocacao</span>
+                    <strong>{{ summon.Name|default:"Nova criatura" }}</strong>
+                </div>
+                {% if summon %}
+                <button type="button"
+                        class="summon-highlight-toggle"
+                        hx-post="{% url 'character:toggle-summon-highlight' character.pk summon.pk %}"
+                        hx-target="#summonsGrid"
+                        hx-swap="outerHTML"
+                        aria-label="Destacar invocacao">
+                    {% if summon.Highlighted %}★{% else %}☆{% endif %}
+                </button>
+                {% endif %}
+            </header>
+
+            <div class="summon-card-fields">
+                <label><span>Nome</span><input class="sheet-input" name="summon_{{ forloop.counter }}_Name" value="{{ summon.Name|default:'' }}"></label>
+                <label><span>Origem</span><input class="sheet-input" name="summon_{{ forloop.counter }}_SpellOrigin" value="{{ summon.SpellOrigin|default:'' }}"></label>
+                <label><span>Nivel</span><input class="sheet-input" name="summon_{{ forloop.counter }}_Level" value="{{ summon.Level|default_if_none:'' }}"></label>
+                <label><span>CA</span><input class="sheet-input" name="summon_{{ forloop.counter }}_ArmorClass" value="{{ summon.ArmorClass|default_if_none:'' }}"></label>
+                <label><span>PV Max</span><input class="sheet-input" name="summon_{{ forloop.counter }}_HitPointsMax" value="{{ summon.HitPointsMax|default_if_none:'' }}"></label>
+                <label><span>PV Atual</span><input class="sheet-input" name="summon_{{ forloop.counter }}_HitPointsCurrent" value="{{ summon.HitPointsCurrent|default_if_none:'' }}"></label>
+                <label><span>Ataque</span><input class="sheet-input" name="summon_{{ forloop.counter }}_AttackBonus" value="{{ summon.AttackBonus|default:'' }}"></label>
+                <label><span>Dano</span><input class="sheet-input" name="summon_{{ forloop.counter }}_Damage" value="{{ summon.Damage|default:'' }}"></label>
+                <label class="summon-card-fields__wide"><span>Especial</span><input class="sheet-input" name="summon_{{ forloop.counter }}_SpecialAbility" value="{{ summon.SpecialAbility|default:'' }}"></label>
+                <label><span>Rodadas</span><input class="sheet-input" name="summon_{{ forloop.counter }}_RoundsTotal" value="{{ summon.RoundsTotal|default_if_none:'' }}"></label>
+                <label><span>Restantes</span><input class="sheet-input" name="summon_{{ forloop.counter }}_RoundsRemaining" value="{{ summon.RoundsRemaining|default_if_none:'' }}"></label>
+                <label class="summon-card-fields__wide"><span>Origem SRD</span><input class="sheet-input" name="summon_{{ forloop.counter }}_SdrMonsterName" value="{{ summon.SdrMonsterName|default:'' }}"></label>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</form>

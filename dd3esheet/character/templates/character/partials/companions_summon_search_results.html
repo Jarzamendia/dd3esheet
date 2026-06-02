@@ -1,0 +1,11 @@
+<div id="summon-search-results" class="summon-search-results">
+    {% for monster in monsters %}
+    <button type="button"
+            class="summon-search-result"
+            hx-post="{% url 'character:create-summon-from-monster' character.pk monster.pk %}"
+            hx-target="#summonsGrid"
+            hx-swap="outerHTML">
+        {{ monster.name }}
+    </button>
+    {% endfor %}
+</div>

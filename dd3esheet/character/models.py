@@ -63,6 +63,8 @@ class CharacterStatus(models.Model):
     Character            = models.OneToOneField(Character, on_delete=models.CASCADE, primary_key=True)
 
     TotalHitPoints       = models.IntegerField(default=0, null=True, blank=True)
+    CurrentHitPoints     = models.IntegerField(default=0, null=True, blank=True)
+    TemporaryHitPoints   = models.IntegerField(default=0, null=True, blank=True)
     NonLethalDamager     = models.IntegerField(default=0, null=True, blank=True)
     Speed                = models.IntegerField(default=0, null=True, blank=True)
     ACTotal              = models.IntegerField(default=0, null=True, blank=True)
@@ -345,6 +347,27 @@ class CharacterCompanion(models.Model):
     Feats            = models.TextField(blank=True)
     SpecialAbilities = models.TextField(blank=True)
     Notes            = models.TextField(blank=True)
+
+
+class CharacterSummon(models.Model):
+    Character = models.ForeignKey(Character, on_delete=models.CASCADE)
+    Name = models.CharField(max_length=200, blank=True)
+    SpellOrigin = models.CharField(max_length=100, blank=True)
+    Level = models.IntegerField(default=0)
+    HitPointsMax = models.IntegerField(default=0)
+    HitPointsCurrent = models.IntegerField(default=0)
+    ArmorClass = models.IntegerField(default=0)
+    AttackBonus = models.CharField(max_length=200, blank=True)
+    Damage = models.CharField(max_length=200, blank=True)
+    SpecialAbility = models.CharField(max_length=500, blank=True)
+    RoundsTotal = models.IntegerField(default=0)
+    RoundsRemaining = models.IntegerField(default=0)
+    Highlighted = models.BooleanField(default=False)
+    SdrMonsterName = models.CharField(max_length=200, blank=True)
+    CreatedAt = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-Highlighted', '-RoundsRemaining', 'CreatedAt')
 
 class CharacterContact(models.Model):
     Character    = models.ForeignKey(Character, on_delete=models.CASCADE)

@@ -1,4 +1,4 @@
-from django.test import TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import connections
@@ -12,9 +12,10 @@ from .models import (
     CharacterMagicConditionalModifiers, CharacterSkill, CharacterWeapon,
     CharacterArmor, CharacterShield, CharacterProtectionItem, CharacterOtherItem,
     CharacterSpellcasting, CharacterSpellSlot, CharacterSpell, CharacterFeat,
+    CharacterMagicDayUse, CharacterSummon,
     CharacterCompanion, CharacterContact, CharacterContract, CharacterFaction,
 )
-from sdr.models import SDR_Class
+from sdr.models import SDR_Class, SDR_Monster
 
 
 # ---------------------------------------------------------------------------
@@ -173,6 +174,50 @@ def setup_sdr_spell_table():
                 verbal_components TEXT, sorcerer_focus TEXT,
                 bard_focus TEXT, cleric_focus TEXT, druid_focus TEXT,
                 full_text TEXT, reference TEXT
+            )
+        """)
+
+
+def setup_sdr_monster_table():
+    with connections['sdr'].cursor() as cursor:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS monster (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                family TEXT NULL,
+                name TEXT NOT NULL,
+                altname TEXT NULL,
+                size TEXT NULL,
+                type TEXT NULL,
+                descriptor TEXT NULL,
+                hit_dice TEXT NULL,
+                initiative TEXT NULL,
+                speed TEXT NULL,
+                armor_class TEXT NULL,
+                base_attack TEXT NULL,
+                grapple TEXT NULL,
+                attack TEXT NULL,
+                full_attack TEXT NULL,
+                space TEXT NULL,
+                reach TEXT NULL,
+                special_attacks TEXT NULL,
+                special_qualities TEXT NULL,
+                saves TEXT NULL,
+                abilities TEXT NULL,
+                skills TEXT NULL,
+                bonus_feats TEXT NULL,
+                feats TEXT NULL,
+                epic_feats TEXT NULL,
+                environment TEXT NULL,
+                organization TEXT NULL,
+                challenge_rating TEXT NULL,
+                treasure TEXT NULL,
+                alignment TEXT NULL,
+                advancement TEXT NULL,
+                level_adjustment TEXT NULL,
+                special_abilities TEXT NULL,
+                stat_block TEXT NULL,
+                full_text TEXT NULL,
+                reference TEXT NULL
             )
         """)
 
@@ -550,6 +595,126 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
         self.assertEqual(weapon.Damage, '1d8+3')
         self.assertContains(resp, 'weapon_1_Attack')
 
+    def test_htmx_post_attack_recalculates_melee_and_ranged_weapon_bonuses(self):
+        CharacterWeapon.objects.create(
+            Character=self.char,
+            Name='Espada longa',
+            Attack='Espada longa',
+            Range='-',
+            Type='Corte',
+        )
+        CharacterWeapon.objects.create(
+            Character=self.char,
+            Name='Arco curto',
+            Attack='Arco curto',
+            Range='18 m',
+            Type='Perfuracao',
+        )
+        self.char.characterstats.Strength = 16
+        self.char.characterstats.Dexterity = 18
+        self.char.characterstats.save()
+        self.char.characterstatus.ACSizeModifier = -1
+        self.char.characterstatus.save()
+
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {'BBA': '6'},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterAttackForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        weapons = list(CharacterWeapon.objects.filter(Character=self.char).order_by('id'))
+        self.assertEqual(weapons[0].AttackBonus, '+8')
+        self.assertEqual(weapons[1].AttackBonus, '+9')
+        self.char.characterattackmodifiers.refresh_from_db()
+        self.assertEqual(self.char.characterattackmodifiers.GrapplerBBA, 6)
+
+    def test_htmx_post_equipment_caps_dexterity_and_applies_armor_penalty_to_swim(self):
+        swim = CharacterSkill.objects.get(Character=self.char, SkillName='Natacao')
+        swim.Ranks = 2
+        swim.MiscModifier = 1
+        swim.save()
+        self.char.characterstats.Strength = 16
+        self.char.characterstats.Dexterity = 18
+        self.char.characterstats.save()
+
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {
+                'armor_Name': 'Chainmail',
+                'armor_Type': 'Media',
+                'armor_ACBonus': '+5',
+                'armor_MaxDex': '+2',
+                'armor_CheckPenalty': '-4',
+                'armor_SpellFailure': '30%',
+                'armor_Speed': '20 ft.',
+                'armor_Weigth': '40 lb',
+                'armor_SpecialProperties': '',
+                'shield_Name': '',
+                'shield_ACBonus': '',
+                'shield_Weigth': '',
+                'shield_CheckPenalty': '',
+                'shield_SpellFailure': '',
+                'shield_SpecialProperties': '',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterEquipmentForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.char.characterstatus.refresh_from_db()
+        swim.refresh_from_db()
+        self.assertEqual(self.char.characterstatus.ACDexModifier, 2)
+        self.assertEqual(self.char.characterstatus.ACTotal, 17)
+        self.assertEqual(swim.SkillModifier, -2)
+
+    def test_htmx_post_status_recalculates_speed_from_base_speed_and_load(self):
+        self.char.characterstats.Strength = 10
+        self.char.characterstats.save()
+        CharacterOtherItem.objects.create(Character=self.char, Name='Big chest', Weigth='120 lb')
+
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {'Speed': '30'},
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterStatusForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.char.characterstatus.refresh_from_db()
+        self.assertEqual(self.char.characterstatus.Speed, 20)
+
+    def test_htmx_post_stats_persists_spell_save_dc_and_bonus_spells(self):
+        self.char.Class = 'Wizard'
+        self.char.Level = '1'
+        self.char.save(update_fields=['Class', 'Level'])
+
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            self.url,
+            {
+                'Strength': '10',
+                'Dexterity': '10',
+                'Constitution': '10',
+                'Intelligence': '26',
+                'Wisdom': '10',
+                'Charisma': '10',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterStatsForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        level_zero = CharacterMagicDayUse.objects.get(Character=self.char, Level=0)
+        level_one = CharacterMagicDayUse.objects.get(Character=self.char, Level=1)
+        self.assertEqual(level_zero.BonusSpells, 0)
+        self.assertEqual(level_one.SpellSaveDC, 19)
+        self.assertEqual(level_one.BonusSpells, 2)
+
 
 class CharacterSheetWeaponLayoutTests(TransactionTestCase):
     databases = ('default', 'sdr')
@@ -597,6 +762,45 @@ class CharacterSheetWeaponLayoutTests(TransactionTestCase):
         self.assertContains(resp, 'sheet-page--back')
         self.assertContains(resp, 'sheet-page-break')
         self.assertContains(resp, 'sheet-lists-grid')
+
+
+class HitPointTrackingTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user(username='hitpointuser')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='HitPoints')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:character', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.user)
+
+    def test_status_post_clamps_and_persists_current_and_temporary_hit_points(self):
+        resp = self.client.post(
+            self.url,
+            {
+                'TotalHitPoints': '24',
+                'CurrentHitPoints': '99',
+                'TemporaryHitPoints': '7',
+                'NonLethalDamager': '-5',
+                'Speed': '30',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='characterStatusForm',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.char.characterstatus.refresh_from_db()
+        self.assertEqual(self.char.characterstatus.TotalHitPoints, 24)
+        self.assertEqual(self.char.characterstatus.CurrentHitPoints, 24)
+        self.assertEqual(self.char.characterstatus.TemporaryHitPoints, 7)
+        self.assertEqual(self.char.characterstatus.NonLethalDamager, 0)
+
+        page = self.client.get(self.url)
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'name="CurrentHitPoints"')
+        self.assertContains(page, 'name="TemporaryHitPoints"')
 
     def test_back_page_renders_equipment_and_other_items_columns(self):
         CharacterArmor.objects.create(Character=self.char, Name='Chainmail', Type='Medium', ACBonus='+5')
@@ -656,8 +860,9 @@ class CharacterAuxiliaryPageTests(TransactionTestCase):
         self.assertContains(resp, 'data-sheet-table="familiar"')
         self.assertContains(resp, 'data-sheet-table="summon-nature-reference"')
         self.assertContains(resp, 'Aliado da Natureza IX')
-        self.assertContains(resp, 'data-sheet-table="summon-card"', count=4)
-        self.assertContains(resp, 'data-field="summon.FullAttack"', count=4)
+        self.assertContains(resp, 'id="summonsGrid"')
+        self.assertContains(resp, 'id="summon-search-input"')
+        self.assertContains(resp, 'data-summon-card="empty"', count=3)
 
     def test_daily_resources_page_renders_trackers(self):
         self.client.force_login(self.user)
@@ -1828,6 +2033,50 @@ class PureCalculationsTest(TestCase):
         self.assertEqual(mod, 0)
 
 
+class DerivedFieldCalculationsTest(SimpleTestCase):
+
+    def test_compute_attack_bonus_sums_components(self):
+        from .calculations import compute_attack_bonus
+        self.assertEqual(compute_attack_bonus(bba=6, ability_mod=3, size_mod=-1, misc=0), 8)
+        self.assertEqual(compute_attack_bonus(bba=0, ability_mod=0, size_mod=0, misc=0), 0)
+        self.assertEqual(compute_attack_bonus(bba=3, ability_mod=-1, size_mod=1, misc=2), 5)
+
+    def test_cap_dex_to_armor_uses_lowest_limit_and_allows_missing_cap(self):
+        from .calculations import cap_dex_to_armor
+        self.assertEqual(cap_dex_to_armor(4, None), 4)
+        self.assertEqual(cap_dex_to_armor(4, ''), 4)
+        self.assertEqual(cap_dex_to_armor(4, 2), 2)
+        self.assertEqual(cap_dex_to_armor(-1, 0), -1)
+
+    def test_armor_check_penalty_for_skill_only_hits_affected_skills(self):
+        from .calculations import armor_check_penalty_for_skill
+        self.assertEqual(armor_check_penalty_for_skill('Escalar', -4), -4)
+        self.assertEqual(armor_check_penalty_for_skill('Equilibrio', -4), -4)
+        self.assertEqual(armor_check_penalty_for_skill('Natacao', -4), -8)
+        self.assertEqual(armor_check_penalty_for_skill('Concentracao', -4), 0)
+
+    def test_speed_for_load_uses_standard_35_reductions(self):
+        from .calculations import speed_for_load
+        self.assertEqual(speed_for_load(base_speed=30, load_category='light', armor_speed=None), 30)
+        self.assertEqual(speed_for_load(base_speed=30, load_category='heavy', armor_speed=None), 20)
+        self.assertEqual(speed_for_load(base_speed=20, load_category='heavy', armor_speed=None), 15)
+        self.assertEqual(speed_for_load(base_speed=30, load_category='light', armor_speed='20 ft.'), 20)
+
+    def test_compute_spell_save_dc_uses_spell_level_and_ability_mod(self):
+        from .calculations import compute_spell_save_dc
+        self.assertEqual(compute_spell_save_dc(spell_level=0, casting_ability_mod=0), 10)
+        self.assertEqual(compute_spell_save_dc(spell_level=3, casting_ability_mod=4), 17)
+        self.assertEqual(compute_spell_save_dc(spell_level=6, casting_ability_mod=-1), 15)
+
+    def test_bonus_spells_for_ability_matches_35_progression(self):
+        from .calculations import bonus_spells_for_ability
+        self.assertEqual(bonus_spells_for_ability(ability_score=10, spell_level=1), 0)
+        self.assertEqual(bonus_spells_for_ability(ability_score=18, spell_level=1), 1)
+        self.assertEqual(bonus_spells_for_ability(ability_score=26, spell_level=1), 2)
+        self.assertEqual(bonus_spells_for_ability(ability_score=26, spell_level=5), 1)
+        self.assertEqual(bonus_spells_for_ability(ability_score=26, spell_level=0), 0)
+
+
 # ---------------------------------------------------------------------------
 # T1.6 — _recalculate_stats: atomic + bulk_update
 # ---------------------------------------------------------------------------
@@ -2119,6 +2368,150 @@ class CompanionCollapseTest(TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode()
         self.assertNotIn('data-collapsed="true"', content)
+
+
+class CharacterSummonModelTest(TestCase):
+
+    def test_default_ordering_uses_rounds_remaining_desc(self):
+        user = make_user(username='summonmodel')
+        char = make_character(user, 'Invoker')
+        CharacterSummon.objects.create(Character=char, Name='Wolf', RoundsRemaining=2)
+        CharacterSummon.objects.create(Character=char, Name='Bear', RoundsRemaining=6)
+
+        names = list(CharacterSummon.objects.filter(Character=char).values_list('Name', flat=True))
+        self.assertEqual(names, ['Bear', 'Wolf'])
+
+
+class SummonsGridTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user(username='summongrid')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Summoner')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:companions', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.user)
+
+    def test_htmx_post_creates_three_summons_and_get_renders_three_cards(self):
+        resp = self.client.post(
+            self.url,
+            {
+                'summon_1_Name': 'Lobo',
+                'summon_1_SpellOrigin': 'SNA II',
+                'summon_1_RoundsTotal': '7',
+                'summon_1_RoundsRemaining': '7',
+                'summon_2_Name': 'Urso negro',
+                'summon_2_SpellOrigin': 'SNA III',
+                'summon_2_RoundsTotal': '7',
+                'summon_2_RoundsRemaining': '6',
+                'summon_3_Name': 'Corvo celestial',
+                'summon_3_SpellOrigin': 'SM I',
+                'summon_3_RoundsTotal': '5',
+                'summon_3_RoundsRemaining': '4',
+            },
+            HTTP_HX_REQUEST='true',
+            HTTP_HX_TARGET='summonsGrid',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(CharacterSummon.objects.filter(Character=self.char).count(), 3)
+        page = self.client.get(self.url)
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'data-summon-card="active"', count=3)
+
+
+class SummonHighlightToggleTest(TransactionTestCase):
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user(username='summonhl')
+        self.other = make_user(username='summonother')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Highlighter')
+        _bootstrap_character_siblings(self.char)
+        self.first = CharacterSummon.objects.create(Character=self.char, Name='Wolf', RoundsRemaining=2)
+        self.second = CharacterSummon.objects.create(Character=self.char, Name='Bear', RoundsRemaining=5)
+
+    def test_toggle_flips_highlight_and_moves_summon_to_top(self):
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            reverse('character:toggle-summon-highlight', kwargs={'pk': self.char.pk, 'summon_id': self.first.pk}),
+            HTTP_HX_REQUEST='true',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.first.refresh_from_db()
+        self.assertTrue(self.first.Highlighted)
+        ordered = list(CharacterSummon.objects.filter(Character=self.char).values_list('Name', flat=True))
+        self.assertEqual(ordered[0], 'Wolf')
+        self.assertTemplateUsed(resp, 'character/partials/companions_summons_grid.html')
+
+    def test_non_owner_gets_404(self):
+        self.client.force_login(self.other)
+        resp = self.client.post(
+            reverse('character:toggle-summon-highlight', kwargs={'pk': self.char.pk, 'summon_id': self.first.pk}),
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertEqual(resp.status_code, 404)
+
+
+class SummonAutocompleteTests(TransactionTestCase):
+    databases = {'default', 'sdr'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_monster_table()
+
+    def setUp(self):
+        setup_sdr_class_table()
+        SDR_Monster.objects.using('sdr').all().delete()
+        self.monster = SDR_Monster.objects.using('sdr').create(
+            name='Wolf',
+            hit_dice='2d8+4 (13 hp)',
+            armor_class='14',
+            attack='Bite +3 melee (1d6+1)',
+            special_abilities='Trip',
+        )
+        self.user = make_user(username='summonsearch')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='Searcher')
+        _bootstrap_character_siblings(self.char)
+        self.client.force_login(self.user)
+
+    def test_search_returns_hits_for_two_character_query(self):
+        resp = self.client.get(reverse('character:summon-search', kwargs={'pk': self.char.pk}), {'q': 'wo'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Wolf')
+
+    def test_create_from_monster_persists_sdr_name_and_stats(self):
+        resp = self.client.post(
+            reverse('character:create-summon-from-monster', kwargs={'pk': self.char.pk, 'monster_id': self.monster.pk}),
+            HTTP_HX_REQUEST='true',
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        summon = CharacterSummon.objects.get(Character=self.char)
+        self.assertEqual(summon.Name, 'Wolf')
+        self.assertEqual(summon.SdrMonsterName, 'Wolf')
+        self.assertEqual(summon.HitPointsMax, 13)
+        self.assertEqual(summon.HitPointsCurrent, 13)
+        self.assertEqual(summon.ArmorClass, 14)
+        self.assertEqual(summon.AttackBonus, '+3')
+        self.assertEqual(summon.Damage, '1d6+1')
+        self.assertEqual(summon.SpecialAbility, 'Trip')
+
+    def test_short_or_missing_query_returns_empty_without_500(self):
+        short_resp = self.client.get(reverse('character:summon-search', kwargs={'pk': self.char.pk}), {'q': 'w'})
+        none_resp = self.client.get(reverse('character:summon-search', kwargs={'pk': self.char.pk}), {'q': 'zzzz'})
+
+        self.assertEqual(short_resp.status_code, 200)
+        self.assertEqual(none_resp.status_code, 200)
+        self.assertEqual(short_resp.content, b'')
+        self.assertEqual(none_resp.content.strip(), b'')
 
 
 # ---------------------------------------------------------------------------
