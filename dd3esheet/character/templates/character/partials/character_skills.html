@@ -45,7 +45,7 @@
         <span class="sk-trained-only" data-derived="SkillTrainedOnly" data-slot="{{ forloop.counter }}">{% if skill.IsTrainedOnly %}T{% endif %}</span>
         <span class="sk-cell sk-cell--calc" data-derived="SkillModifier" data-slot="{{ forloop.counter }}">{{ skill.SkillModifier|default:"-" }}</span>
         <span class="sk-op">=</span>
-        <span class="sk-cell sk-cell--calc" data-derived="AbilityModifier" data-slot="{{ forloop.counter }}">{{ skill.AbilityModifier|default:"-" }}</span>
+        <span class="sk-cell sk-cell--calc" data-derived="AbilityModifier" data-slot="{{ forloop.counter }}">{{ skill.AbilityModifier|default_if_none:"-" }}</span>
         <span class="sk-op">+</span>
         <input class="sk-cell sheet-input" name="skill_{{ forloop.counter }}_Ranks" data-field="Ranks" data-slot="{{ forloop.counter }}" value="{{ skill.Ranks|default:'' }}" inputmode="numeric">
         <span class="sk-op">+</span>

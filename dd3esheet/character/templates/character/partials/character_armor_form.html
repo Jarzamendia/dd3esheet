@@ -1,0 +1,40 @@
+{% with status=character.characterstatus %}
+<form id="characterArmorForm" class="pvca-form" aria-live="polite"
+      hx-post="{% url 'character:character' character.pk %}"
+      hx-target="#characterArmorForm"
+      hx-swap="outerHTML"
+      hx-trigger="input changed delay:700ms, change delay:300ms">
+    {% csrf_token %}
+
+    <div class="ca-row" data-sheet-table="armor-class">
+        <div class="tag-black">
+            <span class="t-main">CA</span>
+            <span class="t-sub">Classe de Armadura</span>
+        </div>
+        <div class="ca-total-cell">
+            <div class="slot slot--lg slot--calc" data-derived="ACTotal" title="CA total">{{ status.ACTotal|default:"-" }}</div>
+        </div>
+        <div class="ca-breakdown">
+            <span class="op">=</span>
+            <span class="op f-display">10 +</span>
+            <div class="ca-cell"><div class="slot slot--calc" data-derived="ACArmorBonus">{{ status.ACArmorBonus|default:"-" }}</div><span class="label">Armadura</span></div>
+            <span class="op">+</span>
+            <div class="ca-cell"><div class="slot slot--calc" data-derived="ACShieldBonus">{{ status.ACShieldBonus|default:"-" }}</div><span class="label">Escudo</span></div>
+            <span class="op">+</span>
+            <div class="ca-cell"><div class="slot slot--calc" data-derived="ACDexModifier">{{ status.ACDexModifier|default:"-" }}</div><span class="label">Destreza</span></div>
+            <span class="op">+</span>
+            <div class="ca-cell"><input class="slot sheet-input" name="ACSizeModifier" data-field="ACSizeModifier" value="{{ status.ACSizeModifier|default:'' }}" inputmode="numeric"><span class="label">Tamanho</span></div>
+            <span class="op">+</span>
+            <div class="ca-cell"><input class="slot sheet-input" name="ACNaturalArmor" data-field="ACNaturalArmor" value="{{ status.ACNaturalArmor|default:'' }}" inputmode="numeric"><span class="label">Natural</span></div>
+            <span class="op">+</span>
+            <div class="ca-cell"><input class="slot sheet-input" name="ACDeflectionModifier" data-field="ACDeflectionModifier" value="{{ status.ACDeflectionModifier|default:'' }}" inputmode="numeric"><span class="label">Deflexao</span></div>
+            <span class="op">+</span>
+            <div class="ca-cell"><div class="slot slot--calc" data-derived="ACMiscModifier">{{ status.ACMiscModifier|default:"-" }}</div><span class="label">Outros</span></div>
+        </div>
+        <div class="ca-rd-cell">
+            <input class="slot slot--lg sheet-input" name="DamageReduction" data-field="DamageReduction" value="{{ status.DamageReduction|default:'' }}" inputmode="numeric" title="Reducao de Dano">
+            <span class="label">Reducao de Dano</span>
+        </div>
+    </div>
+</form>
+{% endwith %}

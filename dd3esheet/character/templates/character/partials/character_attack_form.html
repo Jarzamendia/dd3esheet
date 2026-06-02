@@ -1,0 +1,45 @@
+{% with atk=character.characterattackmodifiers %}
+<form id="characterAttackForm" class="block" aria-live="polite"
+      hx-post="{% url 'character:character' character.pk %}"
+      hx-target="#characterAttackForm"
+      hx-swap="outerHTML"
+      hx-trigger="input changed delay:700ms, change delay:300ms">
+    {% csrf_token %}
+
+    <div class="block-body">
+        <div class="bab-row" data-sheet-table="base-attack">
+            <div class="bab-box">
+                <div class="bb-label">Bonus Base de Ataque</div>
+                <input class="bb-slot sheet-input" name="BBA" data-field="BBA" value="{{ atk.BBA|default:'' }}" inputmode="numeric">
+            </div>
+            <div class="sr-box">
+                <div class="sr-label">Resistencia<br>a Magia</div>
+                <input class="sr-slot sheet-input" name="SpellResistence" data-field="SpellResistence" value="{{ atk.SpellResistence|default:'' }}" inputmode="numeric">
+            </div>
+        </div>
+
+        <div class="agarrar" data-sheet-table="grapple">
+            <div class="agarrar-row">
+                <div class="save-tag">AGARRAR<span class="t-sub">Modificador</span></div>
+                <div class="save-slot save-slot--calc" data-derived="TotalGrappler">{{ atk.TotalGrappler|default:"-" }}</div>
+                <div class="save-op">=</div>
+                <input class="save-slot sheet-input" name="GrapplerBBA" data-field="GrapplerBBA" value="{{ atk.GrapplerBBA|default:'' }}" inputmode="numeric">
+                <div class="save-op">+</div>
+                <div class="save-slot save-slot--calc" data-derived="GrapplerStrModifier">{{ atk.GrapplerStrModifier|default:"-" }}</div>
+                <div class="save-op">+</div>
+                <input class="save-slot sheet-input" name="GrapplerSizeModifier" data-field="GrapplerSizeModifier" value="{{ atk.GrapplerSizeModifier|default:'' }}" inputmode="numeric">
+                <div class="save-op">+</div>
+                <input class="save-slot sheet-input" name="GrapplerMiscModifier" data-field="GrapplerMiscModifier" value="{{ atk.GrapplerMiscModifier|default:'' }}" inputmode="numeric">
+            </div>
+            <div class="agarrar-head">
+                <div class="ah-tag">&nbsp;</div>
+                <div class="ah-total">Total</div>
+                <div class="ah-base">Bonus<br>Base</div>
+                <div class="ah-for">Mod. de<br>Forca</div>
+                <div class="ah-size">Mod. de<br>Tamanho</div>
+                <div class="ah-misc">Outros</div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endwith %}

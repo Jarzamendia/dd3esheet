@@ -593,7 +593,8 @@ class CharacterSheetInlineEditingTests(TransactionTestCase):
         weapon = CharacterWeapon.objects.get(Character=self.char)
         self.assertEqual(weapon.Attack, 'Espada longa')
         self.assertEqual(weapon.Damage, '1d8+3')
-        self.assertContains(resp, 'weapon_1_Attack')
+        # Resposta é agora só o form de atributos; verifica persistência no DB
+        self.assertContains(resp, 'id="characterStatsForm"')
 
     def test_htmx_post_attack_recalculates_melee_and_ranged_weapon_bonuses(self):
         CharacterWeapon.objects.create(
@@ -1558,11 +1559,11 @@ class DispatcherSmokeTest(TransactionTestCase):
                 'Eye': '', 'Hair': '', 'Skin': '',
             }, 'character/partials/character_identity.html'),
             ('characterForm', {'Description': 'Updated'}, 'character/partials/character_description.html'),
-            ('characterStatsForm', {'Strength': '12'}, 'character/partials/character_stats.html'),
-            ('characterStatusForm', {'Speed': '9'}, 'character/partials/character_combat.html'),
-            ('characterArmorForm', {'ACSizeModifier': '0'}, 'character/partials/character_combat.html'),
-            ('characterSavesForm', {'FortitudeBaseSave': '2'}, 'character/partials/character_stats.html'),
-            ('characterAttackForm', {'BBA': '1'}, 'character/partials/character_stats.html'),
+            ('characterStatsForm', {'Strength': '12'}, 'character/partials/character_attrs_form.html'),
+            ('characterStatusForm', {'Speed': '9'}, 'character/partials/character_status_form.html'),
+            ('characterArmorForm', {'ACSizeModifier': '0'}, 'character/partials/character_armor_form.html'),
+            ('characterSavesForm', {'FortitudeBaseSave': '2'}, 'character/partials/character_saves_form.html'),
+            ('characterAttackForm', {'BBA': '1'}, 'character/partials/character_attack_form.html'),
             ('characterSkillsForm', {'skill_1_Ranks': '1'}, 'character/partials/character_skills.html'),
             ('characterWeaponsForm', {'weapon_1_Attack': 'Longsword'}, 'character/partials/character_weapon_card.html'),
             ('characterProgressForm', {'ExperiencePoints': '1000'}, 'character/partials/character_progress.html'),
@@ -1616,7 +1617,7 @@ class EndToEndSmoke(TransactionTestCase):
             HTTP_HX_TARGET='characterStatsForm',
         )
         self.assertEqual(edit_resp.status_code, 200)
-        self.assertTemplateUsed(edit_resp, 'character/partials/character_stats.html')
+        self.assertTemplateUsed(edit_resp, 'character/partials/character_attrs_form.html')
 
         char.characterstats.refresh_from_db()
         self.assertEqual(char.characterstats.Strength, 16)
@@ -2971,3 +2972,96 @@ class AutosaveCoverageTest(TransactionTestCase):
                 resp = self._blur(url, target, payload)
                 self.assertEqual(resp.status_code, 200)
                 self.assertGreater(len(resp.content), 0)
+
+
+# ---------------------------------------------------------------------------
+# fix/agent1-correcoes — bugs de layout e cálculo
+# ---------------------------------------------------------------------------
+
+class CharacterLayoutBugFixTests(TransactionTestCase):
+    """Cobertura para os 4 bugs: AbilityModifier, PV/CA duplicação, CA cinza, Saves layout."""
+    databases = ('default', 'sdr')
+
+    def setUp(self):
+        setup_sdr_class_table()
+        self.user = make_user(username='layoutfix')
+        from .services import _bootstrap_character_siblings
+        self.char = Character.objects.create(User=self.user, Name='LayoutTest')
+        _bootstrap_character_siblings(self.char)
+        self.url = reverse('character:character', kwargs={'pk': self.char.pk})
+        self.client.force_login(self.user)
+
+    def _post_htmx(self, target, data=None):
+        return self.client.post(
+            self.url, data or {},
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET=target,
+        )
+
+    # Bug 1 — AbilityModifier calculado ao vivo, sem depender do DB
+    def test_skills_show_ability_modifier_computed_from_stats(self):
+        skill = CharacterSkill.objects.get(Character=self.char, SkillName='Escalar')
+        skill.AbilityModifier = 0
+        skill.save()
+        self.char.characterstats.Strength = 16
+        self.char.characterstats.save()
+
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        import re
+        content = resp.content.decode()
+        matches = re.findall(r'data-derived="AbilityModifier"[^>]*>\s*3\s*<', content)
+        self.assertGreater(len(matches), 0,
+            'Esperava AbilityModifier=3 para Escalar (Strength=16) no HTML')
+
+    # Bug 2 — characterStatusForm retorna só seu próprio form
+    def test_status_form_swap_does_not_include_armor_form(self):
+        resp = self._post_htmx('characterStatusForm', {'TotalHitPoints': '30'})
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertIn('id="characterStatusForm"', content)
+        self.assertNotIn('id="characterArmorForm"', content)
+        self.assertNotIn('id="characterSkillsForm"', content)
+
+    # Bug 2 — characterArmorForm retorna só seu próprio form
+    def test_armor_form_swap_does_not_include_status_form(self):
+        resp = self._post_htmx('characterArmorForm', {'ACSizeModifier': '0'})
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertIn('id="characterArmorForm"', content)
+        self.assertNotIn('id="characterStatusForm"', content)
+
+    # Bug 3 — ACArmorBonus/ACShieldBonus/ACMiscModifier são somente-leitura
+    def test_armor_ac_fields_are_readonly_calc_not_inputs(self):
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertNotIn('name="ACArmorBonus"', content)
+        self.assertNotIn('name="ACShieldBonus"', content)
+        self.assertNotIn('name="ACMiscModifier"', content)
+        self.assertIn('data-derived="ACArmorBonus"', content)
+        self.assertIn('data-derived="ACShieldBonus"', content)
+
+    # Bug 4 — characterSavesForm retorna só seu próprio form
+    def test_saves_form_swap_does_not_include_stats_form(self):
+        resp = self._post_htmx('characterSavesForm', {'FortitudeBaseSave': '2'})
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertIn('id="characterSavesForm"', content)
+        self.assertNotIn('id="characterStatsForm"', content)
+        self.assertNotIn('id="characterAttackForm"', content)
+
+    # Bug 4 — characterAttackForm retorna só seu próprio form
+    def test_attack_form_swap_does_not_include_saves_form(self):
+        resp = self._post_htmx('characterAttackForm', {'BBA': '5'})
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertIn('id="characterAttackForm"', content)
+        self.assertNotIn('id="characterSavesForm"', content)
+
+    # characterStatsForm também deve retornar só seu próprio form (mesma causa raiz do bug 4)
+    def test_stats_form_swap_does_not_include_saves_form(self):
+        resp = self._post_htmx('characterStatsForm', {'Strength': '14'})
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertIn('id="characterStatsForm"', content)
+        self.assertNotIn('id="characterSavesForm"', content)
