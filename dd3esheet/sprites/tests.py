@@ -41,6 +41,27 @@ class ManifestDataTests(SimpleTestCase):
         self.assertEqual(footprint_to_grid(None), (1, 1))
 
 
+class ArtConstantsTests(SimpleTestCase):
+    def test_palette_has_14_colors(self):
+        from sprites.manifest_data import PALETTE
+        self.assertEqual(len(PALETTE), 14)
+        self.assertTrue(all('hex' in c and 'name' in c for c in PALETTE))
+
+    def test_type_specs_cover_eight_types(self):
+        from sprites.manifest_data import TYPE_SPECS
+        self.assertEqual(len(TYPE_SPECS), 8)
+        self.assertIn('TABLETOP_TOKEN', TYPE_SPECS)
+
+    def test_type_specs_carry_a_spec_blurb(self):
+        from sprites.manifest_data import TYPE_SPECS
+        self.assertTrue(all(t.get('spec') for t in TYPE_SPECS.values()))
+
+    def test_footprint_feet(self):
+        from sprites.manifest_data import footprint_feet
+        self.assertEqual(footprint_feet('2x2'), '10×10 ft')
+        self.assertIsNone(footprint_feet(None))
+
+
 class SeedLibraryTests(TestCase):
     def test_seed_creates_all_placeholders(self):
         from django.core.management import call_command
