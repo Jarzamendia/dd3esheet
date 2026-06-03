@@ -1,0 +1,236 @@
+/* ============================================================
+   Art Direction Spec ("livro") - Parchment & Ink.
+   Porta de design_handoff_dnd_vtt/app/spec.css consumindo os
+   tokens de parchment-theme.css (fatia A). Layout TOC fixo +
+   coluna de leitura; conteudo 100% data-driven da view.
+   ============================================================ */
+
+.ss-body { min-height: 100vh; }
+
+.ss-shell {
+  display: grid;
+  grid-template-columns: 256px minmax(0, 1fr);
+  gap: var(--sp-7);
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-5) var(--sp-8);
+  align-items: start;
+}
+
+/* --- sumario (TOC) fixo com scroll-spy --- */
+.ss-toc {
+  position: sticky;
+  top: var(--sp-5);
+  align-self: start;
+  padding: var(--sp-4) var(--sp-4) var(--sp-5);
+  background: var(--paper-0);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+.ss-toc .eyebrow { margin: 0 0 var(--sp-3); }
+.ss-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.ss-toc li { margin: 0; }
+.ss-toc a {
+  counter-increment: toc;
+  display: flex;
+  gap: var(--sp-2);
+  align-items: baseline;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  border-left: 2px solid transparent;
+  color: var(--text-soft);
+  font-family: var(--font-alt);
+  font-size: 14px;
+  line-height: 1.3;
+}
+.ss-toc a::before {
+  content: counter(toc, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+.ss-toc a:hover { background: var(--paper-2); color: var(--ink); }
+.ss-toc a.is-active {
+  background: var(--paper-2);
+  border-left-color: var(--ochre);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* --- coluna de leitura --- */
+.ss-page {
+  max-width: 940px;
+  min-width: 0;
+}
+.ss-section {
+  scroll-margin-top: var(--sp-5);
+  padding-bottom: var(--sp-7);
+  margin-bottom: var(--sp-7);
+  border-bottom: 1px solid var(--edge-line);
+}
+.ss-section:last-child { border-bottom: 0; }
+.ss-section h2 {
+  font-size: 26px;
+  margin: 0 0 var(--sp-2);
+}
+.ss-section h2::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-top: var(--sp-3);
+  background: linear-gradient(90deg, var(--edge-strong) 0%, var(--edge-strong) 40%, transparent);
+}
+.ss-sub, .ss-usage { color: var(--text-soft); }
+.ss-sub { margin: 0 0 var(--sp-4); font-family: var(--font-alt); }
+
+/* --- capa --- */
+.ss-cover { border-bottom: 3px double var(--ink); }
+.ss-cover h1 {
+  font-size: 40px;
+  margin: var(--sp-2) 0 var(--sp-4);
+}
+.ss-lede {
+  font-family: var(--font-alt);
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--text-soft);
+  max-width: 64ch;
+}
+.ss-total { color: var(--text-faint); margin-top: var(--sp-4); }
+
+/* --- paleta (14 swatches) --- */
+.ss-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--sp-3);
+}
+.ss-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-3);
+  background: var(--paper-0);
+  border: 1px solid var(--edge-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+.ss-swatch .ss-chip {
+  display: block;
+  height: 48px;
+  margin-bottom: var(--sp-2);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-inset);
+}
+.ss-swatch strong { font-family: var(--font-display); font-size: 15px; }
+.ss-swatch .mono { font-size: 12px; color: var(--text-soft); }
+.ss-swatch .ss-usage { font-size: 13px; }
+
+/* --- cards (principios / regras) --- */
+.ss-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-4);
+}
+.ss-card {
+  padding: var(--sp-4);
+  background: var(--paper-0);
+  border: 1px solid var(--edge-line);
+  border-left: 3px solid var(--ochre);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+.ss-card h3 { font-size: 17px; margin: 0 0 var(--sp-2); }
+.ss-card p { margin: 0; color: var(--text-soft); font-family: var(--font-alt); }
+
+/* --- specs por tipo --- */
+.ss-tspecs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sp-4);
+}
+.ss-tspec {
+  padding: var(--sp-4);
+  background: var(--paper-0);
+  border: 1px solid var(--edge-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+.ss-tspec h3 { font-size: 17px; margin: 0 0 var(--sp-1); }
+.ss-tmeta {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin: 0 0 var(--sp-2);
+}
+.ss-tspec p:last-child { margin: 0; color: var(--text-soft); }
+
+/* --- tabela tamanho/footprint --- */
+.ss-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--paper-0);
+  border: 1px solid var(--edge-line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.ss-table th, .ss-table td {
+  text-align: left;
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--edge-line);
+}
+.ss-table thead th {
+  font-family: var(--font-display);
+  font-size: 13px;
+  background: var(--paper-2);
+}
+.ss-table tbody tr:last-child td { border-bottom: 0; }
+
+/* --- manifesto --- */
+.ss-mh {
+  font-size: 14px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--leather);
+  margin: var(--sp-5) 0 var(--sp-2);
+}
+.ss-manifest {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: var(--sp-6);
+}
+.ss-manifest li {
+  break-inside: avoid;
+  padding: 3px 0;
+  font-size: 13px;
+  color: var(--text-soft);
+  border-bottom: 1px dotted var(--edge-line);
+}
+.ss-manifest .mono { color: var(--ink); }
+
+/* --- QA --- */
+.ss-qa { padding-left: 1.1em; }
+.ss-qa li { margin: var(--sp-1) 0; color: var(--text-soft); }
+.ss-neg {
+  margin-top: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: 13px;
+  color: var(--deep-red);
+  background: rgba(138,47,40,.06);
+  border-left: 3px solid var(--deep-red);
+  border-radius: var(--radius);
+}
+
+@media (max-width: 860px) {
+  .ss-shell { grid-template-columns: 1fr; gap: var(--sp-5); }
+  .ss-toc { position: static; }
+  .ss-toc ol { columns: 2; column-gap: var(--sp-5); }
+  .ss-manifest { columns: 1; }
+}
