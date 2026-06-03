@@ -1,65 +1,83 @@
-/* Mesa virtual (tabletop) — convenção .tt-, espelha o estilo do initiative. */
+/* Mesa virtual (tabletop) - tema Parchment & Ink.
+   Consome os tokens de parchment-theme.css (escopados em .tt-themed,
+   sempre presente nas paginas da mesa). Convencao .tt-. */
 
-:root {
-    --tt-player: #1f5fb0;
-    --tt-enemy:  #a32020;
-    --tt-npc:    #5a5a5a;
-    --tt-object: #6a7d2e;
-    --tt-active: #d9a441;
+.tt-themed {
+    --tt-player: var(--steel-blue);
+    --tt-enemy:  var(--deep-red);
+    --tt-npc:    var(--iron);
+    --tt-object: var(--leather);
+    --tt-active: var(--ochre);
 }
 
 .tt-page {
     max-width: 1280px;
     margin: 0 auto;
-    padding: var(--gap, 12px) clamp(8px, 3vw, 24px) 48px;
+    padding: var(--sp-3) clamp(8px, 3vw, 24px) 48px;
 }
 
-/* --- topo / botões ------------------------------------------------------ */
+/* --- topo / botoes ------------------------------------------------------ */
 .tt-topbar {
     display: flex;
     align-items: center;
-    gap: var(--gap, 12px);
+    gap: var(--sp-3);
     flex-wrap: wrap;
-    margin: 8px 0 12px;
+    margin: var(--sp-2) 0 var(--sp-3);
 }
-.tt-title { margin: 0; font-size: 1.5rem; flex: 1 1 auto; }
+.tt-title { margin: 0; font-family: var(--font-display); font-size: 1.6rem; flex: 1 1 auto; }
 .tt-topbar__tools { display: flex; gap: 6px; flex-wrap: wrap; }
-.tt-hint { color: #777; font-style: italic; }
+.tt-hint { color: var(--text-faint); font-style: italic; }
 
 .tt-btn {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 5px 10px;
-    border: 1px solid #c9c2b4;
-    border-radius: 4px;
-    background: #f6f2ea;
-    color: #2b2b2b;
-    font: inherit;
+    padding: 7px 13px;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--paper-0);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: .04em;
     text-decoration: none;
     cursor: pointer;
+    box-shadow: var(--shadow-1);
+    transition: transform .08s ease, background .15s ease, color .15s ease;
 }
-.tt-btn:hover { background: #efe9dd; }
-.tt-btn--primary { background: var(--tt-player); border-color: var(--tt-player); color: #fff; }
-.tt-btn--primary:hover { filter: brightness(1.07); }
-.tt-btn--danger { background: #fbeaea; border-color: #d9a3a3; color: #7a1c1c; }
-.tt-btn.is-active { background: var(--tt-active); border-color: var(--tt-active); color: #2b2b2b; }
+.tt-btn:hover { background: var(--ink); color: var(--parchment); }
+.tt-btn:active { transform: translateY(1px); }
+.tt-btn--primary { background: var(--steel-blue); border-color: var(--ink); color: var(--parchment); }
+.tt-btn--primary:hover { background: var(--royal-blue); color: var(--parchment); }
+.tt-btn--danger { background: #f0dcd6; border-color: var(--deep-red); color: var(--deep-red); }
+.tt-btn--danger:hover { background: var(--deep-red); color: var(--parchment); }
+.tt-btn.is-active { background: var(--ochre); border-color: var(--ink); color: var(--ink); }
 
-/* --- formulários simples ------------------------------------------------ */
+/* --- formularios simples ------------------------------------------------ */
 .tt-create {
     display: flex;
-    gap: 8px;
+    gap: var(--sp-2);
     flex-wrap: wrap;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: var(--sp-4);
 }
-.tt-create input[type="text"], .tt-create select { padding: 5px 8px; }
+.tt-create input[type="text"], .tt-create select,
+.tt-token-edit input, .tt-token-edit select,
+.tt-token-add input, .tt-token-add select,
+.tt-map-card__edit input, .tt-map-card__edit select {
+    padding: 6px 9px;
+    border: 1.5px solid var(--edge-strong);
+    border-radius: var(--radius);
+    background: var(--paper-0);
+    color: var(--text);
+    font: inherit;
+}
 .tt-file { display: inline-flex; flex-direction: column; font-size: .8rem; gap: 2px; }
 .tt-inline { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; }
-.tt-share { color: #555; }
-.tt-share__url { background: #f1ece2; padding: 2px 6px; border-radius: 3px; word-break: break-all; }
-.tt-empty { color: #888; padding: 12px; }
-.tt-help { font-size: .8rem; color: #777; margin: 6px 0; }
+.tt-share { color: var(--text-soft); }
+.tt-share__url { background: var(--paper-2); padding: 2px 6px; border-radius: var(--radius); word-break: break-all; }
+.tt-empty { color: var(--text-faint); padding: 12px; }
+.tt-help { font-size: .8rem; color: var(--text-faint); margin: 6px 0; }
 
 /* --- listas (mesas / mapas) -------------------------------------------- */
 .tt-table-list, .tt-map-list {
@@ -69,43 +87,45 @@
     gap: 10px;
 }
 .tt-table-card, .tt-map-card {
-    border: 1px solid #ddd;
+    border: 1.5px solid var(--edge-line);
     border-left-width: 4px;
-    border-radius: 4px;
+    border-radius: var(--radius);
     padding: 10px 12px;
-    background: var(--paper-bg, #fff);
+    background: var(--paper-0);
+    box-shadow: var(--shadow-1);
 }
-.tt-map-card.is-active { border-left-color: var(--tt-active); background: #fff8e8; }
-.tt-table-card__name, .tt-map-card__name { font-weight: 700; }
+.tt-map-card.is-active { border-left-color: var(--ochre); background: var(--paper-2); }
+.tt-table-card__name, .tt-map-card__name { font-family: var(--font-display); font-weight: 600; color: var(--ink); }
 .tt-table-card { display: flex; flex-direction: column; gap: 4px; }
-.tt-table-card__link, .tt-map-card__meta { font-size: .82rem; color: #777; }
+.tt-table-card__link, .tt-map-card__meta { font-size: .82rem; color: var(--text-soft); }
 .tt-map-card__head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .tt-map-card__actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .tt-map-card__edit { margin-top: 8px; }
 .tt-map-card__edit form { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
-.tt-badge { background: var(--tt-active); color: #2b2b2b; font-size: .72rem; padding: 1px 6px; border-radius: 10px; }
+.tt-badge { background: var(--ochre); color: var(--ink); font-size: .72rem; padding: 1px 6px; border-radius: 10px; }
 
 /* --- palco e canvas ----------------------------------------------------- */
 .tt-stage {
     overflow: auto;
     max-height: 78vh;
-    border: 1px solid #bbb;
-    border-radius: 4px;
-    background: #2a2d33;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--ink-soft);
     background-image:
-        linear-gradient(45deg, #303338 25%, transparent 25%),
-        linear-gradient(-45deg, #303338 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #303338 75%),
-        linear-gradient(-45deg, transparent 75%, #303338 75%);
+        linear-gradient(45deg, rgba(0,0,0,.18) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(0,0,0,.18) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(0,0,0,.18) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(0,0,0,.18) 75%);
     background-size: 24px 24px;
     background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    box-shadow: var(--shadow-inset);
 }
 .tt-canvas {
     position: relative;
     margin: 0;
     user-select: none;
     touch-action: none;          /* drag por pointer sem scroll/zoom acidental */
-    background: #d9d2c4;
+    background: var(--paper-3);
 }
 .tt-canvas--empty {
     width: 100% !important;
@@ -114,9 +134,9 @@
     display: grid;
     place-items: center;
     background: transparent;
-    color: #ddd;
+    color: var(--bone);
 }
-.tt-canvas--empty .tt-empty { color: #e8e3d8; }
+.tt-canvas--empty .tt-empty { color: var(--bone); }
 .tt-canvas--fogging { cursor: crosshair; }
 .tt-canvas__bg {
     position: absolute;
@@ -131,8 +151,8 @@
     inset: 0;
     pointer-events: none;
     background-image:
-        repeating-linear-gradient(to right, rgba(0,0,0,.28) 0 1px, transparent 1px var(--tt-cell, 64px)),
-        repeating-linear-gradient(to bottom, rgba(0,0,0,.28) 0 1px, transparent 1px var(--tt-cell, 64px));
+        repeating-linear-gradient(to right, rgba(43,38,34,.28) 0 1px, transparent 1px var(--tt-cell, 64px)),
+        repeating-linear-gradient(to bottom, rgba(43,38,34,.28) 0 1px, transparent 1px var(--tt-cell, 64px));
 }
 
 /* --- tokens ------------------------------------------------------------- */
@@ -143,8 +163,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    color: #fff;
-    box-shadow: 0 0 0 2px rgba(255,255,255,.65), 0 1px 4px rgba(0,0,0,.5);
+    color: var(--parchment);
+    box-shadow: 0 0 0 2px var(--parchment), 0 1px 4px rgba(0,0,0,.5);
     box-sizing: border-box;
 }
 .tt-token--player { background: var(--tt-player); }
@@ -152,8 +172,8 @@
 .tt-token--npc    { background: var(--tt-npc); }
 .tt-token--object { background: var(--tt-object); border-radius: 12%; }
 .tt-token[data-movable="1"] { cursor: grab; }
-.tt-token.is-dragging { cursor: grabbing; z-index: 50; box-shadow: 0 0 0 3px var(--tt-active), 0 4px 12px rgba(0,0,0,.6); }
-.tt-token.is-hidden { opacity: .45; outline: 2px dashed #fff; }
+.tt-token.is-dragging { cursor: grabbing; z-index: 50; box-shadow: 0 0 0 3px var(--ochre), 0 4px 12px rgba(0,0,0,.6); }
+.tt-token.is-hidden { opacity: .45; outline: 2px dashed var(--parchment); }
 .tt-token__img {
     width: 100%; height: 100%;
     object-fit: cover;
@@ -170,26 +190,26 @@
     white-space: nowrap;
     font-size: 11px;
     line-height: 1;
-    color: #fff;
-    background: rgba(0,0,0,.6);
+    color: var(--parchment);
+    background: rgba(43,38,34,.78);
     padding: 1px 4px;
-    border-radius: 3px;
+    border-radius: var(--radius);
     pointer-events: none;
 }
 
-/* --- névoa -------------------------------------------------------------- */
+/* --- nevoa -------------------------------------------------------------- */
 .tt-fog {
     position: absolute;
-    background: #0b0c10;           /* opaco p/ jogadores */
+    background: #14110e;           /* opaco p/ jogadores */
 }
 .tt-fog--owner {
-    background: rgba(86, 42, 120, .38);
-    outline: 1px dashed #b388e0;
+    background: rgba(43,38,34,.42);
+    outline: 1px dashed var(--ochre);
 }
 .tt-fog--drawing {
     position: absolute;
-    background: rgba(86, 42, 120, .28);
-    outline: 2px dashed #b388e0;
+    background: rgba(43,38,34,.30);
+    outline: 2px dashed var(--ochre);
     pointer-events: none;
 }
 .tt-fog__del {
@@ -198,9 +218,9 @@
     width: 18px; height: 18px;
     line-height: 14px;
     border: none;
-    border-radius: 3px;
-    background: rgba(0,0,0,.5);
-    color: #fff;
+    border-radius: var(--radius);
+    background: rgba(43,38,34,.6);
+    color: var(--parchment);
     cursor: pointer;
 }
 
@@ -212,18 +232,18 @@
     align-items: start;
 }
 .tt-editor-side { display: flex; flex-direction: column; gap: 12px; }
-.tt-panel { border: 1px solid #ddd; border-radius: 4px; padding: 10px 12px; background: var(--paper-bg, #fff); }
-.tt-panel__title { margin: 0 0 8px; font-size: 1rem; }
+.tt-panel { border: 1.5px solid var(--edge-line); border-radius: var(--radius); padding: 10px 12px; background: var(--paper-0); box-shadow: var(--shadow-1); }
+.tt-panel__title { margin: 0 0 8px; font-family: var(--font-display); font-size: 1rem; }
 .tt-token-add { display: flex; flex-direction: column; gap: 6px; }
 .tt-token-rows { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
-.tt-token-row { border: 1px solid #e3e3e3; border-left-width: 4px; border-radius: 3px; padding: 4px 8px; }
+.tt-token-row { border: 1px solid var(--edge-line); border-left-width: 4px; border-radius: var(--radius); padding: 4px 8px; background: var(--paper-0); }
 .tt-token-row--player { border-left-color: var(--tt-player); }
 .tt-token-row--enemy  { border-left-color: var(--tt-enemy); }
 .tt-token-row--npc    { border-left-color: var(--tt-npc); }
 .tt-token-row--object { border-left-color: var(--tt-object); }
 .tt-token-row summary { cursor: pointer; display: flex; gap: 6px; align-items: center; }
 .tt-token-row__name { font-weight: 600; }
-.tt-tag { font-size: .68rem; background: #eee; border-radius: 8px; padding: 0 6px; color: #555; }
+.tt-tag { font-size: .68rem; background: var(--paper-2); border-radius: 8px; padding: 0 6px; color: var(--text-soft); }
 .tt-token-edit { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
 .tt-token-edit__actions { display: flex; gap: 6px; }
 
