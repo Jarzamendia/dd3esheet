@@ -131,6 +131,24 @@ class LibraryViewTests(TestCase):
         self.assertIn('Barbarian Class Icon', [row['name'] for row in by_description.json()['sprites']])
 
 
+class ArtSpecViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('a', password='x' * 12)
+        self.client.force_login(self.user)
+
+    def test_spec_page_is_data_driven(self):
+        resp = self.client.get(reverse('sprites:art-spec'))
+        self.assertEqual(resp.status_code, 200)
+        html = resp.content.decode()
+        self.assertIn('tt-themed', html)       # tema (fatia A)
+        self.assertIn('#c8923a', html)         # paleta (ochre) renderizada
+        self.assertIn('Tabletop Token', html)  # spec de tipo renderizada
+
+    def test_spec_requires_login(self):
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse('sprites:art-spec')).status_code, 302)
+
+
 @override_settings(MEDIA_ROOT='/tmp/dd3esheet-test-media')
 class SpriteModelTests(TestCase):
     def test_asset_generates_slug_and_checksum(self):

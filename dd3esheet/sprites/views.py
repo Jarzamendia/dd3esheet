@@ -4,8 +4,9 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
 from .manifest_data import (
-    SIZE_BY_FOOTPRINT, all_assets, category_for_type, footprint_to_grid,
-    group_for_section, section_groups, type_spec_for_type,
+    NEGATIVE, OUTPUT_RULES, PALETTE, PRINCIPLES, SIZE_BY_FOOTPRINT, STYLE,
+    TYPE_SPECS, all_assets, category_for_type, footprint_to_grid,
+    group_for_section, sections, section_groups, type_spec_for_type,
 )
 from .models import SpriteAsset, SpriteVariant
 from .services import manifest_for_assets
@@ -152,6 +153,21 @@ def library(request):
         'manifest_total': len(all_assets()),
         'type_filters': _type_filters(),
         'footprint_filters': _footprint_filters(),
+    })
+
+
+@login_required
+def art_spec(request):
+    return render(request, 'sprites/art_spec.html', {
+        'style': STYLE,
+        'negative': NEGATIVE,
+        'palette': PALETTE,
+        'principles': PRINCIPLES,
+        'output_rules': OUTPUT_RULES,
+        'type_specs': TYPE_SPECS,
+        'size_by_footprint': SIZE_BY_FOOTPRINT,
+        'sections': sections(),
+        'total': len(all_assets()),
     })
 
 
