@@ -1,0 +1,125 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block title %}Direção de Arte · Codex{% endblock %}
+{% block body_class %}sheet-body tt-themed paper-field ss-body{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="{% static 'css/parchment-theme.css' %}?v={% now 'U' %}">
+    <link rel="stylesheet" href="{% static 'css/sprite_spec.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ss-shell" data-screen-label="art-spec">
+    <nav class="ss-toc" aria-label="Sumário">
+        <p class="eyebrow">Sumário</p>
+        <ol>
+            <li><a href="#cover" data-spy="cover">Capa</a></li>
+            <li><a href="#palette" data-spy="palette">Paleta</a></li>
+            <li><a href="#principles" data-spy="principles">Estilo da casa</a></li>
+            <li><a href="#rules" data-spy="rules">Regras de output</a></li>
+            <li><a href="#types" data-spy="types">Specs por tipo</a></li>
+            <li><a href="#sizes" data-spy="sizes">Tamanho &amp; footprint</a></li>
+            <li><a href="#manifest" data-spy="manifest">Manifesto</a></li>
+            <li><a href="#qa" data-spy="qa">Checklist de QA</a></li>
+        </ol>
+    </nav>
+
+    <main class="ss-page">
+        <section id="cover" class="ss-section ss-cover">
+            <p class="eyebrow">D&amp;D 3.5 · Tabletop Set</p>
+            <h1>Direção de Arte — Parchment &amp; Ink</h1>
+            <p class="ss-lede">{{ style }}</p>
+            <p class="mono ss-total">{{ total }} assets no manifesto</p>
+        </section>
+
+        <section id="palette" class="ss-section">
+            <h2>Paleta</h2>
+            <p class="ss-sub">14 cores da família da casa. Saturação moderada; sem neon ou pastel.</p>
+            <div class="ss-swatches">
+                {% for c in palette %}
+                <div class="ss-swatch">
+                    <span class="ss-chip" style="background:{{ c.hex }};"></span>
+                    <strong>{{ c.name }}</strong>
+                    <span class="mono">{{ c.hex }}</span>
+                    <span class="ss-usage">{{ c.usage }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="principles" class="ss-section">
+            <h2>Estilo da casa</h2>
+            <div class="ss-cards">
+                {% for p in principles %}
+                <div class="ss-card"><h3>{{ p.title }}</h3><p>{{ p.body }}</p></div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="rules" class="ss-section">
+            <h2>Regras de output</h2>
+            <div class="ss-cards">
+                {% for r in output_rules %}
+                <div class="ss-card"><h3>{{ r.title }}</h3><p>{{ r.body }}</p></div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="types" class="ss-section">
+            <h2>Specs por tipo de asset</h2>
+            <div class="ss-tspecs">
+                {% for key, t in type_specs.items %}
+                <div class="ss-tspec">
+                    <h3>{{ t.label }}</h3>
+                    <p class="mono ss-tmeta">{{ t.canvas }} · {{ t.alpha }}</p>
+                    <p>{{ t.spec }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="sizes" class="ss-section">
+            <h2>Tamanho &amp; footprint</h2>
+            <table class="ss-table">
+                <thead><tr><th>Footprint</th><th>Tamanho da criatura</th></tr></thead>
+                <tbody>
+                {% for fp, label in size_by_footprint.items %}
+                <tr><td class="mono">{{ fp }}</td><td>{{ label }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section id="manifest" class="ss-section">
+            <h2>Manifesto completo</h2>
+            {% for section in sections %}
+            <h3 class="ss-mh">{{ section.name }}</h3>
+            <ul class="ss-manifest">
+                {% for a in section.assets %}
+                <li><span class="mono">{{ a.id }}</span> · {{ a.footprint|default:'—' }} · {{ a.description }}</li>
+                {% endfor %}
+            </ul>
+            {% endfor %}
+        </section>
+
+        <section id="qa" class="ss-section">
+            <h2>Checklist de QA</h2>
+            <ul class="ss-qa">
+                <li>Contornos inked, cel shading semi-plano, grão sutil.</li>
+                <li>Tokens circle-safe; map pieces tile sem costura.</li>
+                <li>Sem texto/UI/molduras/anéis de base na arte.</li>
+                <li>Paleta da casa, saturação moderada.</li>
+                <li>Nome do arquivo = id snake_case.</li>
+            </ul>
+            <p class="ss-neg mono">{{ negative }}</p>
+        </section>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/sprite_spec.js' %}?v={% now 'U' %}"></script>
+{% endblock %}

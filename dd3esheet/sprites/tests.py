@@ -41,6 +41,27 @@ class ManifestDataTests(SimpleTestCase):
         self.assertEqual(footprint_to_grid(None), (1, 1))
 
 
+class ArtConstantsTests(SimpleTestCase):
+    def test_palette_has_14_colors(self):
+        from sprites.manifest_data import PALETTE
+        self.assertEqual(len(PALETTE), 14)
+        self.assertTrue(all('hex' in c and 'name' in c for c in PALETTE))
+
+    def test_type_specs_cover_eight_types(self):
+        from sprites.manifest_data import TYPE_SPECS
+        self.assertEqual(len(TYPE_SPECS), 8)
+        self.assertIn('TABLETOP_TOKEN', TYPE_SPECS)
+
+    def test_type_specs_carry_a_spec_blurb(self):
+        from sprites.manifest_data import TYPE_SPECS
+        self.assertTrue(all(t.get('spec') for t in TYPE_SPECS.values()))
+
+    def test_footprint_feet(self):
+        from sprites.manifest_data import footprint_feet
+        self.assertEqual(footprint_feet('2x2'), '10×10 ft')
+        self.assertIsNone(footprint_feet(None))
+
+
 class SeedLibraryTests(TestCase):
     def test_seed_creates_all_placeholders(self):
         from django.core.management import call_command
@@ -108,6 +129,24 @@ class LibraryViewTests(TestCase):
         self.assertEqual(by_description.status_code, 200)
         self.assertIn('Human Fighter Sword Shield', [row['name'] for row in by_slug.json()['sprites']])
         self.assertIn('Barbarian Class Icon', [row['name'] for row in by_description.json()['sprites']])
+
+
+class ArtSpecViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('a', password='x' * 12)
+        self.client.force_login(self.user)
+
+    def test_spec_page_is_data_driven(self):
+        resp = self.client.get(reverse('sprites:art-spec'))
+        self.assertEqual(resp.status_code, 200)
+        html = resp.content.decode()
+        self.assertIn('tt-themed', html)       # tema (fatia A)
+        self.assertIn('#c8923a', html)         # paleta (ochre) renderizada
+        self.assertIn('Tabletop Token', html)  # spec de tipo renderizada
+
+    def test_spec_requires_login(self):
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse('sprites:art-spec')).status_code, 302)
 
 
 @override_settings(MEDIA_ROOT='/tmp/dd3esheet-test-media')

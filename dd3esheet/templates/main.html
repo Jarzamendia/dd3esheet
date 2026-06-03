@@ -33,8 +33,10 @@
            href="{% url 'initiative:home' %}">Iniciativa</a>
         <a class="nav-link {% if request.resolver_match.app_name == 'tabletop' %}active{% endif %}"
            href="{% url 'tabletop:home' %}">Mesa</a>
-        <a class="nav-link {% if request.resolver_match.app_name == 'sprites' %}active{% endif %}"
+        <a class="nav-link {% if request.resolver_match.url_name == 'library' %}active{% endif %}"
            href="{% url 'sprites:library' %}">Biblioteca</a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'art-spec' %}active{% endif %}"
+           href="{% url 'sprites:art-spec' %}">Estilo</a>
         <span class="spacer"></span>
         {% url 'logout' as logout_url %}
         {% url 'login' as login_url %}

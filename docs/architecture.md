@@ -61,6 +61,7 @@ Rotas principais de `sdr`:
 Rotas principais de `sprites`:
 
 - `/sprites/`: navegador pesquisavel dos 496 placeholders do manifesto Parchment & Ink.
+- `/sprites/estilo/`: Art Direction Spec ("livro" parchment) gerada do manifesto — paleta de 14 cores, estilo da casa, regras de output, specs dos 8 tipos de asset, tabela de tamanho/footprint, manifesto completo e checklist de QA, com TOC + scroll-spy.
 - `/sprites/search/`: busca JSON para pickers/autocomplete.
 - `/sprites/manifest/`: manifesto JSON de imagens em lote, com URL, dimensoes, grid e ancora.
 - `/sprites/<slug>/`: partial de detalhe de um asset da biblioteca.

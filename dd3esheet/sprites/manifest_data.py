@@ -20,46 +20,103 @@ TYPE_TO_CATEGORY = {
     'STATUS_MARKER': SpriteAsset.GENERIC,
 }
 
+# Style and negative prompt for the house "Parchment & Ink" art direction.
+STYLE = (
+    "Warm parchment storybook style: digital illustration that looks hand-inked "
+    "for a classic fantasy tabletop RPG sourcebook. Confident dark ink outlines of "
+    "even medium weight, semi-flat cel shading with 2-3 tonal steps per color, "
+    "subtle aged-paper grain, soft overhead lighting. Mood: heroic, readable, "
+    "friendly, timeless."
+)
+
+NEGATIVE = (
+    "No text, letters, numbers, labels, UI, frames, borders, watermarks, signatures, "
+    "grids, token rings, base discs, health bars, or selection marks anywhere."
+)
+
+# 14 cores da paleta da casa (nome, hex, uso) - de theme.css / specs.js do handoff.
+PALETTE = [
+    {'name': 'Dark Ink', 'hex': '#2b2622', 'usage': 'contornos, texto'},
+    {'name': 'Parchment', 'hex': '#efe6d2', 'usage': 'papel base'},
+    {'name': 'Ochre', 'hex': '#c8923a', 'usage': 'destaque quente'},
+    {'name': 'Leather', 'hex': '#7a4f2a', 'usage': 'couro/madeira'},
+    {'name': 'Forest', 'hex': '#4f6b3a', 'usage': 'vegetação'},
+    {'name': 'Iron', 'hex': '#6b6f73', 'usage': 'metal/pedra'},
+    {'name': 'Deep Red', 'hex': '#8a2f28', 'usage': 'perigo/sangue'},
+    {'name': 'Steel Blue', 'hex': '#3f6079', 'usage': 'água/aço'},
+    {'name': 'Bone', 'hex': '#d6c6aa', 'usage': 'osso/claro'},
+    {'name': 'Shadow Brown', 'hex': '#493628', 'usage': 'sombra'},
+    {'name': 'Muted Gold', 'hex': '#b58a36', 'usage': 'ouro suave'},
+    {'name': 'Arcane Teal', 'hex': '#2f6f6a', 'usage': 'magia'},
+    {'name': 'Royal Blue', 'hex': '#314f7c', 'usage': 'nobreza/arcano'},
+    {'name': 'Dull Violet', 'hex': '#5d4978', 'usage': 'sombrio/feérico'},
+]
+
+PRINCIPLES = [
+    {'title': 'Inked & timeless', 'body': 'Contornos escuros confiantes, cel shading semi-plano, grão de papel sutil.'},
+    {'title': 'Readable at size', 'body': 'Legível em miniatura na mesa; nada de detalhe que some a 32-96 px.'},
+    {'title': 'Moderate palette', 'body': 'Saturação moderada da família de 14 cores; sem neon, pastel ou 3D plástico.'},
+    {'title': 'No UI in art', 'body': 'Sem texto, molduras, anéis de base, grids ou marcas de UI dentro da imagem.'},
+]
+
+OUTPUT_RULES = [
+    {'title': 'Arquivos separados', 'body': 'Um arquivo por asset; nome = id snake_case.'},
+    {'title': 'Alpha correto', 'body': 'Tokens/props/ícones: PNG transparente. Mapas: PNG/WebP opaco full-bleed.'},
+    {'title': 'Composição segura', 'body': 'Tokens circle-safe (detalhe no círculo inscrito). Map pieces tile-edge-to-edge.'},
+    {'title': 'Sem grid desenhado', 'body': 'Mapas alinham ao grid invisível (64px=5ft / hex), mas não desenham linhas.'},
+]
+
 TYPE_SPECS = {
     'TABLETOP_TOKEN': {
         'label': 'Tabletop Token',
         'canvas': '512x512',
         'alpha': 'Transparent PNG',
+        'spec': 'Vista de cima ~60°, miniatura pintada. Um sujeito centralizado, circle-safe, '
+                'sombra de contato pequena. Sem anel de base.',
     },
     'PROP_TOKEN': {
         'label': 'Prop Token',
         'canvas': '512x512',
         'alpha': 'Transparent PNG',
+        'spec': 'Vista de cima. Um objeto/prop centralizado com sombra de contato. '
+                'Circle-safe salvo se intencionalmente retangular.',
     },
     'STATUS_MARKER': {
         'label': 'Status Marker',
         'canvas': '256x256',
         'alpha': 'Transparent PNG',
+        'spec': 'Pictograma simples; legível a 32×32. Sem texto/números.',
     },
     'CLASS_ICON': {
         'label': 'Class Icon',
         'canvas': '512x512',
         'alpha': 'Transparent PNG',
+        'spec': 'Emblema/silhueta de classe; legível a 96×96. Sem moldura, sem texto.',
     },
     'PORTRAIT': {
         'label': 'Portrait',
         'canvas': '640x640',
         'alpha': 'Opaque parchment background',
+        'spec': 'Busto/meio-corpo no estilo inked sobre fundo parchment. Sem texto/moldura.',
     },
     'BATTLE_MAP': {
         'label': 'Battle Map',
         'canvas': '2048x1536',
         'alpha': 'Opaque, full bleed',
+        'spec': 'Top-down em grid de 64px (1 célula=5ft) sem desenhar linhas. Sem tokens/texto.',
     },
     'CITY_OR_WORLD_MAP': {
         'label': 'City / World Map',
         'canvas': '2048x1536',
         'alpha': 'Opaque, full bleed',
+        'spec': 'Cartografia top-down em parchment envelhecido. Sem nomes/texto/bússola.',
     },
     'MAP_PIECE': {
         'label': 'Map Piece',
         'canvas': '512x512',
         'alpha': 'Transparent PNG',
+        'spec': 'Bloco modular que tile em grid hex pointy-top (odd-r, 1 hex=5ft). '
+                'NÃO circle-safe; preenche o hex borda a borda.',
     },
 }
 
@@ -133,6 +190,16 @@ def footprint_to_grid(footprint):
     if not match:
         return (1, 1)
     return (int(match.group(1)), int(match.group(2)))
+
+
+def footprint_feet(footprint):
+    """'NxM' -> 'AxB ft' (x5); None/sem match -> None."""
+    if not footprint:
+        return None
+    match = re.match(r'(\d+)x(\d+)', footprint)
+    if not match:
+        return None
+    return f'{int(match.group(1)) * 5}×{int(match.group(2)) * 5} ft'
 
 
 def type_spec_for_type(asset_type):
