@@ -1,7 +1,12 @@
 {% extends "main.html" %}
 {% load static %}
 
+{% block body_class %}sheet-body tt-themed paper-field{% endblock %}
+
 {% block extra_head %}
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="{% static 'css/parchment-theme.css' %}?v={% now 'U' %}">
     <link rel="stylesheet" href="{% static 'css/tabletop.css' %}?v={% now 'U' %}">
 {% endblock %}
 

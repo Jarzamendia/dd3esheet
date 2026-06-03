@@ -1,0 +1,147 @@
+/* ============================================================
+   Parchment & Ink - tema compartilhado das telas da mesa.
+   Tokens portados de design_handoff_dnd_vtt/theme.css, porem
+   escopados sob .tt-themed (NAO :root) para nao colidir com as
+   variaveis globais de character_sheet.css. Reusado por D/E.
+   ============================================================ */
+
+.tt-themed {
+  /* --- core ink + paper --- */
+  --ink:        #2b2622;
+  --ink-soft:   #493628;
+  --parchment:  #efe6d2;
+  --bone:       #d6c6aa;
+
+  /* --- palette family --- */
+  --ochre:        #c8923a;
+  --leather:      #7a4f2a;
+  --forest:       #4f6b3a;
+  --iron:         #6b6f73;
+  --deep-red:     #8a2f28;
+  --steel-blue:   #3f6079;
+  --muted-gold:   #b58a36;
+  --arcane-teal:  #2f6f6a;
+  --royal-blue:   #314f7c;
+  --dull-violet:  #5d4978;
+
+  /* --- derived surfaces --- */
+  --paper-0:    #f4ecd9;
+  --paper-1:    #efe6d2;
+  --paper-2:    #e6d9bd;
+  --paper-3:    #ddcca9;
+  --edge-line:  #cdbb96;
+  --edge-strong:#b29b6f;
+
+  /* --- text --- */
+  --text:        #2b2622;
+  --text-soft:   #5a4a37;
+  --text-faint:  #8a7857;
+  --line:        #2b2622;
+
+  /* --- typography --- */
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-body:    'EB Garamond', Georgia, serif;
+  --font-alt:     'Spectral', Georgia, serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* --- spacing scale --- */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+
+  --radius: 3px;
+  --radius-lg: 5px;
+
+  --shadow-1: 0 1px 2px rgba(43,38,34,.10), 0 2px 6px rgba(43,38,34,.06);
+  --shadow-2: 0 4px 14px rgba(43,38,34,.16);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(43,38,34,.08);
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+/* campo de papel quente usado como fundo da pagina da mesa */
+.tt-themed.paper-field {
+  background-color: var(--paper-1);
+  background-image:
+    var(--grain),
+    radial-gradient(120% 90% at 18% 8%, rgba(255,250,236,.7), rgba(255,250,236,0) 55%),
+    radial-gradient(120% 120% at 88% 96%, rgba(120,92,52,.16), rgba(120,92,52,0) 50%),
+    radial-gradient(100% 80% at 50% 50%, rgba(239,230,210,1), rgba(224,210,180,1));
+}
+
+.tt-themed h1, .tt-themed h2, .tt-themed h3, .tt-themed h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: .01em;
+  line-height: 1.12;
+}
+.tt-themed a { color: var(--leather); text-decoration: none; }
+.tt-themed a:hover { color: var(--deep-red); }
+.tt-themed ::selection { background: rgba(181,138,54,.35); }
+
+/* --- primitivas reutilizaveis --- */
+.tt-themed .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.tt-themed .rule {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--edge-strong) 18%, var(--edge-strong) 82%, transparent);
+  position: relative;
+}
+.tt-themed .mono { font-family: var(--font-mono); }
+.tt-themed .swatch {
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+.tt-themed .btn {
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: .04em;
+  color: var(--ink);
+  background: var(--paper-0);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: transform .08s ease, background .15s ease, color .15s ease;
+}
+.tt-themed .btn:hover { background: var(--ink); color: var(--parchment); }
+.tt-themed .btn:active { transform: translateY(1px); }
+
+/* scrollbars no tom parchment */
+.tt-themed * { scrollbar-width: thin; scrollbar-color: var(--edge-strong) transparent; }
+.tt-themed *::-webkit-scrollbar { width: 10px; height: 10px; }
+.tt-themed *::-webkit-scrollbar-thumb {
+  background: var(--edge-strong);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.tt-themed *::-webkit-scrollbar-thumb:hover { background: var(--leather); }
+.tt-themed *::-webkit-scrollbar-track { background: transparent; }
+
+/* --- quadro imersivo: re-skin da nav/rodape globais SO na mesa --- */
+.tt-themed .app-nav {
+  background: var(--leather);
+  color: var(--parchment);
+  border-bottom: 3px double var(--ink);
+}
+.tt-themed .app-nav .brand-mark { color: var(--parchment); }
+.tt-themed .app-nav .nav-link { color: rgba(239,230,210,.85); }
+.tt-themed .app-nav .nav-link:hover,
+.tt-themed .app-nav .nav-link.active {
+  color: var(--parchment);
+  border-color: var(--ochre);
+}
+.tt-themed .app-nav .nav-user { color: var(--parchment); }
+.tt-themed .app-footer { color: var(--text-faint); }

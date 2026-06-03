@@ -212,3 +212,18 @@ class UploadTests(_Base):
         tok = Token.objects.get(Map=self.map, Label='Xss')
         self.assertIsNone(tok.SpriteAsset)                      # upload recusado
         self.assertFalse(SpriteAsset.objects.filter(Name='Xss').exists())
+
+
+class ThemeTests(TestCase):
+    """Fatia A: paginas da mesa carregam o tema Parchment & Ink."""
+
+    def test_table_view_uses_parchment_theme(self):
+        owner = User.objects.create_user('gm', password='x' * 12)
+        table = GameTable.objects.create(Owner=owner, Name='Mesa Teste')
+        resp = self.client.get(reverse('tabletop:table', args=[table.Slug]))
+        self.assertEqual(resp.status_code, 200)
+        html = resp.content.decode()
+        # classe imersiva no body ativa os tokens parchment
+        self.assertIn('tt-themed', html)
+        # stylesheet compartilhado dos tokens esta linkado
+        self.assertIn('parchment-theme.css', html)

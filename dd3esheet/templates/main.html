@@ -19,7 +19,7 @@
 
     {% block extra_head %}{% endblock %}
 </head>
-<body class="sheet-body">
+<body class="{% block body_class %}sheet-body{% endblock %}">
 
     <nav class="app-nav">
         <a class="brand-mark" href="{% url 'character:home' %}" style="text-decoration:none; color: inherit;">
