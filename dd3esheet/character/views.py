@@ -290,6 +290,7 @@ def _sheet_character_queryset():
     return (
         Character.objects
         .select_related(
+            'User',
             'characterstats',
             'characterstatus',
             'charactersavingthrows',

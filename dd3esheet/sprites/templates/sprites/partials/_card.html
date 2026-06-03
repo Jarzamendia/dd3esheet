@@ -1,0 +1,54 @@
+<button type="button"
+        class="sl-card"
+        style="--accent: var({{ row.accent }})"
+        data-id="{{ row.id }}"
+        data-search="{{ row.id }} {{ row.description }}"
+        data-desc="{{ row.description }}"
+        data-category="{{ row.category }}"
+        data-type="{{ row.type }}"
+        data-type-label="{{ row.type_label }}"
+        data-section="{{ row.section }}"
+        data-group="{{ row.group_key }}"
+        data-group-label="{{ row.group_label }}"
+        data-footprint="{{ row.footprint }}"
+        data-canvas="{{ row.canvas }}"
+        data-alpha="{{ row.alpha }}"
+        data-format="{{ row.format }}"
+        data-grid="{{ row.grid_label }}"
+        data-size="{{ row.size_label }}"
+        data-img="{{ row.image_url }}"
+        data-alt="{{ row.alt }}"
+        title="{{ row.id }} - {{ row.description }}">
+    <span class="sl-slot {{ row.slot_class }}{% if row.has_grid %} has-grid{% endif %}">
+        {% if row.image_url %}
+            <img src="{{ row.image_url }}" alt="{{ row.alt }}">
+        {% else %}
+            {% if row.slot_class == "sl-slot--circle" %}
+                <span class="sl-disc">
+                    <span class="sl-safe"></span>
+                    <span class="sl-glyph">
+                        {% include "sprites/partials/_glyphs.html" with glyph=row.glyph only %}
+                    </span>
+                    <span class="sl-contact"></span>
+                </span>
+            {% elif row.slot_class == "sl-slot--hex" %}
+                <span class="sl-hexline"></span>
+                <span class="sl-frame">
+                    <span class="sl-glyph">
+                        {% include "sprites/partials/_glyphs.html" with glyph=row.glyph only %}
+                    </span>
+                </span>
+            {% else %}
+                <span class="sl-frame">
+                    <span class="sl-glyph">
+                        {% include "sprites/partials/_glyphs.html" with glyph=row.glyph only %}
+                    </span>
+                </span>
+            {% endif %}
+        {% endif %}
+        {% if row.footprint %}
+            <span class="sl-footprint">{{ row.footprint }}</span>
+        {% endif %}
+    </span>
+    <span class="sl-id mono">{{ row.id }}</span>
+</button>

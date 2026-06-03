@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
 from character.models import Character
@@ -15,6 +15,99 @@ from .services import attach_sprites_to_combatants, sprite_for_class, sprite_for
 
 def uploaded_png(name='token.png', content=b'\x89PNG\r\n\x1a\nsprite'):
     return SimpleUploadedFile(name, content, content_type='image/png')
+
+
+class ManifestDataTests(SimpleTestCase):
+    def test_loads_all_assets_flat(self):
+        from sprites.manifest_data import all_assets
+
+        rows = all_assets()
+
+        self.assertEqual(len(rows), 496)
+        self.assertTrue(all('id' in row and 'type' in row for row in rows))
+
+    def test_category_for_type(self):
+        from sprites.manifest_data import category_for_type
+
+        self.assertEqual(category_for_type('TABLETOP_TOKEN'), 'map_token')
+        self.assertEqual(category_for_type('BATTLE_MAP'), 'map_tile')
+        self.assertEqual(category_for_type('MAP_PIECE'), 'map_tile')
+        self.assertEqual(category_for_type('CLASS_ICON'), 'class')
+
+    def test_footprint_to_grid(self):
+        from sprites.manifest_data import footprint_to_grid
+
+        self.assertEqual(footprint_to_grid('2x2'), (2, 2))
+        self.assertEqual(footprint_to_grid(None), (1, 1))
+
+
+class SeedLibraryTests(TestCase):
+    def test_seed_creates_all_placeholders(self):
+        from django.core.management import call_command
+
+        call_command('seed_sprite_library')
+
+        self.assertEqual(SpriteAsset.objects.count(), 496)
+        icon = SpriteAsset.objects.get(Slug='barbarian_class_icon')
+        self.assertEqual(icon.Category, SpriteAsset.CLASS)
+        token = SpriteAsset.objects.get(Slug='human_fighter_sword_shield')
+        self.assertEqual(token.Category, SpriteAsset.MAP_TOKEN)
+
+    def test_seed_is_idempotent(self):
+        from django.core.management import call_command
+
+        call_command('seed_sprite_library')
+        call_command('seed_sprite_library')
+
+        self.assertEqual(SpriteAsset.objects.count(), 496)
+
+    def test_seed_sets_footprint(self):
+        from django.core.management import call_command
+
+        call_command('seed_sprite_library')
+
+        ogre = SpriteAsset.objects.get(Slug='ogre')
+        self.assertEqual((ogre.DefaultGridWidth, ogre.DefaultGridHeight), (2, 2))
+
+
+class LibraryViewTests(TestCase):
+    def setUp(self):
+        from django.core.management import call_command
+
+        call_command('seed_sprite_library')
+        self.user = User.objects.create_user('u', password='x' * 12)
+        self.client.force_login(self.user)
+
+    def test_library_page_renders_with_theme(self):
+        response = self.client.get(reverse('sprites:library'))
+
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode()
+        self.assertIn('tt-themed', html)
+        self.assertIn('human_fighter_sword_shield', html)
+
+    def test_library_requires_login(self):
+        self.client.logout()
+
+        response = self.client.get(reverse('sprites:library'))
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_asset_detail_renders_drawer_partial(self):
+        response = self.client.get(reverse('sprites:asset-detail', args=['ogre']))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'ogre')
+        self.assertContains(response, '2x2')
+
+    def test_search_matches_slug_or_description(self):
+        by_slug = self.client.get(reverse('sprites:search'), {'q': 'human_fighter_sword_shield'})
+        by_description = self.client.get(reverse('sprites:search'), {'q': 'crossed greataxe'})
+
+        self.assertEqual(by_slug.status_code, 200)
+        self.assertEqual(by_description.status_code, 200)
+        self.assertIn('Human Fighter Sword Shield', [row['name'] for row in by_slug.json()['sprites']])
+        self.assertIn('Barbarian Class Icon', [row['name'] for row in by_description.json()['sprites']])
 
 
 @override_settings(MEDIA_ROOT='/tmp/dd3esheet-test-media')

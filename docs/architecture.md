@@ -10,7 +10,7 @@ Apps:
 - `character`: fichas de personagem e toda a persistencia editavel.
 - `sdr`: referencia D&D 3.5 SRD, read-only.
 - `initiative`: rastreador de iniciativa.
-- `sprites`: biblioteca central de imagens e bindings para classes, monstros, iniciativa e mapas.
+- `sprites`: Sprite Library em `/sprites/`, biblioteca central de imagens e bindings para classes, monstros, iniciativa e mapas.
 - `tabletop`: mesa virtual / criador de mapas (cenas compartilhadas, miniaturas, névoa). Ver `TABLETOP.md`.
 
 Arquivos centrais:
@@ -60,8 +60,10 @@ Rotas principais de `sdr`:
 
 Rotas principais de `sprites`:
 
+- `/sprites/`: navegador pesquisavel dos 496 placeholders do manifesto Parchment & Ink.
 - `/sprites/search/`: busca JSON para pickers/autocomplete.
 - `/sprites/manifest/`: manifesto JSON de imagens em lote, com URL, dimensoes, grid e ancora.
+- `/sprites/<slug>/`: partial de detalhe de um asset da biblioteca.
 
 ## Rotas principais de tabletop
 

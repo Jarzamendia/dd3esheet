@@ -24,3 +24,8 @@ class Command(BaseCommand):
         self.stdout.write(
             f"  Sprites:   {len(result.get('sprites', {}))} assets/bindings base (sem criar arquivos)"
         )
+        library = result.get('sprite_library', {})
+        self.stdout.write(
+            f"  Biblioteca:{library.get('total', 0)} placeholders do manifesto "
+            f"({library.get('created', 0)} criados, {library.get('updated', 0)} atualizados)"
+        )

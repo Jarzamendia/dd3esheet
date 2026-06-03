@@ -1,0 +1,128 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block title %}Biblioteca de Sprites - Codex{% endblock %}
+{% block body_class %}sheet-body tt-themed paper-field sl-body{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="{% static 'css/parchment-theme.css' %}?v={% now 'U' %}">
+    <link rel="stylesheet" href="{% static 'css/sprite_library.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<main class="sl-page" data-screen-label="sprite-library">
+    <aside class="sl-sidebar" id="sl-sidebar" aria-label="Categorias">
+        <header class="sl-masthead">
+            <div class="sl-crest">
+                <span class="sl-mark">
+                    {% include "sprites/partials/_glyphs.html" with glyph="shield" only %}
+                </span>
+                <div>
+                    <h1>Sprite Library</h1>
+                    <p>D&amp;D 3.5 - Tabletop Set</p>
+                </div>
+            </div>
+            <dl class="sl-tally">
+                <div><dt>{{ assets_count }}</dt><dd>visiveis</dd></div>
+                <div><dt>{{ manifest_total }}</dt><dd>manifesto</dd></div>
+                <div><dt>{{ groups|length }}</dt><dd>grupos</dd></div>
+            </dl>
+        </header>
+
+        <div class="sl-search-wrap">
+            <input type="search" id="sl-search" class="sl-search"
+                   placeholder="Buscar id ou descricao" autocomplete="off">
+        </div>
+
+        <div class="sl-side-scroll">
+            <h2 class="sl-side-heading">Categorias</h2>
+            <nav class="sl-nav" aria-label="Categorias de sprites">
+                <button type="button" class="sl-nav-item is-active" data-group="all">
+                    <span class="sl-nav-icon" style="--accent: var(--ink)">
+                        {% include "sprites/partials/_glyphs.html" with glyph="shield" only %}
+                    </span>
+                    <span class="sl-nav-label">Todos</span>
+                    <span class="sl-nav-count">{{ assets_count }}</span>
+                </button>
+                {% for group in groups %}
+                    <button type="button" class="sl-nav-item" data-group="{{ group.key }}">
+                        <span class="sl-nav-icon" style="--accent: var({{ group.accent }})">
+                            {% include "sprites/partials/_glyphs.html" with glyph=group.glyph only %}
+                        </span>
+                        <span class="sl-nav-label">{{ group.label }}</span>
+                        <span class="sl-nav-count">{{ group.visible_count }}</span>
+                    </button>
+                {% endfor %}
+            </nav>
+
+            <h2 class="sl-side-heading">Tipo</h2>
+            <div class="sl-chips" aria-label="Filtros por tipo">
+                {% for item in type_filters %}
+                    <button type="button" class="sl-chip" data-type="{{ item.type }}">
+                        {{ item.label }} &middot; {{ item.count }}
+                    </button>
+                {% endfor %}
+            </div>
+
+            <h2 class="sl-side-heading">Footprint</h2>
+            <div class="sl-chips" aria-label="Filtros por footprint">
+                {% for item in footprint_filters %}
+                    <button type="button" class="sl-chip" data-footprint="{{ item.footprint }}">
+                        {{ item.label }} &middot; {{ item.count }}
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+    </aside>
+
+    <section class="sl-main" aria-label="Galeria">
+        <header class="sl-topbar">
+            <button type="button" class="sl-menu-btn" id="sl-menu-btn" aria-label="Abrir filtros">
+                <span></span><span></span><span></span>
+            </button>
+            <div>
+                <p class="sl-eyebrow">Biblioteca</p>
+                <h2 id="sl-crumb">Todos os Sprites</h2>
+            </div>
+            <span class="sl-count" id="sl-count">{{ assets_count }} visiveis &middot; {{ manifest_total }} no manifesto</span>
+            <span class="sl-spacer"></span>
+            <div class="sl-density" aria-label="Densidade">
+                <button type="button" class="is-active" data-density="comfortable">Conforto</button>
+                <button type="button" data-density="dense">Denso</button>
+            </div>
+        </header>
+
+        <div class="sl-gallery" id="sl-gallery">
+            {% for group in groups %}
+                <section class="sl-group" id="sl-group-{{ group.key }}" data-group="{{ group.key }}"
+                         style="--accent: var({{ group.accent }})">
+                    <header class="sl-group-head">
+                        <span class="sl-group-icon">
+                            {% include "sprites/partials/_glyphs.html" with glyph=group.glyph only %}
+                        </span>
+                        <h3>{{ group.label }}</h3>
+                        <span class="sl-group-count">
+                            <span class="sl-group-visible-count">{{ group.visible_count }}</span> / {{ group.count }}
+                        </span>
+                        <span class="sl-group-rule"></span>
+                    </header>
+                    <div class="sl-grid {{ group.grid_class }}">
+                        {% for row in group.assets %}
+                            {% include "sprites/partials/_card.html" with row=row only %}
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endfor %}
+            <p class="sl-empty" id="sl-empty" hidden>Nenhum sprite encontrado.</p>
+        </div>
+    </section>
+
+    {% include "sprites/partials/_detail.html" %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/sprite_library.js' %}?v={% now 'U' %}"></script>
+{% endblock %}

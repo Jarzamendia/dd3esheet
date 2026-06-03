@@ -1,0 +1,33 @@
+<div class="sl-scrim" id="sl-scrim" hidden></div>
+<aside class="sl-drawer" id="sl-drawer" aria-hidden="true"
+       style="{% if row %}--accent: var({{ row.accent }}){% endif %}">
+    <header class="sl-drawer-head">
+        <div>
+            <span class="sl-drawer-type" id="sl-drawer-type">{% if row %}{{ row.type_label }}{% endif %}</span>
+            <h2 id="sl-drawer-title">{% if row %}{{ row.id }}{% endif %}</h2>
+        </div>
+        <button type="button" class="sl-drawer-close" id="sl-drawer-close" aria-label="Fechar">x</button>
+    </header>
+    <div class="sl-drawer-body">
+        <div class="sl-preview" id="sl-drawer-preview">
+            {% if row %}
+                {% include "sprites/partials/_card.html" with row=row only %}
+            {% endif %}
+        </div>
+        <dl class="sl-spec-grid">
+            <div><dt>Tipo</dt><dd id="sl-spec-type">{% if row %}{{ row.type_label }}{% endif %}</dd></div>
+            <div><dt>Canvas</dt><dd id="sl-spec-canvas">{% if row %}{{ row.canvas }}{% endif %}</dd></div>
+            <div><dt>Saida</dt><dd id="sl-spec-alpha">{% if row %}{{ row.alpha }}{% endif %}</dd></div>
+            <div><dt>Footprint</dt><dd id="sl-spec-footprint">{% if row %}{{ row.grid_label }}{% endif %}</dd></div>
+            <div class="sl-spec-wide"><dt>Grupo</dt><dd id="sl-spec-group">{% if row %}{{ row.group_label }}{% endif %}</dd></div>
+            <div class="sl-spec-wide" id="sl-spec-size-row" hidden><dt>Tamanho</dt><dd id="sl-spec-size"></dd></div>
+        </dl>
+        <p class="sl-desc" id="sl-drawer-desc">{% if row %}{{ row.description }}{% endif %}</p>
+        <h3 class="sl-block-title">Prompt</h3>
+        <pre class="sl-prompt" id="sl-drawer-prompt"></pre>
+        <div class="sl-drawer-actions">
+            <button type="button" class="sl-copy-btn" id="sl-copy-id">Copiar id</button>
+            <button type="button" class="sl-copy-btn" id="sl-copy-prompt">Copiar prompt</button>
+        </div>
+    </div>
+</aside>

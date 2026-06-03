@@ -2047,6 +2047,8 @@ class SeedTests(TestCase):
         self.assertEqual(first['ranger'].pk, second['ranger'].pk)
         # rodar de novo não duplica filhos
         self.assertEqual(CharacterSkill.objects.filter(Character=second['fighter']).count(), 41)
+        from sprites.models import SpriteAsset
+        self.assertTrue(SpriteAsset.objects.filter(Slug='human_fighter_sword_shield').exists())
 
 
 # ---------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 from django.core.files.base import ContentFile
+from django.db.models import Case, IntegerField, Q, Value, When
 
 from .models import SpriteAsset, SpriteBinding, SpriteVariant
 
@@ -32,10 +33,28 @@ def _first_bound_asset(target_type, target_key, purpose):
 
 
 def sprite_for_class(class_name, purpose=SpriteBinding.CLASS_ICON):
-    return (
-        _first_bound_asset(SpriteBinding.SDR_CLASS, class_name, purpose)
-        or _first_bound_asset(SpriteBinding.CHARACTER_CLASS, class_name, purpose)
+    key = (class_name or '').strip()
+    if not key:
+        return None
+    binding = (
+        SpriteBinding.objects
+        .select_related('SpriteAsset')
+        .filter(
+            Q(TargetType=SpriteBinding.SDR_CLASS) |
+            Q(TargetType=SpriteBinding.CHARACTER_CLASS),
+            TargetKey=key,
+            Purpose=purpose,
+            SpriteAsset__IsActive=True,
+        )
+        .annotate(_priority=Case(
+            When(TargetType=SpriteBinding.SDR_CLASS, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        ))
+        .order_by('_priority')
+        .first()
     )
+    return binding.SpriteAsset if binding else None
 
 
 def sprite_for_monster(monster_id=None, monster_name=None, purpose=SpriteBinding.MONSTER_TOKEN):

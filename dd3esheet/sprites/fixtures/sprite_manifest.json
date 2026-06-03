@@ -1,0 +1,5131 @@
+{
+ "generatedAt": "manifest",
+ "total": 496,
+ "sections": [
+  {
+   "name": "CLASS ICONS",
+   "assets": [
+    {
+     "id": "barbarian_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "crossed greataxe and fur mantle motif"
+    },
+    {
+     "id": "bard_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "lute, rapier, and ribbon motif"
+    },
+    {
+     "id": "cleric_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "mace, holy symbol, and sunburst motif"
+    },
+    {
+     "id": "druid_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "oak leaf, staff, and crescent motif"
+    },
+    {
+     "id": "fighter_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "sword, shield, and worn helm motif"
+    },
+    {
+     "id": "monk_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "open hand, prayer beads, and simple staff motif"
+    },
+    {
+     "id": "paladin_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "polished shield, longsword, and radiant oath motif"
+    },
+    {
+     "id": "ranger_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "longbow, trail marker, and leaf motif"
+    },
+    {
+     "id": "rogue_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "dagger, lockpick, and hood motif"
+    },
+    {
+     "id": "sorcerer_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "raw arcane flame around a hand motif"
+    },
+    {
+     "id": "wizard_class_icon",
+     "type": "CLASS_ICON",
+     "section": "CLASS ICONS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "spellbook, wand, and star diagram motif"
+    }
+   ]
+  },
+  {
+   "name": "CLASS PORTRAITS",
+   "assets": [
+    {
+     "id": "barbarian_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "rugged warrior with furs and greataxe"
+    },
+    {
+     "id": "bard_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "charming performer with lute and rapier"
+    },
+    {
+     "id": "cleric_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "armored priest with holy symbol and mace"
+    },
+    {
+     "id": "druid_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "forest mystic with staff and leaf cloak"
+    },
+    {
+     "id": "fighter_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "disciplined armored veteran with shield"
+    },
+    {
+     "id": "monk_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "calm martial artist with simple robes"
+    },
+    {
+     "id": "paladin_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "noble holy knight with bright shield"
+    },
+    {
+     "id": "ranger_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "weathered archer with green cloak"
+    },
+    {
+     "id": "rogue_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "alert infiltrator with hood and daggers"
+    },
+    {
+     "id": "sorcerer_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "innate spellcaster with subtle arcane aura"
+    },
+    {
+     "id": "wizard_class_portrait",
+     "type": "PORTRAIT",
+     "section": "CLASS PORTRAITS",
+     "canvas": "640x640",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "scholar mage with spellbook and wand"
+    }
+   ]
+  },
+  {
+   "name": "PLAYER CHARACTER TOKENS",
+   "assets": [
+    {
+     "id": "human_fighter_sword_shield",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "human fighter with longsword and shield"
+    },
+    {
+     "id": "human_fighter_greatsword",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "human fighter in chainmail with greatsword"
+    },
+    {
+     "id": "dwarf_cleric_warpriest",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "dwarf cleric with mace and shield"
+    },
+    {
+     "id": "dwarf_fighter_axe",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "dwarf warrior with battleaxe"
+    },
+    {
+     "id": "elf_wizard_evoker",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "elf wizard with robe, wand, and spellbook"
+    },
+    {
+     "id": "elf_ranger_archer",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "elf ranger with longbow and cloak"
+    },
+    {
+     "id": "halfling_rogue_daggers",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "halfling rogue with twin daggers"
+    },
+    {
+     "id": "halfling_bard_lute",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "halfling bard with lute and rapier"
+    },
+    {
+     "id": "gnome_illusionist",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "gnome wizard illusionist with bright scarf"
+    },
+    {
+     "id": "gnome_bard_wanderer",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "gnome bard with small drum and dagger"
+    },
+    {
+     "id": "half_elf_ranger_dual_blades",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "half-elf ranger with two short swords"
+    },
+    {
+     "id": "half_elf_sorcerer",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "half-elf sorcerer with arcane hand gesture"
+    },
+    {
+     "id": "half_orc_barbarian_greataxe",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "half-orc barbarian with greataxe and fur cloak"
+    },
+    {
+     "id": "half_orc_fighter_polearm",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "half-orc fighter with polearm"
+    },
+    {
+     "id": "human_paladin_longsword",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "human paladin with longsword and shield"
+    },
+    {
+     "id": "human_cleric_healer",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "human cleric with staff and holy symbol"
+    },
+    {
+     "id": "human_monk_unarmed",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "human monk in ready stance"
+    },
+    {
+     "id": "human_rogue_crossbow",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "human rogue with hand crossbow"
+    },
+    {
+     "id": "human_sorcerer_draconic",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "human sorcerer with draconic cloak motif"
+    },
+    {
+     "id": "human_wizard_abjurer",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "human wizard with protective magic gesture"
+    },
+    {
+     "id": "elf_druid_staff",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "elf druid with staff and leaf mantle"
+    },
+    {
+     "id": "dwarf_paladin_hammer",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "dwarf paladin with warhammer and shield"
+    },
+    {
+     "id": "halfling_ranger_sling",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "halfling ranger with sling and shortbow"
+    },
+    {
+     "id": "gnome_cleric_trickster",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLAYER CHARACTER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "gnome cleric with small mace and holy charm"
+    }
+   ]
+  },
+  {
+   "name": "COMPANION AND FAMILIAR TOKENS",
+   "assets": [
+    {
+     "id": "riding_horse",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "saddled horse top-down"
+    },
+    {
+     "id": "warhorse_light",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "armored light warhorse"
+    },
+    {
+     "id": "warhorse_heavy",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "armored heavy warhorse"
+    },
+    {
+     "id": "pony",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "saddled pony"
+    },
+    {
+     "id": "mule_pack",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "pack mule with saddlebags"
+    },
+    {
+     "id": "riding_dog",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "armored riding dog"
+    },
+    {
+     "id": "hawk_familiar",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "hawk with wings tucked enough to stay circle-safe"
+    },
+    {
+     "id": "owl_familiar",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "owl familiar"
+    },
+    {
+     "id": "raven_familiar",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "raven familiar"
+    },
+    {
+     "id": "cat_familiar",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "alert black cat familiar"
+    },
+    {
+     "id": "rat_familiar",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small rat familiar"
+    },
+    {
+     "id": "toad_familiar",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "squat toad familiar"
+    },
+    {
+     "id": "weasel_familiar",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "slender weasel familiar"
+    },
+    {
+     "id": "snake_familiar",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "coiled viper familiar"
+    },
+    {
+     "id": "wolf_companion",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "loyal wolf animal companion"
+    },
+    {
+     "id": "black_bear_companion",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "black bear animal companion"
+    },
+    {
+     "id": "brown_bear_companion",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "brown bear animal companion"
+    },
+    {
+     "id": "dire_wolf_companion",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "dire wolf animal companion"
+    },
+    {
+     "id": "eagle_companion",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "eagle animal companion"
+    },
+    {
+     "id": "leopard_companion",
+     "type": "TABLETOP_TOKEN",
+     "section": "COMPANION AND FAMILIAR TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "leopard animal companion"
+    }
+   ]
+  },
+  {
+   "name": "NPC TOKENS",
+   "assets": [
+    {
+     "id": "village_commoner",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "plain villager with simple tools"
+    },
+    {
+     "id": "farmer_pitchfork",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "farmer with pitchfork"
+    },
+    {
+     "id": "tavern_keeper",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "tavern keeper with apron and mug"
+    },
+    {
+     "id": "merchant_trader",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "traveling merchant with satchel"
+    },
+    {
+     "id": "noble_courtier",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "noble in rich but muted clothing"
+    },
+    {
+     "id": "city_guard_spear",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "city guard with spear and shield"
+    },
+    {
+     "id": "veteran_sergeant",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "veteran guard captain with tabard"
+    },
+    {
+     "id": "priest_temple",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "temple priest with staff"
+    },
+    {
+     "id": "acolyte_young",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "young acolyte with candle"
+    },
+    {
+     "id": "sage_scholar",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "old scholar with scrolls"
+    },
+    {
+     "id": "apprentice_mage",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "apprentice spellcaster with wand"
+    },
+    {
+     "id": "blacksmith",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "blacksmith with hammer and apron"
+    },
+    {
+     "id": "healer_herbalist",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "herbalist with satchel and herbs"
+    },
+    {
+     "id": "inn_server",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "inn server with tray"
+    },
+    {
+     "id": "bard_traveler",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "traveling bard with lute"
+    },
+    {
+     "id": "thief_cutpurse",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "street thief with cloak"
+    },
+    {
+     "id": "assassin_hooded",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "hooded assassin with dagger"
+    },
+    {
+     "id": "cultist_robed",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "robed cultist with ritual dagger"
+    },
+    {
+     "id": "bandit_knife",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "rough bandit with knife"
+    },
+    {
+     "id": "bandit_archer",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "bandit archer with shortbow"
+    },
+    {
+     "id": "pirate_cutlass",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "pirate with cutlass"
+    },
+    {
+     "id": "caravan_guard",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "armored caravan guard"
+    },
+    {
+     "id": "prisoner_shackled",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "shackled prisoner"
+    },
+    {
+     "id": "child_villager",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small village child, non-threatening"
+    },
+    {
+     "id": "ghostly_ancestor",
+     "type": "TABLETOP_TOKEN",
+     "section": "NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "translucent ancestral spirit in the same inked style, subtle and not glowing heavily"
+    }
+   ]
+  },
+  {
+   "name": "HUMANOID ENEMY TOKENS",
+   "assets": [
+    {
+     "id": "goblin_skirmisher",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "goblin with rusty scimitar and crude shield"
+    },
+    {
+     "id": "goblin_archer",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "goblin with shortbow"
+    },
+    {
+     "id": "goblin_shaman",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "goblin shaman with bone charms"
+    },
+    {
+     "id": "kobold_spearman",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "kobold with spear and small shield"
+    },
+    {
+     "id": "kobold_slinger",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "kobold with sling and pouch"
+    },
+    {
+     "id": "kobold_trapmaker",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "kobold with tools and wire"
+    },
+    {
+     "id": "orc_raider",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "orc with greataxe"
+    },
+    {
+     "id": "orc_archer",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "orc with crude longbow"
+    },
+    {
+     "id": "orc_war_chief",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "armored orc leader with axe"
+    },
+    {
+     "id": "hobgoblin_soldier",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "disciplined hobgoblin with sword and shield"
+    },
+    {
+     "id": "hobgoblin_captain",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "hobgoblin officer with banner spear"
+    },
+    {
+     "id": "bugbear_brute",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "hulking bugbear with morningstar"
+    },
+    {
+     "id": "gnoll_hunter",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "hyena-headed gnoll with spear"
+    },
+    {
+     "id": "gnoll_pack_lord",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "stronger gnoll with battleaxe"
+    },
+    {
+     "id": "lizardfolk_warrior",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "lizardfolk with club and shield"
+    },
+    {
+     "id": "troglodyte_savage",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "troglodyte with stone axe"
+    },
+    {
+     "id": "sahuagin_raider",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "aquatic sahuagin with trident"
+    },
+    {
+     "id": "kuo_toa_monitor",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "fishlike underground warrior with spear"
+    },
+    {
+     "id": "drow_scout",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "dark elf scout with hand crossbow"
+    },
+    {
+     "id": "drow_priestess",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "drow priestess with mace and cloak"
+    },
+    {
+     "id": "duergar_warrior",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "gray dwarf warrior with warhammer"
+    },
+    {
+     "id": "derro_madcap",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "derro with hooked blade"
+    },
+    {
+     "id": "grimlock_cavern_hunter",
+     "type": "TABLETOP_TOKEN",
+     "section": "HUMANOID ENEMY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "blind cavern humanoid with stone club"
+    }
+   ]
+  },
+  {
+   "name": "UNDEAD TOKENS",
+   "assets": [
+    {
+     "id": "skeleton_warrior",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "armed skeleton with round shield"
+    },
+    {
+     "id": "skeleton_archer",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "skeleton with shortbow"
+    },
+    {
+     "id": "zombie_commoner",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "shambling zombie"
+    },
+    {
+     "id": "ghoul",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "crouched ghoul with claws"
+    },
+    {
+     "id": "ghast",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "stronger ghoul-like undead"
+    },
+    {
+     "id": "wight",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "armored wight with dead eyes"
+    },
+    {
+     "id": "shadow_undead",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "smoky shadow figure, readable silhouette"
+    },
+    {
+     "id": "wraith",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "hooded spectral undead, subtle transparency"
+    },
+    {
+     "id": "mummy",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "bandaged mummy with ancient jewelry"
+    },
+    {
+     "id": "vampire_spawn",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "elegant feral vampire spawn"
+    },
+    {
+     "id": "vampire_lord",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "aristocratic vampire with cloak"
+    },
+    {
+     "id": "lich",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "skeletal archmage with tattered robes"
+    },
+    {
+     "id": "allip",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "indistinct spectral mad spirit"
+    },
+    {
+     "id": "bodak",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "gaunt undead with unsettling stare"
+    },
+    {
+     "id": "mohrg",
+     "type": "TABLETOP_TOKEN",
+     "section": "UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "skeletal undead with extended tongue, not too grotesque"
+    }
+   ]
+  },
+  {
+   "name": "BEAST AND VERMIN TOKENS",
+   "assets": [
+    {
+     "id": "wolf",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "gray wolf"
+    },
+    {
+     "id": "dire_wolf",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "massive dire wolf"
+    },
+    {
+     "id": "dog_guard",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "guard dog"
+    },
+    {
+     "id": "black_bear",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "black bear"
+    },
+    {
+     "id": "brown_bear",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "brown bear"
+    },
+    {
+     "id": "dire_bear",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "huge dire bear"
+    },
+    {
+     "id": "boar",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "wild boar"
+    },
+    {
+     "id": "dire_boar",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "dire boar"
+    },
+    {
+     "id": "lion",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "lion"
+    },
+    {
+     "id": "tiger",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "tiger"
+    },
+    {
+     "id": "leopard",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "leopard"
+    },
+    {
+     "id": "rat_swarm",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "mass of small rats, readable as swarm"
+    },
+    {
+     "id": "bat_swarm",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "cluster of bats, circle-safe"
+    },
+    {
+     "id": "giant_rat",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "oversized rat"
+    },
+    {
+     "id": "giant_centipede",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "coiled enough to fit"
+    },
+    {
+     "id": "giant_spider_medium",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "giant spider"
+    },
+    {
+     "id": "giant_spider_large",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "large giant spider"
+    },
+    {
+     "id": "monstrous_scorpion_medium",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "monstrous scorpion"
+    },
+    {
+     "id": "monstrous_scorpion_large",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "large monstrous scorpion"
+    },
+    {
+     "id": "giant_wasp",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "giant wasp with wings kept inside circle"
+    },
+    {
+     "id": "giant_praying_mantis",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "giant mantis"
+    },
+    {
+     "id": "crocodile",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "crocodile top-down"
+    },
+    {
+     "id": "shark",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "shark top-down"
+    },
+    {
+     "id": "constrictor_snake",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "coiled constrictor snake"
+    },
+    {
+     "id": "viper_snake",
+     "type": "TABLETOP_TOKEN",
+     "section": "BEAST AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "coiled venomous snake"
+    }
+   ]
+  },
+  {
+   "name": "GIANT AND MONSTROUS HUMANOID TOKENS",
+   "assets": [
+    {
+     "id": "ogre",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "ogre with greatclub"
+    },
+    {
+     "id": "ogre_mage",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "horned ogre mage with curved blade"
+    },
+    {
+     "id": "troll",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "long-limbed troll with claws"
+    },
+    {
+     "id": "hill_giant",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "crude hill giant with club"
+    },
+    {
+     "id": "stone_giant",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "lean stone giant with rock"
+    },
+    {
+     "id": "frost_giant",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "frost giant warrior with axe"
+    },
+    {
+     "id": "fire_giant",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "armored fire giant with sword"
+    },
+    {
+     "id": "ettin",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "two-headed giant brute"
+    },
+    {
+     "id": "minotaur",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "minotaur with greataxe"
+    },
+    {
+     "id": "centaur_archer",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "centaur with longbow"
+    },
+    {
+     "id": "harpy",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "harpy with folded wings"
+    },
+    {
+     "id": "gargoyle",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "crouched stone gargoyle"
+    },
+    {
+     "id": "medusa",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "snake-haired archer"
+    },
+    {
+     "id": "yuan_ti_pureblood",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "subtle serpent humanoid"
+    },
+    {
+     "id": "yuan_ti_abomination",
+     "type": "TABLETOP_TOKEN",
+     "section": "GIANT AND MONSTROUS HUMANOID TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "serpentine monster"
+    }
+   ]
+  },
+  {
+   "name": "ABERRATION TOKENS",
+   "assets": [
+    {
+     "id": "beholder_like_eye_tyrant",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "floating many-eyed orb monster, generic fantasy eye tyrant, no copied trademarked exact design"
+    },
+    {
+     "id": "carrion_crawler",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "tentacled carrion crawler"
+    },
+    {
+     "id": "chuul",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "lobster-like aberration with tentacles"
+    },
+    {
+     "id": "cloaker",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "manta-like cloaker with tail"
+    },
+    {
+     "id": "ettercap",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "spiderlike humanoid"
+    },
+    {
+     "id": "gibbering_mouther",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "amorphous many-mouthed aberration, stylized not graphic"
+    },
+    {
+     "id": "grick",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "wormlike ambush predator with tentacle head"
+    },
+    {
+     "id": "mimic_chest",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "treasure chest mimic with teeth and tongue"
+    },
+    {
+     "id": "mind_flayer_like_psion",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "robed tentacled psionic humanoid, generic and not copied from any single published image"
+    },
+    {
+     "id": "otyugh",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "three-legged refuse monster with tentacles"
+    },
+    {
+     "id": "rust_monster",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "insectoid rust monster with feathery antennae"
+    },
+    {
+     "id": "umber_hulk",
+     "type": "TABLETOP_TOKEN",
+     "section": "ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "burrowing insectoid brute"
+    }
+   ]
+  },
+  {
+   "name": "DRAGON TOKENS",
+   "assets": [
+    {
+     "id": "dragon_wyrmling_red",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small red dragon wyrmling"
+    },
+    {
+     "id": "dragon_wyrmling_black",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small black dragon wyrmling"
+    },
+    {
+     "id": "dragon_wyrmling_green",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small green dragon wyrmling"
+    },
+    {
+     "id": "dragon_young_red",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "4x4",
+     "description": "young red dragon coiled circle-safe"
+    },
+    {
+     "id": "dragon_young_blue",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "4x4",
+     "description": "young blue dragon with folded wings"
+    },
+    {
+     "id": "dragon_young_green",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "4x4",
+     "description": "young green dragon with folded wings"
+    },
+    {
+     "id": "dragon_young_black",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "4x4",
+     "description": "young black dragon with horns"
+    },
+    {
+     "id": "dragon_young_white",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "4x4",
+     "description": "young white dragon with icy spines"
+    },
+    {
+     "id": "dragon_adult_red",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "6x6",
+     "description": "adult red dragon coiled tightly to fit canvas"
+    },
+    {
+     "id": "dragon_adult_gold",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "6x6",
+     "description": "adult gold dragon with folded wings"
+    },
+    {
+     "id": "wyvern",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "wyvern with stinger tail"
+    },
+    {
+     "id": "pseudodragon",
+     "type": "TABLETOP_TOKEN",
+     "section": "DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "tiny pseudodragon familiar"
+    }
+   ]
+  },
+  {
+   "name": "ELEMENTAL AND OUTSIDER TOKENS",
+   "assets": [
+    {
+     "id": "air_elemental_medium",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "swirling air form with readable silhouette"
+    },
+    {
+     "id": "air_elemental_large",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "larger air elemental"
+    },
+    {
+     "id": "earth_elemental_medium",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "rocky humanoid"
+    },
+    {
+     "id": "earth_elemental_large",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "large rocky humanoid"
+    },
+    {
+     "id": "fire_elemental_medium",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "living flame, warm inked style, not neon"
+    },
+    {
+     "id": "fire_elemental_large",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "large living flame"
+    },
+    {
+     "id": "water_elemental_medium",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "wave-shaped humanoid"
+    },
+    {
+     "id": "water_elemental_large",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "large wave-shaped humanoid"
+    },
+    {
+     "id": "celestial_lantern_archon",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small floating celestial orb with subtle wings, no harsh glow"
+    },
+    {
+     "id": "hound_archon",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "dog-headed celestial warrior"
+    },
+    {
+     "id": "avoral_guardinal",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "winged avian celestial"
+    },
+    {
+     "id": "imp_familiar",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "tiny imp with folded wings"
+    },
+    {
+     "id": "quasit",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "tiny demonic familiar"
+    },
+    {
+     "id": "lemure",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "shapeless low fiend, not graphic"
+    },
+    {
+     "id": "dretch",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "squat demon"
+    },
+    {
+     "id": "hell_hound",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "infernal hound with ember markings"
+    },
+    {
+     "id": "barbed_devil",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "spined devil warrior"
+    },
+    {
+     "id": "chain_devil",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "chain-wrapped devil, no graphic gore"
+    },
+    {
+     "id": "erinyes_archer",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "winged fiend archer"
+    },
+    {
+     "id": "succubus_tempter",
+     "type": "TABLETOP_TOKEN",
+     "section": "ELEMENTAL AND OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "winged fiend spellcaster, tasteful fantasy design"
+    }
+   ]
+  },
+  {
+   "name": "CONSTRUCT AND OOZE TOKENS",
+   "assets": [
+    {
+     "id": "animated_armor",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "empty animated armor with sword"
+    },
+    {
+     "id": "animated_table",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "animated wooden table"
+    },
+    {
+     "id": "animated_statue",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "stone statue construct"
+    },
+    {
+     "id": "homunculus",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "tiny alchemical construct"
+    },
+    {
+     "id": "shield_guardian",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "bulky shield-bearing guardian construct"
+    },
+    {
+     "id": "stone_golem",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "carved stone golem"
+    },
+    {
+     "id": "iron_golem",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "heavy iron golem"
+    },
+    {
+     "id": "flesh_golem",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "stitched construct, stylized not graphic"
+    },
+    {
+     "id": "gelatinous_cube",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "translucent cube with subtle internal debris"
+    },
+    {
+     "id": "gray_ooze",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "flat gray ooze puddle"
+    },
+    {
+     "id": "ochre_jelly",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "yellow-brown jelly mass"
+    },
+    {
+     "id": "black_pudding",
+     "type": "TABLETOP_TOKEN",
+     "section": "CONSTRUCT AND OOZE TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "dark viscous ooze"
+    }
+   ]
+  },
+  {
+   "name": "PLANT AND FEY TOKENS",
+   "assets": [
+    {
+     "id": "dryad",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLANT AND FEY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "tree spirit humanoid"
+    },
+    {
+     "id": "pixie",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLANT AND FEY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "tiny winged fey, wings inside circle"
+    },
+    {
+     "id": "satyr",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLANT AND FEY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "goat-legged fey with pipes"
+    },
+    {
+     "id": "nymph",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLANT AND FEY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "graceful fey guardian, tasteful"
+    },
+    {
+     "id": "treant",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLANT AND FEY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "walking ancient tree"
+    },
+    {
+     "id": "assassin_vine",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLANT AND FEY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "grasping vine mass"
+    },
+    {
+     "id": "shambling_mound",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLANT AND FEY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "walking swamp vegetation"
+    },
+    {
+     "id": "violet_fungus",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLANT AND FEY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "cluster of violet fungus stalks"
+    },
+    {
+     "id": "shrieker_fungus",
+     "type": "TABLETOP_TOKEN",
+     "section": "PLANT AND FEY TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "pale mushroom cluster"
+    }
+   ]
+  },
+  {
+   "name": "SWARM AND SUMMONING TOKENS",
+   "assets": [
+    {
+     "id": "celestial_eagle_summon",
+     "type": "TABLETOP_TOKEN",
+     "section": "SWARM AND SUMMONING TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "celestial-marked eagle"
+    },
+    {
+     "id": "fiendish_wolf_summon",
+     "type": "TABLETOP_TOKEN",
+     "section": "SWARM AND SUMMONING TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "fiendish-marked wolf"
+    },
+    {
+     "id": "celestial_bison_summon",
+     "type": "TABLETOP_TOKEN",
+     "section": "SWARM AND SUMMONING TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "celestial bison"
+    },
+    {
+     "id": "fiendish_giant_spider_summon",
+     "type": "TABLETOP_TOKEN",
+     "section": "SWARM AND SUMMONING TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "fiendish giant spider"
+    },
+    {
+     "id": "small_fire_summon",
+     "type": "TABLETOP_TOKEN",
+     "section": "SWARM AND SUMMONING TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "minor fire creature"
+    },
+    {
+     "id": "small_earth_summon",
+     "type": "TABLETOP_TOKEN",
+     "section": "SWARM AND SUMMONING TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "minor earth creature"
+    },
+    {
+     "id": "insect_swarm",
+     "type": "TABLETOP_TOKEN",
+     "section": "SWARM AND SUMMONING TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "dense swarm cloud, circle-safe"
+    },
+    {
+     "id": "spider_swarm",
+     "type": "TABLETOP_TOKEN",
+     "section": "SWARM AND SUMMONING TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "many small spiders, not graphic"
+    },
+    {
+     "id": "centipede_swarm",
+     "type": "TABLETOP_TOKEN",
+     "section": "SWARM AND SUMMONING TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "centipede swarm, readable"
+    }
+   ]
+  },
+  {
+   "name": "MAGICAL BEAST TOKENS",
+   "assets": [
+    {
+     "id": "owlbear",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "bear-owl hybrid with hooked beak and claws"
+    },
+    {
+     "id": "griffon",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "eagle-lion griffon, wings folded circle-safe"
+    },
+    {
+     "id": "hippogriff",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "horse-eagle hippogriff, wings tucked"
+    },
+    {
+     "id": "pegasus",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "winged horse with wings tucked inside circle"
+    },
+    {
+     "id": "unicorn",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "noble horned unicorn"
+    },
+    {
+     "id": "worg",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "large evil wolf, worg"
+    },
+    {
+     "id": "winter_wolf",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "white frost wolf"
+    },
+    {
+     "id": "blink_dog",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "tan teleporting hound"
+    },
+    {
+     "id": "displacer_beast",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "six-legged panther with two tentacles"
+    },
+    {
+     "id": "bulette",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "armored land-shark burrower"
+    },
+    {
+     "id": "ankheg",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "insectoid burrower with mandibles"
+    },
+    {
+     "id": "basilisk",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "eight-legged reptile"
+    },
+    {
+     "id": "cockatrice",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "rooster-lizard cockatrice"
+    },
+    {
+     "id": "chimera",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "lion-goat-dragon three-headed beast"
+    },
+    {
+     "id": "manticore",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "lion body, bat wings, spiked tail"
+    },
+    {
+     "id": "hydra_five_head",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "five-headed reptilian hydra"
+    },
+    {
+     "id": "gorgon",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "iron-plated bull"
+    },
+    {
+     "id": "behir",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "many-legged serpentine beast, coiled circle-safe"
+    },
+    {
+     "id": "sea_cat",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "finned lion-fish predator"
+    },
+    {
+     "id": "gynosphinx",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "winged lion with a woman's head"
+    },
+    {
+     "id": "phase_spider",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "large violet phase spider"
+    },
+    {
+     "id": "girallon",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "four-armed white ape"
+    },
+    {
+     "id": "choker",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small grasping aberration with long arms"
+    },
+    {
+     "id": "darkmantle",
+     "type": "TABLETOP_TOKEN",
+     "section": "MAGICAL BEAST TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "cave-clinging mantle creature"
+    }
+   ]
+  },
+  {
+   "name": "ADDITIONAL ANIMAL AND VERMIN TOKENS",
+   "assets": [
+    {
+     "id": "elephant",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ANIMAL AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "tusked elephant"
+    },
+    {
+     "id": "camel",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ANIMAL AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "saddled or wild camel"
+    },
+    {
+     "id": "rhinoceros",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ANIMAL AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "horned rhinoceros"
+    },
+    {
+     "id": "ape",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ANIMAL AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "great ape"
+    },
+    {
+     "id": "dire_badger",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ANIMAL AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "oversized dire badger"
+    },
+    {
+     "id": "monitor_lizard",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ANIMAL AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "large monitor lizard"
+    },
+    {
+     "id": "giant_frog",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ANIMAL AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "oversized frog"
+    },
+    {
+     "id": "giant_ant",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ANIMAL AND VERMIN TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "soldier giant ant"
+    }
+   ]
+  },
+  {
+   "name": "ADDITIONAL UNDEAD TOKENS",
+   "assets": [
+    {
+     "id": "spectre",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "gaunt spectral undead, subtle transparency"
+    },
+    {
+     "id": "ghost_apparition",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "translucent ghost, readable silhouette"
+    },
+    {
+     "id": "dread_wraith",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "large hooded wraith, subtle transparency"
+    },
+    {
+     "id": "devourer",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "gaunt undead with a trapped spirit in its ribcage"
+    },
+    {
+     "id": "skeletal_horse",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "undead skeletal steed"
+    },
+    {
+     "id": "zombie_dog",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL UNDEAD TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "shambling undead hound"
+    }
+   ]
+  },
+  {
+   "name": "ADDITIONAL GIANT TOKENS",
+   "assets": [
+    {
+     "id": "cloud_giant",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL GIANT TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "regal cloud giant with morningstar"
+    },
+    {
+     "id": "storm_giant",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL GIANT TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "violet-skinned storm giant with greatsword"
+    },
+    {
+     "id": "cyclops",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL GIANT TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "one-eyed cyclops with club"
+    },
+    {
+     "id": "fomorian",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL GIANT TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "misshapen fomorian giant"
+    }
+   ]
+  },
+  {
+   "name": "ADDITIONAL OUTSIDER TOKENS",
+   "assets": [
+    {
+     "id": "balor",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "winged flaming demon lord with sword and whip"
+    },
+    {
+     "id": "marilith",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "six-armed serpent-bodied demon"
+    },
+    {
+     "id": "vrock",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "vulture-headed demon"
+    },
+    {
+     "id": "hezrou",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "toad-like demon brute"
+    },
+    {
+     "id": "glabrezu",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "dog-headed pincered demon"
+    },
+    {
+     "id": "bone_devil",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "skeletal scorpion-tailed devil"
+    },
+    {
+     "id": "pit_fiend",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "winged armored arch-devil"
+    },
+    {
+     "id": "planetar",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL OUTSIDER TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "green-skinned winged celestial with greatsword"
+    }
+   ]
+  },
+  {
+   "name": "ADDITIONAL ABERRATION TOKENS",
+   "assets": [
+    {
+     "id": "aboleth",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "huge fish-like aberration with tentacles"
+    },
+    {
+     "id": "roper",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "stalagmite-shaped predator with tendrils"
+    },
+    {
+     "id": "will_o_wisp",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "floating eerie light orb, subtle glow"
+    },
+    {
+     "id": "drider",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "dark elf torso on a spider body"
+    },
+    {
+     "id": "grell",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL ABERRATION TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "floating brain-shaped aberration with beak and tentacles"
+    }
+   ]
+  },
+  {
+   "name": "ADDITIONAL CONSTRUCT TOKENS",
+   "assets": [
+    {
+     "id": "clay_golem",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL CONSTRUCT TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "crude clay humanoid golem"
+    },
+    {
+     "id": "retriever",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL CONSTRUCT TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "four-legged spider-like construct"
+    },
+    {
+     "id": "animated_object_generic",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL CONSTRUCT TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "generic animated object with faint runes"
+    }
+   ]
+  },
+  {
+   "name": "ADDITIONAL DRAGON TOKENS",
+   "assets": [
+    {
+     "id": "dragon_wyrmling_white",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small white dragon wyrmling with icy spines"
+    },
+    {
+     "id": "dragon_wyrmling_blue",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small blue dragon wyrmling with horn"
+    },
+    {
+     "id": "dragon_wyrmling_brass",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small brass dragon wyrmling"
+    },
+    {
+     "id": "dragon_wyrmling_bronze",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small bronze dragon wyrmling"
+    },
+    {
+     "id": "dragon_wyrmling_copper",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small copper dragon wyrmling"
+    },
+    {
+     "id": "dragon_wyrmling_silver",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small silver dragon wyrmling"
+    },
+    {
+     "id": "dragon_turtle",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL DRAGON TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "3x3",
+     "description": "huge armored dragon turtle"
+    }
+   ]
+  },
+  {
+   "name": "ADDITIONAL NPC TOKENS",
+   "assets": [
+    {
+     "id": "mayor_burgomaster",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "town mayor in chain of office"
+    },
+    {
+     "id": "town_crier",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "crier with handbell"
+    },
+    {
+     "id": "fisherman",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "fisher with net and basket"
+    },
+    {
+     "id": "hunter_trapper",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "hunter with bow and pelts"
+    },
+    {
+     "id": "gravedigger",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "gravedigger with shovel"
+    },
+    {
+     "id": "jailer",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "burly jailer with key ring"
+    },
+    {
+     "id": "man_at_arms",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "armored soldier with sword"
+    },
+    {
+     "id": "court_wizard",
+     "type": "TABLETOP_TOKEN",
+     "section": "ADDITIONAL NPC TOKENS",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "robed advisor mage with staff"
+    }
+   ]
+  },
+  {
+   "name": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+   "assets": [
+    {
+     "id": "wooden_door_closed",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "closed wooden door top-down"
+    },
+    {
+     "id": "wooden_door_open",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "open wooden door top-down"
+    },
+    {
+     "id": "iron_door_closed",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "closed iron door"
+    },
+    {
+     "id": "portcullis",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "iron portcullis"
+    },
+    {
+     "id": "stone_pillar_intact",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "intact stone pillar"
+    },
+    {
+     "id": "stone_pillar_broken",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "broken stone pillar"
+    },
+    {
+     "id": "rubble_pile",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "dungeon rubble"
+    },
+    {
+     "id": "large_rubble_field",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "larger rubble"
+    },
+    {
+     "id": "treasure_chest_closed",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "closed treasure chest"
+    },
+    {
+     "id": "treasure_chest_open",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "open treasure chest with coins"
+    },
+    {
+     "id": "locked_strongbox",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "iron strongbox"
+    },
+    {
+     "id": "barrel",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "wooden barrel"
+    },
+    {
+     "id": "crate",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "wooden crate"
+    },
+    {
+     "id": "crate_stack",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "stacked crates"
+    },
+    {
+     "id": "sack_pile",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "sacks of grain"
+    },
+    {
+     "id": "table_round",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "round tavern table"
+    },
+    {
+     "id": "table_long",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "long wooden table"
+    },
+    {
+     "id": "bench",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "wooden bench"
+    },
+    {
+     "id": "chair",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "simple chair"
+    },
+    {
+     "id": "bed_simple",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x2",
+     "description": "simple bed"
+    },
+    {
+     "id": "bookshelf",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "top-down bookshelf"
+    },
+    {
+     "id": "altar_stone",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "stone altar"
+    },
+    {
+     "id": "statue_knight",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "knight statue"
+    },
+    {
+     "id": "statue_dragon",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "dragon statue"
+    },
+    {
+     "id": "brazier_lit",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "lit brazier, controlled warm flame"
+    },
+    {
+     "id": "brazier_unlit",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "unlit brazier"
+    },
+    {
+     "id": "campfire_lit",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small campfire"
+    },
+    {
+     "id": "torch_wall",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "wall torch angled top-down"
+    },
+    {
+     "id": "fountain_round",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "round stone fountain"
+    },
+    {
+     "id": "well_stone",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "stone well"
+    },
+    {
+     "id": "wagon",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "wooden wagon"
+    },
+    {
+     "id": "cart_hand",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small handcart"
+    },
+    {
+     "id": "market_stall",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "canvas market stall"
+    },
+    {
+     "id": "anvil",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "blacksmith anvil"
+    },
+    {
+     "id": "weapon_rack",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "weapon rack"
+    },
+    {
+     "id": "armor_stand",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "armor stand"
+    },
+    {
+     "id": "hay_bale",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "hay bale"
+    },
+    {
+     "id": "ladder",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x2",
+     "description": "ladder top-down"
+    },
+    {
+     "id": "rope_coil",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "coil of rope"
+    },
+    {
+     "id": "magic_circle",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "chalk ritual circle with abstract marks only, no readable text"
+    },
+    {
+     "id": "bloodless_ritual_altar",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "ominous altar without gore"
+    },
+    {
+     "id": "sarcophagus_closed",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x2",
+     "description": "closed stone sarcophagus"
+    },
+    {
+     "id": "sarcophagus_open",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x2",
+     "description": "open sarcophagus"
+    },
+    {
+     "id": "gravestone",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "blank gravestone, no text"
+    },
+    {
+     "id": "bone_pile",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "old bones, not graphic"
+    },
+    {
+     "id": "puddle_water",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "water puddle"
+    },
+    {
+     "id": "puddle_slime",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: DUNGEON, TAVERN, AND TOWN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "greenish slime puddle"
+    }
+   ]
+  },
+  {
+   "name": "PROP TOKENS: WILDERNESS AND TERRAIN",
+   "assets": [
+    {
+     "id": "tree_oak",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "top-down oak tree canopy"
+    },
+    {
+     "id": "tree_pine",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "top-down pine tree"
+    },
+    {
+     "id": "tree_dead",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "dead tree"
+    },
+    {
+     "id": "bush",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "dense bush"
+    },
+    {
+     "id": "brambles",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "thorny bramble patch"
+    },
+    {
+     "id": "boulder_small",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small boulder"
+    },
+    {
+     "id": "boulder_large",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "large boulder"
+    },
+    {
+     "id": "fallen_log",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "fallen log"
+    },
+    {
+     "id": "stump",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "tree stump"
+    },
+    {
+     "id": "mushrooms_cluster",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "fantasy mushroom cluster"
+    },
+    {
+     "id": "shallow_stream_piece",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "transparent-edged stream segment"
+    },
+    {
+     "id": "bridge_wooden",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "wooden bridge"
+    },
+    {
+     "id": "cliff_edge",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "rocky cliff edge piece"
+    },
+    {
+     "id": "cave_stalagmites",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "stalagmite cluster"
+    },
+    {
+     "id": "cave_crystals",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "muted cave crystals"
+    },
+    {
+     "id": "snow_drift",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "snow drift"
+    },
+    {
+     "id": "desert_rock",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "desert rock"
+    },
+    {
+     "id": "swamp_reeds",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "swamp reeds"
+    },
+    {
+     "id": "lava_crack",
+     "type": "PROP_TOKEN",
+     "section": "PROP TOKENS: WILDERNESS AND TERRAIN",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "cracked stone with muted lava glow"
+    }
+   ]
+  },
+  {
+   "name": "MARKER AND STATUS SPRITES",
+   "assets": [
+    {
+     "id": "party_banner_marker",
+     "type": "PROP_TOKEN",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small blank party banner marker, no emblem text"
+    },
+    {
+     "id": "you_are_here_pin",
+     "type": "PROP_TOKEN",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "parchment map pin marker, no text"
+    },
+    {
+     "id": "destination_flag_marker",
+     "type": "PROP_TOKEN",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "small blank destination flag"
+    },
+    {
+     "id": "trap_marker_generic",
+     "type": "PROP_TOKEN",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "subtle spiked trap marker, no symbol text"
+    },
+    {
+     "id": "secret_door_marker",
+     "type": "PROP_TOKEN",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "subtle cracked wall marker"
+    },
+    {
+     "id": "area_target_marker",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "circular target-like magic mark with no text"
+    },
+    {
+     "id": "condition_blinded",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "closed eye pictogram"
+    },
+    {
+     "id": "condition_deafened",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "muted ear pictogram, no slash text"
+    },
+    {
+     "id": "condition_stunned",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "dazed star swirl pictogram"
+    },
+    {
+     "id": "condition_prone",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "fallen figure pictogram"
+    },
+    {
+     "id": "condition_grappled",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "binding rope pictogram"
+    },
+    {
+     "id": "condition_poisoned",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "green vial pictogram"
+    },
+    {
+     "id": "condition_diseased",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "sickly blot pictogram"
+    },
+    {
+     "id": "condition_frightened",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "trembling mask pictogram"
+    },
+    {
+     "id": "condition_invisible",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "fading silhouette pictogram"
+    },
+    {
+     "id": "condition_flying",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "wing pictogram"
+    },
+    {
+     "id": "condition_hasted",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "swift boot pictogram"
+    },
+    {
+     "id": "condition_slowed",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "heavy boot pictogram"
+    },
+    {
+     "id": "condition_blessed",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "warm sunburst pictogram"
+    },
+    {
+     "id": "condition_cursed",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "cracked black charm pictogram"
+    },
+    {
+     "id": "spell_area_burst",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "soft circular burst template marker, no numbers"
+    },
+    {
+     "id": "spell_area_cone",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "cone area marker pictogram"
+    },
+    {
+     "id": "spell_area_line",
+     "type": "STATUS_MARKER",
+     "section": "MARKER AND STATUS SPRITES",
+     "canvas": "256x256",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": null,
+     "description": "straight line area marker pictogram"
+    }
+   ]
+  },
+  {
+   "name": "ITEM SPRITES",
+   "assets": [
+    {
+     "id": "longsword_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "single longsword"
+    },
+    {
+     "id": "greatsword_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "single greatsword"
+    },
+    {
+     "id": "battleaxe_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "battleaxe"
+    },
+    {
+     "id": "greataxe_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "greataxe"
+    },
+    {
+     "id": "mace_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "heavy mace"
+    },
+    {
+     "id": "warhammer_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "warhammer"
+    },
+    {
+     "id": "spear_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "spear angled within circle"
+    },
+    {
+     "id": "longbow_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "longbow and arrow"
+    },
+    {
+     "id": "crossbow_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "light crossbow"
+    },
+    {
+     "id": "dagger_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "dagger"
+    },
+    {
+     "id": "shield_wood_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "wooden shield"
+    },
+    {
+     "id": "shield_steel_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "steel shield"
+    },
+    {
+     "id": "chainmail_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "folded chainmail"
+    },
+    {
+     "id": "plate_armor_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "plate armor torso"
+    },
+    {
+     "id": "potion_red_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "red potion vial"
+    },
+    {
+     "id": "potion_blue_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "blue potion vial"
+    },
+    {
+     "id": "scroll_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "rolled parchment scroll, no text"
+    },
+    {
+     "id": "spellbook_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "closed spellbook with blank cover"
+    },
+    {
+     "id": "wand_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "slender wand"
+    },
+    {
+     "id": "staff_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "quarterstaff"
+    },
+    {
+     "id": "ring_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "simple magic ring"
+    },
+    {
+     "id": "amulet_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "amulet"
+    },
+    {
+     "id": "coin_pouch_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "coin pouch"
+    },
+    {
+     "id": "gem_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "cut gem"
+    },
+    {
+     "id": "key_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "old iron key"
+    },
+    {
+     "id": "thieves_tools_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "lockpick tools"
+    },
+    {
+     "id": "holy_symbol_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "generic holy symbol, no specific real-world symbol and no text"
+    },
+    {
+     "id": "rations_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "trail rations"
+    },
+    {
+     "id": "lantern_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "hooded lantern"
+    },
+    {
+     "id": "backpack_item",
+     "type": "PROP_TOKEN",
+     "section": "ITEM SPRITES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "adventurer backpack"
+    }
+   ]
+  },
+  {
+   "name": "BATTLE MAPS",
+   "assets": [
+    {
+     "id": "stone_dungeon_room",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, stone chamber, broken pillars, rubble, central dais, no grid"
+    },
+    {
+     "id": "dungeon_crossroads",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, four-way corridor junction with alcoves, no grid"
+    },
+    {
+     "id": "dungeon_prison_block",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, cells, barred doors, guard room, no grid"
+    },
+    {
+     "id": "dungeon_trap_hall",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, long hall with pressure plates and side niches, no grid and no labels"
+    },
+    {
+     "id": "crypt_chamber",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, sarcophagi, cracked stone, altar, no grid"
+    },
+    {
+     "id": "temple_sanctum",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, ruined temple sanctum, columns, ritual floor pattern without text, no grid"
+    },
+    {
+     "id": "tavern_ground_floor",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, tavern common room, bar, tables, hearth, no grid"
+    },
+    {
+     "id": "inn_guest_rooms",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, inn hallway and small guest rooms, no grid"
+    },
+    {
+     "id": "village_street_market",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, village street with stalls and carts, no grid"
+    },
+    {
+     "id": "blacksmith_workshop",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, forge, anvil, racks, worktables, no grid"
+    },
+    {
+     "id": "forest_clearing",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, forest clearing with trees, logs, rocks, no grid"
+    },
+    {
+     "id": "forest_road_ambush",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, winding road through dense woods, ambush cover, no grid"
+    },
+    {
+     "id": "cave_entrance",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, rocky cave mouth and outside approach, no grid"
+    },
+    {
+     "id": "cavern_lake",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, underground lake, ledges, stalagmites, no grid"
+    },
+    {
+     "id": "mushroom_cavern",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, large fungi, damp stone, no grid"
+    },
+    {
+     "id": "sewer_crossing",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, sewer channels, bridges, walkways, no grid"
+    },
+    {
+     "id": "bridge_over_chasm",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, narrow bridge crossing dark chasm, no grid"
+    },
+    {
+     "id": "river_ford",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, shallow river crossing and rocks, no grid"
+    },
+    {
+     "id": "swamp_boardwalk",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, swamp water, wooden walkways, reeds, no grid"
+    },
+    {
+     "id": "desert_ruins",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, sandy ruins, fallen columns, no grid"
+    },
+    {
+     "id": "snowy_pass",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, icy mountain pass, boulders, snow drifts, no grid"
+    },
+    {
+     "id": "ship_deck",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, wooden sailing ship deck, mast, cargo, no grid"
+    },
+    {
+     "id": "wizard_laboratory",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, arcane lab, tables, books, apparatus, no readable text, no grid"
+    },
+    {
+     "id": "throne_room",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, castle throne room, pillars, carpets, no grid"
+    },
+    {
+     "id": "graveyard_night",
+     "type": "BATTLE_MAP",
+     "section": "BATTLE MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "32x24 invisible 64 px cells, graveyard with blank stones, crypt entrance, no text, no grid"
+    }
+   ]
+  },
+  {
+   "name": "CITY AND WORLD MAPS",
+   "assets": [
+    {
+     "id": "regional_overland_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "parchment regional map with west coast, eastern mountains, central river, forests, roads, villages indicated by unlabeled icons"
+    },
+    {
+     "id": "kingdom_overland_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "larger kingdom map with coast, mountain range, plains, border roads, unlabeled settlements"
+    },
+    {
+     "id": "frontier_valley_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "valley map with river, keep, forest, hills, cave entrances, no labels"
+    },
+    {
+     "id": "island_campaign_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "island coastline, coves, inland jungle, ruins, roads, no labels"
+    },
+    {
+     "id": "walled_city_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "top-down city cartography with walls, gates, river, districts, streets, no labels"
+    },
+    {
+     "id": "port_city_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "harbor, docks, warehouses, old town, sea wall, no labels"
+    },
+    {
+     "id": "village_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "small village map with cottages, inn, temple, farms, road, stream, no labels"
+    },
+    {
+     "id": "dungeon_level_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "parchment-style dungeon overview map with rooms and corridors, no grid and no labels"
+    },
+    {
+     "id": "cave_network_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "cave network overview with chambers, underground stream, no labels"
+    },
+    {
+     "id": "planar_crossroads_map",
+     "type": "CITY_OR_WORLD_MAP",
+     "section": "CITY AND WORLD MAPS",
+     "canvas": "2048x1536",
+     "transparency": "opaque",
+     "format": "PNG",
+     "footprint": null,
+     "description": "stylized fantasy crossroads map with portals, standing stones, and roads, no labels and no readable symbols"
+    }
+   ]
+  },
+  {
+   "name": "MAP PIECES",
+   "assets": [
+    {
+     "id": "dungeon_floor_tile",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "seamless flagstone dungeon floor patch, tileable edges"
+    },
+    {
+     "id": "stone_wall_straight",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "straight dressed-stone dungeon wall run along a hex row"
+    },
+    {
+     "id": "stone_wall_corner",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "right-angle dungeon wall corner"
+    },
+    {
+     "id": "stone_wall_t_junction",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "T-shaped dungeon wall junction"
+    },
+    {
+     "id": "dungeon_corridor_straight",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "walled stone corridor section, tileable end to end"
+    },
+    {
+     "id": "dungeon_corridor_bend",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "walled corridor bend"
+    },
+    {
+     "id": "dungeon_doorway",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "doorway opening in a stone wall with timber frame"
+    },
+    {
+     "id": "dungeon_stairs",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "flight of stone stairs"
+    },
+    {
+     "id": "dungeon_pit",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "open floor pit with dark interior"
+    },
+    {
+     "id": "dungeon_rubble_floor",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "collapsed rubble-strewn floor patch"
+    },
+    {
+     "id": "cave_floor_tile",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "rough natural cavern floor patch, tileable"
+    },
+    {
+     "id": "cave_wall_edge",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "natural cavern wall boundary"
+    },
+    {
+     "id": "stalagmite_cluster_piece",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "1x1",
+     "description": "cluster of cave stalagmites"
+    },
+    {
+     "id": "deep_water_tile",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "deep water patch, tileable"
+    },
+    {
+     "id": "shallow_water_tile",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "shallow water or ford patch, tileable"
+    },
+    {
+     "id": "water_shore_edge",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "land-to-water shoreline boundary"
+    },
+    {
+     "id": "river_segment",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "flowing river section, tileable end to end"
+    },
+    {
+     "id": "wooden_bridge_segment",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "wooden bridge span for water or chasm"
+    },
+    {
+     "id": "grass_field_tile",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "open grass patch, tileable"
+    },
+    {
+     "id": "dense_woods_patch",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "dense forest canopy cluster, top-down"
+    },
+    {
+     "id": "dirt_road_straight",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "dirt road or trail section, tileable"
+    },
+    {
+     "id": "rocky_ground_patch",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "broken rocky terrain patch"
+    },
+    {
+     "id": "swamp_muck_tile",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "boggy muck and reeds, difficult terrain"
+    },
+    {
+     "id": "lava_flow_segment",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "molten lava channel with muted glow, tileable"
+    },
+    {
+     "id": "cobblestone_street",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x2",
+     "description": "paved town street patch, tileable"
+    },
+    {
+     "id": "building_wall_segment",
+     "type": "MAP_PIECE",
+     "section": "MAP PIECES",
+     "canvas": "512x512",
+     "transparency": "transparent",
+     "format": "PNG",
+     "footprint": "2x1",
+     "description": "timber-and-stone building wall run"
+    }
+   ]
+  }
+ ],
+ "byType": {
+  "CLASS_ICON": 11,
+  "PORTRAIT": 11,
+  "TABLETOP_TOKEN": 294,
+  "PROP_TOKEN": 101,
+  "STATUS_MARKER": 18,
+  "BATTLE_MAP": 25,
+  "CITY_OR_WORLD_MAP": 10,
+  "MAP_PIECE": 26
+ }
+}

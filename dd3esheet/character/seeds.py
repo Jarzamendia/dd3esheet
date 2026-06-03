@@ -770,8 +770,9 @@ def seed_all():
     wizard = seed_wizard(admin)
     druid = seed_druid(admin)
     ranger = seed_ranger(admin)
-    from sprites.seeds import seed_sprites
+    from sprites.seeds import seed_sprite_library, seed_sprites
     sprites = seed_sprites()
+    sprite_library = seed_sprite_library()
     return {
         'admin': admin,
         'fighter': fighter,
@@ -779,4 +780,5 @@ def seed_all():
         'druid': druid,
         'ranger': ranger,
         'sprites': sprites,
+        'sprite_library': sprite_library,
     }

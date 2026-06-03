@@ -6,6 +6,7 @@
 - `character/management/commands/seed.py`: comando `python manage.py seed`.
 - `sprites/seeds.py`: registros e bindings de imagens usados pela ficha, iniciativa e exemplos, sem criar arquivos.
 - `sprites/management/commands/seed_sprites.py`: comando `python manage.py seed_sprites`.
+- `sprites/management/commands/seed_sprite_library.py`: comando `python manage.py seed_sprite_library`, cria/atualiza os 496 placeholders do manifesto.
 
 ## Quando roda
 
@@ -50,8 +51,9 @@ Sprites:
 - classes principais usadas nos exemplos (`Fighter`, `Wizard`, `Druid`, `Ranger`);
 - tipos de combatente da iniciativa (`player`, `npc`, `enemy`);
 - monstros usados em invocacoes/companheiros de exemplo (`Brown Bear`, `Unicorn`, `Wolf`).
+- 496 placeholders publicos da Sprite Library, com `Slug` igual ao id snake_case do manifesto e `DefaultGridWidth/Height` derivados do footprint.
 
-O seed de sprites nao gera imagens. Ele prepara os registros e os bindings; as imagens reais devem ser enviadas depois por upload/admin.
+O seed de sprites nao gera imagens. Ele prepara os registros, bindings e placeholders; as imagens reais devem ser enviadas depois por upload/admin.
 
 Observacao: no codigo, alguns textos possuem caracteres acentuados. Ao editar arquivos, preserve o encoding e evite regravar arquivos grandes sem necessidade.
 
@@ -62,7 +64,8 @@ Observacao: no codigo, alguns textos possuem caracteres acentuados. Ao editar ar
 1. cria/repara o admin;
 2. apaga fichas de exemplo anteriores do mesmo dono/nome;
 3. recria as fichas completas;
-4. cria ou atualiza os sprites e bindings base.
+4. cria ou atualiza os sprites e bindings base;
+5. cria ou atualiza os 496 placeholders da Sprite Library.
 
 Isso torna seguro rodar o seed varias vezes em desenvolvimento.
 
@@ -73,7 +76,7 @@ from character.seeds import seed_all, seed_admin
 from character.seeds import seed_fighter, seed_wizard, seed_druid, seed_ranger
 from character.seeds import ADMIN_USERNAME, ADMIN_PASSWORD
 from character.seeds import FIGHTER_NAME, WIZARD_NAME, DRUID_NAME, RANGER_NAME
-from sprites.seeds import seed_sprites
+from sprites.seeds import seed_sprite_library, seed_sprites
 ```
 
 ## Como os derivados sao calculados

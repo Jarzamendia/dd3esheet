@@ -1,3 +1,4 @@
+from .manifest_data import all_assets, category_for_type, footprint_to_grid
 from .models import SpriteAsset, SpriteBinding
 
 
@@ -77,3 +78,28 @@ def seed_sprites():
         assets[monster_name] = asset
 
     return assets
+
+
+def seed_sprite_library():
+    summary = {'created': 0, 'updated': 0, 'total': 0}
+    for asset in all_assets():
+        grid_width, grid_height = footprint_to_grid(asset.get('footprint'))
+        _, was_created = SpriteAsset.objects.update_or_create(
+            Slug=asset['id'],
+            defaults={
+                'Name': asset['id'].replace('_', ' ').title(),
+                'Category': category_for_type(asset['type']),
+                'AltText': asset.get('description', ''),
+                'Visibility': SpriteAsset.PUBLIC,
+                'Owner': None,
+                'DefaultGridWidth': grid_width,
+                'DefaultGridHeight': grid_height,
+                'IsActive': True,
+            },
+        )
+        if was_created:
+            summary['created'] += 1
+        else:
+            summary['updated'] += 1
+    summary['total'] = summary['created'] + summary['updated']
+    return summary
