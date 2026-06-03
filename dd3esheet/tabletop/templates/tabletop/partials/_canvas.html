@@ -12,7 +12,7 @@ visão ao vivo (polling), pelo editor e pelas respostas de ação (move/fog).
     {% if map.Background %}
         <img class="tt-canvas__bg" src="{{ map.Background.original_url }}" alt="" draggable="false">
     {% endif %}
-    {% if map.ShowGrid and map.GridMode == 'square' %}<div class="tt-canvas__grid"></div>{% endif %}
+    {% if map.ShowGrid and map.GridMode == 'hex' %}<canvas class="tt-canvas__hexgrid" data-hexgrid width="{{ map.WidthPx }}" height="{{ map.HeightPx }}"></canvas>{% endif %}
     {% for fog in fogs %}{% include "tabletop/partials/_fog.html" %}{% endfor %}
     {% for t in tokens %}{% include "tabletop/partials/_token.html" %}{% endfor %}
 </div>

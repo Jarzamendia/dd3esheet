@@ -1,4 +1,5 @@
 import tempfile
+import math
 
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -7,7 +8,9 @@ from django.urls import reverse
 
 from sprites.models import SpriteAsset
 
-from .calculations import point_in_rect, snap_to_grid, token_visible_to
+from .calculations import (
+    hex_dimensions, nearest_hex_center, point_in_rect, snap_to_grid, token_visible_to,
+)
 from .models import FogRegion, GameTable, Map, Token
 
 
@@ -31,15 +34,30 @@ class _Fog:
 
 
 class CalcTests(SimpleTestCase):
-    def test_snap_square_centers_in_cell(self):
-        self.assertEqual(snap_to_grid(100, 30, 64, 'square'), (96, 32))
-        self.assertEqual(snap_to_grid(0, 0, 64, 'square'), (32, 32))
+    def test_hex_dimensions_pointy_top(self):
+        d = hex_dimensions(64)
+        # R = 64/sqrt(3); flat-to-flat width = GridSize.
+        self.assertAlmostEqual(d['radius'], 64 / math.sqrt(3), places=3)
+        self.assertAlmostEqual(d['width'], 64, places=3)
+        self.assertAlmostEqual(d['height'], 2 * 64 / math.sqrt(3), places=3)
+        self.assertAlmostEqual(d['col_spacing'], 64, places=3)
+        self.assertAlmostEqual(d['row_spacing'], 1.5 * 64 / math.sqrt(3), places=3)
+
+    def test_nearest_hex_center_origin(self):
+        self.assertEqual(nearest_hex_center(3, -2, 64), (0, 0))
+
+    def test_nearest_hex_center_is_idempotent_on_a_center(self):
+        cx, cy = nearest_hex_center(120, 90, 64)
+        self.assertEqual(nearest_hex_center(cx, cy, 64), (cx, cy))
+
+    def test_snap_hex_returns_a_hex_center(self):
+        self.assertEqual(snap_to_grid(120, 90, 64, 'hex'), nearest_hex_center(120, 90, 64))
 
     def test_snap_free_is_identity(self):
         self.assertEqual(snap_to_grid(123, 77, 64, 'free'), (123, 77))
 
     def test_snap_without_size_is_identity(self):
-        self.assertEqual(snap_to_grid(123, 77, 0, 'square'), (123, 77))
+        self.assertEqual(snap_to_grid(123, 77, 0, 'hex'), (123, 77))
 
     def test_point_in_rect(self):
         self.assertTrue(point_in_rect(50, 50, 0, 0, 100, 100))
@@ -70,12 +88,20 @@ class ModelTests(TestCase):
         self.assertFalse(Token.default_movable_for_kind(Token.OBJECT))
 
 
+class GridMigrationTests(TestCase):
+    def test_new_map_defaults_to_hex(self):
+        owner = User.objects.create_user('gm2', password='x' * 12)
+        table = GameTable.objects.create(Owner=owner, Name='Mesa')
+        m = Map.objects.create(Table=table, Name='Cena')
+        self.assertEqual(m.GridMode, Map.HEX)
+
+
 class _Base(TestCase):
     def setUp(self):
         self.owner = User.objects.create_user('owner', password='x' * 12)
         self.stranger = User.objects.create_user('stranger', password='x' * 12)
         self.table = GameTable.objects.create(Owner=self.owner, Name='Mesa')
-        self.map = Map.objects.create(Table=self.table, Name='Cena', GridMode=Map.SQUARE, GridSize=64)
+        self.map = Map.objects.create(Table=self.table, Name='Cena', GridMode=Map.HEX, GridSize=64)
         self.table.ActiveMap = self.map
         self.table.save()
 
@@ -135,14 +161,14 @@ class MoveTests(_Base):
         resp = self.client.post(self.url('move-token', tok.id), {'X': 100, 'Y': 30})
         self.assertEqual(resp.status_code, 200)
         tok.refresh_from_db()
-        self.assertEqual((tok.X, tok.Y), (96, 32))  # snap em grade 64
+        self.assertEqual((tok.X, tok.Y), nearest_hex_center(100, 30, 64))
 
     def test_anonymous_moves_movable_token_on_active_map(self):
         tok = self._player_token(movable=True, on_active=True)
         resp = self.client.post(self.url('move-token', tok.id), {'X': 200, 'Y': 200})
         self.assertEqual(resp.status_code, 200)
         tok.refresh_from_db()
-        self.assertEqual((tok.X, tok.Y), (224, 224))
+        self.assertEqual((tok.X, tok.Y), nearest_hex_center(200, 200, 64))
 
     def test_anonymous_cannot_move_enemy(self):
         tok = Token.objects.create(Map=self.map, Kind=Token.ENEMY, MovableByPlayers=False, X=0, Y=0)
@@ -178,6 +204,8 @@ class RenderTests(_Base):
         frag = self.client.get(self.url('live-fragment'))
         self.assertNotContains(frag, 'app-nav')           # só o canvas
         self.assertContains(frag, 'tt-canvas')
+        self.assertContains(frag, 'tt-canvas__hexgrid')
+        self.assertNotContains(frag, 'tt-canvas__grid')
 
     def test_owner_pages_render(self):
         self.client.force_login(self.owner)

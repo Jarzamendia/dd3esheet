@@ -36,9 +36,9 @@ class GameTable(models.Model):
 class Map(models.Model):
     """Uma cena dentro de uma mesa: fundo, grade e os tokens em cima dela."""
 
-    SQUARE, FREE = 'square', 'free'
+    HEX, FREE = 'hex', 'free'
     GRID_CHOICES = [
-        (SQUARE, 'Quadrada'),
+        (HEX, 'Hexagonal'),
         (FREE, 'Livre'),
     ]
 
@@ -48,7 +48,7 @@ class Map(models.Model):
     Table = models.ForeignKey(GameTable, on_delete=models.CASCADE)
     Name = models.CharField(max_length=120, default='Novo Mapa')
     Order = models.PositiveSmallIntegerField(default=0)
-    GridMode = models.CharField(max_length=8, choices=GRID_CHOICES, default=SQUARE)
+    GridMode = models.CharField(max_length=8, choices=GRID_CHOICES, default=HEX)
     Background = models.ForeignKey(
         'sprites.SpriteAsset', null=True, blank=True,
         on_delete=models.SET_NULL, related_name='tabletop_backgrounds',

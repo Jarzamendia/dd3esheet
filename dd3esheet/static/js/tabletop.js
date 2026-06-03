@@ -10,9 +10,20 @@
     var dragging = false;   // arrasto de token OU desenho de névoa em andamento
     var fogMode = false;    // modo "desenhar névoa" (botão do editor)
 
+    var SQ3 = Math.sqrt(3);
+    function cubeRound(q, r) {
+        var x = q, z = r, y = -x - z;
+        var rx = Math.round(x), ry = Math.round(y), rz = Math.round(z);
+        var dx = Math.abs(rx - x), dy = Math.abs(ry - y), dz = Math.abs(rz - z);
+        if (dx > dy && dx > dz) rx = -ry - rz; else if (dy > dz) ry = -rx - rz; else rz = -rx - ry;
+        return [rx, rz];
+    }
     function snap(x, y, mode, size) {
-        if (mode !== 'square' || !size) return [Math.round(x), Math.round(y)];
-        return [Math.floor(x / size) * size + (size >> 1), Math.floor(y / size) * size + (size >> 1)];
+        if (mode !== 'hex' || !size) return [Math.round(x), Math.round(y)];
+        var R = size / SQ3;
+        var a = cubeRound((SQ3 / 3 * x - 1 / 3 * y) / R, (2 / 3 * y) / R);
+        var cx = SQ3 * R * (a[0] + a[1] / 2), cy = 1.5 * R * a[1];
+        return [Math.round(cx), Math.round(cy)];
     }
 
     function canvasPoint(canvas, ev) {
@@ -117,4 +128,34 @@
         document.addEventListener('pointermove', move);
         document.addEventListener('pointerup', up);
     }
+    function drawHexGrid(cv) {
+        var size = parseInt(cv.parentElement.dataset.gridSize, 10) || 64;
+        var R = size / SQ3, w = cv.width, h = cv.height;
+        var g = cv.getContext('2d');
+        g.clearRect(0, 0, w, h);
+        g.strokeStyle = 'rgba(43,38,34,0.28)';
+        g.lineWidth = 1;
+        var rTop = -1, rBot = Math.ceil(h / (1.5 * R)) + 1;
+        for (var r = rTop; r <= rBot; r++) {
+            var qLeft = Math.floor((-(R * SQ3)) / (R * SQ3) - r / 2) - 1;
+            var qRight = Math.ceil((w / (R * SQ3)) - r / 2) + 1;
+            for (var q = qLeft; q <= qRight; q++) {
+                var cx = SQ3 * R * (q + r / 2), cy = 1.5 * R * r;
+                g.beginPath();
+                for (var i = 0; i < 6; i++) {
+                    var a = Math.PI / 180 * (60 * i - 30);
+                    var px = cx + R * Math.cos(a), py = cy + R * Math.sin(a);
+                    if (i === 0) g.moveTo(px, py); else g.lineTo(px, py);
+                }
+                g.closePath();
+                g.stroke();
+            }
+        }
+    }
+    function drawAllHexGrids() {
+        document.querySelectorAll('canvas[data-hexgrid]').forEach(drawHexGrid);
+    }
+    document.body.addEventListener('htmx:afterSwap', drawAllHexGrids);
+    if (document.readyState !== 'loading') drawAllHexGrids();
+    else document.addEventListener('DOMContentLoaded', drawAllHexGrids);
 })();

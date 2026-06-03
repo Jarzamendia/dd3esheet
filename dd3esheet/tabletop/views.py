@@ -30,7 +30,7 @@ def _clean_kind(value):
 
 
 def _clean_grid(value):
-    return value if value in {Map.SQUARE, Map.FREE} else Map.SQUARE
+    return value if value in {Map.HEX, Map.FREE} else Map.HEX
 
 
 def _is_owner(request, table):

@@ -26,10 +26,10 @@
             {% csrf_token %}
             <input type="text" name="Name" value="{{ m.Name }}" maxlength="120">
             <select name="GridMode">
-                <option value="square" {% if m.GridMode == 'square' %}selected{% endif %}>Quadrada</option>
+                <option value="hex" {% if m.GridMode == 'hex' %}selected{% endif %}>Hexagonal</option>
                 <option value="free" {% if m.GridMode == 'free' %}selected{% endif %}>Livre</option>
             </select>
-            <label class="tt-inline">Célula(px)
+            <label class="tt-inline">Hex(px)
                 <input type="number" name="GridSize" value="{{ m.GridSize }}" min="8" max="256">
             </label>
             <label class="tt-inline">

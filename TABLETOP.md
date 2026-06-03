@@ -188,7 +188,7 @@ Diferente do `initiative` (só viewers fazem polling), aqui **dono e jogadores**
 7. [x] Arrasto (`tabletop.js`) + endpoint `move_token` + testes.
 8. [x] Névoa retangular (desenhar/remover) + testes.
 9. [x] Polish + docs (`docs/architecture.md`, `AGENTS.md`) + suíte completa (22 testes do app verdes).
-10. [ ] Migração da grade `square` para `hex` pointy-top em modelos, cálculos, CSS/JS e testes.
+10. [x] Migração da grade `square` para `hex` pointy-top em modelos, cálculos, CSS/JS e testes.
 
 > Itens 1-9 implementados numa única passada; 22 testes do app `tabletop` verdes
 > (`python manage.py test tabletop`) na implementação original. A migração hexagonal do item 10 é uma

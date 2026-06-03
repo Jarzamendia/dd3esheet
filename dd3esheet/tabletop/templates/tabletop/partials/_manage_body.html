@@ -5,7 +5,7 @@
     {% csrf_token %}
     <input type="text" name="Name" placeholder="Nome do mapa" maxlength="120" required>
     <select name="GridMode" aria-label="Tipo de grade">
-        <option value="square">Grade quadrada (batalha/dungeon)</option>
+        <option value="hex">Grade hexagonal (batalha/dungeon)</option>
         <option value="free">Livre (mundi/cidade)</option>
     </select>
     <label class="tt-file">Fundo (upload)
