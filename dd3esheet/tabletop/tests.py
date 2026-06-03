@@ -9,7 +9,7 @@ from django.urls import reverse
 from sprites.models import SpriteAsset
 
 from .calculations import (
-    hex_dimensions, nearest_hex_center, point_in_rect, snap_to_grid, token_visible_to,
+    axial_to_pixel, hex_dimensions, nearest_hex_center, point_in_rect, snap_to_grid, token_visible_to,
 )
 from .models import FogRegion, GameTable, Map, Token
 
@@ -45,6 +45,9 @@ class CalcTests(SimpleTestCase):
 
     def test_nearest_hex_center_origin(self):
         self.assertEqual(nearest_hex_center(3, -2, 64), (0, 0))
+
+    def test_axial_to_pixel_matches_pointy_top_geometry(self):
+        self.assertEqual(axial_to_pixel(1, -2, 64), (0, -111))
 
     def test_nearest_hex_center_is_idempotent_on_a_center(self):
         cx, cy = nearest_hex_center(120, 90, 64)
@@ -212,6 +215,26 @@ class RenderTests(_Base):
         self.assertEqual(self.client.get(reverse('tabletop:home')).status_code, 200)
         self.assertEqual(self.client.get(self.url('editor', self.map.id)).status_code, 200)
 
+    def test_editor_renders_scene_creator_chrome(self):
+        self.client.force_login(self.owner)
+        resp = self.client.get(self.url('editor', self.map.id))
+        self.assertContains(resp, 'tabletop_editor.js')
+        self.assertContains(resp, 'id="tt-stage"')
+        self.assertContains(resp, 'id="tt-world"')
+        self.assertContains(resp, 'id="tt-palette"')
+        self.assertContains(resp, 'id="tt-layers"')
+        self.assertContains(resp, 'data-add-token-url')
+        self.assertContains(resp, 'data-paint-terrain-url')
+
+    def test_canvas_renders_terrain_and_token_rotation(self):
+        from tabletop.models import TerrainCell
+        TerrainCell.objects.create(Map=self.map, Q=1, R=-2)
+        Token.objects.create(Map=self.map, Kind=Token.ENEMY, Rotation=90, X=0, Y=0)
+        resp = self.client.get(self.url('live-fragment'))
+        self.assertContains(resp, 'tt-terrain')
+        self.assertContains(resp, 'left:0px; top:-111px')
+        self.assertContains(resp, 'rotate(90deg)')
+
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class UploadTests(_Base):
@@ -255,3 +278,92 @@ class ThemeTests(TestCase):
         self.assertIn('tt-themed', html)
         # stylesheet compartilhado dos tokens esta linkado
         self.assertIn('parchment-theme.css', html)
+
+
+class TerrainModelTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user('gmC', password='x' * 12)
+        self.table = GameTable.objects.create(Owner=self.owner, Name='Mesa C')
+        self.map = Map.objects.create(Table=self.table, Name='Cena')
+
+    def test_token_rotation_defaults_zero(self):
+        tok = Token.objects.create(Map=self.map, Kind=Token.ENEMY)
+        self.assertEqual(tok.Rotation, 0)
+
+    def test_terrain_cell_unique_per_axial(self):
+        from tabletop.models import TerrainCell
+        TerrainCell.objects.create(Map=self.map, Q=1, R=-2)
+        with self.assertRaises(Exception):
+            TerrainCell.objects.create(Map=self.map, Q=1, R=-2)
+
+
+class EditorEndpointTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user('gmE', password='x' * 12)
+        self.table = GameTable.objects.create(Owner=self.owner, Name='Mesa E')
+        self.map = Map.objects.create(Table=self.table, Name='Cena', GridMode=Map.HEX)
+        self.table.ActiveMap = self.map
+        self.table.save()
+        self.client.force_login(self.owner)
+
+    def test_add_token_with_position_snaps_to_hex(self):
+        url = reverse('tabletop:add-token', args=[self.table.Slug])
+        resp = self.client.post(url, {'MapId': self.map.id, 'Kind': 'enemy', 'X': 120, 'Y': 90})
+        self.assertEqual(resp.status_code, 200)
+        tok = Token.objects.filter(Map=self.map).latest('id')
+        self.assertEqual((tok.X, tok.Y), nearest_hex_center(120, 90, self.map.GridSize))
+
+    def test_edit_token_sets_rotation(self):
+        tok = Token.objects.create(Map=self.map, Kind=Token.ENEMY)
+        url = reverse('tabletop:edit-token', args=[self.table.Slug, tok.id])
+        self.client.post(url, {'Rotation': 90})
+        tok.refresh_from_db()
+        self.assertEqual(tok.Rotation, 90)
+
+    def test_move_token_can_update_rotation(self):
+        tok = Token.objects.create(Map=self.map, Kind=Token.ENEMY)
+        url = reverse('tabletop:move-token', args=[self.table.Slug, tok.id])
+        self.client.post(url, {'X': 120, 'Y': 90, 'Rotation': 450})
+        tok.refresh_from_db()
+        self.assertEqual(tok.Rotation, 90)
+
+    def test_owner_move_from_editor_returns_editor_body(self):
+        tok = Token.objects.create(Map=self.map, Kind=Token.ENEMY)
+        url = reverse('tabletop:move-token', args=[self.table.Slug, tok.id])
+        resp = self.client.post(
+            url, {'X': 120, 'Y': 90},
+            HTTP_HX_REQUEST='true', HTTP_HX_TARGET='tt-editor',
+        )
+        self.assertContains(resp, 'id="tt-palette"')
+        self.assertContains(resp, 'id="tt-world"')
+
+    def test_paint_terrain_creates_cells(self):
+        url = reverse('tabletop:paint-terrain', args=[self.table.Slug, self.map.id])
+        resp = self.client.post(url, {'cells': '1,-2;0,0;3,1'})
+        self.assertEqual(resp.status_code, 200)
+        from tabletop.models import TerrainCell
+        self.assertEqual(TerrainCell.objects.filter(Map=self.map).count(), 3)
+
+    def test_paint_terrain_is_idempotent_on_repeat(self):
+        url = reverse('tabletop:paint-terrain', args=[self.table.Slug, self.map.id])
+        self.client.post(url, {'cells': '1,1'})
+        self.client.post(url, {'cells': '1,1'})
+        from tabletop.models import TerrainCell
+        self.assertEqual(TerrainCell.objects.filter(Map=self.map, Q=1, R=1).count(), 1)
+
+    def test_clear_terrain_deletes_cells(self):
+        from tabletop.models import TerrainCell
+        TerrainCell.objects.create(Map=self.map, Q=1, R=1)
+        TerrainCell.objects.create(Map=self.map, Q=2, R=1)
+        url = reverse('tabletop:clear-terrain', args=[self.table.Slug, self.map.id])
+        resp = self.client.post(url, {'cells': '1,1'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(TerrainCell.objects.filter(Map=self.map, Q=1, R=1).exists())
+        self.assertTrue(TerrainCell.objects.filter(Map=self.map, Q=2, R=1).exists())
+
+    def test_paint_terrain_forbidden_for_stranger(self):
+        self.client.logout()
+        stranger = User.objects.create_user('x', password='x' * 12)
+        self.client.force_login(stranger)
+        url = reverse('tabletop:paint-terrain', args=[self.table.Slug, self.map.id])
+        self.assertEqual(self.client.post(url, {'cells': '1,1'}).status_code, 403)

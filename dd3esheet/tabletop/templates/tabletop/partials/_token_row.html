@@ -9,6 +9,7 @@
         <form class="tt-token-edit" enctype="multipart/form-data"
               hx-post="{% url 'tabletop:edit-token' table.Slug t.id %}" hx-target="#tt-editor" hx-swap="innerHTML">
             {% csrf_token %}
+            <input type="hidden" name="_token_edit_form" value="1">
             <input type="text" name="Label" value="{{ t.Label }}" maxlength="80" placeholder="Nome">
             <select name="Kind">
                 <option value="enemy" {% if t.Kind == 'enemy' %}selected{% endif %}>Inimigo</option>
@@ -18,6 +19,7 @@
             </select>
             <label class="tt-inline">Larg.<input type="number" name="GridWidth" value="{{ t.GridWidth }}" min="1" max="20"></label>
             <label class="tt-inline">Alt.<input type="number" name="GridHeight" value="{{ t.GridHeight }}" min="1" max="20"></label>
+            <label class="tt-inline">Rot.<input type="number" name="Rotation" value="{{ t.Rotation }}" min="0" max="345" step="15"></label>
             <label class="tt-inline"><input type="checkbox" name="MovableByPlayers" value="1" {% if t.MovableByPlayers %}checked{% endif %}> Jogadores movem</label>
             <label class="tt-inline"><input type="checkbox" name="Hidden" value="1" {% if t.Hidden %}checked{% endif %}> Oculto p/ jogadores</label>
             <label class="tt-file">Trocar imagem <input type="file" name="SpriteFile" accept="image/*"></label>

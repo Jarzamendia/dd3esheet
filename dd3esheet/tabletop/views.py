@@ -5,8 +5,8 @@ from django.views.decorators.http import require_POST
 
 from sprites.models import SpriteAsset
 
-from .calculations import snap_to_grid, token_visible_to
-from .models import FogRegion, GameTable, Map, Token
+from .calculations import axial_to_pixel, snap_to_grid, token_visible_to
+from .models import FogRegion, GameTable, Map, TerrainCell, Token
 from .services import attach_sprites_to_tokens, create_sprite_from_upload
 
 
@@ -31,6 +31,21 @@ def _clean_kind(value):
 
 def _clean_grid(value):
     return value if value in {Map.HEX, Map.FREE} else Map.HEX
+
+
+def _parse_cells(raw):
+    """Parse 'q,r;q,r;...' into ordered, deduplicated integer tuples."""
+    seen, cells = set(), []
+    for part in (raw or '').split(';'):
+        bits = part.split(',')
+        if len(bits) != 2:
+            continue
+        q, r = _int_or(bits[0]), _int_or(bits[1])
+        if q is None or r is None or (q, r) in seen:
+            continue
+        seen.add((q, r))
+        cells.append((q, r))
+    return cells
 
 
 def _is_owner(request, table):
@@ -64,9 +79,10 @@ def _sprite_library(user, category):
 
 
 def _canvas_context(table, m, is_owner):
-    """Tokens já filtrados por visibilidade (névoa/ocultos) e com sprite resolvido."""
+    """Tokens filtered by visibility plus terrain cells with pixel centers."""
     fogs = list(m.fogregion_set.all()) if m else []
     tokens = []
+    terrain = []
     if m:
         candidates = list(m.token_set.select_related('SpriteAsset').all())
         tokens = [t for t in candidates if token_visible_to(t, fogs, is_owner)]
@@ -74,11 +90,16 @@ def _canvas_context(table, m, is_owner):
         for t in tokens:  # tamanho em px p/ o template (pegada × célula)
             t.PxWidth = t.GridWidth * m.GridSize
             t.PxHeight = t.GridHeight * m.GridSize
+        if m.GridMode == Map.HEX:
+            terrain = list(m.terraincell_set.select_related('SpriteAsset').all())
+            for cell in terrain:
+                cell.Cx, cell.Cy = axial_to_pixel(cell.Q, cell.R, m.GridSize)
     return {
         'table': table,
         'map': m,
         'tokens': tokens,
         'fogs': fogs,
+        'terrain': terrain,
         'is_owner': is_owner,
         'slug': table.Slug,
     }
@@ -91,6 +112,7 @@ def _render_canvas(request, table, m, is_owner):
 def _render_editor_body(request, table, m):
     ctx = _canvas_context(table, m, is_owner=True)
     ctx['token_sprites'] = _sprite_library(request.user, SpriteAsset.MAP_TOKEN)
+    ctx['tile_sprites'] = _sprite_library(request.user, SpriteAsset.MAP_TILE)
     return render(request, 'tabletop/partials/_editor_body.html', ctx)
 
 
@@ -134,6 +156,7 @@ def editor(request, slug, mid):
     m = get_object_or_404(Map, id=mid, Table=table)
     ctx = _canvas_context(table, m, is_owner=True)
     ctx['token_sprites'] = _sprite_library(request.user, SpriteAsset.MAP_TOKEN)
+    ctx['tile_sprites'] = _sprite_library(request.user, SpriteAsset.MAP_TILE)
     return render(request, 'tabletop/editor.html', ctx)
 
 
@@ -223,13 +246,19 @@ def add_token(request, slug):
     kind = _clean_kind(request.POST.get('Kind'))
     movable = _bool_post(request, 'MovableByPlayers') if 'MovableByPlayers' in request.POST \
         else Token.default_movable_for_kind(kind)
+    x = _int_or(request.POST.get('X'))
+    y = _int_or(request.POST.get('Y'))
+    if x is None or y is None:
+        x, y = m.WidthPx // 2, m.HeightPx // 2
+    else:
+        x, y = snap_to_grid(x, y, m.GridSize, m.GridMode)
     Token.objects.create(
         Map=m,
         Kind=kind,
         Label=request.POST.get('Label', '').strip(),
         SpriteAsset=_resolve_sprite(request, 'Sprite', SpriteAsset.MAP_TOKEN),
-        X=m.WidthPx // 2,
-        Y=m.HeightPx // 2,
+        X=x,
+        Y=y,
         GridWidth=_int_or(request.POST.get('GridWidth'), 1) or 1,
         GridHeight=_int_or(request.POST.get('GridHeight'), 1) or 1,
         MovableByPlayers=movable,
@@ -251,8 +280,15 @@ def edit_token(request, slug, tid):
         token.GridWidth = _int_or(request.POST['GridWidth'], token.GridWidth) or token.GridWidth
     if 'GridHeight' in request.POST:
         token.GridHeight = _int_or(request.POST['GridHeight'], token.GridHeight) or token.GridHeight
-    token.MovableByPlayers = _bool_post(request, 'MovableByPlayers')
-    token.Hidden = _bool_post(request, 'Hidden')
+    if '_token_edit_form' in request.POST:
+        token.MovableByPlayers = _bool_post(request, 'MovableByPlayers')
+        token.Hidden = _bool_post(request, 'Hidden')
+    elif 'MovableByPlayers' in request.POST:
+        token.MovableByPlayers = _bool_post(request, 'MovableByPlayers')
+    elif 'Hidden' in request.POST:
+        token.Hidden = _bool_post(request, 'Hidden')
+    if 'Rotation' in request.POST:
+        token.Rotation = (_int_or(request.POST['Rotation'], token.Rotation) or 0) % 360
     sprite = _resolve_sprite(request, 'Sprite', SpriteAsset.MAP_TOKEN)
     if sprite:
         token.SpriteAsset = sprite
@@ -283,8 +319,12 @@ def move_token(request, slug, tid):
     x = _int_or(request.POST.get('X'), token.X)
     y = _int_or(request.POST.get('Y'), token.Y)
     token.X, token.Y = snap_to_grid(x, y, token.Map.GridSize, token.Map.GridMode)
+    if 'Rotation' in request.POST:
+        token.Rotation = (_int_or(request.POST['Rotation'], token.Rotation) or 0) % 360
     token.save()
     table.save()
+    if is_owner and getattr(request, 'htmx', False) and request.htmx.target == 'tt-editor':
+        return _render_editor_body(request, table, token.Map)
     return _render_canvas(request, table, token.Map, is_owner)
 
 
@@ -313,3 +353,30 @@ def delete_fog(request, slug, fid):
     fog.delete()
     table.save()
     return _render_canvas(request, table, m, is_owner=True)
+
+
+# --- terreno (somente o dono) ---------------------------------------------
+
+@require_POST
+def paint_terrain(request, slug, mid):
+    table = _get_owned(request, slug)
+    m = get_object_or_404(Map, id=mid, Table=table)
+    sprite = _resolve_sprite(request, 'Sprite', SpriteAsset.MAP_TILE)
+    for q, r in _parse_cells(request.POST.get('cells')):
+        TerrainCell.objects.update_or_create(Map=m, Q=q, R=r, defaults={'SpriteAsset': sprite})
+    table.save()
+    return _render_editor_body(request, table, m)
+
+
+@require_POST
+def clear_terrain(request, slug, mid):
+    table = _get_owned(request, slug)
+    m = get_object_or_404(Map, id=mid, Table=table)
+    cells = _parse_cells(request.POST.get('cells'))
+    if cells:
+        for q, r in cells:
+            TerrainCell.objects.filter(Map=m, Q=q, R=r).delete()
+    else:
+        TerrainCell.objects.filter(Map=m).delete()
+    table.save()
+    return _render_editor_body(request, table, m)

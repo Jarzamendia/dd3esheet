@@ -95,6 +95,7 @@ class Token(models.Model):
     MovableByPlayers = models.BooleanField(default=False)
     Hidden = models.BooleanField(default=False)  # escondido dos jogadores
     Order = models.PositiveSmallIntegerField(default=0)
+    Rotation = models.PositiveSmallIntegerField(default=0)  # graus 0-345
     CreatedAt = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -124,3 +125,25 @@ class FogRegion(models.Model):
 
     def __str__(self):
         return f'Fog {self.X},{self.Y} {self.Width}x{self.Height}'
+
+
+class TerrainCell(models.Model):
+    """Uma celula de terreno pintada num hexagono (coords axiais, fatia B)."""
+
+    Map = models.ForeignKey(Map, on_delete=models.CASCADE)
+    Q = models.IntegerField()
+    R = models.IntegerField()
+    SpriteAsset = models.ForeignKey(
+        'sprites.SpriteAsset', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='tabletop_terrain',
+    )
+    CreatedAt = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('CreatedAt',)
+        constraints = [
+            models.UniqueConstraint(fields=('Map', 'Q', 'R'), name='unique_terrain_cell_per_map'),
+        ]
+
+    def __str__(self):
+        return f'Terrain {self.Q},{self.R}'

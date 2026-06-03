@@ -18,6 +18,8 @@ urlpatterns = [
     path('<slug:slug>/map/<int:mid>/activate', views.set_active, name='set-active'),
     path('<slug:slug>/map/<int:mid>/editor', views.editor, name='editor'),
     path('<slug:slug>/map/<int:mid>/fog/add', views.add_fog, name='add-fog'),
+    path('<slug:slug>/map/<int:mid>/terrain/paint', views.paint_terrain, name='paint-terrain'),
+    path('<slug:slug>/map/<int:mid>/terrain/clear', views.clear_terrain, name='clear-terrain'),
 
     path('<slug:slug>/token/add', views.add_token, name='add-token'),
     path('<slug:slug>/token/<int:tid>/edit', views.edit_token, name='edit-token'),

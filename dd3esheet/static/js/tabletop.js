@@ -57,6 +57,7 @@
     function startTokenDrag(e) {
         var tok = e.target.closest('.tt-token[data-movable="1"]');
         if (!tok) return;
+        if (tok.closest('[data-rich-editor="1"]')) return;
         var canvas = tok.closest('.tt-canvas');
         if (!canvas) return;
         e.preventDefault();

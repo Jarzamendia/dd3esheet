@@ -153,6 +153,19 @@
     height: 100%;
     pointer-events: none;
 }
+.tt-terrain {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background: color-mix(in oklab, var(--leather) 22%, var(--paper-1));
+    pointer-events: none;
+    z-index: 0;
+}
+.tt-terrain img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
 /* --- tokens ------------------------------------------------------------- */
 .tt-token {
@@ -165,6 +178,7 @@
     color: var(--parchment);
     box-shadow: 0 0 0 2px var(--parchment), 0 1px 4px rgba(0,0,0,.5);
     box-sizing: border-box;
+    z-index: 10;
 }
 .tt-token--player { background: var(--tt-player); }
 .tt-token--enemy  { background: var(--tt-enemy); }
@@ -224,15 +238,166 @@
 }
 
 /* --- editor ------------------------------------------------------------- */
+.tt-page--editor {
+    max-width: 100%;
+}
 .tt-editor-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-columns: 286px minmax(0, 1fr) 256px;
     gap: 12px;
-    align-items: start;
+    align-items: stretch;
 }
-.tt-editor-side { display: flex; flex-direction: column; gap: 12px; }
+.tt-palette, .tt-editor-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .tt-panel { border: 1.5px solid var(--edge-line); border-radius: var(--radius); padding: 10px 12px; background: var(--paper-0); box-shadow: var(--shadow-1); }
 .tt-panel__title { margin: 0 0 8px; font-family: var(--font-display); font-size: 1rem; }
+.tt-toolstrip, .tt-tabs, .tt-stage-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+.tt-tool, .tt-tab {
+    border: 1.5px solid var(--edge-strong);
+    border-radius: var(--radius);
+    background: var(--paper-0);
+    color: var(--ink);
+    font: inherit;
+    padding: 5px 8px;
+    cursor: pointer;
+}
+.tt-tool.is-active, .tt-tab.is-active {
+    background: var(--ink);
+    color: var(--parchment);
+}
+.tt-palette__filters {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+.tt-palette__filters input {
+    padding: 6px 9px;
+    border: 1.5px solid var(--edge-strong);
+    border-radius: var(--radius);
+    background: var(--paper-0);
+    color: var(--text);
+}
+.tt-palette-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+.tt-ptile {
+    display: grid;
+    grid-template-rows: 68px auto;
+    gap: 5px;
+    min-width: 0;
+    padding: 6px;
+    border: 1.5px solid var(--edge-line);
+    border-radius: var(--radius);
+    background: var(--paper-2);
+    color: var(--text);
+    cursor: grab;
+    text-align: center;
+}
+.tt-ptile.is-selected {
+    border-color: var(--ochre);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--ochre) 45%, transparent);
+}
+.tt-ptile__thumb {
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--paper-0);
+}
+.tt-ptile__thumb--hex {
+    border-radius: 0;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+.tt-ptile__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.tt-ptile__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .78rem;
+}
+.tt-editor-stage {
+    min-width: 0;
+    display: grid;
+    grid-template-rows: auto minmax(420px, 72vh) auto;
+    gap: 8px;
+}
+.tt-stage--editor {
+    position: relative;
+    overflow: hidden;
+    max-height: none;
+}
+.tt-world {
+    position: absolute;
+    inset: 0 auto auto 0;
+    will-change: transform;
+}
+.tt-editor-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 80;
+}
+.tt-statusbar {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 10px;
+    border: 1.5px solid var(--edge-line);
+    border-radius: var(--radius);
+    background: var(--paper-0);
+    color: var(--text-soft);
+    font-size: .85rem;
+}
+.tt-zoom {
+    min-width: 48px;
+    text-align: center;
+    color: var(--ink);
+    font-family: var(--font-display);
+}
+.tt-layer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 5px 0;
+    font-size: .9rem;
+}
+.tt-inspector {
+    min-height: 130px;
+}
+.tt-token-inspector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.tt-token.is-selected {
+    outline: 3px solid var(--ochre);
+    z-index: 60;
+}
+.tt-hide-terrain .tt-terrain,
+.tt-hide-tokens .tt-token,
+.tt-hide-fog .tt-fog {
+    display: none;
+}
+.tt-lock-terrain .tt-stage--editor { cursor: not-allowed; }
+.tool-paint .tt-stage--editor { cursor: crosshair; }
+.tool-measure .tt-stage--editor { cursor: crosshair; }
+.tt-stage--editor.panning { cursor: grabbing; }
 .tt-token-add { display: flex; flex-direction: column; gap: 6px; }
 .tt-token-rows { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
 .tt-token-row { border: 1px solid var(--edge-line); border-left-width: 4px; border-radius: var(--radius); padding: 4px 8px; background: var(--paper-0); }
@@ -248,4 +413,6 @@
 
 @media (max-width: 860px) {
     .tt-editor-grid { grid-template-columns: 1fr; }
+    .tt-editor-stage { grid-template-rows: auto minmax(360px, 60vh) auto; }
+    .tt-palette-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
 }

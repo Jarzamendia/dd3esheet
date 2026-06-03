@@ -75,9 +75,20 @@ próximo durante o arrasto.
 | `MovableByPlayers` | Bool | default por Kind: player→True, demais→False |
 | `Hidden` | Bool | mestre esconde do jogador (emboscada); default False |
 | `Order` | PositiveSmallInt | empilhamento |
+| `Rotation` | PositiveSmallInt | graus, normalizado pela view (0-345 no editor) |
 | `CreatedAt` | | |
 
 `Meta.ordering = ('Order', 'CreatedAt')`.
+
+### `TerrainCell` — terreno pintado por hexágono
+| Campo | Tipo | Notas |
+|---|---|---|
+| `Map` | FK(Map, CASCADE) | |
+| `Q`, `R` | IntegerField | coordenadas axiais do hexágono |
+| `SpriteAsset` | FK('sprites.SpriteAsset', null, blank, SET_NULL, related_name='tabletop_terrain') | tile visual opcional |
+| `CreatedAt` | | |
+
+`UniqueConstraint(Map, Q, R)` garante uma célula de terreno por hexágono.
 
 ### `FogRegion` — retângulo oculto
 | Campo | Tipo | Notas |
@@ -91,6 +102,7 @@ próximo durante o arrasto.
 - `snap_to_grid(x, y, grid_size, grid_mode)` → encaixa no centro do hexágono mais próximo em `hex`; identidade em `free`.
 - `hex_dimensions(grid_size)` → retorna largura, altura e espaçamentos da grade pointy-top.
 - `nearest_hex_center(x, y, grid_size)` → calcula o centro em px do hexágono mais próximo usando coordenadas axiais/cúbicas.
+- `axial_to_pixel(q, r, grid_size)` → centro em px de uma célula axial pointy-top.
 - `point_in_rect(px, py, rx, ry, rw, rh)` → bool.
 - `token_visible_to(token, fog_regions, is_owner)` → bool. Para não-donos, oculta `Hidden=True` e
   tokens cujo **centro** cai em qualquer `FogRegion`. A névoa é aplicada **no servidor**, não só visualmente.
@@ -126,6 +138,7 @@ edita não é dono). Toda mutação faz `table.save()` (bump `UpdatedAt`) e devo
 | `'<slug>/map/add'` · `/<mid>/edit` · `/<mid>/delete` · `/<mid>/activate` | maps CRUD + set_active | dono |
 | `'<slug>/token/add'` · `/<tid>/edit` · `/<tid>/delete` | tokens CRUD | dono |
 | `'<slug>/token/<tid>/move'` | `move_token` (X,Y) | dono **ou** player (regra trust-based) |
+| `'<slug>/map/<mid>/terrain/paint'` · `/terrain/clear` | terreno por hexágono | dono |
 | `'<slug>/fog/add'` · `/<fid>/delete` | fog CRUD | dono |
 | `'<slug>/sprite/upload'` | `upload_sprite` (cria SpriteAsset) | dono |
 
@@ -157,12 +170,29 @@ Diferente do `initiative` (só viewers fazem polling), aqui **dono e jogadores**
 - `static/js/tabletop.js` — vanilla, carregado só nas páginas da mesa via `{% block extra_js %}`.
   Arrasto por pointer events de `.tt-token[data-movable]`, snap à grade hexagonal, move otimista + POST,
   guarda de poll; ferramentas do mestre: clicar-para-colocar token, desenhar retângulo de névoa.
+- `static/js/tabletop_editor.js` — carregado só no editor privado da cena. Mantém pan/zoom,
+  camadas, seleção e régua como estado client-side; persiste drop de tokens, rotação e pintura de
+  terreno via endpoints HTMX. No editor rico, o drag de token é tratado por esse arquivo para compensar
+  zoom/pan; `tabletop.js` ignora tokens dentro de `[data-rich-editor]`.
 - Canvas dimensionado a `Map.WidthPx×HeightPx`; fundo `<img>`; grade hexagonal pointy-top desenhada via
-  SVG/CSS background derivado de `GridSize`; névoa e tokens como divs/imgs absolutos. Escala responsiva
-  por `transform: scale()`.
+  overlay `<canvas>` derivado de `GridSize`; terreno, névoa e tokens como divs/imgs absolutos.
 - Templates: `tabletop/base_tabletop.html` (extends `templates/main.html`), `table_view.html`,
   `manage.html`, partials `_live_fragment.html`, `_token.html`, `_token_sprite.html`, `_map_card.html`,
   `_fog.html`. Condicional `{% if is_owner %}` separa controles do mestre.
+
+### Editor (Scene Creator)
+
+O editor privado (`/mesa/<slug>/map/<mid>/editor`) tem layout de três colunas: paleta de assets,
+palco transformável e painel de camadas/inspector. A paleta permite arrastar sprites `MAP_TOKEN`
+para criar tokens no hex sob o cursor e sprites `MAP_TILE` para pintar terreno. A ferramenta de régua
+mede distância em hexágonos e metros (`1 hex = 1,5 m`).
+
+Persistem no banco:
+- `Token.Rotation`, aplicado também na visão ao vivo.
+- `TerrainCell(Map, Q, R, SpriteAsset)`, renderizado sob os tokens.
+
+Não persistem: pan/zoom, seleção, camadas visíveis/travadas e medições. A névoa continua retangular
+(`FogRegion`); pintar névoa por hexágono segue fora do escopo.
 
 ## Plano de testes (TDD, conforme AGENTS.md)
 
@@ -189,10 +219,11 @@ Diferente do `initiative` (só viewers fazem polling), aqui **dono e jogadores**
 8. [x] Névoa retangular (desenhar/remover) + testes.
 9. [x] Polish + docs (`docs/architecture.md`, `AGENTS.md`) + suíte completa (22 testes do app verdes).
 10. [x] Migração da grade `square` para `hex` pointy-top em modelos, cálculos, CSS/JS e testes.
+11. [x] Scene Creator rico: pan/zoom, paleta drag-drop, rotação persistida, terreno hexagonal, régua e camadas.
 
 > Itens 1-9 implementados numa única passada; 22 testes do app `tabletop` verdes
-> (`python manage.py test tabletop`) na implementação original. A migração hexagonal do item 10 é uma
-> mudança posterior desta spec e ainda precisa ser implementada/testada. Nota de UX: para preparar uma cena com inimigos/névoa **antes**
+> (`python manage.py test tabletop`) na implementação original. Itens 10-11 foram adicionados depois
+> como fatias incrementais. Nota de UX: para preparar uma cena com inimigos/névoa **antes**
 > de revelá-la, use o **editor** da cena (`/mesa/<slug>/map/<mid>/editor`), que é privado do mestre;
 > só a cena ativa aparece para os jogadores.
 
@@ -208,6 +239,6 @@ Diferente do `initiative` (só viewers fazem polling), aqui **dono e jogadores**
 
 ## Fora de escopo (futuro)
 
-Névoa por hexágono (pintar), grade quadrada, régua/medição de distância, templates de área (AoE),
+Névoa por hexágono (pintar), grade quadrada, templates de área (AoE),
 HP/condições no token (isso fica no `initiative`), links por jogador / controle por conta logada,
 sincronização via WebSocket (hoje o polling de 2s basta para uma mesa amigável).

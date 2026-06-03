@@ -42,6 +42,14 @@ def nearest_hex_center(x, y, grid_size):
     return (round(cx), round(cy))
 
 
+def axial_to_pixel(q, r, grid_size):
+    """Return the pixel center for pointy-top axial coordinates."""
+    radius = float(grid_size) / math.sqrt(3)
+    x = math.sqrt(3) * radius * (q + r / 2)
+    y = 1.5 * radius * r
+    return (round(x), round(y))
+
+
 def snap_to_grid(x, y, grid_size, grid_mode):
     """Snap coordinates to the nearest hex center in hex mode."""
     if grid_mode == 'hex' and grid_size and grid_size > 0:

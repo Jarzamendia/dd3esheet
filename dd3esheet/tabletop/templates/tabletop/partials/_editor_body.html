@@ -1,10 +1,55 @@
-{% comment %}Corpo do editor: canvas (#tt-live) + painel de tokens. Alvo HTMX: #tt-editor.{% endcomment %}
-<div class="tt-editor-grid">
-    <div id="tt-live" class="tt-stage">
-        {% include "tabletop/partials/_canvas.html" %}
-    </div>
+{% comment %}Rich scene editor body. HTMX target: #tt-editor.{% endcomment %}
+<div class="tt-editor-grid tt-editor-rich"
+     data-rich-editor="1"
+     data-map-id="{{ map.id }}"
+     data-add-token-url="{% url 'tabletop:add-token' table.Slug %}"
+     data-paint-terrain-url="{% url 'tabletop:paint-terrain' table.Slug map.id %}"
+     data-clear-terrain-url="{% url 'tabletop:clear-terrain' table.Slug map.id %}">
+    <aside id="tt-palette" class="tt-palette">
+        <section class="tt-panel">
+            <div class="tt-toolstrip" role="toolbar" aria-label="Ferramentas">
+                <button type="button" class="tt-tool is-active" data-tool="select">Selecionar</button>
+                <button type="button" class="tt-tool" data-tool="place">Colocar</button>
+                <button type="button" class="tt-tool" data-tool="paint">Pintar</button>
+                <button type="button" class="tt-tool" data-tool="measure">Regua</button>
+            </div>
+            <div class="tt-palette__filters">
+                <input id="tt-palette-search" type="search" placeholder="Buscar asset">
+                <div id="tt-palette-tabs" class="tt-tabs">
+                    <button type="button" class="tt-tab is-active" data-palette-tab="token">Tokens</button>
+                    <button type="button" class="tt-tab" data-palette-tab="tile">Terreno</button>
+                </div>
+            </div>
+            <div id="tt-palette-grid" class="tt-palette-grid">
+                {% for s in token_sprites %}
+                <button type="button" class="tt-ptile tt-ptile--token"
+                        draggable="true"
+                        data-sprite-id="{{ s.id }}"
+                        data-sprite-kind="token"
+                        data-kind="enemy"
+                        data-label="{{ s.Name }}">
+                    <span class="tt-ptile__thumb">{% if s.original_url %}<img src="{{ s.original_url }}" alt="">{% endif %}</span>
+                    <span class="tt-ptile__name">{{ s.Name }}</span>
+                </button>
+                {% empty %}
+                <p class="tt-empty tt-empty--tokens">Sem tokens na biblioteca.</p>
+                {% endfor %}
+                {% for s in tile_sprites %}
+                <button type="button" class="tt-ptile tt-ptile--tile"
+                        draggable="true"
+                        data-sprite-id="{{ s.id }}"
+                        data-sprite-kind="tile"
+                        data-label="{{ s.Name }}"
+                        hidden>
+                    <span class="tt-ptile__thumb tt-ptile__thumb--hex">{% if s.original_url %}<img src="{{ s.original_url }}" alt="">{% endif %}</span>
+                    <span class="tt-ptile__name">{{ s.Name }}</span>
+                </button>
+                {% empty %}
+                <p class="tt-empty tt-empty--tiles" hidden>Sem tiles na biblioteca.</p>
+                {% endfor %}
+            </div>
+        </section>
 
-    <aside class="tt-editor-side">
         <section class="tt-panel">
             <h2 class="tt-panel__title">Adicionar token</h2>
             <form class="tt-token-add" enctype="multipart/form-data"
@@ -12,30 +57,77 @@
                   hx-on::after-request="this.reset()">
                 {% csrf_token %}
                 <input type="hidden" name="MapId" value="{{ map.id }}">
-                <input type="text" name="Label" placeholder="Nome (opcional)" maxlength="80">
+                <input type="text" name="Label" placeholder="Nome" maxlength="80">
                 <select name="Kind" aria-label="Tipo">
                     <option value="enemy">Inimigo</option>
                     <option value="player">Jogador</option>
                     <option value="npc">NPC</option>
-                    <option value="object">Objeto / prop</option>
+                    <option value="object">Objeto</option>
                 </select>
-                <label class="tt-file">Imagem (upload)
+                <label class="tt-file">Imagem
                     <input type="file" name="SpriteFile" accept="image/*">
                 </label>
                 {% if token_sprites %}
                 <select name="SpriteId" aria-label="Sprite da biblioteca">
-                    <option value="">— ou da biblioteca —</option>
+                    <option value="">Biblioteca</option>
                     {% for s in token_sprites %}<option value="{{ s.id }}">{{ s.Name }}</option>{% endfor %}
                 </select>
                 {% endif %}
                 <label class="tt-inline">
-                    <input type="checkbox" name="MovableByPlayers" value="1"> Jogadores podem mover
+                    <input type="checkbox" name="MovableByPlayers" value="1"> Jogadores movem
                 </label>
-                <button type="submit" class="tt-btn tt-btn--primary">+ Colocar no centro</button>
+                <button type="submit" class="tt-btn tt-btn--primary">Adicionar</button>
             </form>
-            <p class="tt-help">Depois <strong>arraste</strong> o token no mapa para posicionar.</p>
-            <button type="button" class="tt-btn" data-fog-toggle>🌫️ Desenhar névoa</button>
-            <p class="tt-help">Com a névoa ligada, arraste sobre o mapa para criar um retângulo oculto.</p>
+            <button type="button" class="tt-btn" data-fog-toggle>Desenhar nevoa</button>
+        </section>
+    </aside>
+
+    <section class="tt-editor-stage">
+        <div class="tt-stage-tools">
+            <button type="button" class="tt-btn" data-zoom="out">-</button>
+            <span id="zoom-pct" class="tt-zoom">100%</span>
+            <button type="button" class="tt-btn" data-zoom="in">+</button>
+            <button type="button" class="tt-btn" data-zoom="fit">Fit</button>
+        </div>
+        <div id="tt-stage" class="tt-stage tt-stage--editor"
+             data-add-token-url="{% url 'tabletop:add-token' table.Slug %}"
+             data-paint-terrain-url="{% url 'tabletop:paint-terrain' table.Slug map.id %}"
+             data-clear-terrain-url="{% url 'tabletop:clear-terrain' table.Slug map.id %}">
+            <canvas id="tt-editor-canvas" class="tt-editor-overlay"></canvas>
+            <div id="tt-world" class="tt-world">
+                <div id="tt-live">
+                    {% include "tabletop/partials/_canvas.html" %}
+                </div>
+            </div>
+        </div>
+        <div class="tt-statusbar">
+            <span id="sb-hint">Selecionar</span>
+            <span id="sb-coord">q0 r0</span>
+            <span id="tt-meas">0 hex / 0 m</span>
+        </div>
+    </section>
+
+    <aside class="tt-editor-side">
+        <section id="tt-layers" class="tt-panel tt-layers">
+            <h2 class="tt-panel__title">Camadas</h2>
+            <label class="tt-layer"><input type="checkbox" data-layer-visible="terrain" checked> Terreno <span>{{ terrain|length }}</span></label>
+            <label class="tt-layer"><input type="checkbox" data-layer-visible="tokens" checked> Tokens <span>{{ tokens|length }}</span></label>
+            <label class="tt-layer"><input type="checkbox" data-layer-visible="fog" checked> Nevoa <span>{{ fogs|length }}</span></label>
+            <label class="tt-layer"><input type="checkbox" data-layer-lock="terrain"> Travar terreno</label>
+            <label class="tt-layer"><input type="checkbox" data-layer-lock="tokens"> Travar tokens</label>
+            <button type="button" class="tt-btn tt-btn--danger" data-clear-terrain>Limpar terreno</button>
+        </section>
+
+        <section id="tt-inspector" class="tt-panel tt-inspector">
+            <h2 class="tt-panel__title">Inspector</h2>
+            <p id="tt-inspector-empty" class="tt-empty">Nada selecionado.</p>
+            <div id="tt-token-inspector" class="tt-token-inspector" hidden>
+                <strong id="tt-token-name">Token</strong>
+                <label class="tt-inline">Rotacao
+                    <input id="tt-rotation" type="range" min="0" max="345" step="15" value="0">
+                    <output id="tt-rotation-value">0</output>
+                </label>
+            </div>
         </section>
 
         <section class="tt-panel">
