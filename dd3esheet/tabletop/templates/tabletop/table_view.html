@@ -1,0 +1,26 @@
+{% extends "tabletop/base_tabletop.html" %}
+
+{% block title %}{{ table.Name }} · Mesa{% endblock %}
+
+{% block content %}
+<main class="tt-page" data-screen-label="tabletop">
+    {% csrf_token %}{# garante cookie/token CSRF p/ o move via JS, mesmo anônimo #}
+    <header class="tt-topbar">
+        <h1 class="tt-title">{{ table.Name }}</h1>
+        {% if is_owner %}
+        <div class="tt-topbar__tools" data-role="gm-controls">
+            <a class="tt-btn" href="{% url 'tabletop:manage' table.Slug %}">Gerenciar cenas</a>
+            {% if map %}<a class="tt-btn" href="{% url 'tabletop:editor' table.Slug map.id %}">Editar esta cena</a>{% endif %}
+        </div>
+        {% else %}
+        <span class="tt-hint">visualização compartilhada · atualiza sozinha</span>
+        {% endif %}
+    </header>
+
+    <div id="tt-live" class="tt-stage"
+         hx-get="{% url 'tabletop:live-fragment' table.Slug %}"
+         hx-trigger="every 2s" hx-swap="innerHTML" hx-sync="this:replace">
+        {% include "tabletop/partials/_canvas.html" %}
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "tabletop/base_tabletop.html" %}
+
+{% block title %}{{ map.Name }} · Editor · {{ table.Name }}{% endblock %}
+
+{% block content %}
+<main class="tt-page tt-page--editor" data-screen-label="tabletop">
+    <header class="tt-topbar">
+        <h1 class="tt-title">Editor — {{ map.Name }}</h1>
+        <div class="tt-topbar__tools">
+            <a class="tt-btn" href="{% url 'tabletop:manage' table.Slug %}">← Cenas</a>
+            <a class="tt-btn" href="{% url 'tabletop:table' table.Slug %}">Ver ao vivo</a>
+        </div>
+    </header>
+
+    <div id="tt-editor">
+        {% include "tabletop/partials/_editor_body.html" %}
+    </div>
+</main>
+{% endblock %}

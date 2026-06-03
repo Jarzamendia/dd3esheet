@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from .models import Combatant, Encounter
+from sprites.models import SpriteAsset
+from sprites.services import attach_sprites_to_combatants
 
 
 # --- helpers ---------------------------------------------------------------
@@ -35,9 +37,11 @@ def _get_owned(request, slug):
 def _board_context(request, enc, is_owner=None):
     if is_owner is None:
         is_owner = _is_owner(request, enc)
+    combatants = list(enc.combatant_set.select_related('SpriteAsset').all())
+    attach_sprites_to_combatants(combatants)
     return {
         'encounter': enc,
-        'combatants': list(enc.combatant_set.all()),
+        'combatants': combatants,
         'is_owner': is_owner,
     }
 
@@ -46,6 +50,22 @@ def _render_board(request, enc):
     """Devolve o partial da board já atualizado (resposta das ações do mestre)."""
     return render(request, 'initiative/partials/_board_fragment.html',
                   _board_context(request, enc, is_owner=True))
+
+
+def _sprite_asset_from_post(request):
+    try:
+        sprite_id = int(request.POST.get('SpriteAsset') or 0)
+    except (TypeError, ValueError):
+        return None
+    if not sprite_id:
+        return None
+    return (
+        SpriteAsset.objects
+        .active()
+        .visible_to(request.user)
+        .filter(pk=sprite_id)
+        .first()
+    )
 
 
 # --- páginas do mestre -----------------------------------------------------
@@ -88,6 +108,7 @@ def add_combatant(request, slug):
         Kind=_clean_kind(request.POST.get('Kind')),
         Initiative=_int_or(request.POST.get('Initiative'), 0),
         ArmorClass=_int_or(request.POST.get('ArmorClass'), None),
+        SpriteAsset=_sprite_asset_from_post(request),
     )
     enc.save()  # atualiza UpdatedAt (versão do polling)
     return _render_board(request, enc)
@@ -109,6 +130,8 @@ def edit_combatant(request, slug, cid):
         c.Effects = request.POST['Effects']
     if 'Notes' in request.POST:
         c.Notes = request.POST['Notes']
+    if 'SpriteAsset' in request.POST:
+        c.SpriteAsset = _sprite_asset_from_post(request)
     c.save()
     enc.save()
     return _render_board(request, enc)

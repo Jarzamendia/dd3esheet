@@ -1,0 +1,29 @@
+{% comment %}Corpo de "gerenciar cenas": form de criar mapa + lista de cenas. Alvo HTMX: #tt-manage.{% endcomment %}
+<form class="tt-create" enctype="multipart/form-data"
+      hx-post="{% url 'tabletop:add-map' table.Slug %}" hx-target="#tt-manage" hx-swap="innerHTML"
+      hx-on::after-request="this.reset()">
+    {% csrf_token %}
+    <input type="text" name="Name" placeholder="Nome do mapa" maxlength="120" required>
+    <select name="GridMode" aria-label="Tipo de grade">
+        <option value="square">Grade quadrada (batalha/dungeon)</option>
+        <option value="free">Livre (mundi/cidade)</option>
+    </select>
+    <label class="tt-file">Fundo (upload)
+        <input type="file" name="BackgroundFile" accept="image/*">
+    </label>
+    {% if bg_sprites %}
+    <select name="BackgroundId" aria-label="Fundo da biblioteca">
+        <option value="">— ou da biblioteca —</option>
+        {% for s in bg_sprites %}<option value="{{ s.id }}">{{ s.Name }}</option>{% endfor %}
+    </select>
+    {% endif %}
+    <button type="submit" class="tt-btn tt-btn--primary">+ Adicionar mapa</button>
+</form>
+
+<ul class="tt-map-list">
+    {% for m in maps %}
+        {% include "tabletop/partials/_map_card.html" %}
+    {% empty %}
+        <li class="tt-empty">Nenhum mapa ainda. Adicione o primeiro acima.</li>
+    {% endfor %}
+</ul>

@@ -1,0 +1,52 @@
+{% comment %}Corpo do editor: canvas (#tt-live) + painel de tokens. Alvo HTMX: #tt-editor.{% endcomment %}
+<div class="tt-editor-grid">
+    <div id="tt-live" class="tt-stage">
+        {% include "tabletop/partials/_canvas.html" %}
+    </div>
+
+    <aside class="tt-editor-side">
+        <section class="tt-panel">
+            <h2 class="tt-panel__title">Adicionar token</h2>
+            <form class="tt-token-add" enctype="multipart/form-data"
+                  hx-post="{% url 'tabletop:add-token' table.Slug %}" hx-target="#tt-editor" hx-swap="innerHTML"
+                  hx-on::after-request="this.reset()">
+                {% csrf_token %}
+                <input type="hidden" name="MapId" value="{{ map.id }}">
+                <input type="text" name="Label" placeholder="Nome (opcional)" maxlength="80">
+                <select name="Kind" aria-label="Tipo">
+                    <option value="enemy">Inimigo</option>
+                    <option value="player">Jogador</option>
+                    <option value="npc">NPC</option>
+                    <option value="object">Objeto / prop</option>
+                </select>
+                <label class="tt-file">Imagem (upload)
+                    <input type="file" name="SpriteFile" accept="image/*">
+                </label>
+                {% if token_sprites %}
+                <select name="SpriteId" aria-label="Sprite da biblioteca">
+                    <option value="">— ou da biblioteca —</option>
+                    {% for s in token_sprites %}<option value="{{ s.id }}">{{ s.Name }}</option>{% endfor %}
+                </select>
+                {% endif %}
+                <label class="tt-inline">
+                    <input type="checkbox" name="MovableByPlayers" value="1"> Jogadores podem mover
+                </label>
+                <button type="submit" class="tt-btn tt-btn--primary">+ Colocar no centro</button>
+            </form>
+            <p class="tt-help">Depois <strong>arraste</strong> o token no mapa para posicionar.</p>
+            <button type="button" class="tt-btn" data-fog-toggle>🌫️ Desenhar névoa</button>
+            <p class="tt-help">Com a névoa ligada, arraste sobre o mapa para criar um retângulo oculto.</p>
+        </section>
+
+        <section class="tt-panel">
+            <h2 class="tt-panel__title">Tokens nesta cena</h2>
+            <ul class="tt-token-rows">
+                {% for t in tokens %}
+                    {% include "tabletop/partials/_token_row.html" %}
+                {% empty %}
+                    <li class="tt-empty">Nenhum token ainda.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </aside>
+</div>

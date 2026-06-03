@@ -48,6 +48,10 @@ class Combatant(models.Model):
     ArmorClass = models.IntegerField(null=True, blank=True)
     Effects = models.CharField(max_length=200, blank=True)
     Notes = models.CharField(max_length=300, blank=True)
+    SpriteAsset = models.ForeignKey(
+        'sprites.SpriteAsset', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='initiative_combatants',
+    )
     CreatedAt = models.DateTimeField(auto_now_add=True)
 
     class Meta:

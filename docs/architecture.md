@@ -9,6 +9,9 @@ Apps:
 - `home`: landing page e redirecionamento de usuarios autenticados.
 - `character`: fichas de personagem e toda a persistencia editavel.
 - `sdr`: referencia D&D 3.5 SRD, read-only.
+- `initiative`: rastreador de iniciativa.
+- `sprites`: biblioteca central de imagens e bindings para classes, monstros, iniciativa e mapas.
+- `tabletop`: mesa virtual / criador de mapas (cenas compartilhadas, miniaturas, névoa). Ver `TABLETOP.md`.
 
 Arquivos centrais:
 
@@ -26,7 +29,10 @@ Roteamento raiz:
 - `/accounts/`: auth padrao do Django.
 - `/`: app `home`.
 - `/character/`: app `character`.
+- `/sprites/`: app `sprites`.
 - `/sdr/`: app `sdr`.
+- `/iniciativa/`: app `initiative`.
+- `/mesa/`: app `tabletop`.
 
 Rotas principais de `character`:
 
@@ -52,6 +58,21 @@ Rotas principais de `sdr`:
 - `/sdr/powers/`
 - `/sdr/skills/`
 
+Rotas principais de `sprites`:
+
+- `/sprites/search/`: busca JSON para pickers/autocomplete.
+- `/sprites/manifest/`: manifesto JSON de imagens em lote, com URL, dimensoes, grid e ancora.
+
+## Rotas principais de tabletop
+
+- `/mesa/`: lista as mesas do usuario logado.
+- `/mesa/<slug>/`: visao ao vivo compartilhada (cena ativa); jogadores arrastam suas miniaturas.
+- `/mesa/<slug>/fragment`: payload do polling (canvas da cena ativa).
+- `/mesa/<slug>/manage`: gerenciar cenas (CRUD de mapas, definir fundo, trocar cena ativa).
+- `/mesa/<slug>/map/<mid>/editor`: editor de uma cena (tokens, props, nevoa) — somente o dono.
+
+O acesso publico e por `Slug` aleatorio (igual ao `initiative`); editar exige ser o dono.
+
 ## Bancos
 
 O projeto usa dois SQLite databases.
@@ -69,6 +90,9 @@ Usado por:
 - Django auth.
 - `home`.
 - `character`.
+- `initiative`.
+- `sprites`.
+- `tabletop`.
 
 O comando `python manage.py migrate` atua nele.
 
@@ -117,4 +141,3 @@ Itens importantes:
 
 - `static/css/character_sheet.css`
 - `static/htmx.min.js`
-

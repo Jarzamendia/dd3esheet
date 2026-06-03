@@ -195,6 +195,14 @@
 
 .init-sprite { width: 20px; height: 20px; }
 
+.init-sprite-img {
+    width: 34px;
+    height: 34px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
 /* ---------- Cells ---------- */
 
 .init-initiative {

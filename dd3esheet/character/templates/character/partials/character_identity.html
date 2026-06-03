@@ -125,6 +125,15 @@ ID HTMX: #characterIdentityForm
     </div>
 
     <aside class="brand">
+        {% if class_sprite.url %}
+        <div class="brand-class-sprite">
+            <img src="{{ class_sprite.url }}"
+                 alt="{{ class_sprite.alt }}"
+                 width="{{ class_sprite.width|default:96 }}"
+                 height="{{ class_sprite.height|default:96 }}"
+                 loading="lazy">
+        </div>
+        {% endif %}
         <div class="brand-swords">⚔ &nbsp;━━━&nbsp; ⚔</div>
         <h1 class="brand-title">DUNGEONS<br><em>&amp;</em> DRAGONS</h1>
         <div class="brand-sub">PLANILHA DE PERSONAGEM</div>

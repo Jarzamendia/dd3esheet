@@ -21,3 +21,6 @@ class Command(BaseCommand):
         self.stdout.write(f"  Mago:      {WIZARD_NAME} (pk={result['wizard'].pk})")
         self.stdout.write(f"  Druida:    {DRUID_NAME} (pk={result['druid'].pk})")
         self.stdout.write(f"  Ranger:    {RANGER_NAME} (pk={result['ranger'].pk})")
+        self.stdout.write(
+            f"  Sprites:   {len(result.get('sprites', {}))} assets/bindings base (sem criar arquivos)"
+        )

@@ -32,9 +32,11 @@ INSTALLED_APPS = [
     'django_filters',
     'axes',
     'home.apps.HomeConfig',
+    'sprites.apps.SpritesConfig',
     'character.apps.CharacterConfig',
     'sdr.apps.SdrConfig',
     'initiative.apps.InitiativeConfig',
+    'tabletop.apps.TabletopConfig',
     'crispy_forms',
     'crispy_bootstrap5',
 ]
@@ -138,6 +140,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 STORAGES = {
     'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
     'staticfiles': {

@@ -143,3 +143,6 @@ GitHub.sublime-settings
 # Agent workspace (planos, prompts e arquivos auxiliares de IA)
 .agents/
 .claude/
+
+
+design_handoff_dnd_vtt

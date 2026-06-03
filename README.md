@@ -70,14 +70,17 @@ Apps principais:
 - `home/`: pagina inicial em `/`.
 - `character/`: fichas dos personagens em `/character/`. Alem da ficha principal, oferece paginas extras de Companheiros, Recursos Diarios e Reputacao.
 - `sdr/`: dados de referencia do SRD D&D 3.5 em `/sdr/`.
+- `initiative/`: rastreador de iniciativa em `/iniciativa/`.
+- `sprites/`: biblioteca central de imagens em `/sprites/`, usada por ficha, iniciativa e futuros mapas.
 
 Arquivos importantes:
 
 - `dd3esheet/manage.py`: entrada dos comandos Django.
 - `dd3esheet/dd3esheet/settings.py`: configuracao Django, apps instalados e bancos.
-- `dd3esheet/dd3esheet/urls.py`: inclui as rotas de `home`, `character` e `sdr`.
+- `dd3esheet/dd3esheet/urls.py`: inclui as rotas de `home`, `character`, `sdr`, `initiative` e `sprites`.
 - `dd3esheet/templates/`: templates compartilhados.
 - `dd3esheet/static/`: arquivos estaticos locais.
+- `dd3esheet/media/`: uploads locais em desenvolvimento (`MEDIA_ROOT`).
 
 ## Bancos de Dados
 
@@ -92,6 +95,8 @@ Usado para:
 - Django auth.
 - App `home`.
 - App `character`.
+- App `initiative`.
+- App `sprites` e seus bindings de imagem.
 
 O comando normal de migracao atua neste banco:
 
@@ -223,6 +228,7 @@ Prioridades de teste:
 - Uma ficha completa de Mago elfo nivel 8 especialista em Evocacao (`Maelis Vorn`), com livro de magias e slots preparados.
 - Uma ficha completa de Druida humana nivel 9 (`Thalara Verdefolha`), com companheiro animal, invocacoes ativas, recursos diarios, buffs e reputacao.
 - Uma ficha completa de Ranger humano nivel 6 (`Kael Rastrolongo`), com companheiro animal, recursos diarios, reputacao e magias preparadas.
+- Registros e bindings de sprites para classes, tipos de combatente e monstros usados nos exemplos, sem criar arquivos de imagem.
 
 Roda automaticamente no `docker compose up` (o `command` do servico `web` faz `migrate` -> `seed` -> `runserver`). Para rodar manualmente (afeta o banco `default`, que e `.gitignore`d):
 

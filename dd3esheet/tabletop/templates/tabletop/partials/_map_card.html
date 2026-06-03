@@ -1,0 +1,44 @@
+{% comment %}Card de uma cena na tela de gerenciamento (variável `m`).{% endcomment %}
+<li class="tt-map-card{% if table.ActiveMap_id == m.id %} is-active{% endif %}">
+    <div class="tt-map-card__head">
+        <strong class="tt-map-card__name">{{ m.Name }}</strong>
+        <span class="tt-map-card__meta">{{ m.get_GridMode_display }} · {{ m.WidthPx }}×{{ m.HeightPx }}</span>
+        {% if table.ActiveMap_id == m.id %}<span class="tt-badge">no ar</span>{% endif %}
+    </div>
+
+    <div class="tt-map-card__actions">
+        <a class="tt-btn" href="{% url 'tabletop:editor' table.Slug m.id %}">Editar</a>
+        {% if table.ActiveMap_id != m.id %}
+        <button type="button" class="tt-btn"
+                hx-post="{% url 'tabletop:set-active' table.Slug m.id %}"
+                hx-target="#tt-manage" hx-swap="innerHTML">Pôr no ar</button>
+        {% endif %}
+        <button type="button" class="tt-btn tt-btn--danger"
+                hx-post="{% url 'tabletop:delete-map' table.Slug m.id %}"
+                hx-target="#tt-manage" hx-swap="innerHTML"
+                hx-confirm="Apagar o mapa “{{ m.Name }}”?">Apagar</button>
+    </div>
+
+    <details class="tt-map-card__edit">
+        <summary>Configurar</summary>
+        <form enctype="multipart/form-data"
+              hx-post="{% url 'tabletop:edit-map' table.Slug m.id %}" hx-target="#tt-manage" hx-swap="innerHTML">
+            {% csrf_token %}
+            <input type="text" name="Name" value="{{ m.Name }}" maxlength="120">
+            <select name="GridMode">
+                <option value="square" {% if m.GridMode == 'square' %}selected{% endif %}>Quadrada</option>
+                <option value="free" {% if m.GridMode == 'free' %}selected{% endif %}>Livre</option>
+            </select>
+            <label class="tt-inline">Célula(px)
+                <input type="number" name="GridSize" value="{{ m.GridSize }}" min="8" max="256">
+            </label>
+            <label class="tt-inline">
+                <input type="checkbox" name="ShowGrid" value="1" {% if m.ShowGrid %}checked{% endif %}> Mostrar grade
+            </label>
+            <label class="tt-file">Trocar fundo
+                <input type="file" name="BackgroundFile" accept="image/*">
+            </label>
+            <button type="submit" class="tt-btn">Salvar</button>
+        </form>
+    </details>
+</li>

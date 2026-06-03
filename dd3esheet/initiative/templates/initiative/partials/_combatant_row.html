@@ -1,6 +1,6 @@
 <li class="init-row{% if encounter.ActiveCombatant_id == c.id %} is-active{% endif %}" data-kind="{{ c.Kind }}">
     <span class="init-token init-token--{{ c.Kind }}" title="{{ c.get_Kind_display }}">
-        {% include "initiative/partials/_combatant_sprite.html" with kind=c.Kind %}
+        {% include "initiative/partials/_combatant_sprite.html" with kind=c.Kind sprite_url=c.SpriteUrl sprite_alt=c.SpriteAlt sprite_width=c.SpriteWidth sprite_height=c.SpriteHeight %}
     </span>
 
     <span class="init-cell init-initiative" title="Iniciativa">{{ c.Initiative }}</span>

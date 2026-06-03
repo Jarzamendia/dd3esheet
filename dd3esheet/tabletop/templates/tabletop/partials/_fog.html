@@ -1,0 +1,9 @@
+{% comment %}Retângulo de névoa. Opaco p/ jogadores; translúcido + botão p/ o dono.{% endcomment %}
+<div class="tt-fog{% if is_owner %} tt-fog--owner{% endif %}"
+     style="left:{{ fog.X }}px; top:{{ fog.Y }}px; width:{{ fog.Width }}px; height:{{ fog.Height }}px;">
+    {% if is_owner %}
+    <button type="button" class="tt-fog__del" title="Remover névoa"
+            hx-post="{% url 'tabletop:delete-fog' slug fog.id %}"
+            hx-target="#tt-live" hx-swap="innerHTML">✕</button>
+    {% endif %}
+</div>

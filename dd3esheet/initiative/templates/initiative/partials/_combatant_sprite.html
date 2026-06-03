@@ -1,4 +1,11 @@
-{% if kind == 'player' %}
+{% if sprite_url %}
+    <img class="init-sprite-img"
+         src="{{ sprite_url }}"
+         alt="{{ sprite_alt|default:'Sprite' }}"
+         width="{{ sprite_width|default:34 }}"
+         height="{{ sprite_height|default:34 }}"
+         loading="lazy">
+{% elif kind == 'player' %}
     {# Jogador: escudo #}
     <svg class="init-sprite" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5l-8-3Zm0 2.2 6 2.25V11c0 3.9-2.5 6.9-6 8.8-3.5-1.9-6-4.9-6-8.8V6.45l6-2.25Z"/>

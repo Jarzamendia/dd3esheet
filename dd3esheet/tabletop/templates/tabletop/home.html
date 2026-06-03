@@ -1,0 +1,28 @@
+{% extends "tabletop/base_tabletop.html" %}
+
+{% block title %}Mesas · Codex{% endblock %}
+
+{% block content %}
+<main class="tt-page" data-screen-label="tabletop">
+    <header class="tt-topbar">
+        <h1 class="tt-title">Minhas mesas</h1>
+    </header>
+
+    <form class="tt-create" method="post" action="{% url 'tabletop:create-table' %}">
+        {% csrf_token %}
+        <input type="text" name="Name" placeholder="Nome da mesa" maxlength="120" required>
+        <button type="submit" class="tt-btn tt-btn--primary">+ Nova mesa</button>
+    </form>
+
+    <ul class="tt-table-list">
+        {% for t in tables %}
+            <li class="tt-table-card">
+                <a class="tt-table-card__name" href="{% url 'tabletop:manage' t.Slug %}">{{ t.Name }}</a>
+                <a class="tt-table-card__link" href="{% url 'tabletop:table' t.Slug %}">ver cena ao vivo →</a>
+            </li>
+        {% empty %}
+            <li class="tt-empty">Nenhuma mesa ainda. Crie a primeira acima.</li>
+        {% endfor %}
+    </ul>
+</main>
+{% endblock %}

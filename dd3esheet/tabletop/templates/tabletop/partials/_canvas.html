@@ -1,0 +1,30 @@
+{% comment %}
+Canvas de uma cena: fundo + grade + névoa + tokens. Partial compartilhado pela
+visão ao vivo (polling), pelo editor e pelas respostas de ação (move/fog).
+{% endcomment %}
+{% if map %}
+<div class="tt-canvas tt-canvas--{{ map.GridMode }}"
+     data-slug="{{ slug }}" data-map="{{ map.id }}"
+     data-grid-mode="{{ map.GridMode }}" data-grid-size="{{ map.GridSize }}"
+     data-can-edit="{% if is_owner %}1{% else %}0{% endif %}"
+     {% if is_owner %}data-fog-url="{% url 'tabletop:add-fog' slug map.id %}"{% endif %}
+     style="width:{{ map.WidthPx }}px; height:{{ map.HeightPx }}px; --tt-cell:{{ map.GridSize }}px;">
+    {% if map.Background %}
+        <img class="tt-canvas__bg" src="{{ map.Background.original_url }}" alt="" draggable="false">
+    {% endif %}
+    {% if map.ShowGrid and map.GridMode == 'square' %}<div class="tt-canvas__grid"></div>{% endif %}
+    {% for fog in fogs %}{% include "tabletop/partials/_fog.html" %}{% endfor %}
+    {% for t in tokens %}{% include "tabletop/partials/_token.html" %}{% endfor %}
+</div>
+{% else %}
+<div class="tt-canvas tt-canvas--empty">
+    <p class="tt-empty">
+        {% if is_owner %}
+            Nenhuma cena no ar. Crie e ative um mapa em
+            <a href="{% url 'tabletop:manage' slug %}">gerenciar cenas</a>.
+        {% else %}
+            O mestre ainda não abriu nenhuma cena.
+        {% endif %}
+    </p>
+</div>
+{% endif %}

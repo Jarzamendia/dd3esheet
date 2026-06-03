@@ -1,0 +1,10 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/tabletop.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/tabletop.js' %}?v={% now 'U' %}"></script>
+{% endblock %}

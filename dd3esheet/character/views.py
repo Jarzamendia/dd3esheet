@@ -37,6 +37,8 @@ from .spellcasting import caster_config_for_class, numeric_slot_count, spellcast
 from sdr.models import SDR_Monster
 from sdr.lookups import resolve_spell
 from sdr.models import SDR_Spell
+from sprites.models import SpriteVariant
+from sprites.services import sprite_for_class, sprite_image_data
 
 logger = logging.getLogger(__name__)
 
@@ -813,6 +815,7 @@ def _sheet_context(char, **extra):
     context = {
         'character': char,
         'progress': progress,
+        'class_sprite': sprite_image_data(sprite_for_class(char.Class), SpriteVariant.ICON_96),
         'xp_to_next_level': _xp_to_next_level(char.Level, progress.ExperiencePoints),
         'characterForm': CharacterForm(instance=char),
         'characterStatsForm': CharacterStatsForm(instance=getattr(char, 'characterstats', None)),

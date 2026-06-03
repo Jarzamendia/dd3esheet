@@ -1,0 +1,23 @@
+{% extends "tabletop/base_tabletop.html" %}
+
+{% block title %}{{ table.Name }} · Gerenciar · Mesa{% endblock %}
+
+{% block content %}
+<main class="tt-page" data-screen-label="tabletop">
+    <header class="tt-topbar">
+        <h1 class="tt-title">{{ table.Name }}</h1>
+        <div class="tt-topbar__tools">
+            <a class="tt-btn" href="{% url 'tabletop:table' table.Slug %}">Ver cena ao vivo</a>
+        </div>
+    </header>
+
+    <p class="tt-share">
+        Link para os jogadores:
+        <code class="tt-share__url">{{ request.scheme }}://{{ request.get_host }}{% url 'tabletop:table' table.Slug %}</code>
+    </p>
+
+    <div id="tt-manage">
+        {% include "tabletop/partials/_manage_body.html" %}
+    </div>
+</main>
+{% endblock %}

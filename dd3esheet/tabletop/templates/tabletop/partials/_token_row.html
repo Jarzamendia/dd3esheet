@@ -1,0 +1,32 @@
+{% comment %}Linha de token no painel do editor (variável `t`).{% endcomment %}
+<li class="tt-token-row tt-token-row--{{ t.Kind }}">
+    <details>
+        <summary>
+            <span class="tt-token-row__name">{{ t.Label|default:t.get_Kind_display }}</span>
+            {% if t.Hidden %}<span class="tt-tag">oculto</span>{% endif %}
+            {% if t.MovableByPlayers %}<span class="tt-tag">jogador move</span>{% endif %}
+        </summary>
+        <form class="tt-token-edit" enctype="multipart/form-data"
+              hx-post="{% url 'tabletop:edit-token' table.Slug t.id %}" hx-target="#tt-editor" hx-swap="innerHTML">
+            {% csrf_token %}
+            <input type="text" name="Label" value="{{ t.Label }}" maxlength="80" placeholder="Nome">
+            <select name="Kind">
+                <option value="enemy" {% if t.Kind == 'enemy' %}selected{% endif %}>Inimigo</option>
+                <option value="player" {% if t.Kind == 'player' %}selected{% endif %}>Jogador</option>
+                <option value="npc" {% if t.Kind == 'npc' %}selected{% endif %}>NPC</option>
+                <option value="object" {% if t.Kind == 'object' %}selected{% endif %}>Objeto</option>
+            </select>
+            <label class="tt-inline">Larg.<input type="number" name="GridWidth" value="{{ t.GridWidth }}" min="1" max="20"></label>
+            <label class="tt-inline">Alt.<input type="number" name="GridHeight" value="{{ t.GridHeight }}" min="1" max="20"></label>
+            <label class="tt-inline"><input type="checkbox" name="MovableByPlayers" value="1" {% if t.MovableByPlayers %}checked{% endif %}> Jogadores movem</label>
+            <label class="tt-inline"><input type="checkbox" name="Hidden" value="1" {% if t.Hidden %}checked{% endif %}> Oculto p/ jogadores</label>
+            <label class="tt-file">Trocar imagem <input type="file" name="SpriteFile" accept="image/*"></label>
+            <div class="tt-token-edit__actions">
+                <button type="submit" class="tt-btn">Salvar</button>
+                <button type="button" class="tt-btn tt-btn--danger"
+                        hx-post="{% url 'tabletop:delete-token' table.Slug t.id %}" hx-target="#tt-editor" hx-swap="innerHTML"
+                        hx-confirm="Remover este token?">Remover</button>
+            </div>
+        </form>
+    </details>
+</li>
