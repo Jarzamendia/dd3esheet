@@ -148,6 +148,11 @@ Diferente do `initiative` (só viewers fazem polling), aqui **dono e jogadores**
 
 ## Frontend
 
+- `static/css/parchment-theme.css` — tokens do design language "Parchment & Ink"
+  (do `design_handoff_dnd_vtt/`), escopados sob `.tt-themed`. Carregado por
+  `base_tabletop.html`, que coloca `sheet-body tt-themed paper-field` no `<body>`
+  (via `{% block body_class %}` do `main.html`) para um quadro imersivo que
+  reveste também nav/rodapé só na mesa. Compartilhável com futuras telas.
 - `static/css/tabletop.css` — convenção `.tt-` (como `.init-` em `initiative.css`).
 - `static/js/tabletop.js` — vanilla, carregado só nas páginas da mesa via `{% block extra_js %}`.
   Arrasto por pointer events de `.tt-token[data-movable]`, snap à grade hexagonal, move otimista + POST,
