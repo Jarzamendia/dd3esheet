@@ -187,14 +187,30 @@
     justify-content: center;
     border-radius: 50%;
     color: var(--parchment);
-    box-shadow: 0 0 0 2px var(--parchment), 0 1px 4px rgba(0,0,0,.5);
+    --tok: var(--iron);            /* cor do tipo; sobrescrita por .tt-token--* */
+    background: var(--tok);        /* aparece quando não há imagem (atrás do glifo) */
+    /* anel da cor do tipo + fio escuro de contraste + sombra de base (miniatura) */
+    box-shadow:
+        0 0 0 3px var(--tok),
+        0 0 0 4px rgba(0,0,0,.55),
+        0 3px 7px rgba(0,0,0,.45);
     box-sizing: border-box;
     z-index: 10;
 }
-.tt-token--player { background: var(--tt-player); }
-.tt-token--enemy  { background: var(--tt-enemy); }
-.tt-token--npc    { background: var(--tt-npc); }
-.tt-token--object { background: var(--tt-object); border-radius: 12%; }
+/* vinheta + brilho por cima da imagem/glifo: volume de peça apoiada no mapa */
+.tt-token::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(78% 60% at 50% 26%, rgba(255,255,255,.20), rgba(255,255,255,0) 62%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -7px 11px rgba(0,0,0,.32);
+}
+.tt-token--player { --tok: var(--tt-player); }
+.tt-token--enemy  { --tok: var(--tt-enemy); }
+.tt-token--npc    { --tok: var(--tt-npc); }
+.tt-token--object { --tok: var(--tt-object); border-radius: 12%; }
 .tt-token[data-movable="1"] { cursor: grab; }
 .tt-token.is-dragging { cursor: grabbing; z-index: 50; box-shadow: 0 0 0 3px var(--ochre), 0 4px 12px rgba(0,0,0,.6); }
 .tt-token.is-hidden { opacity: .45; outline: 2px dashed var(--parchment); }
