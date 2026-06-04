@@ -7,6 +7,14 @@
     {% csrf_token %}{# garante cookie/token CSRF p/ o move via JS, mesmo anônimo #}
     <header class="tt-topbar">
         <h1 class="tt-title">{{ table.Name }}</h1>
+        {% if map %}
+        <div class="tt-zoombar" data-role="zoom">
+            <button type="button" class="tt-btn" data-zoom="out" aria-label="Diminuir zoom">−</button>
+            <span id="tt-zoom-pct" class="tt-zoom">100%</span>
+            <button type="button" class="tt-btn" data-zoom="in" aria-label="Aumentar zoom">+</button>
+            <button type="button" class="tt-btn" data-zoom="fit">Ajustar</button>
+        </div>
+        {% endif %}
         {% if is_owner %}
         <div class="tt-topbar__tools" data-role="gm-controls">
             <a class="tt-btn" href="{% url 'tabletop:manage' table.Slug %}">Gerenciar cenas</a>
@@ -17,7 +25,7 @@
         {% endif %}
     </header>
 
-    <div id="tt-live" class="tt-stage"
+    <div id="tt-live" class="tt-stage tt-stage--live"
          hx-get="{% url 'tabletop:live-fragment' table.Slug %}"
          hx-trigger="every 2s" hx-swap="innerHTML" hx-sync="this:replace">
         {% include "tabletop/partials/_canvas.html" %}
