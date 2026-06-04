@@ -49,7 +49,7 @@
 .tt-btn:active { transform: translateY(1px); }
 .tt-btn--primary { background: var(--steel-blue); border-color: var(--ink); color: var(--parchment); }
 .tt-btn--primary:hover { background: var(--royal-blue); color: var(--parchment); }
-.tt-btn--danger { background: #f0dcd6; border-color: var(--deep-red); color: var(--deep-red); }
+.tt-btn--danger { background: color-mix(in oklab, var(--deep-red) 12%, var(--paper-0)); border-color: var(--deep-red); color: var(--deep-red); }
 .tt-btn--danger:hover { background: var(--deep-red); color: var(--parchment); }
 .tt-btn.is-active { background: var(--ochre); border-color: var(--ink); color: var(--ink); }
 

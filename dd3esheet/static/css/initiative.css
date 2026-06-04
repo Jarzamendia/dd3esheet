@@ -23,7 +23,7 @@
 }
 
 .init-home__subtitle {
-    color: #555;
+    color: var(--ink-soft);
     margin: var(--gap-xs, 2px) 0 var(--gap-lg, 18px);
 }
 
@@ -36,7 +36,7 @@
 .init-create input[type="text"] {
     flex: 1;
     padding: 8px 10px;
-    border: var(--rule-w, 1px) solid #bbb;
+    border: var(--rule-w, 1px) solid var(--rule-hair);
     border-radius: var(--r-tiny, 2px);
     font: inherit;
 }
@@ -51,7 +51,7 @@
 }
 
 .init-encounter-card {
-    border: var(--rule-w, 1px) solid #ccc;
+    border: var(--rule-w, 1px) solid var(--rule-hair);
     background: var(--paper-bg, #fff);
     border-radius: var(--r-tiny, 2px);
     padding: var(--gap-md, 12px);
@@ -69,9 +69,9 @@
 
 .init-encounter-card__link:hover { text-decoration: underline; }
 
-.init-encounter-card__meta { font-size: 0.8rem; color: #777; }
+.init-encounter-card__meta { font-size: 0.8rem; color: var(--ink-soft); }
 
-.init-empty { color: #888; font-style: italic; padding: var(--gap, 8px); }
+.init-empty { color: var(--ink-soft); font-style: italic; padding: var(--gap, 8px); }
 
 /* ---------- Board header ---------- */
 
@@ -90,7 +90,7 @@
     margin: 0;
 }
 
-.init-share-hint { font-size: 0.8rem; color: #888; font-style: italic; }
+.init-share-hint { font-size: 0.8rem; color: var(--ink-soft); font-style: italic; }
 
 .init-turn-controls { display: flex; gap: var(--gap-sm, 4px); }
 
@@ -99,7 +99,7 @@
 .init-btn {
     font: inherit;
     padding: 7px 12px;
-    border: var(--rule-w, 1px) solid #999;
+    border: var(--rule-w, 1px) solid var(--rule-hair);
     background: var(--paper-bg-alt, #f3f3f1);
     border-radius: var(--r-tiny, 2px);
     cursor: pointer;
@@ -121,7 +121,7 @@
     flex-wrap: wrap;
     align-items: center;
     padding: var(--gap, 8px);
-    border: var(--rule-w, 1px) dashed #bbb;
+    border: var(--rule-w, 1px) dashed var(--rule-hair);
     border-radius: var(--r-tiny, 2px);
     margin-bottom: var(--gap-md, 12px);
 }
@@ -129,7 +129,7 @@
 .init-add input,
 .init-add select {
     padding: 6px 8px;
-    border: var(--rule-w, 1px) solid #bbb;
+    border: var(--rule-w, 1px) solid var(--rule-hair);
     border-radius: var(--r-tiny, 2px);
     font: inherit;
 }
@@ -148,7 +148,7 @@
     font-family: var(--font-display, Georgia, serif);
 }
 
-.init-round-bar__label { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; color: #777; }
+.init-round-bar__label { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; color: var(--ink-soft); }
 .init-round-bar__value { font-size: 1.5rem; font-weight: 700; }
 
 /* ---------- Combatant list ---------- */
@@ -160,7 +160,7 @@
     align-items: center;
     gap: var(--gap, 8px);
     padding: var(--gap-sm, 4px) var(--gap, 8px);
-    border: var(--rule-w, 1px) solid #ddd;
+    border: var(--rule-w, 1px) solid var(--rule-hair);
     border-left-width: 4px;
     border-radius: var(--r-tiny, 2px);
     background: var(--paper-bg, #fff);
@@ -216,8 +216,8 @@
 
 .init-ac {
     font-size: 0.72rem;
-    color: #666;
-    border: var(--rule-w, 1px) solid #ccc;
+    color: var(--ink-soft);
+    border: var(--rule-w, 1px) solid var(--rule-hair);
     border-radius: 999px;
     padding: 0 6px;
     margin-left: 4px;
@@ -232,7 +232,7 @@
     font-variant-numeric: tabular-nums;
 }
 
-.init-effects, .init-notes { font-size: 0.8rem; color: #555; }
+.init-effects, .init-notes { font-size: 0.8rem; color: var(--ink-soft); }
 .init-effects { color: #8a5a00; }
 
 /* ---------- Owner controls ---------- */
@@ -243,7 +243,7 @@
     font: inherit;
     width: 34px;
     padding: 4px 0;
-    border: var(--rule-w, 1px) solid #bbb;
+    border: var(--rule-w, 1px) solid var(--rule-hair);
     border-radius: var(--r-tiny, 2px);
     cursor: pointer;
     background: var(--paper-bg-alt, #f3f3f1);
@@ -265,7 +265,7 @@
 .init-edit input,
 .init-edit select {
     padding: 4px 6px;
-    border: var(--rule-w, 1px) solid #ddd;
+    border: var(--rule-w, 1px) solid var(--rule-hair);
     border-radius: var(--r-tiny, 2px);
     font: inherit;
     font-size: 0.85rem;
@@ -279,10 +279,10 @@
     font: inherit;
     border: none;
     background: none;
-    color: #b00;
+    color: var(--rubric);
     cursor: pointer;
     font-size: 1rem;
     padding: 4px 6px;
 }
 
-.init-delete:hover { color: #f00; }
+.init-delete:hover { color: var(--rubric-soft); }
