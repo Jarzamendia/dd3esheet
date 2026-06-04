@@ -267,14 +267,30 @@
 /* --- editor ------------------------------------------------------------- */
 .tt-page--editor {
     max-width: 100%;
+    /* Editor em tela cheia: ocupa a viewport abaixo da nav/rodape. */
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 84px);
+    padding: var(--sp-2) clamp(8px, 2vw, 16px) var(--sp-2);
+}
+.tt-page--editor > #tt-editor {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 .tt-editor-grid {
     display: grid;
-    grid-template-columns: 286px minmax(0, 1fr) 256px;
+    grid-template-columns: 256px minmax(0, 1fr) 232px;
     gap: 12px;
     align-items: stretch;
+    flex: 1 1 auto;
+    min-height: 0;
 }
-.tt-palette, .tt-editor-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.tt-palette, .tt-editor-side {
+    display: flex; flex-direction: column; gap: 12px;
+    min-width: 0; min-height: 0; overflow: auto;
+}
 .tt-panel { border: 1.5px solid var(--edge-line); border-radius: var(--radius); padding: 10px 12px; background: var(--paper-0); box-shadow: var(--shadow-1); }
 .tt-panel__title { margin: 0 0 8px; font-family: var(--font-display); font-size: 1rem; }
 .tt-toolstrip, .tt-tabs, .tt-stage-tools {
@@ -356,18 +372,18 @@
 }
 .tt-editor-stage {
     min-width: 0;
-    display: grid;
-    grid-template-rows: auto minmax(420px, 72vh) auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
 }
 .tt-stage--editor {
     position: relative;
     overflow: hidden;
-    /* Conteudo e absoluto (overlay + #tt-world), entao a altura intrinseca e 0.
-       Damos uma altura definida para o palco nunca colapsar quando as colunas
-       vizinhas sao curtas (o minmax do grid aninhado nao segura o piso aqui). */
-    height: 72vh;
-    min-height: 420px;
+    /* O palco cresce para preencher toda a coluna central (tela cheia). Conteudo
+       e absoluto (overlay + #tt-world), entao depende do flex para ter altura. */
+    flex: 1 1 auto;
+    min-height: 360px;
     max-height: none;
 }
 .tt-world {
@@ -444,8 +460,9 @@
 .tt-token-edit__actions { display: flex; gap: 6px; }
 
 @media (max-width: 860px) {
+    .tt-page--editor { height: auto; min-height: 0; }
     .tt-editor-grid { grid-template-columns: 1fr; }
-    .tt-editor-stage { grid-template-rows: auto minmax(360px, 60vh) auto; }
-    .tt-stage--editor { height: 60vh; min-height: 360px; }
+    .tt-palette, .tt-editor-side { overflow: visible; }
+    .tt-stage--editor { flex: none; height: 68vh; min-height: 360px; }
     .tt-palette-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
 }
