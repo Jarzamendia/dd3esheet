@@ -61,6 +61,44 @@
   font-family: var(--font-body);
 }
 
+/* ------------------------------------------------------------------
+   Skin "ficha": remapeia os tokens Parchment & Ink para a paleta da
+   ficha (papel branco, tinta preta, rubrica vermelha). Aplicado via
+   classe .tt-ficha no <body> da Mesa e da Sprite Library. A Art
+   Direction Spec NAO recebe .tt-ficha e segue Parchment & Ink.
+   Cores funcionais de tipo (player/enemy/npc/object/active) ficam
+   intactas; so o chrome (papel, tinta, bordas, texto, links) muda.
+   ------------------------------------------------------------------ */
+.tt-themed.tt-ficha {
+  --ink:        #1a1a1a;
+  --ink-soft:   #585858;
+  --parchment:  #ffffff;   /* texto sobre superficie escura -> branco */
+  --bone:       #ececea;
+
+  --paper-0:    #ffffff;
+  --paper-1:    #fafafa;
+  --paper-2:    #f3f3f1;
+  --paper-3:    #ececea;
+  --edge-line:  rgba(0,0,0,.18);
+  --edge-strong:rgba(0,0,0,.40);
+
+  --text:        #1a1a1a;
+  --text-soft:   #585858;
+  --text-faint:  #8a8a8a;
+  --line:        #000000;
+
+  --leather:     #1a1a1a;  /* chrome (links/acentos) -> tinta */
+  --deep-red:    #b51818;  /* link hover / enemy -> rubrica da ficha */
+
+  --tt-object:   #7a4f2a;  /* marcador "objeto" segue terroso (funcional) */
+}
+
+/* desk neutra da ficha + textura de grao preservada */
+.tt-themed.tt-ficha.paper-field {
+  background-color: #f5f5f3;
+  background-image: var(--grain);
+}
+
 /* campo de papel quente usado como fundo da pagina da mesa */
 .tt-themed.paper-field {
   background-color: var(--paper-1);
@@ -130,18 +168,19 @@
 .tt-themed *::-webkit-scrollbar-thumb:hover { background: var(--leather); }
 .tt-themed *::-webkit-scrollbar-track { background: transparent; }
 
-/* --- quadro imersivo: re-skin da nav/rodape globais SO na mesa --- */
-.tt-themed .app-nav {
+/* --- quadro imersivo: re-skin da nav/rodape globais SO na mesa Parchment.
+   Excluido em .tt-ficha: la a nav/rodape voltam a ser as padrao do app. --- */
+.tt-themed:not(.tt-ficha) .app-nav {
   background: var(--leather);
   color: var(--parchment);
   border-bottom: 3px double var(--ink);
 }
-.tt-themed .app-nav .brand-mark { color: var(--parchment); }
-.tt-themed .app-nav .nav-link { color: rgba(239,230,210,.85); }
-.tt-themed .app-nav .nav-link:hover,
-.tt-themed .app-nav .nav-link.active {
+.tt-themed:not(.tt-ficha) .app-nav .brand-mark { color: var(--parchment); }
+.tt-themed:not(.tt-ficha) .app-nav .nav-link { color: rgba(239,230,210,.85); }
+.tt-themed:not(.tt-ficha) .app-nav .nav-link:hover,
+.tt-themed:not(.tt-ficha) .app-nav .nav-link.active {
   color: var(--parchment);
   border-color: var(--ochre);
 }
-.tt-themed .app-nav .nav-user { color: var(--parchment); }
-.tt-themed .app-footer { color: var(--text-faint); }
+.tt-themed:not(.tt-ficha) .app-nav .nav-user { color: var(--parchment); }
+.tt-themed:not(.tt-ficha) .app-footer { color: var(--text-faint); }

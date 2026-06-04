@@ -128,7 +128,7 @@
 .sl-search:focus {
     outline: none;
     border-color: var(--leather);
-    box-shadow: 0 0 0 3px rgba(122,79,42,.16);
+    box-shadow: 0 0 0 3px rgba(0,0,0,.16);
 }
 
 .sl-side-scroll {
@@ -457,7 +457,7 @@
 
 .sl-card:focus-visible .sl-disc,
 .sl-card:focus-visible .sl-frame {
-    box-shadow: 0 0 0 3px rgba(122,79,42,.35), var(--shadow-1);
+    box-shadow: 0 0 0 3px rgba(0,0,0,.35), var(--shadow-1);
 }
 
 .sl-slot {
