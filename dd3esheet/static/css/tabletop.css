@@ -336,6 +336,11 @@
 .tt-stage--editor {
     position: relative;
     overflow: hidden;
+    /* Conteudo e absoluto (overlay + #tt-world), entao a altura intrinseca e 0.
+       Damos uma altura definida para o palco nunca colapsar quando as colunas
+       vizinhas sao curtas (o minmax do grid aninhado nao segura o piso aqui). */
+    height: 72vh;
+    min-height: 420px;
     max-height: none;
 }
 .tt-world {
@@ -414,5 +419,6 @@
 @media (max-width: 860px) {
     .tt-editor-grid { grid-template-columns: 1fr; }
     .tt-editor-stage { grid-template-rows: auto minmax(360px, 60vh) auto; }
+    .tt-stage--editor { height: 60vh; min-height: 360px; }
     .tt-palette-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
 }
