@@ -26,6 +26,7 @@
 }
 .tt-title { margin: 0; font-family: var(--font-display); font-size: 1.6rem; flex: 1 1 auto; }
 .tt-topbar__tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.tt-zoombar { display: inline-flex; align-items: center; gap: 6px; }
 .tt-hint { color: var(--text-faint); font-style: italic; }
 
 .tt-btn {
@@ -120,6 +121,16 @@
     background-position: 0 0, 0 12px, 12px -12px, -12px 0;
     box-shadow: var(--shadow-inset);
 }
+/* Cena ao vivo: viewport recortado com zoom/pan (transform aplicado via JS no canvas). */
+.tt-stage--live {
+    overflow: hidden;
+    height: 78vh;
+    max-height: none;
+    cursor: grab;
+    touch-action: none;          /* pan por um dedo sem rolagem/zoom acidental */
+}
+.tt-stage--live.panning { cursor: grabbing; }
+.tt-stage--live .tt-canvas { transform-origin: 0 0; }
 .tt-canvas {
     position: relative;
     margin: 0;

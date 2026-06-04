@@ -9,6 +9,9 @@
 
     var dragging = false;   // arrasto de token OU desenho de névoa em andamento
     var fogMode = false;    // modo "desenhar névoa" (botão do editor)
+    var panning = false;    // arrasto do fundo (pan) na cena
+    var fitted = false;     // já enquadrou a cena uma vez no carregamento
+    var view = { scale: 1, panX: 0, panY: 0 };  // zoom/pan da cena (só cliente, por espectador)
 
     var SQ3 = Math.sqrt(3);
     function cubeRound(q, r) {
@@ -28,12 +31,77 @@
 
     function canvasPoint(canvas, ev) {
         var r = canvas.getBoundingClientRect();
-        return [ev.clientX - r.left, ev.clientY - r.top];
+        var sc = view.scale || 1;   // o canvas da cena pode estar escalado pelo zoom
+        return [(ev.clientX - r.left) / sc, (ev.clientY - r.top) / sc];
+    }
+
+    // --- zoom/pan da cena ao vivo (o editor usa tabletop_editor.js) -------------
+    function liveStage() { return document.getElementById('tt-live'); }
+    function liveCanvas() {
+        var s = liveStage();
+        var c = s ? s.querySelector('.tt-canvas') : null;
+        return (c && !c.classList.contains('tt-canvas--empty')) ? c : null;
+    }
+    function applyView() {
+        var c = liveCanvas();
+        if (c) {
+            c.style.transformOrigin = '0 0';
+            c.style.transform = 'translate(' + view.panX + 'px,' + view.panY + 'px) scale(' + view.scale + ')';
+        }
+        var pct = document.getElementById('tt-zoom-pct');
+        if (pct) pct.textContent = Math.round(view.scale * 100) + '%';
+    }
+    function stageToWorld(ev) {
+        var r = liveStage().getBoundingClientRect();
+        return { x: (ev.clientX - r.left - view.panX) / view.scale, y: (ev.clientY - r.top - view.panY) / view.scale };
+    }
+    function zoomBy(mult, ev) {
+        var s = liveStage();
+        if (!s) return;
+        var before = ev ? stageToWorld(ev) : null;
+        view.scale = Math.max(0.2, Math.min(3, view.scale * mult));
+        if (before) {
+            var r = s.getBoundingClientRect();
+            view.panX = ev.clientX - r.left - before.x * view.scale;
+            view.panY = ev.clientY - r.top - before.y * view.scale;
+        }
+        applyView();
+    }
+    function fitView() {
+        var s = liveStage(), c = liveCanvas();
+        if (!s || !c) return;
+        var w = parseInt(c.style.width, 10) || c.offsetWidth || 1;
+        var h = parseInt(c.style.height, 10) || c.offsetHeight || 1;
+        view.scale = Math.max(0.2, Math.min(3, Math.min((s.clientWidth - 24) / w, (s.clientHeight - 24) / h)));
+        view.panX = Math.round((s.clientWidth - w * view.scale) / 2);
+        view.panY = Math.round((s.clientHeight - h * view.scale) / 2);
+        applyView();
+    }
+    function startPan(e) {
+        var s = liveStage();
+        if (!s) return;
+        e.preventDefault();
+        panning = true;
+        s.classList.add('panning');
+        var sx = e.clientX, sy = e.clientY, px = view.panX, py = view.panY;
+        function move(ev) {
+            view.panX = px + (ev.clientX - sx);
+            view.panY = py + (ev.clientY - sy);
+            applyView();
+        }
+        function up() {
+            document.removeEventListener('pointermove', move);
+            document.removeEventListener('pointerup', up);
+            panning = false;
+            s.classList.remove('panning');
+        }
+        document.addEventListener('pointermove', move);
+        document.addEventListener('pointerup', up);
     }
 
     // Enquanto arrasta/desenha, ignora o swap do polling para não reverter a peça.
     document.body.addEventListener('htmx:beforeSwap', function (evt) {
-        if (dragging && evt.target && evt.target.id === 'tt-live') {
+        if ((dragging || panning) && evt.target && evt.target.id === 'tt-live') {
             evt.detail.shouldSwap = false;
         }
     });
@@ -49,9 +117,29 @@
         });
     });
 
+    // Botões de zoom da cena (− / + / Ajustar), convenção data-zoom como no editor.
+    document.body.addEventListener('click', function (e) {
+        var z = e.target.closest('[data-zoom]');
+        if (!z || !liveStage()) return;
+        if (z.dataset.zoom === 'in') zoomBy(1.2);
+        else if (z.dataset.zoom === 'out') zoomBy(1 / 1.2);
+        else fitView();
+    });
+
+    // Roda do mouse = zoom no ponto do cursor.
+    document.body.addEventListener('wheel', function (e) {
+        var s = liveStage();
+        if (!s || !s.contains(e.target)) return;
+        e.preventDefault();
+        zoomBy(e.deltaY < 0 ? 1.12 : 1 / 1.12, e);
+    }, { passive: false });
+
     document.body.addEventListener('pointerdown', function (e) {
         if (fogMode) { startFog(e); return; }
-        startTokenDrag(e);
+        var s = liveStage();
+        if (!s || !s.contains(e.target)) return;            // só na cena ao vivo
+        if (e.target.closest('.tt-token[data-movable="1"]')) { startTokenDrag(e); return; }
+        startPan(e);                                          // arrastar o fundo = pan
     });
 
     function startTokenDrag(e) {
@@ -156,7 +244,14 @@
     function drawAllHexGrids() {
         document.querySelectorAll('canvas[data-hexgrid]').forEach(drawHexGrid);
     }
-    document.body.addEventListener('htmx:afterSwap', drawAllHexGrids);
-    if (document.readyState !== 'loading') drawAllHexGrids();
-    else document.addEventListener('DOMContentLoaded', drawAllHexGrids);
+    // Após cada swap (polling) redesenha a grade e reaplica o zoom/pan da cena;
+    // na primeira vez que há cena, enquadra-a (fit). O editor não tem #tt-live.
+    function refreshScene() {
+        drawAllHexGrids();
+        if (!liveCanvas()) return;
+        if (!fitted) { fitted = true; fitView(); } else { applyView(); }
+    }
+    document.body.addEventListener('htmx:afterSwap', refreshScene);
+    if (document.readyState !== 'loading') refreshScene();
+    else document.addEventListener('DOMContentLoaded', refreshScene);
 })();
