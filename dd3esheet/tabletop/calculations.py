@@ -112,6 +112,13 @@ def point_in_rect(px, py, rx, ry, rw, rh):
     return rx <= px <= rx + rw and ry <= py <= ry + rh
 
 
+def token_hex_visible(q, r, fog_keys, is_owner):
+    """Token (no hex q,r) visível? Dono vê tudo; jogador não vê hex em névoa."""
+    if is_owner:
+        return True
+    return (q, r) not in fog_keys
+
+
 def token_visible_to(token, fog_regions, is_owner):
     """Return whether a token should be rendered for the current viewer."""
     if is_owner:

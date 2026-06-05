@@ -130,6 +130,65 @@ class GridMigrationTests(TestCase):
         self.assertEqual(m.GridMode, Map.HEX)
 
 
+class TerrainPaletteTests(SimpleTestCase):
+    def test_palette_has_nine_unique_keys(self):
+        from .terrains import TERRAINS, TERRAIN_KEYS, DEFAULT_TERRAIN
+        self.assertEqual(len(TERRAINS), 9)
+        self.assertEqual(len(set(TERRAIN_KEYS)), 9)
+        self.assertEqual(DEFAULT_TERRAIN, 'stone')
+        self.assertIn('water', TERRAIN_KEYS)
+
+    def test_solid_terrains_have_color_textured_have_slug(self):
+        from .terrains import TERRAINS
+        by_id = {t['id']: t for t in TERRAINS}
+        self.assertEqual(by_id['water']['kind'], 'color')
+        self.assertTrue(by_id['water']['color'].startswith('#'))
+        self.assertEqual(by_id['dungeon']['kind'], 'texture')
+        self.assertTrue(by_id['dungeon']['slug'])
+
+
+class SceneModelTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('m', password='x')
+        self.table = GameTable.objects.create(Owner=self.user, Name='T')
+        self.map = Map.objects.create(Table=self.table, Name='C')
+
+    def test_token_scene_fields_defaults(self):
+        t = Token.objects.create(Map=self.map)
+        self.assertEqual(t.Faction, Token.ENEMY_FACTION)
+        self.assertEqual(t.Size, 'md')
+        self.assertEqual(t.HP, 0)
+        self.assertEqual(t.MaxHP, 0)
+        self.assertEqual(t.Conditions, [])
+
+    def test_fogcell_unique_per_map(self):
+        from .models import FogCell
+        FogCell.objects.create(Map=self.map, Q=1, R=2)
+        with self.assertRaises(Exception):
+            FogCell.objects.create(Map=self.map, Q=1, R=2)
+
+    def test_terraincell_terrain_key(self):
+        from .models import TerrainCell
+        c = TerrainCell.objects.create(Map=self.map, Q=0, R=0, Terrain='grass')
+        self.assertEqual(c.Terrain, 'grass')
+
+
+class FactionDerivationTests(SimpleTestCase):
+    def test_kind_to_faction_mapping(self):
+        self.assertEqual(Token.KIND_TO_FACTION[Token.PLAYER], Token.PARTY)
+        self.assertEqual(Token.KIND_TO_FACTION[Token.ENEMY], Token.ENEMY_FACTION)
+        self.assertEqual(Token.KIND_TO_FACTION[Token.NPC], Token.NEUTRAL)
+        self.assertEqual(Token.KIND_TO_FACTION[Token.OBJECT], Token.NEUTRAL)
+
+
+class FogVisibilityTests(SimpleTestCase):
+    def test_token_hidden_when_its_hex_is_fogged(self):
+        from .calculations import token_hex_visible
+        self.assertFalse(token_hex_visible(2, 1, {(2, 1)}, is_owner=False))
+        self.assertTrue(token_hex_visible(2, 1, {(0, 0)}, is_owner=False))
+        self.assertTrue(token_hex_visible(2, 1, {(2, 1)}, is_owner=True))
+
+
 class _Base(TestCase):
     def setUp(self):
         self.owner = User.objects.create_user('owner', password='x' * 12)

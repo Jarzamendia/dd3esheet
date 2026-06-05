@@ -81,8 +81,26 @@ class Token(models.Model):
         (OBJECT, 'Objeto'),
     ]
 
+    PARTY, ALLY, NEUTRAL, ENEMY_FACTION = 'party', 'ally', 'neutral', 'enemy'
+    FACTION_CHOICES = [
+        (PARTY, 'Grupo'),
+        (ALLY, 'Aliado'),
+        (NEUTRAL, 'Neutro'),
+        (ENEMY_FACTION, 'Inimigo'),
+    ]
+    SIZE_CHOICES = [
+        ('sm', 'Pequeno'),
+        ('md', 'Médio'),
+        ('lg', 'Grande'),
+        ('xl', 'Enorme'),
+    ]
+
+    # Mapeia o Kind herdado para a facção do handoff (usado na migração e em views).
+    KIND_TO_FACTION = {PLAYER: PARTY, ENEMY: ENEMY_FACTION, NPC: NEUTRAL, OBJECT: NEUTRAL}
+
     Map = models.ForeignKey(Map, on_delete=models.CASCADE)
     Kind = models.CharField(max_length=8, choices=KIND_CHOICES, default=ENEMY)
+    Faction = models.CharField(max_length=8, choices=FACTION_CHOICES, default=ENEMY_FACTION)
     Label = models.CharField(max_length=80, blank=True)
     SpriteAsset = models.ForeignKey(
         'sprites.SpriteAsset', null=True, blank=True,
@@ -90,6 +108,10 @@ class Token(models.Model):
     )
     X = models.IntegerField(default=0)
     Y = models.IntegerField(default=0)
+    HP = models.IntegerField(default=0)
+    MaxHP = models.IntegerField(default=0)
+    Size = models.CharField(max_length=2, choices=SIZE_CHOICES, default='md')
+    Conditions = models.JSONField(default=list, blank=True)
     GridWidth = models.PositiveSmallIntegerField(default=1)   # pegada em células
     GridHeight = models.PositiveSmallIntegerField(default=1)
     MovableByPlayers = models.BooleanField(default=False)
@@ -133,6 +155,7 @@ class TerrainCell(models.Model):
     Map = models.ForeignKey(Map, on_delete=models.CASCADE)
     Q = models.IntegerField()
     R = models.IntegerField()
+    Terrain = models.CharField(max_length=16, default='stone')
     SpriteAsset = models.ForeignKey(
         'sprites.SpriteAsset', null=True, blank=True,
         on_delete=models.SET_NULL, related_name='tabletop_terrain',
@@ -147,3 +170,21 @@ class TerrainCell(models.Model):
 
     def __str__(self):
         return f'Terrain {self.Q},{self.R}'
+
+
+class FogCell(models.Model):
+    """Hex coberto por névoa (coords axiais). Substitui o FogRegion retangular."""
+
+    Map = models.ForeignKey(Map, on_delete=models.CASCADE)
+    Q = models.IntegerField()
+    R = models.IntegerField()
+    CreatedAt = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('CreatedAt',)
+        constraints = [
+            models.UniqueConstraint(fields=('Map', 'Q', 'R'), name='unique_fog_cell_per_map'),
+        ]
+
+    def __str__(self):
+        return f'Fog {self.Q},{self.R}'
