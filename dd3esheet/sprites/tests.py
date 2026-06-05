@@ -405,3 +405,31 @@ class TerrainKindManifestTests(SimpleTestCase):
         self.assertNotIn('barbarian_class_icon', mapping)
         ids = {a['id'] for a in self._map_pieces()}
         self.assertEqual(set(mapping), ids)
+
+
+class LibraryTerrainSplitTests(TestCase):
+    def setUp(self):
+        for slug, name in [('grass_field_tile', 'Grass Field Tile'),
+                           ('dungeon_floor_tile', 'Dungeon Floor Tile'),
+                           ('dirt_road_straight', 'Dirt Road Straight'),
+                           ('river_segment', 'River Segment')]:
+            SpriteAsset.objects.update_or_create(
+                Slug=slug,
+                defaults={'Name': name, 'Category': SpriteAsset.MAP_TILE,
+                          'Visibility': SpriteAsset.PUBLIC, 'IsActive': True})
+
+    def test_map_pieces_split_into_base_and_detail_groups(self):
+        from .views import _library_groups_for_user
+        groups = {g['key']: g for g in _library_groups_for_user(None)}
+        self.assertNotIn('map_pieces', groups)
+        self.assertIn('map_pieces_base', groups)
+        self.assertIn('map_pieces_detail', groups)
+
+        base_slugs = {r['id'] for r in groups['map_pieces_base']['assets']}
+        detail_slugs = {r['id'] for r in groups['map_pieces_detail']['assets']}
+        self.assertIn('grass_field_tile', base_slugs)
+        self.assertIn('dungeon_floor_tile', base_slugs)
+        self.assertIn('dirt_road_straight', detail_slugs)
+        self.assertIn('river_segment', detail_slugs)
+        self.assertEqual(base_slugs & detail_slugs, set())
+        self.assertEqual(groups['map_pieces_base']['visible_count'], len(base_slugs))

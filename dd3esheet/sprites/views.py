@@ -18,8 +18,9 @@ CREATURE_GROUP_KEYS = {
     'magical',
 }
 TYPE_ORDER = (
-    'TABLETOP_TOKEN', 'PROP_TOKEN', 'STATUS_MARKER', 'CLASS_ICON',
-    'PORTRAIT', 'BATTLE_MAP', 'CITY_OR_WORLD_MAP', 'MAP_PIECE',
+    'TABLETOP_TOKEN', 'PROP_TOKEN', 'ITEM_SPRITE', 'MAP_MARKER',
+    'STATUS_MARKER', 'CLASS_ICON', 'PORTRAIT', 'BATTLE_MAP',
+    'CITY_OR_WORLD_MAP', 'MAP_PIECE',
 )
 FOOTPRINT_ORDER = ('1x1', '2x1', '1x2', '2x2', '3x3', '4x4', '6x6')
 
@@ -41,7 +42,7 @@ def _manifest_by_slug():
 def _slot_class(asset_type):
     if asset_type == 'PORTRAIT':
         return 'sl-slot--portrait'
-    if asset_type == 'STATUS_MARKER':
+    if asset_type in ('MAP_MARKER', 'STATUS_MARKER'):
         return 'sl-slot--marker'
     if asset_type in ('BATTLE_MAP', 'CITY_OR_WORLD_MAP'):
         return 'sl-slot--map'
@@ -78,6 +79,15 @@ def _library_row(asset, manifest_asset=None, group=None):
         'format': manifest_asset.get('format', ''),
         'footprint': footprint or '',
         'grid_label': f'{grid_width}x{grid_height}',
+        'grid_size': manifest_asset.get('grid_size') or f'{grid_width}x{grid_height}',
+        'subcategory': manifest_asset.get('subcategory', ''),
+        'state': manifest_asset.get('state', ''),
+        'expected_path': manifest_asset.get('expected_path', ''),
+        'modular': manifest_asset.get('modular', False),
+        'modular_role': manifest_asset.get('modular_role', ''),
+        'terrain_kind': manifest_asset.get('terrain_kind', ''),
+        'variations': ', '.join(manifest_asset.get('variations', [])),
+        'scenes': ', '.join(manifest_asset.get('scenes', [])),
         'size_label': SIZE_BY_FOOTPRINT.get(footprint, '') if group.get('key') in CREATURE_GROUP_KEYS else '',
         'category': asset.Category,
         'glyph': group.get('glyph', 'shield'),
@@ -89,6 +99,31 @@ def _library_row(asset, manifest_asset=None, group=None):
         'image_url': asset.original_url,
         'alt': asset.display_alt,
     }
+
+
+def _split_map_pieces(group, rows):
+    """Quebra o grupo 'Map Pieces' em Terreno Básico e Terreno Detalhado."""
+    parts = [
+        ('map_pieces_base', 'Terreno Básico', '--forest',
+         [a for a in group['assets'] if a.get('terrain_kind') == 'base'],
+         [r for r in rows if r['terrain_kind'] == 'base']),
+        ('map_pieces_detail', 'Terreno Detalhado', '--iron',
+         [a for a in group['assets'] if a.get('terrain_kind') != 'base'],
+         [r for r in rows if r['terrain_kind'] != 'base']),
+    ]
+    out = []
+    for key, label, accent, manifest_assets, part_rows in parts:
+        out.append({
+            **group,
+            'key': key,
+            'label': label,
+            'accent': accent,
+            'assets': part_rows,
+            'count': len(manifest_assets),
+            'visible_count': len(part_rows),
+            'grid_class': _grid_class('map_pieces'),
+        })
+    return out
 
 
 def _library_groups_for_user(user):
@@ -110,12 +145,15 @@ def _library_groups_for_user(user):
             asset = visible_assets.get(manifest_asset['id'])
             if asset:
                 rows.append(_library_row(asset, manifest_asset, group))
-        groups.append({
-            **group,
-            'assets': rows,
-            'visible_count': len(rows),
-            'grid_class': _grid_class(group['key']),
-        })
+        if group['key'] == 'map_pieces':
+            groups.extend(_split_map_pieces(group, rows))
+        else:
+            groups.append({
+                **group,
+                'assets': rows,
+                'visible_count': len(rows),
+                'grid_class': _grid_class(group['key']),
+            })
     return groups
 
 
