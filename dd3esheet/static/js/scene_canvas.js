@@ -205,7 +205,7 @@
     }
 
     // --- eventos ----------------------------------------------------------
-    let panning = false, panLast = null;
+    let panning = false, panLast = null, panStart = null, panMoved = 0;
 
     canvas.addEventListener('wheel', function (ev) {
       ev.preventDefault();
@@ -221,7 +221,7 @@
     canvas.addEventListener('pointerdown', function (ev) {
       const [sx, sy] = localPoint(ev);
       if (opts.shouldPan && opts.shouldPan(ev)) {
-        panning = true; panLast = [ev.clientX, ev.clientY];
+        panning = true; panLast = [ev.clientX, ev.clientY]; panStart = [ev.clientX, ev.clientY]; panMoved = 0;
         canvas.setPointerCapture(ev.pointerId);
         ev.preventDefault();
         return;
@@ -232,6 +232,7 @@
       if (panning) {
         cam.x += ev.clientX - panLast[0];
         cam.y += ev.clientY - panLast[1];
+        panMoved += Math.abs(ev.clientX - panLast[0]) + Math.abs(ev.clientY - panLast[1]);
         panLast = [ev.clientX, ev.clientY];
         draw();
         return;
@@ -240,7 +241,15 @@
       if (opts.onPointer) opts.onPointer('move', screenToWorld(sx, sy), ev);
     });
     function endPan(ev) {
-      if (panning) { panning = false; try { canvas.releasePointerCapture(ev.pointerId); } catch (e) {} return true; }
+      if (panning) {
+        panning = false;
+        try { canvas.releasePointerCapture(ev.pointerId); } catch (e) {}
+        if (panMoved < 4 && opts.onBackgroundTap) {
+          const [sx, sy] = localPoint(ev);
+          opts.onBackgroundTap(screenToWorld(sx, sy), ev);
+        }
+        return true;
+      }
       return false;
     }
     canvas.addEventListener('pointerup', function (ev) {
