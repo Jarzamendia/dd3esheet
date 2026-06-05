@@ -223,6 +223,7 @@ def table_view(request, slug):
     return render(request, 'tabletop/table_view.html', {
         'table': table, 'map': table.ActiveMap, 'slug': table.Slug, 'is_owner': is_owner,
         'scene': scene if scene is not None else {'empty': True},
+        'terrain_palette': _terrain_palette_payload(request.user),
     })
 
 

@@ -1,34 +1,73 @@
 {% extends "tabletop/base_tabletop.html" %}
+{% load static %}
 
 {% block title %}{{ table.Name }} · Mesa{% endblock %}
 
-{% block content %}
-<main class="tt-page" data-screen-label="tabletop">
-    {% csrf_token %}{# garante cookie/token CSRF p/ o move via JS, mesmo anônimo #}
-    <header class="tt-topbar">
-        <h1 class="tt-title">{{ table.Name }}</h1>
-        {% if map %}
-        <div class="tt-zoombar" data-role="zoom">
-            <button type="button" class="tt-btn" data-zoom="out" aria-label="Diminuir zoom">−</button>
-            <span id="tt-zoom-pct" class="tt-zoom">100%</span>
-            <button type="button" class="tt-btn" data-zoom="in" aria-label="Aumentar zoom">+</button>
-            <button type="button" class="tt-btn" data-zoom="fit">Ajustar</button>
-        </div>
-        {% endif %}
-        {% if is_owner %}
-        <div class="tt-topbar__tools" data-role="gm-controls">
-            <a class="tt-btn" href="{% url 'tabletop:manage' table.Slug %}">Gerenciar cenas</a>
-            {% if map %}<a class="tt-btn" href="{% url 'tabletop:editor' table.Slug map.id %}">Editar esta cena</a>{% endif %}
-        </div>
-        {% else %}
-        <span class="tt-hint">visualização compartilhada · atualiza sozinha</span>
-        {% endif %}
-    </header>
+{% block extra_head %}{{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/scene_editor.css' %}?v={% now 'U' %}">
+{% endblock %}
 
-    <div id="tt-live" class="tt-stage tt-stage--live"
-         hx-get="{% url 'tabletop:live-fragment' table.Slug %}"
-         hx-trigger="every 2s" hx-swap="innerHTML" hx-sync="this:replace">
-        {% include "tabletop/partials/_canvas.html" %}
+{% block content %}
+<main class="sc-live" data-screen-label="tabletop"
+      data-can-edit="{% if is_owner %}1{% else %}0{% endif %}"
+      data-live-fragment-url="{% url 'tabletop:live-fragment' table.Slug %}"
+      data-move-url="{% url 'tabletop:move-token' table.Slug 0 %}">
+  {% csrf_token %}{# garante cookie/token CSRF p/ o move via JS, mesmo anônimo #}
+  <header class="sc-live__header">
+    <span class="sc-live__badge">Ao vivo</span>
+    <h1 class="sc-scene-name">{{ table.Name }}{% if map %} · {{ map.Name }}{% endif %}</h1>
+    {% if map %}
+    <div class="sc-header__right">
+      <div class="sc-zoomctl">
+        <button type="button" data-zoom="out" aria-label="Diminuir zoom">−</button>
+        <span id="sc-zoom">100%</span>
+        <button type="button" data-zoom="in" aria-label="Aumentar zoom">+</button>
+      </div>
+      <button type="button" class="sc-btn" data-zoom="fit">Ajustar</button>
+      <button type="button" class="sc-btn" id="sc-fullscreen">Tela cheia</button>
+      {% if is_owner %}
+      <a class="sc-btn" href="{% url 'tabletop:manage' table.Slug %}">Gerenciar cenas</a>
+      <a class="sc-btn sc-btn--primary" href="{% url 'tabletop:editor' table.Slug map.id %}">Editar esta cena</a>
+      {% endif %}
     </div>
+    {% else %}
+    <span class="sc-header__right tt-hint">visualização compartilhada · atualiza sozinha</span>
+    {% endif %}
+  </header>
+
+  {% if map %}
+  <section class="sc-live__stage" id="sc-stage">
+    <canvas id="sc-canvas"></canvas>
+    <div class="sc-tokens" id="sc-tokens"></div>
+    <div class="sc-live__dock" role="toolbar" aria-label="Ferramentas de mesa">
+      <button type="button" class="is-active" data-util="move" title="Mover">✋</button>
+      <button type="button" data-util="ruler" title="Régua">📏</button>
+      <button type="button" data-util="cone" title="Cone">🔺</button>
+      <button type="button" data-util="ping" title="Ping">◎</button>
+      <button type="button" data-util="marker" title="Marcador">📍</button>
+      <div class="sc-live__colors" id="sc-live-colors"></div>
+      <button type="button" id="sc-util-clear" title="Limpar tudo">🧹</button>
+    </div>
+  </section>
+  {% else %}
+  <section class="sc-live__stage">
+    <p class="sc-empty" style="margin:auto">
+      {% if is_owner %}Nenhuma cena no ar. Ative um mapa em <a href="{% url 'tabletop:manage' table.Slug %}">gerenciar cenas</a>.
+      {% else %}O mestre ainda não abriu nenhuma cena.{% endif %}
+    </p>
+  </section>
+  {% endif %}
+
+  {{ scene|json_script:"tt-scene-data" }}
+  {{ terrain_palette|json_script:"tt-terrain-data" }}
 </main>
+{% endblock %}
+
+{% block extra_js %}
+  {% if map %}
+  <script src="{% static 'js/hex.js' %}?v={% now 'U' %}"></script>
+  <script src="{% static 'js/scene_state.js' %}?v={% now 'U' %}"></script>
+  <script src="{% static 'js/scene_canvas.js' %}?v={% now 'U' %}"></script>
+  <script src="{% static 'js/scene_live.js' %}?v={% now 'U' %}"></script>
+  {% endif %}
 {% endblock %}
