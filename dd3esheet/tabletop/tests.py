@@ -189,6 +189,76 @@ class FogVisibilityTests(SimpleTestCase):
         self.assertTrue(token_hex_visible(2, 1, {(2, 1)}, is_owner=True))
 
 
+class SceneSerializerTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('m', password='x')
+        self.table = GameTable.objects.create(Owner=self.user, Name='T')
+        self.map = Map.objects.create(Table=self.table, Name='C', GridSize=64)
+
+    def test_serialize_scene_shape(self):
+        from .serializers import serialize_scene
+        from .models import TerrainCell, FogCell
+        Token.objects.create(Map=self.map, Label='Lúmen', Faction='party', HP=18, MaxHP=24,
+                             Size='md', Conditions=['blessed'], X=0, Y=0)
+        TerrainCell.objects.create(Map=self.map, Q=1, R=0, Terrain='grass')
+        FogCell.objects.create(Map=self.map, Q=2, R=2)
+        data = serialize_scene(self.map, is_owner=True)
+        self.assertEqual(data['grid']['size'], 64)
+        self.assertEqual(data['terrain'], [{'q': 1, 'r': 0, 'terrain': 'grass'}])
+        self.assertEqual(data['fog'], [{'q': 2, 'r': 2}])
+        tok = data['tokens'][0]
+        self.assertEqual(tok['faction'], 'party')
+        self.assertEqual(tok['hp'], 18)
+        self.assertEqual(tok['conditions'], ['blessed'])
+        self.assertIn('q', tok)
+
+    def test_live_serialize_hides_fogged_and_hidden(self):
+        from .serializers import serialize_scene
+        Token.objects.create(Map=self.map, Hidden=True, X=0, Y=0)
+        data = serialize_scene(self.map, is_owner=False)
+        self.assertEqual(data['tokens'], [])
+
+
+class ApplyScenePayloadTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('m', password='x')
+        self.table = GameTable.objects.create(Owner=self.user, Name='T')
+        self.map = Map.objects.create(Table=self.table, Name='C', GridSize=64)
+
+    def test_apply_replaces_terrain_and_fog_and_upserts_tokens(self):
+        from .serializers import apply_scene_payload
+        from .models import TerrainCell, FogCell
+        payload = {
+            'name': 'Cripta',
+            'grid': {'cols': 30, 'rows': 22},
+            'terrain': [{'q': 0, 'r': 0, 'terrain': 'grass'}, {'q': 1, 'r': 0, 'terrain': 'water'}],
+            'fog': [{'q': 5, 'r': 5}],
+            'tokens': [{'tempId': 'n1', 'name': 'Orc', 'faction': 'enemy', 'q': 2, 'r': 1,
+                        'hp': 10, 'maxHp': 12, 'size': 'md', 'conditions': [], 'kind': 'enemy'}],
+        }
+        apply_scene_payload(self.map, payload)
+        self.map.refresh_from_db()
+        self.assertEqual(self.map.Name, 'Cripta')
+        self.assertEqual(TerrainCell.objects.filter(Map=self.map).count(), 2)
+        self.assertEqual(FogCell.objects.filter(Map=self.map).count(), 1)
+        self.assertEqual(Token.objects.filter(Map=self.map, Label='Orc').count(), 1)
+
+    def test_apply_deletes_tokens_absent_from_payload(self):
+        from .serializers import apply_scene_payload
+        existing = Token.objects.create(Map=self.map, Label='Some')
+        apply_scene_payload(self.map, {'tokens': [], 'terrain': [], 'fog': []})
+        self.assertFalse(Token.objects.filter(id=existing.id).exists())
+
+    def test_apply_returns_tempid_to_id_map(self):
+        from .serializers import apply_scene_payload
+        id_map = apply_scene_payload(self.map, {
+            'tokens': [{'tempId': 'n7', 'name': 'Goblin', 'q': 0, 'r': 0}],
+            'terrain': [], 'fog': [],
+        })
+        self.assertIn('n7', id_map)
+        self.assertTrue(Token.objects.filter(id=id_map['n7']).exists())
+
+
 class _Base(TestCase):
     def setUp(self):
         self.owner = User.objects.create_user('owner', password='x' * 12)
