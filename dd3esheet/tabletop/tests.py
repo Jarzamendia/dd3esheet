@@ -259,6 +259,51 @@ class ApplyScenePayloadTests(TestCase):
         self.assertTrue(Token.objects.filter(id=id_map['n7']).exists())
 
 
+class SceneSaveViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('m', password='x')
+        self.other = User.objects.create_user('o', password='x')
+        self.table = GameTable.objects.create(Owner=self.user, Name='T')
+        self.map = Map.objects.create(Table=self.table, Name='C', GridSize=64)
+
+    def test_owner_can_save_scene(self):
+        self.client.force_login(self.user)
+        url = reverse('tabletop:scene-save', args=[self.table.Slug, self.map.id])
+        resp = self.client.post(url, data={'scene': '{"terrain":[{"q":0,"r":0,"terrain":"grass"}],"fog":[],"tokens":[]}'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(self.map.terraincell_set.count(), 1)
+
+    def test_non_owner_forbidden(self):
+        self.client.force_login(self.other)
+        url = reverse('tabletop:scene-save', args=[self.table.Slug, self.map.id])
+        resp = self.client.post(url, data={'scene': '{"terrain":[],"fog":[],"tokens":[]}'})
+        self.assertEqual(resp.status_code, 403)
+
+
+class EditorShellTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('m', password='x')
+        self.table = GameTable.objects.create(Owner=self.user, Name='T')
+        self.map = Map.objects.create(Table=self.table, Name='C', GridSize=64)
+        self.table.ActiveMap = self.map
+        self.table.save()
+
+    def test_editor_embeds_scene_json(self):
+        self.client.force_login(self.user)
+        resp = self.client.get(reverse('tabletop:editor', args=[self.table.Slug, self.map.id]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'id="tt-scene-data"')
+        self.assertContains(resp, 'data-rich-editor="2"')
+
+    def test_live_fragment_returns_json(self):
+        resp = self.client.get(reverse('tabletop:live-fragment', args=[self.table.Slug]))
+        self.assertEqual(resp['Content-Type'], 'application/json')
+        import json as _j
+        body = _j.loads(resp.content)
+        self.assertIn('tokens', body)
+        self.assertIn('terrain', body)
+
+
 class _Base(TestCase):
     def setUp(self):
         self.owner = User.objects.create_user('owner', password='x' * 12)
@@ -344,8 +389,9 @@ class MoveTests(_Base):
 
 class VisibilityTests(_Base):
     def test_player_fragment_hides_fogged_and_hidden_tokens(self):
-        FogRegion.objects.create(Map=self.map, X=0, Y=0, Width=200, Height=200)
-        Token.objects.create(Map=self.map, Kind=Token.ENEMY, Label='Goblin', X=50, Y=50)       # sob névoa
+        from .models import FogCell
+        FogCell.objects.create(Map=self.map, Q=0, R=0)  # hex (0,0) coberto
+        Token.objects.create(Map=self.map, Kind=Token.ENEMY, Label='Goblin', X=0, Y=0)       # no hex (0,0): sob névoa
         Token.objects.create(Map=self.map, Kind=Token.ENEMY, Label='Espreita', X=400, Y=400, Hidden=True)
         Token.objects.create(Map=self.map, Kind=Token.PLAYER, Label='Aragorn', X=400, Y=400)    # visível
 
@@ -361,14 +407,16 @@ class VisibilityTests(_Base):
 
 
 class RenderTests(_Base):
-    def test_table_view_is_full_page_fragment_is_partial(self):
+    def test_table_view_full_page_fragment_is_json(self):
         full = self.client.get(self.url('table'))
         self.assertContains(full, 'app-nav')              # estende main.html
         frag = self.client.get(self.url('live-fragment'))
-        self.assertNotContains(frag, 'app-nav')           # só o canvas
-        self.assertContains(frag, 'tt-canvas')
-        self.assertContains(frag, 'tt-canvas__hexgrid')
-        self.assertNotContains(frag, 'tt-canvas__grid')
+        self.assertEqual(frag['Content-Type'], 'application/json')
+        self.assertNotContains(frag, 'app-nav')           # só dados
+        import json
+        body = json.loads(frag.content)
+        self.assertIn('tokens', body)
+        self.assertIn('terrain', body)
 
     def test_owner_pages_render(self):
         self.client.force_login(self.owner)
@@ -378,13 +426,11 @@ class RenderTests(_Base):
     def test_editor_renders_scene_creator_chrome(self):
         self.client.force_login(self.owner)
         resp = self.client.get(self.url('editor', self.map.id))
-        self.assertContains(resp, 'tabletop_editor.js')
-        self.assertContains(resp, 'id="tt-stage"')
-        self.assertContains(resp, 'id="tt-world"')
-        self.assertContains(resp, 'id="tt-palette"')
-        self.assertContains(resp, 'id="tt-layers"')
-        self.assertContains(resp, 'data-add-token-url')
-        self.assertContains(resp, 'data-paint-terrain-url')
+        self.assertContains(resp, 'data-rich-editor="2"')
+        self.assertContains(resp, 'id="sc-stage"')
+        self.assertContains(resp, 'id="sc-canvas"')
+        self.assertContains(resp, 'id="tt-scene-data"')
+        self.assertContains(resp, 'sc-tooldock')
 
     def test_editor_token_palette_includes_items_and_markers(self):
         SpriteAsset.objects.create(Name='Closed Chest Item', Category=SpriteAsset.ITEM)
@@ -396,16 +442,18 @@ class RenderTests(_Base):
 
         self.assertContains(resp, 'Closed Chest Item')
         self.assertContains(resp, 'Danger Marker')
-        self.assertContains(resp, 'Road Tile')
+        # MAP_TILE não entra na lib de token; terreno usa a paleta fixa.
+        self.assertNotContains(resp, 'Road Tile')
 
-    def test_canvas_renders_terrain_and_token_rotation(self):
+    def test_live_fragment_serializes_terrain_and_token_rotation(self):
         from tabletop.models import TerrainCell
-        TerrainCell.objects.create(Map=self.map, Q=1, R=-2)
+        TerrainCell.objects.create(Map=self.map, Q=1, R=-2, Terrain='grass')
         Token.objects.create(Map=self.map, Kind=Token.ENEMY, Rotation=90, X=0, Y=0)
         resp = self.client.get(self.url('live-fragment'))
-        self.assertContains(resp, 'tt-terrain')
-        self.assertContains(resp, 'left:0px; top:-111px')
-        self.assertContains(resp, 'rotate(90deg)')
+        import json
+        body = json.loads(resp.content)
+        self.assertEqual(body['terrain'], [{'q': 1, 'r': -2, 'terrain': 'grass'}])
+        self.assertEqual(body['tokens'][0]['rotation'], 90)
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())

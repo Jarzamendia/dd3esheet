@@ -1,13 +1,22 @@
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from sprites.models import SpriteAsset
 
 from .calculations import axial_to_pixel, snap_to_grid, token_visible_to
 from .models import FogRegion, GameTable, Map, TerrainCell, Token
+from .serializers import apply_scene_payload, serialize_scene
 from .services import attach_sprites_to_tokens, create_sprite_from_upload
+from .terrains import TERRAINS
+
+
+TOKEN_LIBRARY_CATEGORIES = (SpriteAsset.MAP_TOKEN, SpriteAsset.ITEM, SpriteAsset.GENERIC)
 
 
 # --- helpers ---------------------------------------------------------------
@@ -72,10 +81,30 @@ def _resolve_sprite(request, field, category):
     return None
 
 
+def _terrain_palette_payload(user):
+    """Paleta de terreno + URLs resolvidas das texturas (por Slug conhecido)."""
+    slug_to_url = {}
+    texture_slugs = [t['slug'] for t in TERRAINS if t.get('kind') == 'texture']
+    if texture_slugs:
+        assets = SpriteAsset.objects.active().visible_to(user).filter(Slug__in=texture_slugs)
+        for asset in assets:
+            slug_to_url[asset.Slug] = asset.original_url
+    out = []
+    for t in TERRAINS:
+        entry = dict(t)
+        if t.get('kind') == 'texture':
+            entry['url'] = slug_to_url.get(t['slug'], '')
+        out.append(entry)
+    return out
+
+
 def _sprite_library(user, category):
-    return list(
-        SpriteAsset.objects.active().visible_to(user).filter(Category=category).order_by('Name')
-    )
+    assets = SpriteAsset.objects.active().visible_to(user)
+    if isinstance(category, (list, tuple, set)):
+        assets = assets.filter(Category__in=category)
+    else:
+        assets = assets.filter(Category=category)
+    return list(assets.order_by('Name'))
 
 
 def _canvas_context(table, m, is_owner):
@@ -111,7 +140,7 @@ def _render_canvas(request, table, m, is_owner):
 
 def _render_editor_body(request, table, m):
     ctx = _canvas_context(table, m, is_owner=True)
-    ctx['token_sprites'] = _sprite_library(request.user, SpriteAsset.MAP_TOKEN)
+    ctx['token_sprites'] = _sprite_library(request.user, TOKEN_LIBRARY_CATEGORIES)
     ctx['tile_sprites'] = _sprite_library(request.user, SpriteAsset.MAP_TILE)
     return render(request, 'tabletop/partials/_editor_body.html', ctx)
 
@@ -151,13 +180,38 @@ def manage(request, slug):
     })
 
 
+def _token_library_payload(user):
+    """Lista enxuta de assets de token p/ a paleta do editor (id/nome/url)."""
+    return [
+        {'id': s.id, 'name': s.Name, 'url': s.original_url}
+        for s in _sprite_library(user, TOKEN_LIBRARY_CATEGORIES)
+    ]
+
+
 def editor(request, slug, mid):
     table = _get_owned(request, slug)
     m = get_object_or_404(Map, id=mid, Table=table)
-    ctx = _canvas_context(table, m, is_owner=True)
-    ctx['token_sprites'] = _sprite_library(request.user, SpriteAsset.MAP_TOKEN)
-    ctx['tile_sprites'] = _sprite_library(request.user, SpriteAsset.MAP_TILE)
-    return render(request, 'tabletop/editor.html', ctx)
+    return render(request, 'tabletop/editor.html', {
+        'table': table, 'map': m, 'slug': table.Slug,
+        'scene': serialize_scene(m, is_owner=True),
+        'terrain_palette': _terrain_palette_payload(request.user),
+        'token_lib': _token_library_payload(request.user),
+        'scene_save_url': reverse('tabletop:scene-save', args=[table.Slug, m.id]),
+    })
+
+
+@require_POST
+def scene_save(request, slug, mid):
+    """Autosave transacional da cena inteira (só o dono)."""
+    table = _get_owned(request, slug)
+    m = get_object_or_404(Map, id=mid, Table=table)
+    try:
+        payload = json.loads(request.POST.get('scene') or request.body.decode('utf-8'))
+    except (ValueError, UnicodeDecodeError):
+        return JsonResponse({'ok': False, 'error': 'json'}, status=400)
+    id_map = apply_scene_payload(m, payload)
+    table.save()  # bumpa UpdatedAt (versão p/ polling)
+    return JsonResponse({'ok': True, 'savedAt': table.UpdatedAt.isoformat(), 'idMap': id_map})
 
 
 # --- visão ao vivo (pública via slug) -------------------------------------
@@ -165,13 +219,18 @@ def editor(request, slug, mid):
 def table_view(request, slug):
     table = get_object_or_404(GameTable, Slug=slug)
     is_owner = _is_owner(request, table)
-    return render(request, 'tabletop/table_view.html', _canvas_context(table, table.ActiveMap, is_owner))
+    scene = serialize_scene(table.ActiveMap, is_owner)
+    return render(request, 'tabletop/table_view.html', {
+        'table': table, 'map': table.ActiveMap, 'slug': table.Slug, 'is_owner': is_owner,
+        'scene': scene if scene is not None else {'empty': True},
+    })
 
 
 def live_fragment(request, slug):
     table = get_object_or_404(GameTable, Slug=slug)
     is_owner = _is_owner(request, table)
-    return _render_canvas(request, table, table.ActiveMap, is_owner)
+    scene = serialize_scene(table.ActiveMap, is_owner)
+    return JsonResponse(scene if scene is not None else {'empty': True})
 
 
 # --- mapas / cenas (somente o dono) ---------------------------------------

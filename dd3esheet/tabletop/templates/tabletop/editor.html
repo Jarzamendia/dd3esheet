@@ -1,25 +1,66 @@
 {% extends "tabletop/base_tabletop.html" %}
 {% load static %}
 
-{% block title %}{{ map.Name }} - Editor - {{ table.Name }}{% endblock %}
+{% block title %}{{ map.Name }} — Editor — {{ table.Name }}{% endblock %}
+
+{% block extra_head %}{{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/scene_editor.css' %}?v={% now 'U' %}">
+{% endblock %}
 
 {% block content %}
-<main class="tt-page tt-page--editor" data-screen-label="tabletop">
-    <header class="tt-topbar">
-        <h1 class="tt-title">Editor - {{ map.Name }}</h1>
-        <div class="tt-topbar__tools">
-            <a class="tt-btn" href="{% url 'tabletop:manage' table.Slug %}">Cenas</a>
-            <a class="tt-btn" href="{% url 'tabletop:table' table.Slug %}">Ver ao vivo</a>
-        </div>
-    </header>
-
-    <div id="tt-editor">
-        {% include "tabletop/partials/_editor_body.html" %}
+<main class="sc-editor" data-screen-label="tabletop"
+      data-rich-editor="2"
+      data-scene-save-url="{{ scene_save_url }}"
+      data-live-url="{% url 'tabletop:table' table.Slug %}"
+      data-scenes-url="{% url 'tabletop:manage' table.Slug %}">
+  {% csrf_token %}
+  <header class="sc-header">
+    <div class="sc-header__left">
+      <span class="sc-eyebrow">EDITOR</span>
+      <h1 class="sc-scene-name" id="sc-scene-name">{{ map.Name }}</h1>
+      <button type="button" class="sc-iconbtn" id="sc-rename" aria-label="Renomear cena">✎</button>
     </div>
+    <div class="sc-header__right">
+      <div class="sc-undo">
+        <button type="button" class="sc-iconbtn" id="sc-undo" aria-label="Desfazer" disabled>↺</button>
+        <button type="button" class="sc-iconbtn" id="sc-redo" aria-label="Refazer" disabled>↻</button>
+      </div>
+      <div class="sc-zoomctl">
+        <button type="button" data-zoom="out" aria-label="Diminuir zoom">−</button>
+        <span id="sc-zoom">100%</span>
+        <button type="button" data-zoom="in" aria-label="Aumentar zoom">+</button>
+      </div>
+      <button type="button" class="sc-btn" data-zoom="fit">Ajustar</button>
+      <a class="sc-btn" href="{% url 'tabletop:manage' table.Slug %}">Cenas</a>
+      <a class="sc-btn sc-btn--primary" href="{% url 'tabletop:table' table.Slug %}">Ver ao vivo</a>
+      <span class="sc-savestate" id="sc-savestate" aria-live="polite"></span>
+    </div>
+  </header>
+
+  <div class="sc-body">
+    {% include "tabletop/partials/_rail_left.html" %}
+    <section class="sc-stage" id="sc-stage">
+      <canvas id="sc-canvas"></canvas>
+      <div class="sc-tokens" id="sc-tokens"></div>
+      <div class="sc-status">
+        <span id="sc-status-tool">Selecionar</span>
+        <span id="sc-status-coord">q0 r0</span>
+        <span id="sc-status-meas"></span>
+        <span id="sc-status-counts"></span>
+      </div>
+    </section>
+    {% include "tabletop/partials/_rail_right.html" %}
+  </div>
+
+  {{ scene|json_script:"tt-scene-data" }}
+  {{ terrain_palette|json_script:"tt-terrain-data" }}
+  {{ token_lib|json_script:"tt-tokenlib-data" }}
 </main>
 {% endblock %}
 
 {% block extra_js %}
-    {{ block.super }}
-    <script src="{% static 'js/tabletop_editor.js' %}?v={% now 'U' %}"></script>
+  <script src="{% static 'js/hex.js' %}?v={% now 'U' %}"></script>
+  <script src="{% static 'js/scene_state.js' %}?v={% now 'U' %}"></script>
+  <script src="{% static 'js/scene_canvas.js' %}?v={% now 'U' %}"></script>
+  <script src="{% static 'js/scene_editor.js' %}?v={% now 'U' %}"></script>
 {% endblock %}

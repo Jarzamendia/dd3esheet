@@ -17,6 +17,7 @@ urlpatterns = [
     path('<slug:slug>/map/<int:mid>/delete', views.delete_map, name='delete-map'),
     path('<slug:slug>/map/<int:mid>/activate', views.set_active, name='set-active'),
     path('<slug:slug>/map/<int:mid>/editor', views.editor, name='editor'),
+    path('<slug:slug>/map/<int:mid>/scene/save', views.scene_save, name='scene-save'),
     path('<slug:slug>/map/<int:mid>/fog/add', views.add_fog, name='add-fog'),
     path('<slug:slug>/map/<int:mid>/terrain/paint', views.paint_terrain, name='paint-terrain'),
     path('<slug:slug>/map/<int:mid>/terrain/clear', views.clear_terrain, name='clear-terrain'),
