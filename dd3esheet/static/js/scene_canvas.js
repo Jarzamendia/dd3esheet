@@ -26,13 +26,13 @@
     function size() { return s.grid.size; }
     function layers() { return opts.getLayers ? opts.getLayers() : { terrain: {}, tokens: {}, fog: {}, grid: {} }; }
 
-    function resize() {
+    function setDims() {
       dpr = global.devicePixelRatio || 1;
       const r = canvas.getBoundingClientRect();
       canvas.width = Math.max(1, Math.round(r.width * dpr));
       canvas.height = Math.max(1, Math.round(r.height * dpr));
-      draw();
     }
+    function resize() { setDims(); draw(); }
 
     function worldToScreen(wx, wy) { return [wx * cam.zoom + cam.x, wy * cam.zoom + cam.y]; }
     function screenToWorld(sx, sy) { return [(sx - cam.x) / cam.zoom, (sy - cam.y) / cam.zoom]; }
@@ -260,7 +260,9 @@
     canvas.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
     global.addEventListener('resize', resize);
 
-    resize();
+    // só dimensiona; o primeiro desenho fica para o consumidor (fit() no boot),
+    // evitando TDZ de estado declarado após a criação do canvas.
+    setDims();
 
     return {
       cam, draw, fit, resize, worldToScreen, screenToWorld,
