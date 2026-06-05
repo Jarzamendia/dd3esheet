@@ -56,8 +56,10 @@
   const S = store.s;
 
   let tool = 'select';
-  let terrainActive = tileLib.length ? tileLib[0].id : null;
+  const firstBase = (tileLib.find(t => t.kind === 'base') || tileLib[0] || {}).id || null;
+  let terrainActive = firstBase;
   let terrainMode = 'brush';
+  let terrainKind = 'base';
   let fogMode = 'hide';
   let brushSize = 0;
   let selectedId = null;
@@ -393,13 +395,22 @@
         seg.appendChild(b);
       });
       wrap.appendChild(seg);
+      const kseg = el('div', 'sc-seg');
+      [['base', 'Básico'], ['detail', 'Detalhes']].forEach(([k, label]) => {
+        const b = el('button', terrainKind === k ? 'is-active' : '', label);
+        b.addEventListener('click', () => { terrainKind = k; renderPanel(); });
+        kseg.appendChild(b);
+      });
+      wrap.appendChild(kseg);
       const search = el('input', 'sc-search'); search.type = 'search'; search.placeholder = 'Buscar terreno na biblioteca';
       wrap.appendChild(search);
       const grid = el('div', 'sc-terrains');
       const CAP = 80;
       function fill(term) {
         grid.innerHTML = '';
-        const matches = tileLib.filter(t => !term || (t.name || '').toLowerCase().includes(term));
+        const matches = tileLib.filter(t =>
+          (t.kind || 'base') === terrainKind &&
+          (!term || (t.name || '').toLowerCase().includes(term)));
         matches.slice(0, CAP).forEach(t => {
           const sw = el('button', 'sc-swatch' + (t.id === terrainActive ? ' is-active' : ''));
           sw.title = t.name || '';
