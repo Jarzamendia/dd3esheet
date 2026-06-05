@@ -13,7 +13,6 @@ from .calculations import axial_to_pixel, snap_to_grid, token_visible_to
 from .models import FogRegion, GameTable, Map, TerrainCell, Token
 from .serializers import apply_scene_payload, serialize_scene
 from .services import attach_sprites_to_tokens, create_sprite_from_upload
-from .terrains import TERRAINS
 
 
 TOKEN_LIBRARY_CATEGORIES = (SpriteAsset.MAP_TOKEN, SpriteAsset.ITEM, SpriteAsset.GENERIC)
@@ -81,21 +80,12 @@ def _resolve_sprite(request, field, category):
     return None
 
 
-def _terrain_palette_payload(user):
-    """Paleta de terreno + URLs resolvidas das texturas (por Slug conhecido)."""
-    slug_to_url = {}
-    texture_slugs = [t['slug'] for t in TERRAINS if t.get('kind') == 'texture']
-    if texture_slugs:
-        assets = SpriteAsset.objects.active().visible_to(user).filter(Slug__in=texture_slugs)
-        for asset in assets:
-            slug_to_url[asset.Slug] = asset.original_url
-    out = []
-    for t in TERRAINS:
-        entry = dict(t)
-        if t.get('kind') == 'texture':
-            entry['url'] = slug_to_url.get(t['slug'], '')
-        out.append(entry)
-    return out
+def _tile_library_payload(user):
+    """Tiles de terreno da biblioteca (MAP_TILE) para a paleta do editor."""
+    return [
+        {'id': s.id, 'name': s.Name, 'url': s.original_url, 'slug': s.Slug}
+        for s in _sprite_library(user, SpriteAsset.MAP_TILE)
+    ]
 
 
 def _sprite_library(user, category):
@@ -194,7 +184,7 @@ def editor(request, slug, mid):
     return render(request, 'tabletop/editor.html', {
         'table': table, 'map': m, 'slug': table.Slug,
         'scene': serialize_scene(m, is_owner=True),
-        'terrain_palette': _terrain_palette_payload(request.user),
+        'tile_lib': _tile_library_payload(request.user),
         'token_lib': _token_library_payload(request.user),
         'scene_save_url': reverse('tabletop:scene-save', args=[table.Slug, m.id]),
     })
@@ -223,7 +213,6 @@ def table_view(request, slug):
     return render(request, 'tabletop/table_view.html', {
         'table': table, 'map': table.ActiveMap, 'slug': table.Slug, 'is_owner': is_owner,
         'scene': scene if scene is not None else {'empty': True},
-        'terrain_palette': _terrain_palette_payload(request.user),
     })
 
 

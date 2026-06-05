@@ -2,7 +2,7 @@
 // window.SceneCanvas.create(canvas, store, opts) -> controlador.
 //
 // opts: {
-//   terrainPalette: { id: {kind, color, url} },
+//   tileUrl: (assetId) => url,         // resolve a imagem do tile de terreno
 //   fogOpaque: bool,                  // live: névoa opaca
 //   getLayers: () => ({terrain:{visible}, tokens, fog, grid}),
 //   onCamChange: fn,                  // reposicionar overlay DOM
@@ -17,8 +17,7 @@
     const s = store.s;
     const cam = { x: 0, y: 0, zoom: 1 };
     const ZMIN = opts.zoomMin || 0.18, ZMAX = opts.zoomMax || 3;
-    const palette = opts.terrainPalette || {};
-    const patterns = {};   // id -> CanvasPattern | 'loading'
+    const images = {};     // url -> HTMLImageElement | 'loading'
     let brushPreview = [];
     let ruler = null;      // {a:[q,r], b:[q,r], type:'ruler'|'cone'}
     let dpr = global.devicePixelRatio || 1;
@@ -62,31 +61,32 @@
       ctx.closePath();
     }
 
-    function ensurePattern(id, url) {
+    function ensureImage(url) {
       if (!url) return null;
-      if (patterns[id] && patterns[id] !== 'loading') return patterns[id];
-      if (patterns[id] === 'loading') return null;
-      patterns[id] = 'loading';
+      if (images[url] && images[url] !== 'loading') return images[url];
+      if (images[url] === 'loading') return null;
+      images[url] = 'loading';
       const img = new Image();
-      img.onload = function () {
-        try { patterns[id] = ctx.createPattern(img, 'repeat'); } catch (e) { patterns[id] = null; }
-        draw();
-      };
-      img.onerror = function () { patterns[id] = null; };
+      img.onload = function () { images[url] = img; draw(); };
+      img.onerror = function () { images[url] = null; };
       img.src = url;
       return null;
     }
 
-    function fillTerrain(cx, cy, terrainId) {
-      const def = palette[terrainId];
+    function fillTerrain(cx, cy, value) {
+      const url = opts.tileUrl ? opts.tileUrl(value) : null;
       hexPath(cx, cy);
-      if (def && def.kind === 'texture' && def.url) {
-        const pat = ensurePattern(terrainId, def.url);
-        ctx.fillStyle = pat || (def.color || '#888');
+      const img = url ? ensureImage(url) : null;
+      if (img) {
+        ctx.save();
+        ctx.clip();
+        const d = size() * 1.18;  // cobre o hex (altura ponta-a-ponta ≈ 1.155×lado)
+        ctx.drawImage(img, cx - d / 2, cy - d / 2, d, d);
+        ctx.restore();
       } else {
-        ctx.fillStyle = (def && def.color) || '#d8d4ca';
+        ctx.fillStyle = 'rgba(120,110,95,.22)';  // placeholder enquanto carrega
+        ctx.fill();
       }
-      ctx.fill();
     }
 
     function draw() {

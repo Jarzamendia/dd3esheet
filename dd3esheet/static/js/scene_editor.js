@@ -47,16 +47,16 @@
 
   // --- estado -------------------------------------------------------------
   const sceneData = readJSON('tt-scene-data') || {};
-  const terrainList = readJSON('tt-terrain-data') || [];
+  const tileLib = readJSON('tt-tile-data') || [];
   const tokenLib = readJSON('tt-tokenlib-data') || [];
-  const terrainPalette = {};
-  terrainList.forEach(t => { terrainPalette[t.id] = t; });
+  const tileUrls = new Map();
+  tileLib.forEach(t => tileUrls.set(t.id, t.url));
 
   const store = SceneState.create(sceneData, onChange);
   const S = store.s;
 
   let tool = 'select';
-  let terrainActive = (terrainList.find(t => t.id === 'grass') || terrainList[0] || { id: 'stone' }).id;
+  let terrainActive = tileLib.length ? tileLib[0].id : null;
   let terrainMode = 'brush';
   let fogMode = 'hide';
   let brushSize = 0;
@@ -76,7 +76,7 @@
   const saveUrl = root.dataset.sceneSaveUrl;
 
   const canvas = SceneCanvas.create(canvasEl, store, {
-    terrainPalette,
+    tileUrl: (id) => tileUrls.get(id),
     getLayers: () => layers,
     onCamChange: positionAll,
     onPointer: onStagePointer,
@@ -280,17 +280,16 @@
 
   function brushCells(q, r) { return Hex.disk(q, r, brushSize); }
 
+  function cellValue(k) { return S.terrain.has(k) ? S.terrain.get(k) : null; }
+
   function paintTerrainAt(q, r, eraser) {
-    const value = eraser ? 'stone' : terrainActive;
-    if (terrainMode === 'fill' && !eraser) { floodFill(q, r, value); return; }
-    brushCells(q, r).forEach(([cq, cr]) => {
-      if (value === 'stone') S.terrain.delete(Hex.key(cq, cr));
-      else S.terrain.set(Hex.key(cq, cr), value);
-    });
+    if (eraser) { brushCells(q, r).forEach(([cq, cr]) => S.terrain.delete(Hex.key(cq, cr))); return; }
+    if (terrainActive == null) return;
+    if (terrainMode === 'fill') { floodFill(q, r, terrainActive); return; }
+    brushCells(q, r).forEach(([cq, cr]) => S.terrain.set(Hex.key(cq, cr), terrainActive));
   }
   function floodFill(q, r, value) {
-    const startKey = Hex.key(q, r);
-    const target = S.terrain.get(startKey) || 'stone';
+    const target = cellValue(Hex.key(q, r));
     if (target === value) return;
     const seen = new Set(), queue = [[q, r]]; let n = 0;
     const NB = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
@@ -299,9 +298,8 @@
       const k = Hex.key(cq, cr);
       if (seen.has(k)) continue;
       seen.add(k); n++;
-      const cur = S.terrain.get(k) || 'stone';
-      if (cur !== target) continue;
-      if (value === 'stone') S.terrain.delete(k); else S.terrain.set(k, value);
+      if (cellValue(k) !== target) continue;
+      S.terrain.set(k, value);
       NB.forEach(([dq, dr]) => queue.push([cq + dq, cr + dr]));
     }
   }
@@ -350,8 +348,8 @@
     }
   }
   function eyedrop(q, r) {
-    const t = S.terrain.get(Hex.key(q, r)) || 'stone';
-    terrainActive = t; renderPanel();
+    const k = Hex.key(q, r);
+    if (S.terrain.has(k)) { terrainActive = S.terrain.get(k); renderPanel(); }
   }
 
   // --- ferramentas + painéis ---------------------------------------------
@@ -395,16 +393,27 @@
         seg.appendChild(b);
       });
       wrap.appendChild(seg);
+      const search = el('input', 'sc-search'); search.type = 'search'; search.placeholder = 'Buscar terreno na biblioteca';
+      wrap.appendChild(search);
       const grid = el('div', 'sc-terrains');
-      terrainList.forEach(t => {
-        const sw = el('button', 'sc-swatch' + (t.id === terrainActive ? ' is-active' : ''));
-        const chip = el('span', 'chip');
-        if (t.kind === 'texture' && t.url) chip.style.backgroundImage = 'url("' + t.url + '")';
-        else chip.style.background = t.color;
-        sw.appendChild(chip); sw.appendChild(el('span', '', t.label));
-        sw.addEventListener('click', () => { terrainActive = t.id; renderPanel(); });
-        grid.appendChild(sw);
-      });
+      const CAP = 80;
+      function fill(term) {
+        grid.innerHTML = '';
+        const matches = tileLib.filter(t => !term || (t.name || '').toLowerCase().includes(term));
+        matches.slice(0, CAP).forEach(t => {
+          const sw = el('button', 'sc-swatch' + (t.id === terrainActive ? ' is-active' : ''));
+          sw.title = t.name || '';
+          const chip = el('span', 'chip');
+          if (t.url) chip.style.backgroundImage = cssUrl(t.url);
+          sw.appendChild(chip); sw.appendChild(txt('span', '', t.name || ''));
+          sw.addEventListener('click', () => { terrainActive = t.id; fill(search.value.toLowerCase()); });
+          grid.appendChild(sw);
+        });
+        if (matches.length > CAP) grid.appendChild(el('p', 'sc-hint', '+' + (matches.length - CAP) + ' — refine a busca.'));
+        else if (!matches.length) grid.appendChild(el('p', 'sc-empty', 'Nenhum tile encontrado.'));
+      }
+      fill('');
+      search.addEventListener('input', () => fill(search.value.toLowerCase()));
       wrap.appendChild(grid);
       wrap.appendChild(el('p', 'sc-hint', 'Alt+clique no mapa = conta-gotas.'));
     }
@@ -464,7 +473,7 @@
     const titles = {
       select: ['Selecionar', 'Clique para selecionar; arraste para mover. Arraste o fundo para deslocar.'],
       measure: ['Régua', 'Arraste de um hex a outro para medir (1 hex = 1,5 m).'],
-      erase: ['Apagar', 'Pinte para voltar ao terreno base (pedra).'],
+      erase: ['Apagar', 'Pinte para remover o tile de terreno do hex.'],
     };
     const t = titles[tool] || ['Ferramenta', ''];
     const wrap = el('div');

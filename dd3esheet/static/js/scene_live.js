@@ -18,8 +18,9 @@
 
   let scene = readJSON('tt-scene-data');
   if (!scene || scene.empty) return;
-  const terrainList = readJSON('tt-terrain-data') || [];
-  const terrainPalette = {}; terrainList.forEach(t => { terrainPalette[t.id] = t; });
+  const tileUrls = new Map();
+  function ingestTiles(arr) { (arr || []).forEach(c => { if (c.assetId != null) tileUrls.set(c.assetId, c.url || ''); }); }
+  ingestTiles(scene.terrain);
   const canEdit = root.dataset.canEdit === '1';
   const moveUrlTpl = root.dataset.moveUrl || '';
   const fragmentUrl = root.dataset.liveFragmentUrl;
@@ -35,7 +36,7 @@
   let measureStart = null;
 
   const canvas = SceneCanvas.create(canvasEl, store, {
-    terrainPalette,
+    tileUrl: (id) => tileUrls.get(id),
     fogOpaque: true,
     zoomMin: 0.12, zoomMax: 3.2,
     getLayers: () => ({ terrain: {}, tokens: {}, fog: {}, grid: {} }),
@@ -220,8 +221,9 @@
   function applyData(data) {
     S.name = data.name || '';
     Object.assign(S.grid, data.grid || {});
+    ingestTiles(data.terrain);
     S.terrain.clear();
-    (data.terrain || []).forEach(c => S.terrain.set(Hex.key(c.q, c.r), c.terrain));
+    (data.terrain || []).forEach(c => S.terrain.set(Hex.key(c.q, c.r), c.assetId));
     S.fog.clear();
     (data.fog || []).forEach(c => S.fog.add(Hex.key(c.q, c.r)));
     S.tokens = (data.tokens || []).map(t => Object.assign({}, t));

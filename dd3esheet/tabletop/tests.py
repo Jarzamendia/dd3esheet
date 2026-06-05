@@ -130,23 +130,6 @@ class GridMigrationTests(TestCase):
         self.assertEqual(m.GridMode, Map.HEX)
 
 
-class TerrainPaletteTests(SimpleTestCase):
-    def test_palette_has_nine_unique_keys(self):
-        from .terrains import TERRAINS, TERRAIN_KEYS, DEFAULT_TERRAIN
-        self.assertEqual(len(TERRAINS), 9)
-        self.assertEqual(len(set(TERRAIN_KEYS)), 9)
-        self.assertEqual(DEFAULT_TERRAIN, 'stone')
-        self.assertIn('water', TERRAIN_KEYS)
-
-    def test_solid_terrains_have_color_textured_have_slug(self):
-        from .terrains import TERRAINS
-        by_id = {t['id']: t for t in TERRAINS}
-        self.assertEqual(by_id['water']['kind'], 'color')
-        self.assertTrue(by_id['water']['color'].startswith('#'))
-        self.assertEqual(by_id['dungeon']['kind'], 'texture')
-        self.assertTrue(by_id['dungeon']['slug'])
-
-
 class SceneModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('m', password='x')
@@ -200,11 +183,12 @@ class SceneSerializerTests(TestCase):
         from .models import TerrainCell, FogCell
         Token.objects.create(Map=self.map, Label='Lúmen', Faction='party', HP=18, MaxHP=24,
                              Size='md', Conditions=['blessed'], X=0, Y=0)
-        TerrainCell.objects.create(Map=self.map, Q=1, R=0, Terrain='grass')
+        tile = SpriteAsset.objects.create(Name='Grama', Category=SpriteAsset.MAP_TILE)
+        TerrainCell.objects.create(Map=self.map, Q=1, R=0, SpriteAsset=tile, Terrain='tile')
         FogCell.objects.create(Map=self.map, Q=2, R=2)
         data = serialize_scene(self.map, is_owner=True)
         self.assertEqual(data['grid']['size'], 64)
-        self.assertEqual(data['terrain'], [{'q': 1, 'r': 0, 'terrain': 'grass'}])
+        self.assertEqual(data['terrain'], [{'q': 1, 'r': 0, 'assetId': tile.id, 'url': ''}])
         self.assertEqual(data['fog'], [{'q': 2, 'r': 2}])
         tok = data['tokens'][0]
         self.assertEqual(tok['faction'], 'party')
@@ -228,10 +212,12 @@ class ApplyScenePayloadTests(TestCase):
     def test_apply_replaces_terrain_and_fog_and_upserts_tokens(self):
         from .serializers import apply_scene_payload
         from .models import TerrainCell, FogCell
+        tile1 = SpriteAsset.objects.create(Name='Grama', Category=SpriteAsset.MAP_TILE)
+        tile2 = SpriteAsset.objects.create(Name='Agua', Category=SpriteAsset.MAP_TILE)
         payload = {
             'name': 'Cripta',
             'grid': {'cols': 30, 'rows': 22},
-            'terrain': [{'q': 0, 'r': 0, 'terrain': 'grass'}, {'q': 1, 'r': 0, 'terrain': 'water'}],
+            'terrain': [{'q': 0, 'r': 0, 'assetId': tile1.id}, {'q': 1, 'r': 0, 'assetId': tile2.id}],
             'fog': [{'q': 5, 'r': 5}],
             'tokens': [{'tempId': 'n1', 'name': 'Orc', 'faction': 'enemy', 'q': 2, 'r': 1,
                         'hp': 10, 'maxHp': 12, 'size': 'md', 'conditions': [], 'kind': 'enemy'}],
@@ -240,6 +226,7 @@ class ApplyScenePayloadTests(TestCase):
         self.map.refresh_from_db()
         self.assertEqual(self.map.Name, 'Cripta')
         self.assertEqual(TerrainCell.objects.filter(Map=self.map).count(), 2)
+        self.assertTrue(TerrainCell.objects.filter(Map=self.map, Q=0, R=0, SpriteAsset=tile1).exists())
         self.assertEqual(FogCell.objects.filter(Map=self.map).count(), 1)
         self.assertEqual(Token.objects.filter(Map=self.map, Label='Orc').count(), 1)
 
@@ -267,9 +254,12 @@ class SceneSaveViewTests(TestCase):
         self.map = Map.objects.create(Table=self.table, Name='C', GridSize=64)
 
     def test_owner_can_save_scene(self):
+        import json as _j
         self.client.force_login(self.user)
+        tile = SpriteAsset.objects.create(Name='Grass Tile', Category=SpriteAsset.MAP_TILE)
         url = reverse('tabletop:scene-save', args=[self.table.Slug, self.map.id])
-        resp = self.client.post(url, data={'scene': '{"terrain":[{"q":0,"r":0,"terrain":"grass"}],"fog":[],"tokens":[]}'})
+        scene = _j.dumps({'terrain': [{'q': 0, 'r': 0, 'assetId': tile.id}], 'fog': [], 'tokens': []})
+        resp = self.client.post(url, data={'scene': scene})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(self.map.terraincell_set.count(), 1)
 
@@ -442,17 +432,18 @@ class RenderTests(_Base):
 
         self.assertContains(resp, 'Closed Chest Item')
         self.assertContains(resp, 'Danger Marker')
-        # MAP_TILE não entra na lib de token; terreno usa a paleta fixa.
-        self.assertNotContains(resp, 'Road Tile')
+        # MAP_TILE entra na paleta de terreno (biblioteca de tiles).
+        self.assertContains(resp, 'Road Tile')
 
     def test_live_fragment_serializes_terrain_and_token_rotation(self):
         from tabletop.models import TerrainCell
-        TerrainCell.objects.create(Map=self.map, Q=1, R=-2, Terrain='grass')
+        tile = SpriteAsset.objects.create(Name='Grama', Category=SpriteAsset.MAP_TILE)
+        TerrainCell.objects.create(Map=self.map, Q=1, R=-2, SpriteAsset=tile, Terrain='tile')
         Token.objects.create(Map=self.map, Kind=Token.ENEMY, Rotation=90, X=0, Y=0)
         resp = self.client.get(self.url('live-fragment'))
         import json
         body = json.loads(resp.content)
-        self.assertEqual(body['terrain'], [{'q': 1, 'r': -2, 'terrain': 'grass'}])
+        self.assertEqual(body['terrain'], [{'q': 1, 'r': -2, 'assetId': tile.id, 'url': ''}])
         self.assertEqual(body['tokens'][0]['rotation'], 90)
 
 
@@ -485,15 +476,19 @@ class UploadTests(_Base):
         self.assertFalse(SpriteAsset.objects.filter(Name='Xss').exists())
 
 
-class TerrainSeedTests(TestCase):
-    def test_texture_slugs_resolve_or_palette_falls_back(self):
-        from .views import _terrain_palette_payload
-        payload = _terrain_palette_payload(None)
-        dungeon = next(t for t in payload if t['id'] == 'dungeon')
-        self.assertIn('url', dungeon)        # texturas expõem url (vazia até semear)
-        self.assertTrue(dungeon['color'])    # cor de fallback sempre presente
-        water = next(t for t in payload if t['id'] == 'water')
-        self.assertNotIn('url', water)       # cor sólida não tem url
+class TileLibraryTests(TestCase):
+    def test_tile_library_lists_map_tiles_only(self):
+        from .views import _tile_library_payload
+        owner = User.objects.create_user('gmT', password='x' * 12)
+        SpriteAsset.objects.create(Name='Grass Tile', Category=SpriteAsset.MAP_TILE)
+        SpriteAsset.objects.create(Name='Goblin Token', Category=SpriteAsset.MAP_TOKEN)
+        payload = _tile_library_payload(owner)
+        names = {t['name'] for t in payload}
+        self.assertIn('Grass Tile', names)
+        self.assertNotIn('Goblin Token', names)
+        for t in payload:
+            self.assertIn('id', t)
+            self.assertIn('url', t)
 
 
 class ThemeTests(TestCase):

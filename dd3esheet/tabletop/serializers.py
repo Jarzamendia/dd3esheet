@@ -2,10 +2,11 @@
 pelo endpoint scene/save (round-trip)."""
 from django.db import transaction
 
+from sprites.models import SpriteAsset
+
 from .calculations import axial_to_pixel, pixel_to_axial
 from .models import FogCell, TerrainCell, Token
 from .services import attach_sprites_to_tokens
-from .terrains import DEFAULT_TERRAIN, is_valid_terrain
 
 _VALID_FACTIONS = {Token.PARTY, Token.ALLY, Token.NEUTRAL, Token.ENEMY_FACTION}
 _VALID_SIZES = {'sm', 'md', 'lg', 'xl'}
@@ -51,8 +52,15 @@ def serialize_scene(m, is_owner):
             continue
         tokens.append(serialize_token(t, grid_size))
 
-    terrain = [{'q': c.Q, 'r': c.R, 'terrain': c.Terrain}
-               for c in m.terraincell_set.all()]
+    terrain = []
+    for c in m.terraincell_set.select_related('SpriteAsset').all():
+        if not c.SpriteAsset_id:
+            continue  # células antigas sem tile não renderizam
+        terrain.append({
+            'q': c.Q, 'r': c.R,
+            'assetId': c.SpriteAsset_id,
+            'url': c.SpriteAsset.original_url if c.SpriteAsset else '',
+        })
 
     return {
         'mapId': m.id,
@@ -87,6 +95,13 @@ def _clamp(v, lo, hi):
         return None
 
 
+def _allowed_tile_ids(m):
+    """Ids de MAP_TILE que o dono da mesa pode usar como terreno."""
+    owner = m.Table.Owner
+    qs = SpriteAsset.objects.active().visible_to(owner).filter(Category=SpriteAsset.MAP_TILE)
+    return set(qs.values_list('id', flat=True))
+
+
 @transaction.atomic
 def apply_scene_payload(m, payload):
     """Aplica a cena inteira (last-write-wins do mestre).
@@ -105,14 +120,16 @@ def apply_scene_payload(m, payload):
         m.ShowGrid = bool(grid['showGrid'])
     m.save()
 
-    # terreno: replace
+    # terreno: replace (cada célula referencia um tile MAP_TILE da biblioteca)
     TerrainCell.objects.filter(Map=m).delete()
+    allowed_tiles = _allowed_tile_ids(m)
     cells = []
     for c in (payload.get('terrain') or [])[:MAX_CELLS]:
-        key = c.get('terrain')
-        if not is_valid_terrain(key):
-            key = DEFAULT_TERRAIN
-        cells.append(TerrainCell(Map=m, Q=int(c['q']), R=int(c['r']), Terrain=key))
+        asset_id = c.get('assetId')
+        if asset_id not in allowed_tiles:
+            continue
+        cells.append(TerrainCell(Map=m, Q=int(c['q']), R=int(c['r']),
+                                 Terrain='tile', SpriteAsset_id=asset_id))
     TerrainCell.objects.bulk_create(cells, ignore_conflicts=True)
 
     # névoa: replace

@@ -5,8 +5,8 @@
 
   function fromJSON(data) {
     data = data || {};
-    const terrain = new Map();
-    (data.terrain || []).forEach(c => terrain.set(Hex.key(c.q, c.r), c.terrain));
+    const terrain = new Map();   // hexKey -> assetId (tile MAP_TILE)
+    (data.terrain || []).forEach(c => terrain.set(Hex.key(c.q, c.r), c.assetId));
     const fog = new Set((data.fog || []).map(c => Hex.key(c.q, c.r)));
     const tokens = (data.tokens || []).map(t => Object.assign({}, t));
     return {
@@ -52,7 +52,7 @@
         return {
           name: s.name,
           grid: { cols: s.grid.cols, rows: s.grid.rows, showGrid: s.grid.showGrid },
-          terrain: [...s.terrain].map(([k, v]) => { const [q, r] = k.split(',').map(Number); return { q, r, terrain: v }; }),
+          terrain: [...s.terrain].map(([k, v]) => { const [q, r] = k.split(',').map(Number); return { q, r, assetId: v }; }),
           fog: [...s.fog].map(k => { const [q, r] = k.split(',').map(Number); return { q, r }; }),
           tokens: s.tokens.map(t => ({
             id: t.id, tempId: t.tempId, assetId: t.assetId, name: t.name, kind: t.kind,
