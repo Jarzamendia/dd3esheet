@@ -490,6 +490,27 @@ class TileLibraryTests(TestCase):
             self.assertIn('id', t)
             self.assertIn('url', t)
 
+    def test_tile_library_payload_includes_kind(self):
+        from .views import _tile_library_payload
+        owner = User.objects.create_user('gmKind', password='x' * 12)
+        SpriteAsset.objects.update_or_create(
+            Slug='grass_field_tile',
+            defaults={'Name': 'Grass Field Tile', 'Category': SpriteAsset.MAP_TILE,
+                      'Visibility': SpriteAsset.PUBLIC, 'IsActive': True})
+        SpriteAsset.objects.update_or_create(
+            Slug='dirt_road_straight',
+            defaults={'Name': 'Dirt Road Straight', 'Category': SpriteAsset.MAP_TILE,
+                      'Visibility': SpriteAsset.PUBLIC, 'IsActive': True})
+        SpriteAsset.objects.create(
+            Slug='custom-uploaded-tile', Name='Custom', Category=SpriteAsset.MAP_TILE,
+            Visibility=SpriteAsset.PUBLIC, IsActive=True)
+
+        payload = _tile_library_payload(owner)
+        kinds = {t['slug']: t['kind'] for t in payload}
+        self.assertEqual(kinds['grass_field_tile'], 'base')
+        self.assertEqual(kinds['dirt_road_straight'], 'detail')
+        self.assertEqual(kinds['custom-uploaded-tile'], 'base')
+
 
 class ThemeTests(TestCase):
     """Fatia A: paginas da mesa carregam o tema Parchment & Ink."""
