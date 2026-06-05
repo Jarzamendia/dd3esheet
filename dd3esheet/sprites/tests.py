@@ -397,14 +397,16 @@ class TerrainKindManifestTests(SimpleTestCase):
         self.assertEqual(kinds.get('river_segment'), 'detail')
         self.assertEqual(kinds.get('terrain_village_fence_gate'), 'detail')
 
-    def test_terrain_kind_by_slug_helper(self):
-        from .manifest_data import terrain_kind_by_slug
-        mapping = terrain_kind_by_slug()
+    def test_tile_kind_by_slug_helper(self):
+        from .manifest_data import tile_kind_by_slug
+        mapping = tile_kind_by_slug()
+        # map pieces usam seu terrain_kind
         self.assertEqual(mapping['grass_field_tile'], 'base')
         self.assertEqual(mapping['dirt_road_straight'], 'detail')
+        # mapas completos (battle/world) sao sempre 'detail'
+        self.assertEqual(mapping['stone_dungeon_room'], 'detail')
+        # tipos fora de MAP_TILE nao entram
         self.assertNotIn('barbarian_class_icon', mapping)
-        ids = {a['id'] for a in self._map_pieces()}
-        self.assertEqual(set(mapping), ids)
 
 
 class LibraryTerrainSplitTests(TestCase):

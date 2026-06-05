@@ -237,13 +237,21 @@ def sections():
 
 
 @functools.lru_cache(maxsize=1)
-def terrain_kind_by_slug():
-    """{slug: 'base'|'detail'} para todos os map pieces do manifesto."""
-    return {
-        asset['id']: asset.get('terrain_kind', 'detail')
-        for asset in all_assets()
-        if asset.get('type') == 'MAP_PIECE'
-    }
+def tile_kind_by_slug():
+    """{slug: 'base'|'detail'} para todos os assets da categoria MAP_TILE.
+
+    Map pieces usam seu ``terrain_kind``; mapas completos (BATTLE_MAP e
+    CITY_OR_WORLD_MAP) sao sempre 'detail' — nao sao terreno basico tileavel.
+    Outros tipos ficam de fora do mapa.
+    """
+    out = {}
+    for asset in all_assets():
+        atype = asset.get('type')
+        if atype == 'MAP_PIECE':
+            out[asset['id']] = asset.get('terrain_kind', 'detail')
+        elif atype in ('BATTLE_MAP', 'CITY_OR_WORLD_MAP'):
+            out[asset['id']] = 'detail'
+    return out
 
 
 def category_for_type(asset_type):

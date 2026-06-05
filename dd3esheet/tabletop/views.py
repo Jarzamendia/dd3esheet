@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from sprites.manifest_data import terrain_kind_by_slug
+from sprites.manifest_data import tile_kind_by_slug
 from sprites.models import SpriteAsset
 
 from .calculations import axial_to_pixel, snap_to_grid, token_visible_to
@@ -83,7 +83,7 @@ def _resolve_sprite(request, field, category):
 
 def _tile_library_payload(user):
     """Tiles de terreno da biblioteca (MAP_TILE) para a paleta do editor."""
-    kinds = terrain_kind_by_slug()
+    kinds = tile_kind_by_slug()
     return [
         {'id': s.id, 'name': s.Name, 'url': s.original_url, 'slug': s.Slug,
          'kind': kinds.get(s.Slug, 'base')}

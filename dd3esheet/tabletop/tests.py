@@ -504,12 +504,19 @@ class TileLibraryTests(TestCase):
         SpriteAsset.objects.create(
             Slug='custom-uploaded-tile', Name='Custom', Category=SpriteAsset.MAP_TILE,
             Visibility=SpriteAsset.PUBLIC, IsActive=True)
+        # mapa completo (BATTLE_MAP) tambem cai na categoria MAP_TILE
+        SpriteAsset.objects.update_or_create(
+            Slug='stone_dungeon_room',
+            defaults={'Name': 'Stone Dungeon Room', 'Category': SpriteAsset.MAP_TILE,
+                      'Visibility': SpriteAsset.PUBLIC, 'IsActive': True})
 
         payload = _tile_library_payload(owner)
         kinds = {t['slug']: t['kind'] for t in payload}
         self.assertEqual(kinds['grass_field_tile'], 'base')
         self.assertEqual(kinds['dirt_road_straight'], 'detail')
         self.assertEqual(kinds['custom-uploaded-tile'], 'base')
+        # mapas completos nao sao terreno basico -> 'detail'
+        self.assertEqual(kinds['stone_dungeon_room'], 'detail')
 
 
 class ThemeTests(TestCase):
