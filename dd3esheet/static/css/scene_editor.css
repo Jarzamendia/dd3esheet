@@ -1,0 +1,343 @@
+/* scene_editor.css — layout do design_handoff_editor_de_cena, cores remapeadas
+   para a paleta Parchment & Ink (tokens de parchment-theme.css, escopo .tt-themed).
+   Compartilhado pelo Editor e pelo LiveStage. */
+
+.sc-editor, .sc-live {
+  --sc-ember: var(--ochre);
+  --sc-ember-bright: var(--muted-gold);
+  --sc-gold: var(--muted-gold);
+  --sc-surface-0: var(--paper-0);
+  --sc-surface-1: var(--paper-1);
+  --sc-surface-2: var(--paper-2);
+  --sc-surface-3: var(--paper-3);
+  --sc-line: var(--edge-line);
+  --sc-line-strong: var(--edge-strong);
+  --sc-text: var(--text);
+  --sc-dim: var(--text-soft);
+  --sc-faint: var(--text-faint);
+  --sc-party: var(--steel-blue);
+  --sc-ally: var(--forest);
+  --sc-neutral: var(--ochre);
+  --sc-enemy: var(--deep-red);
+  --sc-rail-l: 296px;
+  --sc-rail-r: 290px;
+  --sc-header-h: 56px;
+  --sc-status-h: 34px;
+  --sc-r-sm: 5px;
+  --sc-r-md: 8px;
+  --sc-r-lg: 12px;
+}
+
+/* o editor ocupa a viewport abaixo da nav do app */
+.sc-editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 92px);
+  min-height: 540px;
+  margin: 0;
+  color: var(--sc-text);
+  font-family: var(--font-body);
+}
+
+/* --- header de cena ----------------------------------------------------- */
+.sc-header {
+  flex: 0 0 var(--sc-header-h);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-3);
+  background: var(--sc-surface-1);
+  border-bottom: 1px solid var(--sc-line);
+}
+.sc-header__left { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+.sc-header__right { display: flex; align-items: center; gap: var(--sp-2); margin-left: auto; }
+.sc-eyebrow {
+  font-family: var(--font-display);
+  font-size: 10px; letter-spacing: .18em; color: var(--sc-faint);
+  text-transform: uppercase;
+}
+.sc-scene-name {
+  margin: 0; font-family: var(--font-display); font-size: 21px; font-weight: 600;
+  color: var(--sc-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sc-undo { display: inline-flex; gap: 2px; }
+.sc-zoomctl {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 6px; background: var(--sc-surface-2); border: 1px solid var(--sc-line);
+  border-radius: 999px; font-variant-numeric: tabular-nums;
+}
+.sc-zoomctl button { border: 0; background: none; cursor: pointer; font-size: 15px; color: var(--sc-dim); width: 20px; }
+.sc-zoomctl span { font-size: 12px; min-width: 38px; text-align: center; }
+.sc-savestate { font-size: 11px; color: var(--sc-faint); min-width: 64px; }
+
+/* --- botões ------------------------------------------------------------- */
+.sc-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border: 1px solid var(--sc-line-strong);
+  border-radius: var(--sc-r-sm); background: var(--sc-surface-0);
+  color: var(--sc-text); font-family: var(--font-display); font-size: 12px;
+  letter-spacing: .04em; text-decoration: none; cursor: pointer;
+  transition: background .14s ease, color .14s ease, border-color .14s ease;
+}
+.sc-btn:hover { background: var(--sc-surface-2); }
+.sc-btn--primary { background: var(--sc-ember); border-color: var(--sc-ember); color: #fff; }
+.sc-btn--primary:hover { background: var(--sc-ember-bright); }
+.sc-iconbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border: 1px solid var(--sc-line);
+  border-radius: var(--sc-r-sm); background: var(--sc-surface-0);
+  color: var(--sc-dim); cursor: pointer; font-size: 14px;
+  transition: background .14s ease;
+}
+.sc-iconbtn:hover { background: var(--sc-surface-2); }
+.sc-iconbtn:disabled { opacity: .4; cursor: default; }
+
+/* --- corpo 3 colunas ---------------------------------------------------- */
+.sc-body {
+  flex: 1 1 auto; min-height: 0;
+  display: grid; grid-template-columns: var(--sc-rail-l) 1fr var(--sc-rail-r);
+}
+.sc-rail {
+  min-height: 0; overflow-y: auto;
+  background: var(--sc-surface-1);
+  display: flex; flex-direction: column; gap: var(--sp-3);
+  padding: var(--sp-3);
+}
+.sc-rail--left { border-right: 1px solid var(--sc-line); }
+.sc-rail--right { border-left: 1px solid var(--sc-line); }
+
+/* --- tooldock ----------------------------------------------------------- */
+.sc-tooldock { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.sc-tool {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  height: 60px; border: 1px solid var(--sc-line); border-radius: var(--sc-r-md);
+  background: var(--sc-surface-0); color: var(--sc-dim); cursor: pointer;
+  font-family: var(--font-body); font-size: 11px;
+  transition: background .14s ease, color .14s ease, border-color .14s ease;
+}
+.sc-tool:hover { background: var(--sc-surface-2); }
+.sc-tool kbd {
+  font-size: 9px; padding: 0 4px; border: 1px solid var(--sc-line);
+  border-radius: 3px; color: var(--sc-faint); background: var(--sc-surface-1);
+}
+.sc-tool.is-active {
+  border-color: var(--sc-ember); color: var(--sc-text);
+  background: color-mix(in oklab, var(--sc-ember) 14%, var(--sc-surface-0));
+}
+
+/* --- painéis ------------------------------------------------------------ */
+.sc-panel, .sc-panel-box {
+  background: var(--sc-surface-0); border: 1px solid var(--sc-line);
+  border-radius: var(--sc-r-md); padding: var(--sp-3);
+}
+.sc-panel-box:empty { display: none; }
+.sc-panel__title, .sc-box__title {
+  margin: 0 0 var(--sp-2); font-family: var(--font-display);
+  font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--sc-dim);
+}
+.sc-hint { font-size: 11px; color: var(--sc-faint); margin: 4px 0 0; }
+.sc-seg {
+  display: inline-flex; padding: 2px; gap: 2px;
+  background: var(--sc-surface-2); border-radius: 999px; margin-bottom: var(--sp-2);
+}
+.sc-seg button {
+  border: 0; background: none; padding: 5px 12px; border-radius: 999px;
+  font-size: 12px; color: var(--sc-dim); cursor: pointer;
+}
+.sc-seg button.is-active { background: var(--sc-surface-0); color: var(--sc-text); box-shadow: var(--shadow-1); }
+
+/* paleta de terreno */
+.sc-terrains { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.sc-swatch {
+  display: flex; flex-direction: column; align-items: stretch; gap: 4px;
+  border: 1px solid var(--sc-line); border-radius: var(--sc-r-sm);
+  background: var(--sc-surface-0); padding: 4px; cursor: pointer;
+}
+.sc-swatch .chip {
+  height: 34px; border-radius: 3px; background-size: cover; background-position: center;
+  border: 1px solid rgba(0,0,0,.18);
+}
+.sc-swatch span { font-size: 10px; color: var(--sc-dim); text-align: center; }
+.sc-swatch.is-active { border-color: var(--sc-ember); box-shadow: 0 0 0 1px var(--sc-ember); }
+
+/* chips de tamanho de pincel */
+.sc-brushrow { display: flex; gap: 6px; margin-top: var(--sp-2); }
+.sc-chip {
+  flex: 1; border: 1px solid var(--sc-line); border-radius: 999px;
+  background: var(--sc-surface-0); padding: 5px 0; font-size: 11px; color: var(--sc-dim);
+  cursor: pointer; text-align: center;
+}
+.sc-chip.is-active { border-color: var(--sc-ember); color: var(--sc-text); background: color-mix(in oklab, var(--sc-ember) 12%, var(--sc-surface-0)); }
+
+/* paleta de tokens */
+.sc-search {
+  width: 100%; padding: 7px 10px; border: 1px solid var(--sc-line);
+  border-radius: var(--sc-r-sm); background: var(--sc-surface-0); color: var(--sc-text);
+  margin-bottom: var(--sp-2);
+}
+.sc-assets { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.sc-asset {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border: 1px solid var(--sc-line); border-radius: var(--sc-r-sm);
+  background: var(--sc-surface-0); padding: 6px; cursor: grab; text-align: center;
+}
+.sc-asset.is-armed { border-color: var(--sc-ember); box-shadow: 0 0 0 1px var(--sc-ember); }
+.sc-asset__thumb {
+  width: 46px; height: 46px; border-radius: 50%; overflow: hidden;
+  background: var(--sc-surface-2); display: flex; align-items: center; justify-content: center;
+}
+.sc-asset__thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center 14%; }
+.sc-asset span { font-size: 10px; color: var(--sc-dim); line-height: 1.1; }
+
+.sc-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: var(--sp-2); }
+
+/* --- stage -------------------------------------------------------------- */
+.sc-stage {
+  position: relative; min-width: 0; overflow: hidden;
+  background-color: var(--sc-surface-1);
+  background-image:
+    repeating-conic-gradient(var(--sc-surface-1) 0% 25%, var(--sc-surface-2) 0% 50%);
+  background-size: 52px 52px;
+}
+.sc-stage > #sc-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sc-tokens { position: absolute; inset: 0; pointer-events: none; }
+.sc-status {
+  position: absolute; left: 0; right: 0; bottom: 0; height: var(--sc-status-h);
+  display: flex; align-items: center; gap: var(--sp-4); padding: 0 var(--sp-3);
+  background: color-mix(in oklab, var(--sc-surface-1) 88%, transparent);
+  border-top: 1px solid var(--sc-line);
+  font-size: 11px; color: var(--sc-faint); font-variant-numeric: tabular-nums;
+}
+
+/* --- token no mapa (overlay DOM) --------------------------------------- */
+.sc-token {
+  position: absolute; transform: translate(-50%, -50%);
+  pointer-events: auto; cursor: pointer; will-change: left, top;
+  --ring: var(--sc-enemy);
+}
+.sc-token__disc {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: var(--sc-surface-2) center 14% / cover no-repeat;
+  box-shadow: 0 0 0 var(--ringw, 3px) var(--ring), var(--shadow-1);
+  display: flex; align-items: center; justify-content: center; color: var(--sc-faint);
+}
+.sc-token.is-selected .sc-token__disc {
+  box-shadow: 0 0 0 var(--ringw, 3px) var(--ring), 0 0 0 calc(var(--ringw,3px) + 3px) var(--sc-ember);
+}
+.sc-token__hp {
+  position: absolute; left: 8%; right: 8%; bottom: -7px; height: 4px;
+  border-radius: 2px; background: rgba(0,0,0,.32); overflow: hidden;
+}
+.sc-token__hp > i { display: block; height: 100%; background: var(--forest); }
+.sc-token__name {
+  position: absolute; left: 50%; top: calc(100% + 4px); transform: translateX(-50%);
+  font-size: 11px; white-space: nowrap; color: var(--sc-text);
+  background: color-mix(in oklab, var(--sc-surface-0) 86%, transparent);
+  padding: 1px 6px; border-radius: 3px; pointer-events: none;
+}
+.sc-token__conds { position: absolute; top: -6px; right: -6px; display: flex; gap: 2px; }
+.sc-token__conds i {
+  width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,.3);
+  font-size: 8px; display: flex; align-items: center; justify-content: center; color: #fff;
+}
+.sc-token--placeholder .sc-token__disc::after { content: '☻'; font-size: 60%; }
+
+/* quickbar acima do token selecionado */
+.sc-quickbar {
+  position: absolute; transform: translate(-50%, -100%); margin-top: -8px;
+  display: inline-flex; align-items: center; gap: 2px; padding: 3px;
+  background: var(--sc-surface-0); border: 1px solid var(--sc-line-strong);
+  border-radius: 999px; box-shadow: var(--shadow-2); pointer-events: auto; z-index: 5;
+  font-variant-numeric: tabular-nums;
+}
+.sc-quickbar button {
+  border: 0; background: none; cursor: pointer; width: 24px; height: 24px;
+  border-radius: 50%; color: var(--sc-dim); font-size: 13px;
+}
+.sc-quickbar button:hover { background: var(--sc-surface-2); }
+.sc-quickbar .hp { font-size: 12px; min-width: 40px; text-align: center; color: var(--sc-text); }
+
+/* --- inspector ---------------------------------------------------------- */
+.sc-insp__row { display: flex; gap: 6px; margin: var(--sp-2) 0; flex-wrap: wrap; }
+.sc-insp__faction { display: flex; gap: 4px; }
+.sc-fac {
+  width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
+}
+.sc-fac.is-active { border-color: var(--sc-text); }
+.sc-fac--party { background: var(--sc-party); }
+.sc-fac--ally { background: var(--sc-ally); }
+.sc-fac--neutral { background: var(--sc-neutral); }
+.sc-fac--enemy { background: var(--sc-enemy); }
+.sc-stepper { display: inline-flex; align-items: center; gap: 6px; }
+.sc-stepper input { width: 56px; text-align: center; padding: 4px; border: 1px solid var(--sc-line); border-radius: 4px; background: var(--sc-surface-0); color: var(--sc-text); }
+.sc-sizes, .sc-conds { display: flex; gap: 4px; flex-wrap: wrap; }
+.sc-size, .sc-cond {
+  border: 1px solid var(--sc-line); border-radius: 999px; background: var(--sc-surface-0);
+  padding: 4px 10px; font-size: 11px; color: var(--sc-dim); cursor: pointer;
+}
+.sc-size.is-active { border-color: var(--sc-ember); color: var(--sc-text); }
+.sc-cond.is-active { color: #fff; border-color: transparent; }
+.sc-insp__name { width: 100%; font-family: var(--font-display); font-size: 16px; padding: 4px 6px; border: 1px solid transparent; background: none; color: var(--sc-text); }
+.sc-insp__name:focus { border-color: var(--sc-line); border-radius: 4px; }
+
+/* --- layers ------------------------------------------------------------- */
+.sc-layer { display: flex; align-items: center; gap: 8px; padding: 5px 4px; border-radius: 4px; }
+.sc-layer.is-active { box-shadow: inset 3px 0 0 var(--sc-ember); background: var(--sc-surface-2); }
+.sc-layer__name { flex: 1; font-size: 13px; }
+.sc-layer button { border: 0; background: none; cursor: pointer; color: var(--sc-dim); font-size: 13px; }
+
+/* --- token list --------------------------------------------------------- */
+.sc-tokrow { display: flex; align-items: center; gap: 8px; padding: 5px 4px; border-radius: 4px; cursor: pointer; }
+.sc-tokrow:hover { background: var(--sc-surface-2); }
+.sc-tokrow.is-active { background: color-mix(in oklab, var(--sc-ember) 12%, var(--sc-surface-0)); }
+.sc-tokrow__dot { width: 10px; height: 10px; border-radius: 50%; }
+.sc-tokrow__name { flex: 1; font-size: 13px; }
+.sc-tokrow__hp { width: 52px; height: 4px; border-radius: 2px; background: rgba(0,0,0,.2); overflow: hidden; }
+.sc-tokrow__hp > i { display: block; height: 100%; background: var(--forest); }
+
+.sc-empty { color: var(--sc-faint); font-size: 12px; font-style: italic; }
+
+/* --- menu de contexto --------------------------------------------------- */
+.sc-ctx {
+  position: fixed; z-index: 50; min-width: 180px;
+  background: var(--sc-surface-0); border: 1px solid var(--sc-line-strong);
+  border-radius: var(--sc-r-md); box-shadow: var(--shadow-2); padding: 4px;
+}
+.sc-ctx button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 10px; border: 0; background: none; padding: 7px 10px; border-radius: 5px; font-size: 13px; color: var(--sc-text); cursor: pointer; }
+.sc-ctx button:hover { background: var(--sc-surface-2); }
+.sc-ctx button.danger { color: var(--sc-enemy); }
+.sc-ctx__sep { height: 1px; background: var(--sc-line); margin: 4px 2px; }
+.sc-ctx__swatches { display: flex; gap: 4px; padding: 6px 10px; }
+.sc-ctx__swatches i { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; }
+
+/* --- LiveStage ---------------------------------------------------------- */
+.sc-live { position: relative; display: flex; flex-direction: column; height: calc(100vh - 92px); min-height: 540px; color: var(--sc-text); }
+.sc-live__header {
+  flex: 0 0 var(--sc-header-h); display: flex; align-items: center; gap: var(--sp-3);
+  padding: 0 var(--sp-3); background: var(--sc-surface-1); border-bottom: 1px solid var(--sc-line);
+}
+.sc-live__badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-size: 12px; letter-spacing: .12em; color: var(--sc-ember); }
+.sc-live__badge::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--sc-ember); animation: scLivePulse 1.8s ease-in-out infinite; }
+@keyframes scLivePulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+.sc-live__stage {
+  flex: 1 1 auto; position: relative; min-height: 0; overflow: hidden;
+  background: var(--sc-surface-1);
+}
+.sc-live__stage::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 180px 40px rgba(0,0,0,.55); }
+.sc-live__dock {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 6;
+  display: flex; flex-direction: column; gap: 6px; padding: 8px;
+  background: color-mix(in oklab, var(--sc-surface-0) 90%, transparent);
+  border: 1px solid var(--sc-line); border-radius: 999px; box-shadow: var(--shadow-2);
+}
+.sc-live__dock button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--sc-line); background: var(--sc-surface-0); color: var(--sc-dim); cursor: pointer; font-size: 12px; }
+.sc-live__dock button.is-active { border-color: var(--sc-ember); color: var(--sc-text); background: color-mix(in oklab, var(--sc-ember) 14%, var(--sc-surface-0)); }
+.sc-live__colors { display: flex; flex-wrap: wrap; gap: 4px; width: 38px; }
+.sc-live__colors i { width: 15px; height: 15px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,.3); }
+
+/* ping anims */
+.sc-ping { position: absolute; transform: translate(-50%,-50%); pointer-events: none; z-index: 7; }
+.sc-ping i { position: absolute; left: 0; top: 0; transform: translate(-50%,-50%); border: 2px solid var(--ping, var(--sc-ember)); border-radius: 50%; animation: scPingRing 1.4s ease-out forwards; }
+@keyframes scPingRing { from { width: 14px; height: 14px; opacity: .9; } to { width: 96px; height: 96px; opacity: 0; } }
+.sc-pin { position: absolute; transform: translate(-50%,-100%); pointer-events: none; z-index: 7; font-size: 20px; color: var(--pin, var(--sc-ember)); }
