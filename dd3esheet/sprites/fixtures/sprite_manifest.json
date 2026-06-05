@@ -4863,7 +4863,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "seamless flagstone dungeon floor patch, tileable edges"
+     "description": "seamless flagstone dungeon floor patch, tileable edges",
+     "terrain_kind": "base"
     },
     {
      "id": "stone_wall_straight",
@@ -4873,7 +4874,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "straight dressed-stone dungeon wall run along a hex row"
+     "description": "straight dressed-stone dungeon wall run along a hex row",
+     "terrain_kind": "detail"
     },
     {
      "id": "stone_wall_corner",
@@ -4883,7 +4885,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "right-angle dungeon wall corner"
+     "description": "right-angle dungeon wall corner",
+     "terrain_kind": "detail"
     },
     {
      "id": "stone_wall_t_junction",
@@ -4893,7 +4896,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "T-shaped dungeon wall junction"
+     "description": "T-shaped dungeon wall junction",
+     "terrain_kind": "detail"
     },
     {
      "id": "dungeon_corridor_straight",
@@ -4903,7 +4907,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "walled stone corridor section, tileable end to end"
+     "description": "walled stone corridor section, tileable end to end",
+     "terrain_kind": "detail"
     },
     {
      "id": "dungeon_corridor_bend",
@@ -4913,7 +4918,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "walled corridor bend"
+     "description": "walled corridor bend",
+     "terrain_kind": "detail"
     },
     {
      "id": "dungeon_doorway",
@@ -4923,7 +4929,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "1x1",
-     "description": "doorway opening in a stone wall with timber frame"
+     "description": "doorway opening in a stone wall with timber frame",
+     "terrain_kind": "detail"
     },
     {
      "id": "dungeon_stairs",
@@ -4933,7 +4940,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "flight of stone stairs"
+     "description": "flight of stone stairs",
+     "terrain_kind": "detail"
     },
     {
      "id": "dungeon_pit",
@@ -4943,7 +4951,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "1x1",
-     "description": "open floor pit with dark interior"
+     "description": "open floor pit with dark interior",
+     "terrain_kind": "detail"
     },
     {
      "id": "dungeon_rubble_floor",
@@ -4953,7 +4962,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "collapsed rubble-strewn floor patch"
+     "description": "collapsed rubble-strewn floor patch",
+     "terrain_kind": "detail"
     },
     {
      "id": "cave_floor_tile",
@@ -4963,7 +4973,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "rough natural cavern floor patch, tileable"
+     "description": "rough natural cavern floor patch, tileable",
+     "terrain_kind": "base"
     },
     {
      "id": "cave_wall_edge",
@@ -4973,7 +4984,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "natural cavern wall boundary"
+     "description": "natural cavern wall boundary",
+     "terrain_kind": "detail"
     },
     {
      "id": "stalagmite_cluster_piece",
@@ -4983,7 +4995,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "1x1",
-     "description": "cluster of cave stalagmites"
+     "description": "cluster of cave stalagmites",
+     "terrain_kind": "detail"
     },
     {
      "id": "deep_water_tile",
@@ -4993,7 +5006,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "deep water patch, tileable"
+     "description": "deep water patch, tileable",
+     "terrain_kind": "base"
     },
     {
      "id": "shallow_water_tile",
@@ -5003,7 +5017,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "shallow water or ford patch, tileable"
+     "description": "shallow water or ford patch, tileable",
+     "terrain_kind": "base"
     },
     {
      "id": "water_shore_edge",
@@ -5013,7 +5028,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "land-to-water shoreline boundary"
+     "description": "land-to-water shoreline boundary",
+     "terrain_kind": "detail"
     },
     {
      "id": "river_segment",
@@ -5023,7 +5039,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "flowing river section, tileable end to end"
+     "description": "flowing river section, tileable end to end",
+     "terrain_kind": "detail"
     },
     {
      "id": "wooden_bridge_segment",
@@ -5033,7 +5050,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "wooden bridge span for water or chasm"
+     "description": "wooden bridge span for water or chasm",
+     "terrain_kind": "detail"
     },
     {
      "id": "grass_field_tile",
@@ -5043,7 +5061,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "open grass patch, tileable"
+     "description": "open grass patch, tileable",
+     "terrain_kind": "base"
     },
     {
      "id": "dense_woods_patch",
@@ -5053,7 +5072,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "dense forest canopy cluster, top-down"
+     "description": "dense forest canopy cluster, top-down",
+     "terrain_kind": "detail"
     },
     {
      "id": "dirt_road_straight",
@@ -5063,7 +5083,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "dirt road or trail section, tileable"
+     "description": "dirt road or trail section, tileable",
+     "terrain_kind": "detail"
     },
     {
      "id": "rocky_ground_patch",
@@ -5073,7 +5094,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "broken rocky terrain patch"
+     "description": "broken rocky terrain patch",
+     "terrain_kind": "base"
     },
     {
      "id": "swamp_muck_tile",
@@ -5083,7 +5105,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "boggy muck and reeds, difficult terrain"
+     "description": "boggy muck and reeds, difficult terrain",
+     "terrain_kind": "base"
     },
     {
      "id": "lava_flow_segment",
@@ -5093,7 +5116,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "molten lava channel with muted glow, tileable"
+     "description": "molten lava channel with muted glow, tileable",
+     "terrain_kind": "detail"
     },
     {
      "id": "cobblestone_street",
@@ -5103,7 +5127,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x2",
-     "description": "paved town street patch, tileable"
+     "description": "paved town street patch, tileable",
+     "terrain_kind": "base"
     },
     {
      "id": "building_wall_segment",
@@ -5113,7 +5138,8 @@
      "transparency": "transparent",
      "format": "PNG",
      "footprint": "2x1",
-     "description": "timber-and-stone building wall run"
+     "description": "timber-and-stone building wall run",
+     "terrain_kind": "detail"
     }
    ]
   }

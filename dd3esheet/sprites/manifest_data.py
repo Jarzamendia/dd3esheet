@@ -2,16 +2,23 @@
 import functools
 import json
 import re
+from copy import deepcopy
 from pathlib import Path
 
 from .models import SpriteAsset
 
 
-_MANIFEST_PATH = Path(__file__).resolve().parent / 'fixtures' / 'sprite_manifest.json'
+_FIXTURES_PATH = Path(__file__).resolve().parent / 'fixtures'
+_MANIFEST_PATH = _FIXTURES_PATH / 'sprite_manifest.json'
+_EXPANSION_MANIFEST_PATHS = (
+    _FIXTURES_PATH / 'sprite_manifest_tokens_expansion.json',
+)
 
 TYPE_TO_CATEGORY = {
     'TABLETOP_TOKEN': SpriteAsset.MAP_TOKEN,
     'PROP_TOKEN': SpriteAsset.MAP_TOKEN,
+    'ITEM_SPRITE': SpriteAsset.ITEM,
+    'MAP_MARKER': SpriteAsset.GENERIC,
     'BATTLE_MAP': SpriteAsset.MAP_TILE,
     'CITY_OR_WORLD_MAP': SpriteAsset.MAP_TILE,
     'MAP_PIECE': SpriteAsset.MAP_TILE,
@@ -80,6 +87,18 @@ TYPE_SPECS = {
         'alpha': 'Transparent PNG',
         'spec': 'Vista de cima. Um objeto/prop centralizado com sombra de contato. '
                 'Circle-safe salvo se intencionalmente retangular.',
+    },
+    'ITEM_SPRITE': {
+        'label': 'Item Sprite',
+        'canvas': '512x512',
+        'alpha': 'Transparent PNG',
+        'spec': 'Item de mapa em vista top-down, centralizado, com sombra de contato suave.',
+    },
+    'MAP_MARKER': {
+        'label': 'Map Marker',
+        'canvas': '256x256',
+        'alpha': 'Transparent PNG',
+        'spec': 'Pictograma de local ou objetivo; legivel a 32x32. Sem texto/numeros.',
     },
     'STATUS_MARKER': {
         'label': 'Status Marker',
@@ -159,7 +178,46 @@ SIZE_BY_FOOTPRINT = {
 
 @functools.lru_cache(maxsize=1)
 def _manifest():
-    return json.loads(_MANIFEST_PATH.read_text(encoding='utf-8'))
+    manifest = json.loads(_MANIFEST_PATH.read_text(encoding='utf-8'))
+    for path in _EXPANSION_MANIFEST_PATHS:
+        if path.exists():
+            manifest = _merge_manifest(manifest, json.loads(path.read_text(encoding='utf-8')))
+    return _with_manifest_totals(manifest)
+
+
+def _merge_manifest(base, expansion):
+    """Merge additive expansion sections while keeping sprite ids unique."""
+    merged = deepcopy(base)
+    sections_by_name = {section['name']: section for section in merged['sections']}
+    seen_ids = {asset['id'] for section in merged['sections'] for asset in section['assets']}
+
+    for section in expansion.get('sections', []):
+        target = sections_by_name.get(section['name'])
+        if target is None:
+            target = {'name': section['name'], 'assets': []}
+            merged['sections'].append(target)
+            sections_by_name[section['name']] = target
+
+        for asset in section.get('assets', []):
+            if asset['id'] in seen_ids:
+                raise ValueError(f"Duplicate sprite manifest id: {asset['id']}")
+            target['assets'].append(asset)
+            seen_ids.add(asset['id'])
+
+    return merged
+
+
+def _with_manifest_totals(manifest):
+    manifest = deepcopy(manifest)
+    by_type = {}
+    total = 0
+    for section in manifest['sections']:
+        for asset in section['assets']:
+            total += 1
+            by_type[asset['type']] = by_type.get(asset['type'], 0) + 1
+    manifest['total'] = total
+    manifest['byType'] = by_type
+    return manifest
 
 
 def all_assets():
@@ -176,6 +234,16 @@ def all_assets():
 def sections():
     """Return raw manifest sections in manifest order."""
     return _manifest()['sections']
+
+
+@functools.lru_cache(maxsize=1)
+def terrain_kind_by_slug():
+    """{slug: 'base'|'detail'} para todos os map pieces do manifesto."""
+    return {
+        asset['id']: asset.get('terrain_kind', 'detail')
+        for asset in all_assets()
+        if asset.get('type') == 'MAP_PIECE'
+    }
 
 
 def category_for_type(asset_type):

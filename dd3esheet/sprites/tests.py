@@ -23,16 +23,34 @@ class ManifestDataTests(SimpleTestCase):
 
         rows = all_assets()
 
-        self.assertEqual(len(rows), 496)
+        self.assertGreater(len(rows), 496)
         self.assertTrue(all('id' in row and 'type' in row for row in rows))
+        self.assertIn('scene_forest_village_editable', {row['id'] for row in rows})
 
     def test_category_for_type(self):
         from sprites.manifest_data import category_for_type
 
         self.assertEqual(category_for_type('TABLETOP_TOKEN'), 'map_token')
+        self.assertEqual(category_for_type('ITEM_SPRITE'), 'item')
+        self.assertEqual(category_for_type('MAP_MARKER'), 'generic')
         self.assertEqual(category_for_type('BATTLE_MAP'), 'map_tile')
         self.assertEqual(category_for_type('MAP_PIECE'), 'map_tile')
         self.assertEqual(category_for_type('CLASS_ICON'), 'class')
+
+    def test_expansion_assets_include_placeholder_metadata(self):
+        from sprites.manifest_data import all_assets
+
+        rows = {row['id']: row for row in all_assets()}
+        terrain = rows['terrain_village_dirt_road_straight']
+        item = rows['item_chest_closed']
+
+        self.assertTrue(terrain['modular'])
+        self.assertEqual(terrain['state'], 'placeholder')
+        self.assertEqual(terrain['subcategory'], 'village_terrain')
+        self.assertEqual(terrain['expected_path'], '/sprites/original/map_tile/terrain_village_dirt_road_straight.png')
+        self.assertIn('terrain_village_dirt_road_curve', terrain['variations'])
+        self.assertEqual(item['category'], 'item')
+        self.assertIn('item_chest_open', item['variations'])
 
     def test_footprint_to_grid(self):
         from sprites.manifest_data import footprint_to_grid
@@ -47,10 +65,11 @@ class ArtConstantsTests(SimpleTestCase):
         self.assertEqual(len(PALETTE), 14)
         self.assertTrue(all('hex' in c and 'name' in c for c in PALETTE))
 
-    def test_type_specs_cover_eight_types(self):
+    def test_type_specs_cover_manifest_types(self):
         from sprites.manifest_data import TYPE_SPECS
-        self.assertEqual(len(TYPE_SPECS), 8)
         self.assertIn('TABLETOP_TOKEN', TYPE_SPECS)
+        self.assertIn('ITEM_SPRITE', TYPE_SPECS)
+        self.assertIn('MAP_MARKER', TYPE_SPECS)
 
     def test_type_specs_carry_a_spec_blurb(self):
         from sprites.manifest_data import TYPE_SPECS
@@ -65,10 +84,11 @@ class ArtConstantsTests(SimpleTestCase):
 class SeedLibraryTests(TestCase):
     def test_seed_creates_all_placeholders(self):
         from django.core.management import call_command
+        from sprites.manifest_data import all_assets
 
         call_command('seed_sprite_library')
 
-        self.assertEqual(SpriteAsset.objects.count(), 496)
+        self.assertEqual(SpriteAsset.objects.count(), len(all_assets()))
         icon = SpriteAsset.objects.get(Slug='barbarian_class_icon')
         self.assertEqual(icon.Category, SpriteAsset.CLASS)
         token = SpriteAsset.objects.get(Slug='human_fighter_sword_shield')
@@ -76,11 +96,12 @@ class SeedLibraryTests(TestCase):
 
     def test_seed_is_idempotent(self):
         from django.core.management import call_command
+        from sprites.manifest_data import all_assets
 
         call_command('seed_sprite_library')
         call_command('seed_sprite_library')
 
-        self.assertEqual(SpriteAsset.objects.count(), 496)
+        self.assertEqual(SpriteAsset.objects.count(), len(all_assets()))
 
     def test_seed_sets_footprint(self):
         from django.core.management import call_command
@@ -89,6 +110,23 @@ class SeedLibraryTests(TestCase):
 
         ogre = SpriteAsset.objects.get(Slug='ogre')
         self.assertEqual((ogre.DefaultGridWidth, ogre.DefaultGridHeight), (2, 2))
+
+    def test_seed_creates_tokens_plan_placeholders(self):
+        from django.core.management import call_command
+
+        call_command('seed_sprite_library')
+
+        terrain = SpriteAsset.objects.get(Slug='terrain_village_dirt_road_straight')
+        scene = SpriteAsset.objects.get(Slug='scene_forest_village_editable')
+        item = SpriteAsset.objects.get(Slug='item_chest_closed')
+        marker = SpriteAsset.objects.get(Slug='marker_danger')
+
+        self.assertEqual(terrain.Category, SpriteAsset.MAP_TILE)
+        self.assertEqual((terrain.DefaultGridWidth, terrain.DefaultGridHeight), (2, 1))
+        self.assertEqual(scene.Category, SpriteAsset.MAP_TILE)
+        self.assertEqual(item.Category, SpriteAsset.ITEM)
+        self.assertEqual(marker.Category, SpriteAsset.GENERIC)
+        self.assertFalse(SpriteAsset.objects.exclude(OriginalImage='').exists())
 
 
 class LibraryViewTests(TestCase):
@@ -338,3 +376,32 @@ class SpriteSeedTests(TestCase):
             SpriteAsset.objects.exclude(OriginalImage='').exists()
         )
         self.assertEqual(SpriteVariant.objects.count(), 0)
+
+
+class TerrainKindManifestTests(SimpleTestCase):
+    def _map_pieces(self):
+        from .manifest_data import all_assets
+        return [a for a in all_assets() if a.get('type') == 'MAP_PIECE']
+
+    def test_every_map_piece_has_valid_terrain_kind(self):
+        missing = [a['id'] for a in self._map_pieces()
+                   if a.get('terrain_kind') not in ('base', 'detail')]
+        self.assertEqual(missing, [], f'map pieces sem terrain_kind valido: {missing}')
+
+    def test_known_base_and_detail_examples(self):
+        kinds = {a['id']: a.get('terrain_kind') for a in self._map_pieces()}
+        self.assertEqual(kinds.get('grass_field_tile'), 'base')
+        self.assertEqual(kinds.get('dungeon_floor_tile'), 'base')
+        self.assertEqual(kinds.get('terrain_swamp_mud_tile'), 'base')
+        self.assertEqual(kinds.get('dirt_road_straight'), 'detail')
+        self.assertEqual(kinds.get('river_segment'), 'detail')
+        self.assertEqual(kinds.get('terrain_village_fence_gate'), 'detail')
+
+    def test_terrain_kind_by_slug_helper(self):
+        from .manifest_data import terrain_kind_by_slug
+        mapping = terrain_kind_by_slug()
+        self.assertEqual(mapping['grass_field_tile'], 'base')
+        self.assertEqual(mapping['dirt_road_straight'], 'detail')
+        self.assertNotIn('barbarian_class_icon', mapping)
+        ids = {a['id'] for a in self._map_pieces()}
+        self.assertEqual(set(mapping), ids)
