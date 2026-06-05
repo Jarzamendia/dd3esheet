@@ -50,6 +50,56 @@ def axial_to_pixel(q, r, grid_size):
     return (round(x), round(y))
 
 
+def pixel_to_axial(x, y, grid_size):
+    """Converte px de mundo para coordenada axial inteira (cube round)."""
+    radius = float(grid_size) / math.sqrt(3)
+    q = (math.sqrt(3) / 3 * x - 1.0 / 3 * y) / radius
+    r = (2.0 / 3 * y) / radius
+    return _cube_round(q, r)
+
+
+def hex_distance(q1, r1, q2, r2):
+    """Distância em hexes entre duas coordenadas axiais pointy-top."""
+    dq = q1 - q2
+    dr = r1 - r2
+    return (abs(dq) + abs(dr) + abs(dq + dr)) // 2
+
+
+def hex_disk(q, r, radius):
+    """Todos os hexes axiais a distância <= radius do centro (q, r)."""
+    cells = []
+    for dq in range(-radius, radius + 1):
+        lo = max(-radius, -dq - radius)
+        hi = min(radius, -dq + radius)
+        for dr in range(lo, hi + 1):
+            cells.append((q + dq, r + dr))
+    return cells
+
+
+def _cube_lerp(a, b, t):
+    return a + (b - a) * t
+
+
+def hex_line(q1, r1, q2, r2):
+    """Linha de hexes (inclusiva) de (q1,r1) a (q2,r2) via interpolação cúbica."""
+    n = hex_distance(q1, r1, q2, r2)
+    if n == 0:
+        return [(q1, r1)]
+    results = []
+    for i in range(n + 1):
+        t = i / n
+        x = _cube_lerp(q1, q2, t)
+        z = _cube_lerp(r1, r2, t)
+        results.append(_cube_round(x, z))
+    # dedup preservando ordem
+    seen, out = set(), []
+    for cell in results:
+        if cell not in seen:
+            seen.add(cell)
+            out.append(cell)
+    return out
+
+
 def snap_to_grid(x, y, grid_size, grid_mode):
     """Snap coordinates to the nearest hex center in hex mode."""
     if grid_mode == 'hex' and grid_size and grid_size > 0:

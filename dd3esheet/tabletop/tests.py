@@ -74,6 +74,37 @@ class CalcTests(SimpleTestCase):
         self.assertFalse(token_visible_to(_Tok(50, 50), [_Fog(0, 0, 100, 100)], False))
         self.assertTrue(token_visible_to(_Tok(500, 500), [_Fog(0, 0, 100, 100)], False))
 
+    def test_hex_distance_axial(self):
+        from .calculations import hex_distance
+        self.assertEqual(hex_distance(0, 0, 0, 0), 0)
+        self.assertEqual(hex_distance(0, 0, 3, 0), 3)
+        self.assertEqual(hex_distance(0, 0, 0, 3), 3)
+        self.assertEqual(hex_distance(0, 0, 2, -1), 2)
+        self.assertEqual(hex_distance(2, -1, 0, 0), 2)
+
+    def test_hex_disk_radii(self):
+        from .calculations import hex_disk
+        self.assertEqual(len(hex_disk(0, 0, 0)), 1)
+        self.assertEqual(len(hex_disk(0, 0, 1)), 7)
+        self.assertEqual(len(hex_disk(0, 0, 2)), 19)
+        self.assertEqual(len(hex_disk(0, 0, 3)), 37)
+        self.assertIn((0, 0), hex_disk(0, 0, 1))
+
+    def test_hex_line_no_gaps(self):
+        from .calculations import hex_line, hex_distance
+        line = hex_line(0, 0, 3, 0)
+        self.assertEqual(line[0], (0, 0))
+        self.assertEqual(line[-1], (3, 0))
+        self.assertEqual(len(line), 4)
+        diag = hex_line(0, 0, 2, -1)
+        self.assertEqual(len(diag), hex_distance(0, 0, 2, -1) + 1)
+
+    def test_pixel_to_axial_roundtrip(self):
+        from .calculations import pixel_to_axial
+        for q, r in [(0, 0), (3, -2), (-1, 4), (5, 5)]:
+            x, y = axial_to_pixel(q, r, 64)
+            self.assertEqual(pixel_to_axial(x, y, 64), (q, r))
+
 
 class ModelTests(TestCase):
     def setUp(self):
@@ -225,6 +256,18 @@ class RenderTests(_Base):
         self.assertContains(resp, 'id="tt-layers"')
         self.assertContains(resp, 'data-add-token-url')
         self.assertContains(resp, 'data-paint-terrain-url')
+
+    def test_editor_token_palette_includes_items_and_markers(self):
+        SpriteAsset.objects.create(Name='Closed Chest Item', Category=SpriteAsset.ITEM)
+        SpriteAsset.objects.create(Name='Danger Marker', Category=SpriteAsset.GENERIC)
+        SpriteAsset.objects.create(Name='Road Tile', Category=SpriteAsset.MAP_TILE)
+
+        self.client.force_login(self.owner)
+        resp = self.client.get(self.url('editor', self.map.id))
+
+        self.assertContains(resp, 'Closed Chest Item')
+        self.assertContains(resp, 'Danger Marker')
+        self.assertContains(resp, 'Road Tile')
 
     def test_canvas_renders_terrain_and_token_rotation(self):
         from tabletop.models import TerrainCell
