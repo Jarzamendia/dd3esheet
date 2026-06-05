@@ -50,3 +50,21 @@ Checklist da Entrega A do `AGENT2.md`. O objetivo e zerar esta lista.
 - `CharacterStatus.Speed` ainda pode ser digitado manualmente no bloco de combate; deveria ser recalculado a partir do deslocamento da armadura equipada e da categoria de carga.
 - `CharacterMagicDayUse.SpellSaveDC` e `CharacterMagicDayUse.BonusSpells` nao sao persistidos. A UI mostra valores calculados em memoria, sem gravar o estado derivado por nivel.
 
+
+## Editor de Cena: névoa antiga e endpoints legados
+
+O novo Editor de Cena (`design_handoff_editor_de_cena`) substituiu o editor de mesa
+por um cliente-autoritativo (canvas + autosave) com névoa por-hex (`FogCell`).
+
+- **Névoa retangular antiga (`FogRegion`) não migra.** Não há mapeamento fiel de
+  retângulo em px para hexes sem a grade; cenas pré-existentes perdem a névoa e
+  precisam ser repintadas no editor. O model `FogRegion` permanece, mas sem uso.
+- **Texturas de terreno usam cor sólida de fallback** até serem semeadas como
+  `SpriteAsset` MAP_TILE com os slugs `terrain-dungeon`/`terrain-cobblestone`/
+  `terrain-woods`. A paleta funciona sem elas (cores semânticas).
+- **Endpoints HTMX legados do editor antigo** (`add-token`, `edit-token`,
+  `delete-token`, `paint-terrain`, `clear-terrain`, `add-fog`, `delete-fog`) e seus
+  parciais (`_editor_body`, `_canvas`, `_fog`, `_token`, `_token_row`,
+  `_token_sprite`) continuam funcionais e testados, mas **não são mais usados pela
+  UI nova** (que persiste tudo via `scene/save`). Ficam marcados para remoção num
+  cleanup dedicado. `move-token` segue ativo (move de jogador no LiveStage).

@@ -485,6 +485,17 @@ class UploadTests(_Base):
         self.assertFalse(SpriteAsset.objects.filter(Name='Xss').exists())
 
 
+class TerrainSeedTests(TestCase):
+    def test_texture_slugs_resolve_or_palette_falls_back(self):
+        from .views import _terrain_palette_payload
+        payload = _terrain_palette_payload(None)
+        dungeon = next(t for t in payload if t['id'] == 'dungeon')
+        self.assertIn('url', dungeon)        # texturas expõem url (vazia até semear)
+        self.assertTrue(dungeon['color'])    # cor de fallback sempre presente
+        water = next(t for t in payload if t['id'] == 'water')
+        self.assertNotIn('url', water)       # cor sólida não tem url
+
+
 class ThemeTests(TestCase):
     """Fatia A: paginas da mesa carregam o tema Parchment & Ink."""
 
