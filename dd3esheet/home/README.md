@@ -1,16 +1,29 @@
 # App: home
 
-Este app serve como a porta de entrada principal da aplicação **dd3esheet**. Ele gerencia a página de aterrissagem (landing page) para usuários não autenticados e fornece endpoints utilitários como verificação de saúde (health check).
+O app `home` e a porta de entrada publica do projeto. Ele decide o que acontece
+quando alguem acessa a raiz da aplicacao e expoe um endpoint simples de saude
+para infraestrutura.
 
-## Para que serve?
+## Para que serve
 
-* **Landing Page:** Apresenta o projeto para usuários que ainda não estão logados.
-* **Redirecionamento Inteligente:** Se um usuário já estiver autenticado e acessar a raiz da aplicação, ele é redirecionado automaticamente para a página de gerenciamento de fichas de personagens (`character:home`).
-* **Verificação de Saúde (Health Check):** Fornece o endpoint `/healthz` que retorna o estado da aplicação (`{'ok': True}`), comumente utilizado em monitoramento de infraestrutura e pipelines de deploy.
+- Renderiza a landing page para visitantes nao autenticados.
+- Redireciona usuarios autenticados da raiz (`/`) para `character:home`.
+- Expoe `/healthz`, que responde `{"ok": true}` para checks de disponibilidade.
 
-## Principais Arquivos
+## Arquivos principais
 
-* [views.py](views.py): Contém a lógica de redirecionamento/renderização da landing page e a view simples do health check.
-* [urls.py](urls.py): Define as rotas principais do app (`/` e `/healthz`).
-* `templates/home/landing.html`: O template HTML renderizado para usuários não autenticados na página inicial.
-* [tests.py](tests.py): Testes automatizados para garantir que o redirecionamento e a view de saúde estejam funcionando corretamente.
+- `views.py`: contem a view `home` e o health check `health`.
+- `urls.py`: registra as rotas `/` e `/healthz`.
+- `templates/home/landing.html`: pagina inicial publica.
+- `tests.py`: cobre o comportamento de entrada e saude do app.
+
+## Rotas
+
+- `GET /`: landing page ou redirecionamento para fichas quando autenticado.
+- `GET /healthz`: health check usado por deploy, monitoramento ou load balancer.
+
+## Observacoes
+
+Este app nao possui modelos de dominio. Alteracoes aqui devem ser tratadas como
+mudancas de navegacao global, porque a raiz do site e o ponto de entrada comum
+para usuarios e infraestrutura.
