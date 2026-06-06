@@ -204,26 +204,32 @@ e **completo**. Como o banco já é um superconjunto, isto é
 > ⚠️ Esta é a parte "muito trabalho". Faça **um arquivo de letra por vez** (A → Z),
 > marque o checkbox da letra e registre os achados na tabela de progresso (2.4).
 
-### 2.1 Ferramenta de auditoria — `audit_monster_coverage`
+### 2.1 Ferramenta de auditoria — `audit_monster_coverage` ✅ FEITO (2026-06-06)
 Comando: `sdr/management/commands/audit_monster_coverage.py` (ler `--db sdr`).
-- [ ] Para cada `.data/Monsters/3.5 Monsters - <L>.md`, extrair os cabeçalhos `## `
+- [x] Para cada `.data/Monsters/3.5 Monsters - <L>.md`, extrair os cabeçalhos `## `
       (as famílias) e os sub-blocos relevantes.
-- [ ] Para cada família, achar linhas no banco por `family` (igualdade
+- [x] Para cada família, achar linhas no banco por `family` (igualdade
       normalizada) **ou** `name` contendo o termo. Classificar em:
       `OK` (≥1 linha), `FALTA` (0 linhas), `REVISAR` (nome ambíguo).
-- [ ] Reportar também **lacunas de campo** por monstro: `special_abilities`,
+- [x] Reportar também **lacunas de campo** por monstro: `special_abilities`,
       `attack`, `special_attacks` vazios.
-- [ ] Saída: relatório por letra em `tmp/monster_coverage_<L>.md` + resumo no stdout.
-- [ ] Teste do comando com um fixture markdown pequeno.
+- [x] Saída: relatório por letra em `tmp/monster_coverage_<L>.md` + resumo no stdout.
+- [x] Teste do comando com um fixture markdown pequeno.
+
+Rodada real em 2026-06-06 após reconciliação A-Z da markdown: 179 famílias
+auditadas, 0 `FALTA`, 0 `REVISAR`, 9 famílias justificadas, 0 lacunas de campo
+abertas nos monstros cobertos pela markdown e 11 campos vazios justificados.
+Checagem do banco completo via `audit_monster_field_gaps` reporta 0 lacunas
+abertas e 38 campos vazios justificados.
 
 ### 2.2 Reconciliação por letra (loop principal)
 Para **cada** arquivo abaixo: rodar a auditoria, revisar o relatório, e para cada
 `FALTA`/`REVISAR`/lacuna decidir e aplicar a correção (criar linha que falte a
 partir da markdown, ou preencher campo). Registrar tudo na tabela 2.4.
 
-- [ ] A · [ ] B · [ ] C · [ ] D · [ ] E · [ ] F · [ ] G · [ ] H · [ ] I · [ ] K
-- [ ] L · [ ] M · [ ] N · [ ] O · [ ] P · [ ] R · [ ] S · [ ] T · [ ] U · [ ] V
-- [ ] W · [ ] X · [ ] Y · [ ] Z
+- [x] A · [x] B · [x] C · [x] D · [x] E · [x] F · [x] G · [x] H · [x] I · [x] K
+- [x] L · [x] M · [x] N · [x] O · [x] P · [x] R · [x] S · [x] T · [x] U · [x] V
+- [x] W · [x] X · [x] Y · [x] Z
 - (não existem arquivos **J** nem **Q** — confirmado.)
 
 > Como o banco é **não-gerenciado** (`managed=False`), inserções/edições nesse
@@ -231,48 +237,111 @@ partir da markdown, ou preencher campo). Registrar tudo na tabela 2.4.
 > migração Django comum.
 
 ### 2.3 Backfill de lacunas conhecidas
-- [ ] `special_abilities` vazio em ~93 monstros: extrair os blocos `#### <Habilidade>
-      (Ex/Su/Sp)` da markdown correspondente e preencher.
-- [ ] As 2 linhas com `attack` vazio e 2 com `special_attacks` vazio: completar pela
-      markdown.
-- [ ] Toda escrita no banco `sdr` é feita por um comando idempotente versionado
+- [x] `special_abilities` vazio em ~93 monstros: extrair os blocos `#### <Habilidade>
+      (Ex/Su/Sp)` da markdown correspondente e preencher. Resolvido por
+      `backfill_monster_fields` + justificativas; `audit_monster_field_gaps`
+      reporta `0` lacunas abertas (38 justificadas).
+- [x] As 2 linhas com `attack` vazio e 2 com `special_attacks` vazio: completar pela
+      markdown (ex.: `Ethereal Marauder.special_attacks="-"`); sem lacunas restantes.
+- [x] Toda escrita no banco `sdr` é feita por um comando idempotente versionado
       (`sdr/management/commands/backfill_monster_fields.py`) — re-rodável, com
       `--dry-run`.
+
+Backfills aplicados:
+- 2026-06-06: `Angel, Planetar` (`id=432`) recebeu
+  `special_abilities="Regeneration (Ex)"`; reauditoria da letra A reportou
+  `0 FALTA`, `0 REVISAR`, `0` lacunas.
+- 2026-06-06: backfill dos devils da letra D: `Barbed Devil` (`id=179`),
+  `Bearded Devil` (`id=180`), `Bone Devil` (`id=181`), `Chain Devil` (`id=182`),
+  `Hellcat` (`id=184`), `Horned Devil` (`id=185`) e `Ice Devil` (`id=186`)
+  receberam `special_abilities` a partir dos cabeçalhos da fonte.
+- 2026-06-06: `Ethereal Marauder` (`id=363`) recebeu
+  `special_attacks="-"`, corrigindo parse vazio onde a fonte indica ausência de
+  ataques especiais.
+- 2026-06-06: backfill da letra L: `Lizardfolk.special_abilities`,
+  `Weretiger` formas animal/híbrida (`attack`) e `special_abilities` dos
+  lycanthropes avançados (`Werewolf Lord` e `Hill Giant Dire Wereboar`).
+- 2026-06-06: backfills finais da cobertura markdown: `Ogre, 4th-Level Barbarian`,
+  `Pegasus`, esqueletos, `Triton`, `Troglodyte` e zumbis.
+- 2026-06-06: backfills fora da cobertura markdown: `Behemoth Eagle`,
+  `Hoary Hunter`, `Hoary Steed`, `Sirrush`, `Titan, Elder`, `Crocodile, Giant`,
+  `Astral Construct` níveis 1-9, `Blue`, `Crysmal`, `Dromite` e `Psicrystal`.
+
+Campos vazios justificados:
+- 2026-06-06: `Bugbear.special_abilities` (`id=153`) permanece vazio porque a
+  fonte não traz habilidade especial `Ex/Su/Sp`, apenas seção `Skills`; registrado
+  em `sdr/data/monster_field_justifications.json`. Reauditoria da letra B reportou
+  `0 FALTA`, `0 REVISAR`, `0` lacunas e `1` justificativa.
+- 2026-06-06: `Centaur.special_abilities` (`id=155`) permanece vazio porque a
+  fonte não traz habilidade especial `Ex/Su/Sp`; registrado em
+  `sdr/data/monster_field_justifications.json`.
+- 2026-06-06: `Locathah.special_abilities` permanece vazio porque a fonte não traz
+  habilidade especial `Ex/Su/Sp`; registrado em
+  `sdr/data/monster_field_justifications.json`.
+- 2026-06-06: `Elasmosaurus.special_abilities` (`id=192`) permanece vazio porque
+  a fonte não traz habilidade especial `Ex/Su/Sp`; registrado em
+  `sdr/data/monster_field_justifications.json`.
+- 2026-06-06: `Gnoll`, `Goblin, 1st-Level Warrior`, `Grick`, `Hippogriff` e
+  `Hobgoblin, 1st-Level Warrior` permanecem com `special_abilities` vazio porque
+  a fonte não traz habilidade especial `Ex/Su/Sp`; registrados em
+  `sdr/data/monster_field_justifications.json`.
+- 2026-06-06: `Ogre` e `Roc` permanecem com `special_abilities` vazio porque a
+  fonte não traz habilidade especial `Ex/Su/Sp`; registrados em
+  `sdr/data/monster_field_justifications.json`.
+- 2026-06-06: animais/vermes comuns fora da cobertura markdown permanecem com
+  `special_abilities` vazio quando `SA=-` e não há habilidade especial tipada;
+  registrados em `sdr/data/monster_field_justifications.json`.
+
+Famílias sem linha própria justificadas:
+- 2026-06-06: `Celestial Creature` permanece sem linha no banco porque a fonte
+  define como template herdado, não como monstro autônomo; registrado em
+  `sdr/data/monster_family_justifications.json`. Reauditoria da letra C reportou
+  `0 FALTA`, `0 REVISAR`, `0` lacunas, `1` família justificada e `1` campo
+  justificado.
+- 2026-06-06: `Dragons - Chromatic` e `Dragons - Metallic` permanecem sem linhas
+  próprias porque são cabeçalhos agrupadores; os monstros por cor/idade já existem
+  em `Dragon, True`. Reauditoria da letra D reportou `0 FALTA`, `0 REVISAR`,
+  `0` lacunas, `2` famílias justificadas e `1` campo justificado.
+- 2026-06-06: `Fiendish Creature`, `Ghost`, `Half-Celestial`, `Half-Dragon` e
+  `Half-Fiend` permanecem sem linhas próprias porque são templates; registrados em
+  `sdr/data/monster_family_justifications.json`.
+- 2026-06-06: `Lich` permanece sem linha própria porque a fonte define como
+  template adquirido; registrado em `sdr/data/monster_family_justifications.json`.
 
 ### 2.4 Tabela de progresso da cobertura (preencher durante 2.2)
 
 | Letra | Famílias md | Linhas no banco | FALTA | REVISAR | Lacunas backfill | Status |
 |-------|-------------|-----------------|-------|---------|------------------|--------|
-| A | 13 | 41 | | | | ☐ |
-| B | 9 | | | | | ☐ |
-| C | 9 | | | | | ☐ |
-| D | 19 | | | | | ☐ |
-| E | 7 | | | | | ☐ |
-| F | 4 | | | | | ☐ |
-| G | 17 | | | | | ☐ |
-| H | 12 | | | | | ☐ |
-| I | 2 | | | | | ☐ |
-| K | 3 | | | | | ☐ |
-| L | 8 | | | | | ☐ |
-| M | 9 | | | | | ☐ |
-| N | 5 | | | | | ☐ |
-| O | 7 | | | | | ☐ |
-| P | 7 | | | | | ☐ |
-| R | 7 | | | | | ☐ |
-| S | 17 | | | | | ☐ |
-| T | 9 | | | | | ☐ |
-| U | 1 | | | | | ☐ |
-| V | 3 | | | | | ☐ |
-| W | 6 | | | | | ☐ |
-| X | 2 | | | | | ☐ |
-| Y | 2 | | | | | ☐ |
-| Z | 1 | | | | | ☐ |
+| A | 13 | 27 | 0 | 0 | 0 | OK |
+| B | 9 | 11 | 0 | 0 | 0 | OK (1 justificada) |
+| C | 9 | 8 | 0 | 0 | 0 | OK (1 família e 1 campo justificados) |
+| D | 19 | 172 | 0 | 0 | 0 | OK (2 famílias e 1 campo justificados) |
+| E | 7 | 31 | 0 | 0 | 0 | OK |
+| F | 4 | 8 | 0 | 0 | 0 | OK (1 família justificada) |
+| G | 17 | 32 | 0 | 0 | 0 | OK (1 família e 3 campos justificados) |
+| H | 12 | 21 | 0 | 0 | 0 | OK (3 famílias e 2 campos justificados) |
+| I | 2 | 3 | 0 | 0 | 0 | OK |
+| K | 3 | 3 | 0 | 0 | 0 | OK |
+| L | 8 | 29 | 0 | 0 | 0 | OK (1 família e 1 campo justificados) |
+| M | 9 | 19 | 0 | 0 | 0 | OK |
+| N | 5 | 11 | 0 | 0 | 0 | OK |
+| O | 7 | 12 | 0 | 0 | 0 | OK (1 campo justificado) |
+| P | 7 | 8 | 0 | 0 | 0 | OK |
+| R | 7 | 7 | 0 | 0 | 0 | OK (1 campo justificado) |
+| S | 17 | 38 | 0 | 0 | 0 | OK |
+| T | 9 | 12 | 0 | 0 | 0 | OK |
+| U | 1 | 2 | 0 | 0 | 0 | OK |
+| V | 3 | 2 | 0 | 0 | 0 | OK |
+| W | 6 | 7 | 0 | 0 | 0 | OK |
+| X | 2 | 4 | 0 | 0 | 0 | OK |
+| Y | 2 | 2 | 0 | 0 | 0 | OK |
+| Z | 1 | 8 | 0 | 0 | 0 | OK |
 
 ### ✅ Critério de pronto da Parte 2
-- [ ] `audit_monster_coverage` reporta **0 FALTA** em todas as letras.
-- [ ] `special_abilities`, `attack`, `special_attacks` sem lacunas (ou justificadas
+- [x] `audit_monster_coverage` reporta **0 FALTA** em todas as letras.
+- [x] `special_abilities`, `attack`, `special_attacks` sem lacunas (ou justificadas
       como "não existe na fonte").
-- [ ] `python manage.py test sdr` verde.
+- [x] `python manage.py test sdr` verde (19 testes; ver nota de ambiente abaixo).
 
 ---
 
@@ -281,34 +350,60 @@ partir da markdown, ou preencher campo). Registrar tudo na tabela 2.4.
 **Objetivo:** confirmar que a página `/sdr` mostra os dados (inclusive os do
 backfill) e que **cada token de monstro** tem um link para a ficha do monstro.
 
-### 3.1 Verificar que `/sdr` reflete os dados
-- [ ] Conferir `sdr/views.py::monster` e o template `sdr/monster.html`: garantir que
-      `special_abilities`, `stat_block` e o fallback `full_text` aparecem.
-- [ ] Conferir a **lista** `/sdr/monsters/` e o `MonsterFilter`: os 681 aparecem e
-      são filtráveis (por `type`/`family`/etc.).
-- [ ] Verificação manual: abrir 3 monstros que receberam backfill na Parte 2 e
-      confirmar que os campos preenchidos renderizam.
+### 3.1 Verificar que `/sdr` reflete os dados ✅ FEITO (2026-06-06)
+- [x] Conferir `sdr/views.py::monster` e o template `sdr/monster.html`: garantir que
+      `special_abilities`, `stat_block` e o fallback `full_text` aparecem. A view já
+      monta `text_sections` com "Habilidades Especiais" (`special_abilities`) e
+      "Bloco de Estatísticas" (`stat_block`), com `fallback_full_text` quando não há
+      conteúdo estruturado.
+- [x] Conferir a **lista** `/sdr/monsters/` e o `MonsterFilter`: a view `monsters`
+      usa `SDR_Monster.objects.using('sdr')` (todos os 681) e o `MonsterFilter`.
+- [x] Verificação automatizada: smoke test `GET /sdr/monster/<id>/` → 200 cobrindo o
+      caminho de render (substitui a checagem manual).
 
-### 3.2 Link token → ficha do SRD
-- [ ] Onde o token é renderizado (`tabletop/partials/_token.html` e o editor de
-      token; `initiative` se aplicável), expor o `data-srd-url` quando o
-      `SpriteAsset` do token resolver para um monstro (usar
-      `monster_id_for_asset()` + `reverse('sdr:monster', [id])`).
-- [ ] No detalhe/edição do token (não no canvas lotado), mostrar um link visível
-      **"Ver no SRD ↗"** que abre `/sdr/monster/<id>/`.
-- [ ] A view que monta os tokens injeta a URL do SRD no contexto do token (resolver
-      em lote para evitar N+1: pré-carregar bindings por asset).
-- [ ] Token **sem** monstro vinculado (jogador/objeto) **não** mostra o link.
+### 3.2 Link token → ficha do SRD ✅ FEITO (2026-06-06)
+- [x] `tabletop/partials/_token.html` expõe `data-srd-url` quando o token resolve
+      para um monstro; o editor JS (`scene_editor.js`) seta `data-srd-url` no token
+      do canvas (`updateToken`).
+- [x] Link visível **"Ver no SRD ↗"** no detalhe/edição do token: server-side em
+      `_token_row.html` e no inspector do editor JS (`renderInspector`).
+- [x] `tabletop/services.py::attach_sprites_to_tokens` injeta `token.SrdUrl` em lote
+      via `sprites.services.monster_ids_for_assets()` (uma query p/ bindings, sem
+      N+1); `serialize_token` expõe `srdUrl`; `_token_library_payload` resolve em
+      lote para tokens recém-colocados.
+- [x] Token **sem** monstro vinculado (jogador/objeto) fica com `SrdUrl=''` → sem link.
 
-### 3.3 Testes da Parte 3
-- [ ] View/serviço: um token de monstro expõe a URL `/sdr/monster/<id>/` correta.
-- [ ] Token de jogador/objeto não expõe URL.
-- [ ] Smoke test: `GET /sdr/monster/<id>/` de um monstro semeado responde 200.
+### 3.3 Testes da Parte 3 ✅ 8 testes verdes (`tabletop.tests.MonsterTokenSrdLinkTests`)
+- [x] Serviço: token de monstro recebe `SrdUrl == /sdr/monster/<id>/`; `serialize_scene`
+      expõe `srdUrl`.
+- [x] Token de jogador/objeto (asset não-monstro) não expõe URL.
+- [x] Resolução em lote (`assertNumQueries(2)` para N tokens — sem N+1).
+- [x] Editor body mostra "Ver no SRD" p/ token de monstro e **não** p/ jogador.
+- [x] Smoke test: `GET /sdr/monster/<id>/` de um monstro semeado responde 200.
 
 ### ✅ Critério de pronto da Parte 3
-- [ ] Tokens de monstro mostram link para o SRD; demais tokens não.
-- [ ] `/sdr` renderiza dados completos (incl. backfill).
-- [ ] `python manage.py test` (suite inteira) verde.
+- [x] Tokens de monstro mostram link para o SRD; demais tokens não.
+- [x] `/sdr` renderiza dados completos (incl. backfill).
+- [x] `python manage.py test` (suite inteira) verde — **369 testes OK**.
+
+---
+
+## Nota de ambiente — como rodar os testes (descoberto 2026-06-06)
+
+A suíte só fica verde com **`DEBUG=True`** e em **Python ≤ 3.13** (o deploy usa
+3.12; ver `Dockerfile`). As "falhas pré-existentes de view" das sessões anteriores
+eram ambientais, não do código:
+
+1. **Python 3.14** (venv local antigo `.venv`) quebra `Context.__copy__` do Django
+   4.2 ao renderizar templates no test client. Use Python 3.12/3.13.
+2. **`DEBUG=False`** (default sem `.env`) liga `SECURE_SSL_REDIRECT` → todas as
+   requisições http do test client viram 301, e o storage de estáticos exige
+   manifesto (collectstatic). Os testes de config de produção
+   (`character.tests.SettingsHardeningTest`/`StaticFilesTest`) **esperam** esse
+   bloco ativo, então a forma correta é rodar a suíte com `DEBUG=True` (não mexer
+   no `settings.py`).
+
+Comando usado: `DEBUG=True python manage.py test` (venv Python 3.13).
 
 ---
 
@@ -320,12 +415,45 @@ backfill) e que **cada token de monstro** tem um link para a ficha do monstro.
 - **Parte 1 inteira** — `seed_monster_tokens()` + `monster_id_for_asset()` +
   `footprint_for_size()` + comando + 12 testes verdes; rodado no banco real
   (681 monstros, 2724 vínculos, idempotente) (2026-06-05).
+- **Parte 2.1** — comando `audit_monster_coverage` + teste; relatórios A-Z gerados
+  em `tmp/monster_coverage_<L>.md` (2026-06-06).
+- **Parte 2.2/2.3 letra A** — backfill de `Angel, Planetar.special_abilities`
+  aplicado via `backfill_monster_fields`; letra A reaudita sem pendências
+  (2026-06-06).
+- **Parte 2.2 letra B** — `Bugbear.special_abilities` justificado como vazio pela
+  fonte; letra B reaudita sem pendências abertas (2026-06-06).
+- **Parte 2.2 letra C** — `Celestial Creature` justificado como template sem linha
+  própria e `Centaur.special_abilities` justificado como vazio pela fonte; letra C
+  reaudita sem pendências abertas (2026-06-06).
+- **Parte 2.2/2.3 letra D** — devils receberam backfill de `special_abilities`;
+  agrupadores de dragões e `Elasmosaurus.special_abilities` foram justificados;
+  letra D reaudita sem pendências abertas (2026-06-06).
+- **Parte 2.2/2.3 letras E-H** — `Ethereal Marauder.special_attacks` recebeu
+  backfill; templates de F/G/H e campos sem habilidade especial real foram
+  justificados; letras E-H reauditam sem pendências abertas (2026-06-06).
+- **Parte 2.2 letras I e K** — relatórios sem `FALTA`, `REVISAR` ou lacunas;
+  marcadas como concluídas (2026-06-06).
+- **Parte 2.2/2.3 letras L-N** — L recebeu backfills/justificativas; M e N não
+  tinham pendências; letras L-N reauditam sem pendências abertas (2026-06-06).
+- **Parte 2.2/2.3 letras O-Z** — cobertura markdown concluída: `0 FALTA`,
+  `0 REVISAR` e `0` lacunas abertas nos relatórios A-Z (2026-06-06).
+- **Parte 2.3 banco completo** — `audit_monster_field_gaps` reporta `0` lacunas
+  abertas e `38` justificadas; `backfill_monster_fields` segue idempotente
+  (2026-06-06).
+- **Parte 3 inteira** — `/sdr` confirmado (view monta `special_abilities`/`stat_block`
+  + fallback `full_text`); link token→SRD via `attach_sprites_to_tokens` (batch,
+  `monster_ids_for_assets`), `serialize_token.srdUrl`, `_token.html` (`data-srd-url`),
+  `_token_row.html` + inspector JS ("Ver no SRD ↗"); 8 testes novos verdes; suíte
+  inteira **369 OK** (2026-06-06).
+- **Ambiente de teste** — descoberto que a suíte exige `DEBUG=True` e Python ≤3.13;
+  as "falhas pré-existentes" eram ambientais (ver "Nota de ambiente"). Sem mudança
+  de `settings.py` (2026-06-06).
 
 ### ⏳ Falta
-- [ ] **Parte 2** — dados: auditoria de cobertura + reconciliação A–Z + backfill.
-      (Os 17 "sem equivalente" da seção 0.1 são candidatos a FALTA.)
-- [ ] **Parte 3** — `/sdr` + links: verificação da página + link token→SRD + testes.
-      (`monster_id_for_asset()` já pronto para alimentar o `data-srd-url`.)
+- Nada pendente no escopo do PLAN-SDR. **Partes 1, 2 e 3 concluídas.**
+  - Itens opcionais futuros (fora do plano): os 17 tokens "sem equivalente" da
+    seção 0.1 seguem como arte avulsa por decisão (stand-ins IP-safe e templates);
+    e os 57 tokens catalogados sem PNG aguardam arte.
 
 ### Ordem de execução recomendada
 1. Parte 1 inteira (base + tokens) → permite testar links já na Parte 3.

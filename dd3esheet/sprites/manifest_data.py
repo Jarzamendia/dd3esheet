@@ -173,6 +173,7 @@ SIZE_BY_FOOTPRINT = {
     '3x3': 'Huge',
     '4x4': 'Gargantuan',
     '6x6': 'Colossal',
+    '32x24': 'Battle Map',
 }
 
 

@@ -1,0 +1,38 @@
+[
+  {
+    "family": "Celestial Creature",
+    "reason": "A fonte define Celestial Creature como template herdado, nao como linha autonoma de monstro."
+  },
+  {
+    "family": "Dragons - Chromatic",
+    "reason": "Cabecalho agrupador; as linhas individuais ja existem no banco sob Dragon, True (Black, Blue, Green, Red e White Dragon por idade)."
+  },
+  {
+    "family": "Dragons - Metallic",
+    "reason": "Cabecalho agrupador; as linhas individuais ja existem no banco sob Dragon, True (Brass, Bronze, Copper, Gold e Silver Dragon por idade)."
+  },
+  {
+    "family": "Fiendish Creature",
+    "reason": "A fonte define Fiendish Creature como template herdado, nao como linha autonoma de monstro."
+  },
+  {
+    "family": "Ghost",
+    "reason": "A fonte define Ghost como template adquirido, nao como linha autonoma de monstro."
+  },
+  {
+    "family": "Half-Celestial",
+    "reason": "A fonte define Half-Celestial como template herdado, nao como linha autonoma de monstro."
+  },
+  {
+    "family": "Half-Dragon",
+    "reason": "A fonte define Half-Dragon como template herdado; o banco tem criaturas derivadas, mas nao uma linha autonoma para o template."
+  },
+  {
+    "family": "Half-Fiend",
+    "reason": "A fonte define Half-Fiend como template herdado, nao como linha autonoma de monstro."
+  },
+  {
+    "family": "Lich",
+    "reason": "A fonte define Lich como template adquirido; o banco possui Demilich, mas nao uma linha autonoma para o template Lich."
+  }
+]

@@ -126,6 +126,7 @@
     const disc = e.querySelector('.sc-token__disc');
     if (t.spriteUrl) { disc.style.backgroundImage = cssUrl(t.spriteUrl); e.classList.remove('sc-token--placeholder'); }
     else { disc.style.backgroundImage = 'none'; e.classList.add('sc-token--placeholder'); }
+    if (t.srdUrl) e.dataset.srdUrl = t.srdUrl; else delete e.dataset.srdUrl;
     // hp
     const hp = e.querySelector('.sc-token__hp');
     if (isProp || !t.maxHp) { hp.style.display = 'none'; }
@@ -267,7 +268,7 @@
     const lib = tokenLib.find(a => a.id === assetId);
     const t = {
       tempId: 'n' + Date.now() + Math.floor(Math.random() * 1000),
-      assetId: assetId || null, spriteUrl: lib ? lib.url : '',
+      assetId: assetId || null, spriteUrl: lib ? lib.url : '', srdUrl: lib ? (lib.srdUrl || '') : '',
       name: lib ? lib.name : '', kind: 'enemy', faction: 'enemy',
       q, r, hp: 0, maxHp: 0, size: 'md', conditions: [], rotation: 0,
       hidden: false, movable: false,
@@ -617,6 +618,12 @@
       });
       box.appendChild(el('p', 'sc-hint', 'Condições'));
       box.appendChild(condRow);
+    }
+
+    if (t.srdUrl) {
+      const srd = el('a', 'sc-insp__srd', 'Ver no SRD ↗');
+      srd.href = t.srdUrl; srd.target = '_blank'; srd.rel = 'noopener';
+      box.appendChild(srd);
     }
   }
 

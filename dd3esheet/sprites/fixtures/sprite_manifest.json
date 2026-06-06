@@ -4502,7 +4502,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, stone chamber, broken pillars, rubble, central dais, no grid"
     },
     {
@@ -4512,7 +4512,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, four-way corridor junction with alcoves, no grid"
     },
     {
@@ -4522,7 +4522,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, cells, barred doors, guard room, no grid"
     },
     {
@@ -4532,7 +4532,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, long hall with pressure plates and side niches, no grid and no labels"
     },
     {
@@ -4542,7 +4542,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, sarcophagi, cracked stone, altar, no grid"
     },
     {
@@ -4552,7 +4552,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, ruined temple sanctum, columns, ritual floor pattern without text, no grid"
     },
     {
@@ -4562,7 +4562,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, tavern common room, bar, tables, hearth, no grid"
     },
     {
@@ -4572,7 +4572,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, inn hallway and small guest rooms, no grid"
     },
     {
@@ -4582,7 +4582,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, village street with stalls and carts, no grid"
     },
     {
@@ -4592,7 +4592,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, forge, anvil, racks, worktables, no grid"
     },
     {
@@ -4602,7 +4602,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, forest clearing with trees, logs, rocks, no grid"
     },
     {
@@ -4612,7 +4612,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, winding road through dense woods, ambush cover, no grid"
     },
     {
@@ -4622,7 +4622,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, rocky cave mouth and outside approach, no grid"
     },
     {
@@ -4632,7 +4632,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, underground lake, ledges, stalagmites, no grid"
     },
     {
@@ -4642,7 +4642,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, large fungi, damp stone, no grid"
     },
     {
@@ -4652,7 +4652,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, sewer channels, bridges, walkways, no grid"
     },
     {
@@ -4662,7 +4662,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, narrow bridge crossing dark chasm, no grid"
     },
     {
@@ -4672,7 +4672,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, shallow river crossing and rocks, no grid"
     },
     {
@@ -4682,7 +4682,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, swamp water, wooden walkways, reeds, no grid"
     },
     {
@@ -4692,7 +4692,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, sandy ruins, fallen columns, no grid"
     },
     {
@@ -4702,7 +4702,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, icy mountain pass, boulders, snow drifts, no grid"
     },
     {
@@ -4712,7 +4712,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, wooden sailing ship deck, mast, cargo, no grid"
     },
     {
@@ -4722,7 +4722,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, arcane lab, tables, books, apparatus, no readable text, no grid"
     },
     {
@@ -4732,7 +4732,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, castle throne room, pillars, carpets, no grid"
     },
     {
@@ -4742,7 +4742,7 @@
      "canvas": "2048x1536",
      "transparency": "opaque",
      "format": "PNG",
-     "footprint": null,
+     "footprint": "32x24",
      "description": "32x24 invisible 64 px cells, graveyard with blank stones, crypt entrance, no text, no grid"
     }
    ]

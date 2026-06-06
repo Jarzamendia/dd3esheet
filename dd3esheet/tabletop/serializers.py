@@ -23,6 +23,7 @@ def serialize_token(token, grid_size):
         'id': token.id,
         'assetId': token.SpriteAsset_id,
         'spriteUrl': getattr(token, 'SpriteUrl', '') or '',
+        'srdUrl': getattr(token, 'SrdUrl', '') or '',
         'name': token.Label,
         'kind': token.Kind,
         'faction': token.Faction,
