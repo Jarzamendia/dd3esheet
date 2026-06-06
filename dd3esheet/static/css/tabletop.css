@@ -475,6 +475,8 @@
 .tt-tag { font-size: .68rem; background: var(--paper-2); border-radius: 8px; padding: 0 6px; color: var(--text-soft); }
 .tt-token-edit { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
 .tt-token-edit__actions { display: flex; gap: 6px; }
+.tt-srd-link { align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--royal-blue); text-decoration: none; }
+.tt-srd-link:hover { text-decoration: underline; }
 
 @media (max-width: 860px) {
     .tt-page--editor { height: auto; min-height: 0; }

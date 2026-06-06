@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 
 from sprites.manifest_data import tile_kind_by_slug
 from sprites.models import SpriteAsset
+from sprites.services import monster_ids_for_assets
 
 from .calculations import axial_to_pixel, snap_to_grid, token_visible_to
 from .models import FogRegion, GameTable, Map, TerrainCell, Token
@@ -174,10 +175,19 @@ def manage(request, slug):
 
 
 def _token_library_payload(user):
-    """Lista enxuta de assets de token p/ a paleta do editor (id/nome/url)."""
+    """Lista enxuta de assets de token p/ a paleta do editor (id/nome/url).
+
+    Inclui `srdUrl` para tokens de monstro (resolvido em lote) — assim um token
+    recém-colocado já mostra o link "Ver no SRD" antes mesmo do reload.
+    """
+    assets = _sprite_library(user, TOKEN_LIBRARY_CATEGORIES)
+    monster_ids = monster_ids_for_assets([s.id for s in assets])
     return [
-        {'id': s.id, 'name': s.Name, 'url': s.original_url}
-        for s in _sprite_library(user, TOKEN_LIBRARY_CATEGORIES)
+        {
+            'id': s.id, 'name': s.Name, 'url': s.original_url,
+            'srdUrl': reverse('sdr:monster', args=[monster_ids[s.id]]) if s.id in monster_ids else '',
+        }
+        for s in assets
     ]
 
 

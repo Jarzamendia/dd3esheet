@@ -280,6 +280,8 @@
 .sc-cond.is-active { color: #fff; border-color: transparent; }
 .sc-insp__name { width: 100%; font-family: var(--font-display); font-size: 16px; padding: 4px 6px; border: 1px solid transparent; background: none; color: var(--sc-text); }
 .sc-insp__name:focus { border-color: var(--sc-line); border-radius: 4px; }
+.sc-insp__srd { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--sc-accent, #6ea8fe); text-decoration: none; }
+.sc-insp__srd:hover { text-decoration: underline; }
 
 /* --- layers ------------------------------------------------------------- */
 .sc-layer { display: flex; align-items: center; gap: 8px; padding: 5px 4px; border-radius: 4px; }

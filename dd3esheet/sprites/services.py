@@ -84,6 +84,34 @@ def monster_id_for_asset(asset):
     return None
 
 
+def monster_ids_for_assets(asset_ids):
+    """{asset_id: monster_id} para os assets vinculados a um monstro do SDR.
+
+    Resolve em lote (uma query) para evitar N+1 ao montar muitos tokens. Mesma
+    regra de `monster_id_for_asset`: usa o vínculo MONSTER_TOKEN cuja TargetKey é
+    numérica (o id do monstro).
+    """
+    asset_ids = [aid for aid in (asset_ids or []) if aid]
+    if not asset_ids:
+        return {}
+    result = {}
+    bindings = (
+        SpriteBinding.objects
+        .filter(
+            TargetType=SpriteBinding.SDR_MONSTER,
+            Purpose=SpriteBinding.MONSTER_TOKEN,
+            SpriteAsset_id__in=asset_ids,
+        )
+        .values_list('SpriteAsset_id', 'TargetKey')
+    )
+    for asset_id, target_key in bindings:
+        if asset_id in result:
+            continue
+        if target_key and target_key.isdigit():
+            result[asset_id] = int(target_key)
+    return result
+
+
 def preferred_variant(asset, variant=SpriteVariant.TOKEN_128):
     if not asset:
         return None

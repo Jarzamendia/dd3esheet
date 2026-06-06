@@ -23,6 +23,7 @@
             <label class="tt-inline"><input type="checkbox" name="MovableByPlayers" value="1" {% if t.MovableByPlayers %}checked{% endif %}> Jogadores movem</label>
             <label class="tt-inline"><input type="checkbox" name="Hidden" value="1" {% if t.Hidden %}checked{% endif %}> Oculto p/ jogadores</label>
             <label class="tt-file">Trocar imagem <input type="file" name="SpriteFile" accept="image/*"></label>
+            {% if t.SrdUrl %}<a class="tt-srd-link" href="{{ t.SrdUrl }}" target="_blank" rel="noopener">Ver no SRD ↗</a>{% endif %}
             <div class="tt-token-edit__actions">
                 <button type="submit" class="tt-btn">Salvar</button>
                 <button type="button" class="tt-btn tt-btn--danger"

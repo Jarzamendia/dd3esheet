@@ -5,7 +5,10 @@ Reaproveita o app `sprites` como camada de armazenamento (categorias
 """
 from pathlib import Path
 
+from django.urls import reverse
+
 from sprites.models import SpriteAsset, SpriteVariant
+from sprites.services import monster_ids_for_assets
 
 
 # Só formatos raster. SVG/HTML podem carregar <script> e, servidos na mesma
@@ -33,11 +36,14 @@ def attach_sprites_to_tokens(tokens, variant=SpriteVariant.TOKEN_256):
     tokens = list(tokens)
     asset_ids = [t.SpriteAsset_id for t in tokens if getattr(t, 'SpriteAsset_id', None)]
     variants = {}
+    monster_ids = {}
     if asset_ids:
         variants = {
             item.SpriteAsset_id: item
             for item in SpriteVariant.objects.filter(SpriteAsset_id__in=asset_ids, Variant=variant)
         }
+        # Link token -> ficha do SRD, resolvido em lote (sem N+1).
+        monster_ids = monster_ids_for_assets(asset_ids)
     for token in tokens:
         asset = token.SpriteAsset if getattr(token, 'SpriteAsset_id', None) else None
         selected = variants.get(token.SpriteAsset_id) if asset else None
@@ -54,6 +60,8 @@ def attach_sprites_to_tokens(tokens, variant=SpriteVariant.TOKEN_256):
             token.SpriteWidth = 0
             token.SpriteHeight = 0
         token.SpriteAlt = asset.display_alt if asset else (token.Label or '')
+        monster_id = monster_ids.get(token.SpriteAsset_id) if asset else None
+        token.SrdUrl = reverse('sdr:monster', args=[monster_id]) if monster_id else ''
     return tokens
 
 

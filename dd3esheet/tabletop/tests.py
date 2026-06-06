@@ -621,3 +621,91 @@ class EditorEndpointTests(TestCase):
         self.client.force_login(stranger)
         url = reverse('tabletop:paint-terrain', args=[self.table.Slug, self.map.id])
         self.assertEqual(self.client.post(url, {'cells': '1,1'}).status_code, 403)
+
+
+class MonsterTokenSrdLinkTests(TestCase):
+    """Parte 3.2/3.3: token de monstro expõe link para a ficha do SRD."""
+
+    databases = {'default', 'sdr'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        from character.tests import setup_sdr_monster_table
+        from sdr.models import SDR_Monster
+        setup_sdr_monster_table()
+        SDR_Monster.objects.using('sdr').all().delete()
+        cls.monster = SDR_Monster.objects.using('sdr').create(name='Wolf', size='Medium')
+
+    def setUp(self):
+        from sprites.models import SpriteBinding
+        self.user = User.objects.create_user('m', password='x' * 12)
+        self.table = GameTable.objects.create(Owner=self.user, Name='T')
+        self.map = Map.objects.create(Table=self.table, Name='C', GridSize=64)
+        self.monster_asset = SpriteAsset.objects.create(
+            Name='Wolf Token', Category=SpriteAsset.MAP_TOKEN,
+        )
+        SpriteBinding.objects.create(
+            TargetType=SpriteBinding.SDR_MONSTER,
+            TargetKey=str(self.monster.pk),
+            Purpose=SpriteBinding.MONSTER_TOKEN,
+            SpriteAsset=self.monster_asset,
+        )
+
+    def test_attach_sets_srd_url_for_monster_token(self):
+        from .services import attach_sprites_to_tokens
+        token = Token.objects.create(Map=self.map, Kind=Token.ENEMY, SpriteAsset=self.monster_asset)
+        attach_sprites_to_tokens([token])
+        self.assertEqual(token.SrdUrl, reverse('sdr:monster', args=[self.monster.pk]))
+
+    def test_player_token_has_no_srd_url(self):
+        from .services import attach_sprites_to_tokens
+        token = Token.objects.create(Map=self.map, Kind=Token.PLAYER)
+        attach_sprites_to_tokens([token])
+        self.assertEqual(token.SrdUrl, '')
+
+    def test_object_token_with_non_monster_asset_has_no_srd_url(self):
+        from .services import attach_sprites_to_tokens
+        prop = SpriteAsset.objects.create(Name='Crate', Category=SpriteAsset.ITEM)
+        token = Token.objects.create(Map=self.map, Kind=Token.OBJECT, SpriteAsset=prop)
+        attach_sprites_to_tokens([token])
+        self.assertEqual(token.SrdUrl, '')
+
+    def test_serialize_scene_includes_srd_url(self):
+        from .serializers import serialize_scene
+        Token.objects.create(Map=self.map, Kind=Token.ENEMY, SpriteAsset=self.monster_asset)
+        Token.objects.create(Map=self.map, Kind=Token.PLAYER)
+        scene = serialize_scene(self.map, is_owner=True)
+        by_kind = {t['kind']: t for t in scene['tokens']}
+        self.assertEqual(by_kind['enemy']['srdUrl'], reverse('sdr:monster', args=[self.monster.pk]))
+        self.assertEqual(by_kind['player']['srdUrl'], '')
+
+    def test_srd_url_resolution_is_batched(self):
+        """Sem N+1: resolver os links de N tokens não escala em queries."""
+        from .services import attach_sprites_to_tokens
+        tokens = [
+            Token.objects.create(Map=self.map, Kind=Token.ENEMY, SpriteAsset=self.monster_asset)
+            for _ in range(5)
+        ]
+        with self.assertNumQueries(2):  # variantes + bindings, independente de N
+            attach_sprites_to_tokens(tokens)
+
+    def test_srd_smoke_monster_detail_responds_200(self):
+        resp = self.client.get(reverse('sdr:monster', args=[self.monster.pk]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Wolf')
+
+    def test_editor_body_shows_srd_link_for_monster_token(self):
+        self.client.force_login(self.user)
+        token = Token.objects.create(Map=self.map, Kind=Token.ENEMY, SpriteAsset=self.monster_asset)
+        resp = self.client.post(reverse('tabletop:edit-token', args=[self.table.Slug, token.id]),
+                                {'Label': 'Wolf'})
+        self.assertContains(resp, 'Ver no SRD')
+        self.assertContains(resp, reverse('sdr:monster', args=[self.monster.pk]))
+
+    def test_editor_body_no_srd_link_for_player_token(self):
+        self.client.force_login(self.user)
+        token = Token.objects.create(Map=self.map, Kind=Token.PLAYER)
+        resp = self.client.post(reverse('tabletop:edit-token', args=[self.table.Slug, token.id]),
+                                {'Label': 'Heroi'})
+        self.assertNotContains(resp, 'Ver no SRD')
