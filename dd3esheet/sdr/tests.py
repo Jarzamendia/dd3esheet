@@ -1,6 +1,7 @@
 import json
 import tempfile
 import os
+from io import StringIO
 from django.test import TestCase
 from django.core.management import call_command
 from django.db import connections
@@ -601,6 +602,282 @@ class SDRFeatTests(TestCase):
             SDR_Feat.objects.using('sdr').filter(name="Ataque Especial Teste").delete()
             if os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
+
+
+class AuditMonsterCoverageCommandTests(TestCase):
+    databases = {'sdr', 'default'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        with connections['sdr'].cursor() as cursor:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS monster (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    family TEXT,
+                    name TEXT NOT NULL,
+                    altname TEXT,
+                    size TEXT,
+                    type TEXT,
+                    descriptor TEXT,
+                    hit_dice TEXT,
+                    initiative TEXT,
+                    speed TEXT,
+                    armor_class TEXT,
+                    base_attack TEXT,
+                    grapple TEXT,
+                    attack TEXT,
+                    full_attack TEXT,
+                    space TEXT,
+                    reach TEXT,
+                    special_attacks TEXT,
+                    special_qualities TEXT,
+                    saves TEXT,
+                    abilities TEXT,
+                    skills TEXT,
+                    bonus_feats TEXT,
+                    feats TEXT,
+                    epic_feats TEXT,
+                    environment TEXT,
+                    organization TEXT,
+                    challenge_rating TEXT,
+                    treasure TEXT,
+                    alignment TEXT,
+                    advancement TEXT,
+                    level_adjustment TEXT,
+                    special_abilities TEXT,
+                    stat_block TEXT,
+                    full_text TEXT,
+                    reference TEXT
+                );
+            """)
+
+    def setUp(self):
+        SDR_Monster.objects.using('sdr').all().delete()
+
+    def test_audit_monster_coverage_reports_statuses_and_field_gaps(self):
+        SDR_Monster.objects.using('sdr').create(
+            family='Basilisk',
+            name='Basilisk',
+            attack='Bite +6 melee',
+            special_attacks='Petrifying gaze',
+            special_abilities='Petrifying Gaze (Su)',
+        )
+        SDR_Monster.objects.using('sdr').create(
+            family='Animal',
+            name='Dire Ape',
+            attack='Claw +8 melee',
+            special_attacks='Rend',
+            special_abilities='',
+        )
+
+        with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as output_dir:
+            markdown_path = os.path.join(data_dir, '3.5 Monsters - B.md')
+            with open(markdown_path, 'w', encoding='utf-8') as markdown:
+                markdown.write('## Basilisk\n\nTexto.\n\n## Ape\n\nTexto.\n\n## Angel\n\nTexto.\n')
+
+            stdout = StringIO()
+            call_command(
+                'audit_monster_coverage',
+                data_dir=data_dir,
+                output_dir=output_dir,
+                letter='B',
+                stdout=stdout,
+            )
+
+            report_path = os.path.join(output_dir, 'monster_coverage_B.md')
+            with open(report_path, encoding='utf-8') as report_file:
+                report = report_file.read()
+
+        self.assertIn('B: familias=3 falta=1 revisar=1 familias_justificadas=0 lacunas=1', stdout.getvalue())
+        self.assertIn('| Basilisk | OK |', report)
+        self.assertIn('| Ape | REVISAR |', report)
+        self.assertIn('| Angel | FALTA | - |', report)
+        self.assertIn('| Dire Ape | special_abilities |', report)
+
+    def test_audit_monster_coverage_accepts_justified_empty_fields(self):
+        monster = SDR_Monster.objects.using('sdr').create(
+            family='Bugbear',
+            name='Bugbear',
+            attack='Morningstar +5 melee',
+            special_attacks='-',
+            special_abilities='',
+        )
+        justifications = [
+            {
+                'id': monster.id,
+                'name': 'Bugbear',
+                'fields': {'special_abilities': 'Nao ha habilidade especial na fonte.'},
+            }
+        ]
+
+        with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as output_dir:
+            markdown_path = os.path.join(data_dir, '3.5 Monsters - B.md')
+            justification_path = os.path.join(data_dir, 'justifications.json')
+            with open(markdown_path, 'w', encoding='utf-8') as markdown:
+                markdown.write('## Bugbear\n\n#### Skills\nBonus racial.\n')
+            with open(justification_path, 'w', encoding='utf-8') as fixture:
+                json.dump(justifications, fixture)
+
+            stdout = StringIO()
+            call_command(
+                'audit_monster_coverage',
+                data_dir=data_dir,
+                output_dir=output_dir,
+                justifications_file=justification_path,
+                letter='B',
+                stdout=stdout,
+            )
+
+            report_path = os.path.join(output_dir, 'monster_coverage_B.md')
+            with open(report_path, encoding='utf-8') as report_file:
+                report = report_file.read()
+
+        self.assertIn('lacunas=0 justificadas=1', stdout.getvalue())
+        self.assertIn('Campos vazios justificados', report)
+        self.assertIn('| Bugbear | special_abilities | Nao ha habilidade especial na fonte. |', report)
+
+    def test_audit_monster_coverage_accepts_justified_missing_family(self):
+        with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as output_dir:
+            markdown_path = os.path.join(data_dir, '3.5 Monsters - C.md')
+            family_justification_path = os.path.join(data_dir, 'family_justifications.json')
+            with open(markdown_path, 'w', encoding='utf-8') as markdown:
+                markdown.write('## Celestial Creature\n\nTemplate herdado.\n')
+            with open(family_justification_path, 'w', encoding='utf-8') as fixture:
+                json.dump(
+                    [{'family': 'Celestial Creature', 'reason': 'Template, sem linha autonoma.'}],
+                    fixture,
+                )
+
+            stdout = StringIO()
+            call_command(
+                'audit_monster_coverage',
+                data_dir=data_dir,
+                output_dir=output_dir,
+                family_justifications_file=family_justification_path,
+                letter='C',
+                stdout=stdout,
+            )
+
+            report_path = os.path.join(output_dir, 'monster_coverage_C.md')
+            with open(report_path, encoding='utf-8') as report_file:
+                report = report_file.read()
+
+        self.assertIn('falta=0 revisar=0 familias_justificadas=1', stdout.getvalue())
+        self.assertIn('| Celestial Creature | JUSTIFICADO | - |', report)
+
+    def test_audit_monster_coverage_treats_exact_name_match_as_ok(self):
+        SDR_Monster.objects.using('sdr').create(
+            family='Vampire',
+            name='Vampire Spawn',
+            attack='Slam +5 melee',
+            special_attacks='Energy drain',
+            special_abilities='Energy Drain (Su)',
+        )
+
+        with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as output_dir:
+            markdown_path = os.path.join(data_dir, '3.5 Monsters - V.md')
+            with open(markdown_path, 'w', encoding='utf-8') as markdown:
+                markdown.write('## Vampire Spawn\n\nBloco.\n')
+
+            stdout = StringIO()
+            call_command(
+                'audit_monster_coverage',
+                data_dir=data_dir,
+                output_dir=output_dir,
+                letter='V',
+                stdout=stdout,
+            )
+
+            report_path = os.path.join(output_dir, 'monster_coverage_V.md')
+            with open(report_path, encoding='utf-8') as report_file:
+                report = report_file.read()
+
+        self.assertIn('falta=0 revisar=0', stdout.getvalue())
+        self.assertIn('| Vampire Spawn | OK |', report)
+
+    def test_backfill_monster_fields_supports_dry_run_and_idempotency(self):
+        monster = SDR_Monster.objects.using('sdr').create(
+            family='Angel',
+            name='Angel, Planetar',
+            attack='Greatsword +23 melee',
+            special_attacks='Spell-like abilities, spells',
+            special_abilities='',
+        )
+        backfills = [
+            {
+                'id': monster.id,
+                'name': 'Angel, Planetar',
+                'fields': {'special_abilities': 'Regeneration (Ex)'},
+            }
+        ]
+
+        with tempfile.NamedTemporaryFile(suffix='.json', mode='w+', delete=False, encoding='utf-8') as fixture:
+            json.dump(backfills, fixture)
+            fixture_path = fixture.name
+
+        try:
+            dry_run_stdout = StringIO()
+            call_command('backfill_monster_fields', file=fixture_path, dry_run=True, stdout=dry_run_stdout)
+            monster.refresh_from_db(using='sdr')
+            self.assertEqual(monster.special_abilities, '')
+            self.assertIn('DRY-RUN preencheria', dry_run_stdout.getvalue())
+
+            call_command('backfill_monster_fields', file=fixture_path)
+            monster.refresh_from_db(using='sdr')
+            self.assertEqual(monster.special_abilities, 'Regeneration (Ex)')
+
+            second_stdout = StringIO()
+            call_command('backfill_monster_fields', file=fixture_path, stdout=second_stdout)
+            self.assertIn('atualizados=0 pulados=1', second_stdout.getvalue())
+        finally:
+            if os.path.exists(fixture_path):
+                os.remove(fixture_path)
+
+    def test_audit_monster_field_gaps_reports_open_and_justified_gaps(self):
+        justified_monster = SDR_Monster.objects.using('sdr').create(
+            family='Animal',
+            name='Cat',
+            attack='Claw +4 melee',
+            special_attacks='-',
+            special_abilities='',
+        )
+        open_monster = SDR_Monster.objects.using('sdr').create(
+            family='Epic',
+            name='Missing Creature',
+            attack='Slam +1 melee',
+            special_attacks='',
+            special_abilities='',
+        )
+        justifications = [
+            {
+                'id': justified_monster.id,
+                'name': 'Cat',
+                'fields': {'special_abilities': 'Sem habilidade especial na fonte.'},
+            }
+        ]
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            justification_path = os.path.join(output_dir, 'justifications.json')
+            report_path = os.path.join(output_dir, 'field_gaps.md')
+            with open(justification_path, 'w', encoding='utf-8') as fixture:
+                json.dump(justifications, fixture)
+
+            stdout = StringIO()
+            call_command(
+                'audit_monster_field_gaps',
+                justifications_file=justification_path,
+                output=report_path,
+                stdout=stdout,
+            )
+
+            with open(report_path, encoding='utf-8') as report_file:
+                report = report_file.read()
+
+        self.assertIn('abertas=2 justificadas=1', stdout.getvalue())
+        self.assertIn('| Cat | special_abilities | Sem habilidade especial na fonte. |', report)
+        self.assertIn('| Missing Creature | special_attacks |', report)
+        self.assertIn('| Missing Creature | special_abilities |', report)
 
 
 class SDRSpellTests(TestCase):

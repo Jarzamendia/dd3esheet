@@ -1,0 +1,268 @@
+[
+  {
+    "id": 153,
+    "name": "Bugbear",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; apenas a secao Skills com bonus racial de Move Silently."
+    }
+  },
+  {
+    "id": 155,
+    "name": "Centaur",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; o bloco tem Special Attacks como '-' e apenas tracos raciais em 'Centaurs as Characters'."
+    }
+  },
+  {
+    "id": 192,
+    "name": "Elasmosaurus",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; o bloco tem Special Attacks como '-' e apenas secao Skills."
+    }
+  },
+  {
+    "id": 390,
+    "name": "Gnoll",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; o bloco tem Special Attacks como '-' e apenas tracos raciais em 'Gnolls as Characters'."
+    }
+  },
+  {
+    "id": 393,
+    "name": "Goblin, 1st-Level Warrior",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; o bloco tem Special Attacks como '-' e apenas secao Skills/tracos raciais."
+    }
+  },
+  {
+    "id": 401,
+    "name": "Grick",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; o bloco tem Special Attacks como '-' e apenas secao Skills."
+    }
+  },
+  {
+    "id": 412,
+    "name": "Hippogriff",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; o bloco tem Special Attacks como '-' e apenas secao Skills."
+    }
+  },
+  {
+    "id": 413,
+    "name": "Hobgoblin, 1st-Level Warrior",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; o bloco tem Special Attacks como '-' e apenas secao Skills/tracos raciais."
+    }
+  },
+  {
+    "id": 463,
+    "name": "Locathah",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; Special Attacks e Special Qualities estao como '---'."
+    }
+  },
+  {
+    "id": 515,
+    "name": "Ogre",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; o bloco tem Special Attacks como '-' e apenas tracos raciais em 'Ogres as Characters'."
+    }
+  },
+  {
+    "id": 539,
+    "name": "Roc",
+    "fields": {
+      "special_abilities": "A fonte nao traz habilidade especial com tipo Ex/Su/Sp; o bloco tem Special Attacks como '-' e apenas secao Skills."
+    }
+  },
+  {
+    "id": 83,
+    "name": "Ape",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 84,
+    "name": "Baboon",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 86,
+    "name": "Bat",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; blindsense esta em Special Qualities."
+    }
+  },
+  {
+    "id": 87,
+    "name": "Bear, Black",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 92,
+    "name": "Camel",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 93,
+    "name": "Cat",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 97,
+    "name": "Dog",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 98,
+    "name": "Dog, Riding",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 99,
+    "name": "Donkey",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 100,
+    "name": "Eagle",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 102,
+    "name": "Hawk",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 103,
+    "name": "Horse, Heavy",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 104,
+    "name": "Horse, Light",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 105,
+    "name": "Warhorse, Heavy",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 106,
+    "name": "Warhorse, Light",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 110,
+    "name": "Lizard",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 111,
+    "name": "Lizard, Monitor",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 112,
+    "name": "Manta Ray",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 113,
+    "name": "Monkey",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 114,
+    "name": "Mule",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 117,
+    "name": "Owl",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 118,
+    "name": "Pony",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 119,
+    "name": "Pony, War",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 121,
+    "name": "Rat",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 122,
+    "name": "Raven",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas sentidos comuns de animal."
+    }
+  },
+  {
+    "id": 137,
+    "name": "Toad",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; amphibious esta em Special Qualities."
+    }
+  },
+  {
+    "id": 622,
+    "name": "Giant Fire Beetle",
+    "fields": {
+      "special_abilities": "O stat block tem Special Attacks como '-' e nao descreve habilidade especial tipada; apenas vermin traits em Special Qualities."
+    }
+  }
+]

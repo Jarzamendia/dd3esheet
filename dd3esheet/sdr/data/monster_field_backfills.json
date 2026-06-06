@@ -1,0 +1,467 @@
+[
+  {
+    "id": 432,
+    "name": "Angel, Planetar",
+    "source": ".data/Monsters/3.5 Monsters - A.md#Angel, Planetar",
+    "fields": {
+      "special_abilities": "Regeneration (Ex)"
+    }
+  },
+  {
+    "id": 179,
+    "name": "Barbed Devil",
+    "source": ".data/Monsters/3.5 Monsters - D.md#Barbed Devil (Hamatula)",
+    "fields": {
+      "special_abilities": "Fear (Su), Impale (Ex), Improved Grab (Ex), Summon Devil (Sp), Barbed Defense (Su)"
+    }
+  },
+  {
+    "id": 180,
+    "name": "Bearded Devil",
+    "source": ".data/Monsters/3.5 Monsters - D.md#Bearded Devil (Barbazu)",
+    "fields": {
+      "special_abilities": "Infernal Wound (Su), Beard (Ex), Battle Frenzy (Ex), Summon Devil (Sp)"
+    }
+  },
+  {
+    "id": 181,
+    "name": "Bone Devil",
+    "source": ".data/Monsters/3.5 Monsters - D.md#Bone Devil (Osyluth)",
+    "fields": {
+      "special_abilities": "Fear Aura (Su), Poison (Ex), Summon Devil (Sp)"
+    }
+  },
+  {
+    "id": 182,
+    "name": "Chain Devil",
+    "source": ".data/Monsters/3.5 Monsters - D.md#Chain Devil (Kyton)",
+    "fields": {
+      "special_abilities": "Dancing Chains (Su), Unnerving Gaze (Su), Regeneration (Ex)"
+    }
+  },
+  {
+    "id": 184,
+    "name": "Hellcat",
+    "source": ".data/Monsters/3.5 Monsters - D.md#Hellcat (Bezekira)",
+    "fields": {
+      "special_abilities": "Improved Grab (Ex), Pounce (Ex), Rake (Ex), Invisible in Light (Ex)"
+    }
+  },
+  {
+    "id": 185,
+    "name": "Horned Devil",
+    "source": ".data/Monsters/3.5 Monsters - D.md#Horned Devil (Cornugon)",
+    "fields": {
+      "special_abilities": "Fear Aura (Su), Stun (Su), Infernal Wound (Su), Summon Devil (Sp), Regeneration (Ex)"
+    }
+  },
+  {
+    "id": 186,
+    "name": "Ice Devil",
+    "source": ".data/Monsters/3.5 Monsters - D.md#Ice Devil (Gelugon)",
+    "fields": {
+      "special_abilities": "Fear Aura (Su), Slow (Su), Summon Devil (Sp), Regeneration (Ex)"
+    }
+  },
+  {
+    "id": 363,
+    "name": "Ethereal Marauder",
+    "source": ".data/Monsters/3.5 Monsters - E.md#Ethereal Marauder",
+    "fields": {
+      "special_attacks": "-"
+    }
+  },
+  {
+    "id": 462,
+    "name": "Lizardfolk",
+    "source": ".data/Monsters/3.5 Monsters - L.md#Lizardfolk",
+    "fields": {
+      "special_abilities": "Hold Breath"
+    }
+  },
+  {
+    "id": 474,
+    "name": "Weretiger, Tiger Form",
+    "source": ".data/Monsters/3.5 Monsters - L.md#Weretiger",
+    "fields": {
+      "attack": "Claw +11 melee (1d8+7)"
+    }
+  },
+  {
+    "id": 475,
+    "name": "Weretiger, Hybrid Form",
+    "source": ".data/Monsters/3.5 Monsters - L.md#Weretiger",
+    "fields": {
+      "attack": "Claw +11 melee (1d8+7)"
+    }
+  },
+  {
+    "id": 479,
+    "name": "Werewolf Lord, Human Form",
+    "source": ".data/Monsters/3.5 Monsters - L.md#Lycanthrope, Werewolf Lord",
+    "fields": {
+      "special_abilities": "Alternate Form (Su), Curse of Lycanthropy (Su), Trip (Ex), Wolf Empathy (Ex)"
+    }
+  },
+  {
+    "id": 480,
+    "name": "Werewolf Lord, Dire Wolf Form",
+    "source": ".data/Monsters/3.5 Monsters - L.md#Lycanthrope, Werewolf Lord",
+    "fields": {
+      "special_abilities": "Alternate Form (Su), Curse of Lycanthropy (Su), Trip (Ex), Wolf Empathy (Ex)"
+    }
+  },
+  {
+    "id": 481,
+    "name": "Werewolf Lord, Hybrid Form",
+    "source": ".data/Monsters/3.5 Monsters - L.md#Lycanthrope, Werewolf Lord",
+    "fields": {
+      "special_abilities": "Alternate Form (Su), Curse of Lycanthropy (Su), Trip (Ex), Wolf Empathy (Ex)"
+    }
+  },
+  {
+    "id": 482,
+    "name": "Hill Giant Dire Wereboar Giant Form",
+    "source": ".data/Monsters/3.5 Monsters - L.md#Hill Giant Dire Wereboar",
+    "fields": {
+      "special_abilities": "Alternate Form (Su), Boar Empathy (Ex), Curse of Lycanthropy (Su), Ferocity (Ex), Rock Catching (Ex), Rock Throwing (Ex)"
+    }
+  },
+  {
+    "id": 483,
+    "name": "Hill Giant Dire Wereboar Dire Boar Form",
+    "source": ".data/Monsters/3.5 Monsters - L.md#Hill Giant Dire Wereboar",
+    "fields": {
+      "special_abilities": "Alternate Form (Su), Boar Empathy (Ex), Curse of Lycanthropy (Su), Ferocity (Ex)"
+    }
+  },
+  {
+    "id": 484,
+    "name": "Hill Giant Dire Wereboar Hybrid Boar Form",
+    "source": ".data/Monsters/3.5 Monsters - L.md#Hill Giant Dire Wereboar",
+    "fields": {
+      "special_abilities": "Alternate Form (Su), Boar Empathy (Ex), Curse of Lycanthropy (Su), Ferocity (Ex)"
+    }
+  },
+  {
+    "id": 516,
+    "name": "Ogre, 4th-Level Barbarian",
+    "source": ".data/Monsters/3.5 Monsters - O.md#Ogre Barbarian",
+    "fields": {
+      "special_abilities": "Rage (Ex), Trap Sense (Ex), Uncanny Dodge (Ex)"
+    }
+  },
+  {
+    "id": 527,
+    "name": "Pegasus",
+    "source": ".data/Monsters/3.5 Monsters - P.md#Pegasus",
+    "fields": {
+      "special_abilities": "Spell-Like Abilities"
+    }
+  },
+  {
+    "id": 554,
+    "name": "Human Warrior Skeleton",
+    "source": ".data/Monsters/3.5 Monsters - S.md#Skeleton",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Bludgeoning, Immunity to Cold (Ex)"
+    }
+  },
+  {
+    "id": 555,
+    "name": "Wolf Skeleton",
+    "source": ".data/Monsters/3.5 Monsters - S.md#Skeleton",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Bludgeoning, Immunity to Cold (Ex)"
+    }
+  },
+  {
+    "id": 556,
+    "name": "Owlbear Skeleton",
+    "source": ".data/Monsters/3.5 Monsters - S.md#Skeleton",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Bludgeoning, Immunity to Cold (Ex)"
+    }
+  },
+  {
+    "id": 557,
+    "name": "Troll Skeleton",
+    "source": ".data/Monsters/3.5 Monsters - S.md#Skeleton",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Bludgeoning, Immunity to Cold (Ex)"
+    }
+  },
+  {
+    "id": 558,
+    "name": "Chimera Skeleton",
+    "source": ".data/Monsters/3.5 Monsters - S.md#Skeleton",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Bludgeoning, Immunity to Cold (Ex)"
+    }
+  },
+  {
+    "id": 559,
+    "name": "Ettin Skeleton",
+    "source": ".data/Monsters/3.5 Monsters - S.md#Skeleton",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Bludgeoning, Immunity to Cold (Ex)"
+    }
+  },
+  {
+    "id": 560,
+    "name": "Advanced Megaraptor Skeleton",
+    "source": ".data/Monsters/3.5 Monsters - S.md#Skeleton",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Bludgeoning, Immunity to Cold (Ex)"
+    }
+  },
+  {
+    "id": 561,
+    "name": "Cloud Giant Skeleton",
+    "source": ".data/Monsters/3.5 Monsters - S.md#Skeleton",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Bludgeoning, Immunity to Cold (Ex)"
+    }
+  },
+  {
+    "id": 562,
+    "name": "Young Adult Red Dragon Skeleton",
+    "source": ".data/Monsters/3.5 Monsters - S.md#Skeleton",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Bludgeoning, Immunity to Cold (Ex)"
+    }
+  },
+  {
+    "id": 588,
+    "name": "Triton",
+    "source": ".data/Monsters/3.5 Monsters - T.md#Triton",
+    "fields": {
+      "special_abilities": "Spell-Like Abilities"
+    }
+  },
+  {
+    "id": 589,
+    "name": "Troglodyte",
+    "source": ".data/Monsters/3.5 Monsters - T.md#Troglodyte",
+    "fields": {
+      "special_abilities": "Stench"
+    }
+  },
+  {
+    "id": 609,
+    "name": "Kobold Zombie",
+    "source": ".data/Monsters/3.5 Monsters - Z.md#Zombie",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Slashing, Single Actions Only (Ex)"
+    }
+  },
+  {
+    "id": 610,
+    "name": "Human Commoner Zombie",
+    "source": ".data/Monsters/3.5 Monsters - Z.md#Zombie",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Slashing, Single Actions Only (Ex)"
+    }
+  },
+  {
+    "id": 611,
+    "name": "Troglodyte Zombie",
+    "source": ".data/Monsters/3.5 Monsters - Z.md#Zombie",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Slashing, Single Actions Only (Ex)"
+    }
+  },
+  {
+    "id": 612,
+    "name": "Bugbear Zombie",
+    "source": ".data/Monsters/3.5 Monsters - Z.md#Zombie",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Slashing, Single Actions Only (Ex)"
+    }
+  },
+  {
+    "id": 613,
+    "name": "Ogre Zombie",
+    "source": ".data/Monsters/3.5 Monsters - Z.md#Zombie",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Slashing, Single Actions Only (Ex)"
+    }
+  },
+  {
+    "id": 614,
+    "name": "Minotaur Zombie",
+    "source": ".data/Monsters/3.5 Monsters - Z.md#Zombie",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Slashing, Single Actions Only (Ex)"
+    }
+  },
+  {
+    "id": 615,
+    "name": "Wyvern Zombie",
+    "source": ".data/Monsters/3.5 Monsters - Z.md#Zombie",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Slashing, Single Actions Only (Ex)"
+    }
+  },
+  {
+    "id": 616,
+    "name": "Gray Render Zombie",
+    "source": ".data/Monsters/3.5 Monsters - Z.md#Zombie",
+    "fields": {
+      "special_abilities": "Damage Reduction 5/Slashing, Single Actions Only (Ex)"
+    }
+  },
+  {
+    "id": 10,
+    "name": "Behemoth Eagle",
+    "source": "sdr.dnd35.sqlite3#monster:10",
+    "fields": {
+      "special_abilities": "Evasion"
+    }
+  },
+  {
+    "id": 56,
+    "name": "Hoary Hunter",
+    "source": "sdr.dnd35.sqlite3#monster:56",
+    "fields": {
+      "special_abilities": "Spell-Like Abilities"
+    }
+  },
+  {
+    "id": 57,
+    "name": "Hoary Steed",
+    "source": "sdr.dnd35.sqlite3#monster:57",
+    "fields": {
+      "special_attacks": "-",
+      "special_abilities": "Air Walk, Astral Projection and Etherealness, Magic Circle Against Good, Misty Breath, Immunities"
+    }
+  },
+  {
+    "id": 72,
+    "name": "Sirrush",
+    "source": "sdr.dnd35.sqlite3#monster:72",
+    "fields": {
+      "special_abilities": "Pounce, Stunning Roar"
+    }
+  },
+  {
+    "id": 76,
+    "name": "Titan, Elder",
+    "source": "sdr.dnd35.sqlite3#monster:76",
+    "fields": {
+      "special_abilities": "Spell-Like Abilities, Spells"
+    }
+  },
+  {
+    "id": 96,
+    "name": "Crocodile, Giant",
+    "source": "sdr.dnd35.sqlite3#monster:96",
+    "fields": {
+      "special_abilities": "Hold Breath, Improved Grab"
+    }
+  },
+  {
+    "id": 648,
+    "name": "1st-Level Astral Construct",
+    "source": "sdr.dnd35.sqlite3#monster:648",
+    "fields": {
+      "special_abilities": "Astral Construct Menu Abilities, Construct Traits"
+    }
+  },
+  {
+    "id": 649,
+    "name": "2nd-Level Astral Construct",
+    "source": "sdr.dnd35.sqlite3#monster:649",
+    "fields": {
+      "special_abilities": "Astral Construct Menu Abilities, Construct Traits"
+    }
+  },
+  {
+    "id": 650,
+    "name": "3rd-Level Astral Construct",
+    "source": "sdr.dnd35.sqlite3#monster:650",
+    "fields": {
+      "special_abilities": "Astral Construct Menu Abilities, Construct Traits"
+    }
+  },
+  {
+    "id": 651,
+    "name": "4th-Level Astral Construct",
+    "source": "sdr.dnd35.sqlite3#monster:651",
+    "fields": {
+      "special_abilities": "Astral Construct Menu Abilities, Construct Traits"
+    }
+  },
+  {
+    "id": 652,
+    "name": "5th-Level Astral Construct",
+    "source": "sdr.dnd35.sqlite3#monster:652",
+    "fields": {
+      "special_abilities": "Astral Construct Menu Abilities, Construct Traits"
+    }
+  },
+  {
+    "id": 653,
+    "name": "6th-Level Astral Construct",
+    "source": "sdr.dnd35.sqlite3#monster:653",
+    "fields": {
+      "special_abilities": "Astral Construct Menu Abilities, Construct Traits"
+    }
+  },
+  {
+    "id": 654,
+    "name": "7th-Level Astral Construct",
+    "source": "sdr.dnd35.sqlite3#monster:654",
+    "fields": {
+      "special_abilities": "Astral Construct Menu Abilities, Construct Traits"
+    }
+  },
+  {
+    "id": 655,
+    "name": "8th-Level Astral Construct",
+    "source": "sdr.dnd35.sqlite3#monster:655",
+    "fields": {
+      "special_abilities": "Astral Construct Menu Abilities, Construct Traits"
+    }
+  },
+  {
+    "id": 656,
+    "name": "9th-Level Astral Construct",
+    "source": "sdr.dnd35.sqlite3#monster:656",
+    "fields": {
+      "special_abilities": "Astral Construct Menu Abilities, Construct Traits"
+    }
+  },
+  {
+    "id": 657,
+    "name": "Blue, 1st-Level Psion (Telepath)",
+    "source": "sdr.dnd35.sqlite3#monster:657",
+    "fields": {
+      "special_abilities": "Psionic Powers"
+    }
+  },
+  {
+    "id": 662,
+    "name": "Crysmal",
+    "source": "sdr.dnd35.sqlite3#monster:662",
+    "fields": {
+      "special_abilities": "Psi-Like Abilities"
+    }
+  },
+  {
+    "id": 663,
+    "name": "Dromite, 1st-Level Warrior",
+    "source": "sdr.dnd35.sqlite3#monster:663",
+    "fields": {
+      "special_abilities": "Psi-Like Abilities"
+    }
+  },
+  {
+    "id": 672,
+    "name": "Psicrystal",
+    "source": "sdr.dnd35.sqlite3#monster:672",
+    "fields": {
+      "special_abilities": "Psicrystal Granted Abilities"
+    }
+  }
+]
