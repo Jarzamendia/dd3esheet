@@ -1,0 +1,160 @@
+---
+# ============================================================
+# Role: ssl — Let's Encrypt via Certbot (staging ou produção)
+# ============================================================
+
+# ── Instalar Certbot via Snap ──────────────────────────────
+- name: Instalar snapd
+  ansible.builtin.apt:
+    name: snapd
+    state: present
+
+- name: Garantir que snapd está atualizado
+  ansible.builtin.shell: snap install core && snap refresh core
+  changed_when: false
+  ignore_errors: yes
+
+- name: Instalar Certbot via Snap
+  ansible.builtin.command: snap install --classic certbot
+  register: certbot_install
+  changed_when: "'already installed' not in certbot_install.stderr"
+  ignore_errors: yes
+
+- name: Criar symlink do Certbot
+  ansible.builtin.file:
+    src: /snap/bin/certbot
+    dest: /usr/bin/certbot
+    state: link
+    force: yes
+
+- name: Verificar versão do Certbot
+  ansible.builtin.command: certbot --version
+  register: certbot_version
+  changed_when: false
+
+- name: Mostrar versão do Certbot
+  ansible.builtin.debug:
+    var: certbot_version.stdout
+
+# ── Definir flags do ambiente ──────────────────────────────
+- name: Definir flag de staging
+  ansible.builtin.set_fact:
+    certbot_staging_flag: "{{ '--staging' if ssl_environment == 'staging' else '' }}"
+    certbot_env_label: "{{ 'STAGING' if ssl_environment == 'staging' else 'PRODUÇÃO' }}"
+
+- name: Mostrar ambiente selecionado
+  ansible.builtin.debug:
+    msg:
+      - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      - "  🔐 Let's Encrypt: {{ certbot_env_label }}"
+      - "  🌐 Domínio: {{ app_domain }}"
+      - "  📧 Email: {{ ssl_email }}"
+      - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# ── Verificar certificado existente ────────────────────────
+- name: Verificar se certificado já existe
+  ansible.builtin.stat:
+    path: "/etc/letsencrypt/live/{{ app_domain }}/fullchain.pem"
+  register: cert_exists
+
+- name: Mostrar status do certificado
+  ansible.builtin.debug:
+    msg: "{{ 'Certificado encontrado — será renovado se necessário' if cert_exists.stat.exists else 'Nenhum certificado encontrado — será gerado' }}"
+
+# ── Gerar certificado ─────────────────────────────────────
+- name: Gerar certificado via Certbot (plugin Nginx)
+  ansible.builtin.command: >
+    certbot certonly
+    --nginx
+    --non-interactive
+    --agree-tos
+    --email {{ ssl_email }}
+    --domain {{ app_domain }}
+    {{ certbot_staging_flag }}
+    --keep-until-expiring
+    --redirect
+  register: certbot_result
+  when: not cert_exists.stat.exists
+
+- name: Mostrar resultado do Certbot
+  ansible.builtin.debug:
+    var: certbot_result.stdout_lines
+  when: certbot_result is not skipped and certbot_result.stdout_lines is defined
+
+# ── Renovar certificado existente (se necessário) ─────────
+- name: Renovar certificado se já existe
+  ansible.builtin.command: >
+    certbot renew
+    --nginx
+    --non-interactive
+    {{ certbot_staging_flag }}
+    --quiet
+  register: certbot_renew
+  when: cert_exists.stat.exists
+  changed_when: "'No renewals were attempted' not in certbot_renew.stdout"
+
+# ── Configurar Nginx com SSL ──────────────────────────────
+- name: Gerar parâmetros DH (Diffie-Hellman) para SSL
+  ansible.builtin.command: openssl dhparam -out /etc/nginx/dhparam.pem 2048
+  args:
+    creates: /etc/nginx/dhparam.pem
+
+- name: Criar snippet de configuração SSL
+  ansible.builtin.template:
+    src: ssl-params.conf.j2
+    dest: /etc/nginx/snippets/ssl-params.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Nginx
+
+- name: Atualizar configuração do Nginx com SSL
+  ansible.builtin.template:
+    src: dd3esheet-ssl.conf.j2
+    dest: /etc/nginx/sites-available/dd3esheet.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Nginx
+
+- name: Testar configuração do Nginx
+  ansible.builtin.command: nginx -t
+  register: nginx_ssl_test
+  changed_when: false
+
+- name: Mostrar resultado do teste Nginx
+  ansible.builtin.debug:
+    var: nginx_ssl_test.stderr_lines
+
+# ── Auto-renovação ────────────────────────────────────────
+- name: Verificar timer de renovação automática
+  ansible.builtin.command: systemctl list-timers --no-pager | grep -i certbot || echo "Snap timer ativo"
+  register: certbot_timer
+  changed_when: false
+
+- name: Mostrar status da renovação automática
+  ansible.builtin.debug:
+    var: certbot_timer.stdout_lines
+
+- name: Testar renovação (dry-run)
+  ansible.builtin.command: certbot renew --dry-run --quiet
+  register: renew_test
+  changed_when: false
+  ignore_errors: yes
+
+- name: Resultado do teste de renovação
+  ansible.builtin.debug:
+    msg: "{{ '✅ Renovação automática funcionando' if renew_test.rc == 0 else '⚠️ Teste de renovação falhou — verificar manualmente' }}"
+
+# ── Resumo ─────────────────────────────────────────────────
+- name: Verificar dados do certificado
+  ansible.builtin.shell: |
+    echo "=== Certificado ===" && \
+    openssl x509 -in /etc/letsencrypt/live/{{ app_domain }}/fullchain.pem \
+    -noout -subject -issuer -dates 2>/dev/null || echo "Certificado não encontrado"
+  register: cert_info
+  changed_when: false
+
+- name: Dados do certificado
+  ansible.builtin.debug:
+    var: cert_info.stdout_lines

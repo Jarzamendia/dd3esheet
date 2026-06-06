@@ -1,0 +1,196 @@
+---
+# ============================================================
+# DD3ESheet — Backup dos bancos SQLite
+# Faz backup seguro via sqlite3 .backup e baixa para pasta local
+# ============================================================
+#
+# Uso:
+#   ansible-playbook backup.yml
+#   ansible-playbook backup.yml -e "backup_dnd35=true"   (inclui base de referência)
+#
+# Os backups são salvos em:  .devops/backups/<timestamp>/
+# ============================================================
+
+- name: "💾 Backup SQLite → DD3ESheet"
+  hosts: oci_servers
+  become: yes
+
+  vars:
+    backup_timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
+    backup_local_dir: "{{ playbook_dir }}/backups/{{ backup_timestamp }}"
+    backup_remote_tmp: "/tmp/dd3esheet_backup_{{ backup_timestamp }}"
+    container_name: "d3d-web-1"
+    backup_dnd35: false
+
+    # Bancos para backup
+    databases:
+      - name: db.sqlite3
+        description: "Banco principal (personagens, sessões, etc.)"
+        always: true
+      - name: dnd35.sqlite3
+        description: "Banco de referência D&D 3.5e"
+        always: false
+
+  pre_tasks:
+    - name: Mostrar informações do backup
+      ansible.builtin.debug:
+        msg:
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - "  💾 Backup DD3ESheet"
+          - "  📅 {{ backup_timestamp }}"
+          - "  🖥️  {{ inventory_hostname }}"
+          - "  📁 Local: {{ backup_local_dir }}"
+          - "  📦 Incluir dnd35: {{ backup_dnd35 }}"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  tasks:
+    # ── Verificar container ────────────────────────────────
+    - name: Verificar se o container está rodando
+      ansible.builtin.shell: docker ps --filter "name={{ container_name }}" --format "{{ '{{' }}.Names{{ '}}' }}"
+      register: container_check
+      changed_when: false
+
+    - name: Falhar se container não está rodando
+      ansible.builtin.fail:
+        msg: >
+          ❌ Container '{{ container_name }}' não encontrado!
+          Verifique com: docker compose -f docker-compose.prod.yaml ps
+      when: container_name not in container_check.stdout
+
+    # ── Preparar diretórios ────────────────────────────────
+    - name: Criar diretório temporário no servidor
+      ansible.builtin.file:
+        path: "{{ backup_remote_tmp }}"
+        state: directory
+        mode: "0755"
+
+    - name: Criar diretório local de backups
+      ansible.builtin.file:
+        path: "{{ backup_local_dir }}"
+        state: directory
+        mode: "0755"
+      delegate_to: localhost
+      become: no
+
+    # ── Backup db.sqlite3 (principal) ──────────────────────
+    - name: "Backup seguro do db.sqlite3 (via sqlite3 .backup)"
+      ansible.builtin.shell: |
+        docker exec {{ container_name }} \
+          sqlite3 /app/db.sqlite3 ".backup '/app/db_backup.sqlite3'"
+      register: backup_main
+      changed_when: true
+
+    - name: Copiar db.sqlite3 do container para o servidor
+      ansible.builtin.shell: |
+        docker cp {{ container_name }}:/app/db_backup.sqlite3 \
+          {{ backup_remote_tmp }}/db.sqlite3
+
+    - name: Remover backup temporário do container
+      ansible.builtin.shell: |
+        docker exec {{ container_name }} rm -f /app/db_backup.sqlite3
+
+    - name: Verificar integridade do db.sqlite3
+      ansible.builtin.shell: |
+        sqlite3 {{ backup_remote_tmp }}/db.sqlite3 "PRAGMA integrity_check;"
+      register: integrity_main
+      changed_when: false
+
+    - name: Resultado da integridade (db.sqlite3)
+      ansible.builtin.debug:
+        msg: "db.sqlite3 → {{ integrity_main.stdout }}"
+
+    # ── Backup dnd35.sqlite3 (opcional) ────────────────────
+    - name: "Backup seguro do dnd35.sqlite3 (via sqlite3 .backup)"
+      ansible.builtin.shell: |
+        docker exec {{ container_name }} \
+          sqlite3 /app/dnd35.sqlite3 ".backup '/app/dnd35_backup.sqlite3'"
+      when: backup_dnd35 | bool
+      register: backup_dnd35_result
+
+    - name: Copiar dnd35.sqlite3 do container para o servidor
+      ansible.builtin.shell: |
+        docker cp {{ container_name }}:/app/dnd35_backup.sqlite3 \
+          {{ backup_remote_tmp }}/dnd35.sqlite3
+      when: backup_dnd35 | bool
+
+    - name: Remover backup temporário do container (dnd35)
+      ansible.builtin.shell: |
+        docker exec {{ container_name }} rm -f /app/dnd35_backup.sqlite3
+      when: backup_dnd35 | bool
+
+    - name: Verificar integridade do dnd35.sqlite3
+      ansible.builtin.shell: |
+        sqlite3 {{ backup_remote_tmp }}/dnd35.sqlite3 "PRAGMA integrity_check;"
+      register: integrity_dnd35
+      changed_when: false
+      when: backup_dnd35 | bool
+
+    - name: Resultado da integridade (dnd35.sqlite3)
+      ansible.builtin.debug:
+        msg: "dnd35.sqlite3 → {{ integrity_dnd35.stdout }}"
+      when: backup_dnd35 | bool
+
+    # ── Compactar ──────────────────────────────────────────
+    - name: Obter tamanho dos arquivos de backup
+      ansible.builtin.shell: du -sh {{ backup_remote_tmp }}/*
+      register: backup_sizes
+      changed_when: false
+
+    - name: Tamanho dos backups
+      ansible.builtin.debug:
+        var: backup_sizes.stdout_lines
+
+    - name: Compactar backups em tar.gz
+      ansible.builtin.archive:
+        path: "{{ backup_remote_tmp }}/"
+        dest: "{{ backup_remote_tmp }}.tar.gz"
+        format: gz
+        remove: no
+
+    # ── Baixar para máquina local ──────────────────────────
+    - name: Baixar backup compactado para máquina local
+      ansible.builtin.fetch:
+        src: "{{ backup_remote_tmp }}.tar.gz"
+        dest: "{{ backup_local_dir }}/dd3esheet_backup_{{ backup_timestamp }}.tar.gz"
+        flat: yes
+
+    - name: Baixar db.sqlite3 individual (sem compactação)
+      ansible.builtin.fetch:
+        src: "{{ backup_remote_tmp }}/db.sqlite3"
+        dest: "{{ backup_local_dir }}/db.sqlite3"
+        flat: yes
+
+    - name: Baixar dnd35.sqlite3 individual (sem compactação)
+      ansible.builtin.fetch:
+        src: "{{ backup_remote_tmp }}/dnd35.sqlite3"
+        dest: "{{ backup_local_dir }}/dnd35.sqlite3"
+        flat: yes
+      when: backup_dnd35 | bool
+
+    # ── Limpeza remota ─────────────────────────────────────
+    - name: Limpar arquivos temporários no servidor
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ backup_remote_tmp }}"
+        - "{{ backup_remote_tmp }}.tar.gz"
+
+  post_tasks:
+    - name: Listar backups baixados
+      ansible.builtin.find:
+        paths: "{{ backup_local_dir }}"
+      register: local_backups
+      delegate_to: localhost
+      become: no
+
+    - name: "✅ Backup finalizado"
+      ansible.builtin.debug:
+        msg:
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - "  ✅ Backup concluído com sucesso!"
+          - "  📅 {{ backup_timestamp }}"
+          - "  📁 {{ backup_local_dir }}"
+          - "  📦 Arquivos:"
+          - "{% for f in local_backups.files %}    - {{ f.path | basename }} ({{ (f.size / 1024 / 1024) | round(2) }} MB){% endfor %}"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

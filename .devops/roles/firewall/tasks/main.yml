@@ -1,0 +1,72 @@
+---
+# ============================================================
+# Role: firewall — Configuração do UFW para servidor OCI
+# ============================================================
+
+- name: Instalar UFW
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: Resetar regras do UFW
+  community.general.ufw:
+    state: reset
+
+- name: Definir política padrão — negar entrada
+  community.general.ufw:
+    direction: incoming
+    default: deny
+
+- name: Definir política padrão — permitir saída
+  community.general.ufw:
+    direction: outgoing
+    default: allow
+
+- name: Permitir portas TCP necessárias
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ firewall_allowed_tcp_ports }}"
+
+- name: Permitir tráfego de loopback
+  community.general.ufw:
+    rule: allow
+    interface: lo
+    direction: in
+
+- name: Habilitar UFW
+  community.general.ufw:
+    state: enabled
+
+- name: Verificar status do UFW
+  ansible.builtin.command: ufw status verbose
+  register: ufw_status
+  changed_when: false
+
+- name: Mostrar status do firewall
+  ansible.builtin.debug:
+    var: ufw_status.stdout_lines
+
+# ── OCI Specific Fix ─────────────────────────────────────────
+# A tentativa de inserir regras numéricas pode falhar dependendo da ordem 
+# exata do iptables da OCI. A abordagem definitiva é remover as regras nativas
+# e deixar o UFW tomar o controle total.
+
+- name: OCI Fix — Remover pacote iptables-persistent (causa conflito)
+  ansible.builtin.apt:
+    name: iptables-persistent
+    state: absent
+
+- name: OCI Fix — Garantir política ACCEPT antes de limpar (evita lockout SSH)
+  ansible.builtin.command: iptables -P INPUT ACCEPT
+  changed_when: false
+  ignore_errors: yes
+
+- name: OCI Fix — Limpar regras nativas da Oracle (Flush)
+  ansible.builtin.command: iptables -F
+  changed_when: false
+
+- name: OCI Fix — Recarregar UFW para assumir o controle total
+  ansible.builtin.command: ufw reload
+  changed_when: false

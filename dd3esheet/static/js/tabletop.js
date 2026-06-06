@@ -37,6 +37,11 @@
 
     // --- zoom/pan da cena ao vivo (o editor usa tabletop_editor.js) -------------
     function liveStage() { return document.getElementById('tt-live'); }
+    // No editor (#tt-live dentro de [data-rich-editor]) o pan/zoom é do tabletop_editor.js.
+    function inEditor() {
+        var s = liveStage();
+        return !!(s && s.closest('[data-rich-editor="1"]'));
+    }
     function liveCanvas() {
         var s = liveStage();
         var c = s ? s.querySelector('.tt-canvas') : null;
@@ -120,7 +125,7 @@
     // Botões de zoom da cena (− / + / Ajustar), convenção data-zoom como no editor.
     document.body.addEventListener('click', function (e) {
         var z = e.target.closest('[data-zoom]');
-        if (!z || !liveStage()) return;
+        if (!z || !liveStage() || inEditor()) return;
         if (z.dataset.zoom === 'in') zoomBy(1.2);
         else if (z.dataset.zoom === 'out') zoomBy(1 / 1.2);
         else fitView();
@@ -129,13 +134,14 @@
     // Roda do mouse = zoom no ponto do cursor.
     document.body.addEventListener('wheel', function (e) {
         var s = liveStage();
-        if (!s || !s.contains(e.target)) return;
+        if (!s || !s.contains(e.target) || inEditor()) return;
         e.preventDefault();
         zoomBy(e.deltaY < 0 ? 1.12 : 1 / 1.12, e);
     }, { passive: false });
 
     document.body.addEventListener('pointerdown', function (e) {
         if (fogMode) { startFog(e); return; }
+        if (inEditor()) return;                             // editor: pan/arrasto é do tabletop_editor.js
         var s = liveStage();
         if (!s || !s.contains(e.target)) return;            // só na cena ao vivo
         if (e.target.closest('.tt-token[data-movable="1"]')) { startTokenDrag(e); return; }
@@ -245,10 +251,11 @@
         document.querySelectorAll('canvas[data-hexgrid]').forEach(drawHexGrid);
     }
     // Após cada swap (polling) redesenha a grade e reaplica o zoom/pan da cena;
-    // na primeira vez que há cena, enquadra-a (fit). O editor não tem #tt-live.
+    // na primeira vez que há cena, enquadra-a (fit). No editor (#tt-live dentro do
+    // [data-rich-editor]) só redesenha a grade — o zoom/pan é do tabletop_editor.js.
     function refreshScene() {
         drawAllHexGrids();
-        if (!liveCanvas()) return;
+        if (inEditor() || !liveCanvas()) return;   // no editor o zoom/pan é do tabletop_editor.js
         if (!fitted) { fitted = true; fitView(); } else { applyView(); }
     }
     document.body.addEventListener('htmx:afterSwap', refreshScene);

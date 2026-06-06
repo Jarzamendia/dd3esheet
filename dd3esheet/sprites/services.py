@@ -65,6 +65,25 @@ def sprite_for_monster(monster_id=None, monster_name=None, purpose=SpriteBinding
     return _first_bound_asset(SpriteBinding.SDR_MONSTER, monster_name, purpose)
 
 
+def monster_id_for_asset(asset):
+    """Id do monstro do SDR vinculado a este asset, ou None.
+
+    Permite montar `reverse('sdr:monster', [id])` para o link token -> SRD.
+    Usa o vinculo MONSTER_TOKEN cuja TargetKey e numerica (o id do monstro).
+    """
+    if not asset:
+        return None
+    bindings = SpriteBinding.objects.filter(
+        TargetType=SpriteBinding.SDR_MONSTER,
+        Purpose=SpriteBinding.MONSTER_TOKEN,
+        SpriteAsset=asset,
+    )
+    for binding in bindings:
+        if binding.TargetKey.isdigit():
+            return int(binding.TargetKey)
+    return None
+
+
 def preferred_variant(asset, variant=SpriteVariant.TOKEN_128):
     if not asset:
         return None

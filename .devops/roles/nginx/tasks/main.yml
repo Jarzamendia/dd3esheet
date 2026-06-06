@@ -1,0 +1,74 @@
+---
+# ============================================================
+# Role: nginx — Instalação e configuração como reverse proxy
+# ============================================================
+
+- name: Instalar Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Remover configuração padrão do Nginx
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/nginx/sites-enabled/default
+    - /etc/nginx/sites-available/default
+  notify: Reload Nginx
+
+- name: Criar configuração do site DD3ESheet
+  ansible.builtin.template:
+    src: dd3esheet.conf.j2
+    dest: /etc/nginx/sites-available/dd3esheet.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Nginx
+
+- name: Habilitar site (symlink)
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/dd3esheet.conf
+    dest: /etc/nginx/sites-enabled/dd3esheet.conf
+    state: link
+  notify: Reload Nginx
+
+- name: Criar diretório para snippets de segurança
+  ansible.builtin.file:
+    path: /etc/nginx/snippets
+    state: directory
+    mode: "0755"
+
+- name: Criar snippet de headers de segurança
+  ansible.builtin.template:
+    src: security-headers.conf.j2
+    dest: /etc/nginx/snippets/security-headers.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Nginx
+
+- name: Testar configuração do Nginx
+  ansible.builtin.command: nginx -t
+  register: nginx_test
+  changed_when: false
+
+- name: Mostrar resultado do teste
+  ansible.builtin.debug:
+    var: nginx_test.stderr_lines
+
+- name: Garantir que Nginx está rodando e habilitado
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Verificar status do Nginx
+  ansible.builtin.command: systemctl status nginx --no-pager
+  register: nginx_status
+  changed_when: false
+
+- name: Mostrar status do Nginx
+  ansible.builtin.debug:
+    var: nginx_status.stdout_lines

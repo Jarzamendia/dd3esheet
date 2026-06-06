@@ -1,0 +1,91 @@
+---
+# ============================================================
+# Role: docker — Instalação do Docker CE + Compose plugin
+# ============================================================
+
+- name: Remover pacotes antigos do Docker (se existirem)
+  ansible.builtin.apt:
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd
+      - runc
+    state: absent
+
+- name: Instalar dependências do Docker
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+
+- name: Criar diretório para chave GPG
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Adicionar chave GPG oficial do Docker
+  ansible.builtin.shell: |
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+    gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg
+  args:
+    creates: /etc/apt/keyrings/docker.gpg
+
+- name: Ajustar permissões da chave GPG
+  ansible.builtin.file:
+    path: /etc/apt/keyrings/docker.gpg
+    mode: "0644"
+
+- name: Adicionar repositório Docker ao APT
+  ansible.builtin.shell: |
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+    https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo $VERSION_CODENAME) stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null
+  args:
+    creates: /etc/apt/sources.list.d/docker.list
+
+- name: Atualizar cache do APT (com repo Docker)
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Instalar Docker CE e plugins
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+
+- name: Garantir que Docker está rodando e habilitado
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Adicionar usuário ao grupo docker
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+- name: Verificar versão do Docker
+  ansible.builtin.command: docker --version
+  register: docker_version
+  changed_when: false
+
+- name: Verificar versão do Docker Compose
+  ansible.builtin.command: docker compose version
+  register: compose_version
+  changed_when: false
+
+- name: Mostrar versões instaladas
+  ansible.builtin.debug:
+    msg:
+      - "{{ docker_version.stdout }}"
+      - "{{ compose_version.stdout }}"

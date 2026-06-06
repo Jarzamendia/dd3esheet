@@ -12,9 +12,9 @@ visão ao vivo (polling), pelo editor e pelas respostas de ação (move/fog).
     {% if map.Background.original_url %}
         <img class="tt-canvas__bg" src="{{ map.Background.original_url }}" alt="" draggable="false">
     {% endif %}
-    {% if map.ShowGrid and map.GridMode == 'hex' %}<canvas class="tt-canvas__hexgrid" data-hexgrid width="{{ map.WidthPx }}" height="{{ map.HeightPx }}"></canvas>{% endif %}
+    {% if map.GridMode == 'hex' %}<canvas class="tt-canvas__hexgrid{% if not map.ShowGrid %} tt-canvas__hexgrid--hint{% endif %}" data-hexgrid width="{{ map.WidthPx }}" height="{{ map.HeightPx }}"></canvas>{% endif %}
     {% for cell in terrain %}
-    <div class="tt-terrain" style="left:{{ cell.Cx }}px; top:{{ cell.Cy }}px; width:{{ map.GridSize }}px; height:{{ map.GridSize }}px;">
+    <div class="tt-terrain" style="left:{{ cell.Cx }}px; top:{{ cell.Cy }}px;">
         {% if cell.SpriteAsset.original_url %}<img src="{{ cell.SpriteAsset.original_url }}" alt="" draggable="false">{% endif %}
     </div>
     {% endfor %}

@@ -6,7 +6,7 @@
 - `character/management/commands/seed.py`: comando `python manage.py seed`.
 - `sprites/seeds.py`: registros e bindings de imagens usados pela ficha, iniciativa e exemplos, sem criar arquivos.
 - `sprites/management/commands/seed_sprites.py`: comando `python manage.py seed_sprites`.
-- `sprites/management/commands/seed_sprite_library.py`: comando `python manage.py seed_sprite_library`, cria/atualiza os 496 placeholders do manifesto.
+- `sprites/management/commands/seed_sprite_library.py`: comando `python manage.py seed_sprite_library`, cria/atualiza os placeholders do manifesto principal e das expansoes.
 
 ## Quando roda
 
@@ -51,7 +51,16 @@ Sprites:
 - classes principais usadas nos exemplos (`Fighter`, `Wizard`, `Druid`, `Ranger`);
 - tipos de combatente da iniciativa (`player`, `npc`, `enemy`);
 - monstros usados em invocacoes/companheiros de exemplo (`Brown Bear`, `Unicorn`, `Wolf`).
-- 496 placeholders publicos da Sprite Library, com `Slug` igual ao id snake_case do manifesto e `DefaultGridWidth/Height` derivados do footprint.
+- placeholders publicos da Sprite Library, com `Slug` igual ao id snake_case do manifesto e `DefaultGridWidth/Height` derivados do footprint;
+- a expansao de `TOKENS.md` registra cenas editaveis, terrenos modulares, pecas de construcoes, props, itens, marcadores e status como placeholders sem imagem, com metadados de subcategoria, caminho esperado em `/sprites/original/...` e estado `placeholder`.
+
+Primeira passada de PNGs da expansao:
+
+```powershell
+python scripts\generate_token_expansion_pngs.py --overwrite
+```
+
+O script gera os 174 PNGs em `dd3esheet/media/sprites/original/...` e atualiza `dd3esheet/db.sqlite3` quando os registros de `SpriteAsset` ja existem. A pasta `media/` e local/ignorada pelo Git.
 
 O seed de sprites nao gera imagens. Ele prepara os registros, bindings e placeholders; as imagens reais devem ser enviadas depois por upload/admin.
 
@@ -65,7 +74,7 @@ Observacao: no codigo, alguns textos possuem caracteres acentuados. Ao editar ar
 2. apaga fichas de exemplo anteriores do mesmo dono/nome;
 3. recria as fichas completas;
 4. cria ou atualiza os sprites e bindings base;
-5. cria ou atualiza os 496 placeholders da Sprite Library.
+5. cria ou atualiza os placeholders da Sprite Library.
 
 Isso torna seguro rodar o seed varias vezes em desenvolvimento.
 

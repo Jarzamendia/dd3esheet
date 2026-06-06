@@ -20,6 +20,12 @@
             <div><dt>Saida</dt><dd id="sl-spec-alpha">{% if row %}{{ row.alpha }}{% endif %}</dd></div>
             <div><dt>Footprint</dt><dd id="sl-spec-footprint">{% if row %}{{ row.grid_label }}{% endif %}</dd></div>
             <div class="sl-spec-wide"><dt>Grupo</dt><dd id="sl-spec-group">{% if row %}{{ row.group_label }}{% endif %}</dd></div>
+            <div class="sl-spec-wide" id="sl-spec-subcategory-row" hidden><dt>Subcategoria</dt><dd id="sl-spec-subcategory">{% if row %}{{ row.subcategory }}{% endif %}</dd></div>
+            <div class="sl-spec-wide" id="sl-spec-state-row" hidden><dt>Estado</dt><dd id="sl-spec-state">{% if row %}{{ row.state }}{% endif %}</dd></div>
+            <div class="sl-spec-wide" id="sl-spec-path-row" hidden><dt>Caminho</dt><dd id="sl-spec-path" class="mono">{% if row %}{{ row.expected_path }}{% endif %}</dd></div>
+            <div class="sl-spec-wide" id="sl-spec-modular-row" hidden><dt>Modular</dt><dd id="sl-spec-modular"></dd></div>
+            <div class="sl-spec-wide" id="sl-spec-scenes-row" hidden><dt>Cenas</dt><dd id="sl-spec-scenes">{% if row %}{{ row.scenes }}{% endif %}</dd></div>
+            <div class="sl-spec-wide" id="sl-spec-variations-row" hidden><dt>Variacoes</dt><dd id="sl-spec-variations" class="mono">{% if row %}{{ row.variations }}{% endif %}</dd></div>
             <div class="sl-spec-wide" id="sl-spec-size-row" hidden><dt>Tamanho</dt><dd id="sl-spec-size"></dd></div>
         </dl>
         <p class="sl-desc" id="sl-drawer-desc">{% if row %}{{ row.description }}{% endif %}</p>

@@ -107,6 +107,15 @@
     if (card.dataset.footprint) {
       parts.push(`Footprint metadata: ${card.dataset.footprint} cells.`);
     }
+    if (card.dataset.subcategory) {
+      parts.push(`Subcategory: ${card.dataset.subcategory}.`);
+    }
+    if (card.dataset.state || card.dataset.expectedPath) {
+      parts.push(`Catalog state: ${card.dataset.state || 'placeholder'}; expected asset path: ${card.dataset.expectedPath || 'not registered'}.`);
+    }
+    if (card.dataset.modular === 'yes') {
+      parts.push(`Modular role: ${card.dataset.modularRole || 'modular piece'}.`);
+    }
     parts.push('');
     parts.push('Palette: dark ink, parchment, ochre, leather, forest green, iron, deep red, steel blue, muted gold, arcane teal, royal blue, dull violet.');
     parts.push('');
@@ -117,6 +126,14 @@
   function setText(selector, value) {
     const node = root.querySelector(selector);
     if (node) node.textContent = value || '';
+  }
+
+  function setOptional(rowSelector, value, textSelector) {
+    const row = root.querySelector(rowSelector);
+    if (!row) return;
+    const valueNode = textSelector ? root.querySelector(textSelector) : row.querySelector('dd');
+    if (valueNode) valueNode.textContent = value || '';
+    row.hidden = !value;
   }
 
   function openDrawer(card) {
@@ -137,10 +154,20 @@
     setText('#sl-spec-type', card.dataset.typeLabel);
     setText('#sl-spec-canvas', card.dataset.canvas);
     setText('#sl-spec-alpha', card.dataset.alpha || card.dataset.format);
-    setText('#sl-spec-footprint', card.dataset.footprint || card.dataset.grid);
+    setText('#sl-spec-footprint', card.dataset.gridSize || card.dataset.footprint || card.dataset.grid);
     setText('#sl-spec-group', card.dataset.groupLabel);
     setText('#sl-drawer-desc', card.dataset.desc);
     setText('#sl-drawer-prompt', drawer.dataset.prompt);
+    setOptional('#sl-spec-subcategory-row', card.dataset.subcategory, '#sl-spec-subcategory');
+    setOptional('#sl-spec-state-row', card.dataset.state, '#sl-spec-state');
+    setOptional('#sl-spec-path-row', card.dataset.expectedPath, '#sl-spec-path');
+    setOptional('#sl-spec-scenes-row', card.dataset.scenes, '#sl-spec-scenes');
+    setOptional('#sl-spec-variations-row', card.dataset.variations, '#sl-spec-variations');
+    setOptional(
+      '#sl-spec-modular-row',
+      card.dataset.modular === 'yes' ? (card.dataset.modularRole || 'yes') : '',
+      '#sl-spec-modular'
+    );
 
     const sizeRow = root.querySelector('#sl-spec-size-row');
     if (card.dataset.size) {

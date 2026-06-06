@@ -1,7 +1,7 @@
 {% comment %}Um token no canvas. Posição = centro (X,Y) via translate(-50%,-50%).{% endcomment %}
 <div class="tt-token tt-token--{{ t.Kind }}{% if t.Hidden %} is-hidden{% endif %}"
      data-token-id="{{ t.id }}" data-kind="{{ t.Kind }}" data-rotation="{{ t.Rotation|default:0 }}"
-     {% if is_owner %}data-edit-url="{% url 'tabletop:edit-token' slug t.id %}"{% endif %}
+     {% if is_owner %}data-edit-url="{% url 'tabletop:edit-token' slug t.id %}" data-delete-url="{% url 'tabletop:delete-token' slug t.id %}"{% endif %}
      {% if is_owner or t.MovableByPlayers %}data-movable="1" data-move-url="{% url 'tabletop:move-token' slug t.id %}"{% endif %}
      style="left:{{ t.X }}px; top:{{ t.Y }}px; width:{{ t.PxWidth }}px; height:{{ t.PxHeight }}px; transform: translate(-50%, -50%) rotate({{ t.Rotation|default:0 }}deg);"
      title="{{ t.Label }}">

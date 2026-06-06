@@ -163,12 +163,29 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
+    /* Acima do fundo e do terreno (z-index:0), abaixo dos tokens (z-index:10),
+       senão os tiles de terreno cobrem as linhas e a grade some. */
+    z-index: 5;
+    transition: opacity .15s ease;
 }
+/* Grade só de dica: invisível até arrastar um token, então surge levemente
+   para guiar o encaixe (snap). Revelada por :has() em ambos visão e editor. */
+.tt-canvas__hexgrid--hint { opacity: 0; }
+.tt-canvas:has(.tt-token.is-dragging) .tt-canvas__hexgrid--hint { opacity: 1; }
 .tt-terrain {
     position: absolute;
+    /* Geometria real do hex pointy-top: altura = 2/√3 da largura (flat-to-flat).
+       --tt-bleed sobrepõe vizinhos p/ matar fios de fundo do arredondamento e
+       garantir que os hexágonos se toquem sem fendas claras entre as peças. */
+    --tt-bleed: 1.06;
+    width: calc(var(--tt-cell) * var(--tt-bleed));
+    height: calc(var(--tt-cell) * 1.15470054 * var(--tt-bleed));
     transform: translate(-50%, -50%);
+    /* Recorte hex duro: tessela sem deixar o papel claro vazar entre as peças. */
     clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-    background: color-mix(in oklab, var(--leather) 22%, var(--paper-1));
+    /* Base escura (terra/sombra) atrás do sprite: bordas transparentes do PNG
+       lêem como sulco/grout, nunca como branco. */
+    background: color-mix(in oklab, var(--leather) 58%, var(--ink));
     pointer-events: none;
     z-index: 0;
 }

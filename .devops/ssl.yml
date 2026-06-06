@@ -1,0 +1,92 @@
+---
+# ============================================================
+# DD3ESheet — Playbook de SSL (Let's Encrypt)
+# Instala certificado SSL via Certbot
+# ============================================================
+#
+# Uso:
+#   # Staging (testar sem limites de rate)
+#   ansible-playbook ssl.yml -e "ssl_environment=staging"
+#
+#   # Produção (certificado válido)
+#   ansible-playbook ssl.yml -e "ssl_environment=production"
+#
+#   # Sobrescrever email
+#   ansible-playbook ssl.yml -e "ssl_environment=production ssl_email=email@dominio.com"
+#
+# ============================================================
+
+- name: "🔐 SSL Let's Encrypt → DD3ESheet"
+  hosts: oci_servers
+  become: yes
+
+  pre_tasks:
+    - name: Validar que ssl_environment foi definido
+      ansible.builtin.assert:
+        that:
+          - ssl_environment is defined
+          - ssl_environment in ['staging', 'production']
+        fail_msg: >
+          ❌ Variável 'ssl_environment' obrigatória!
+          Use: ansible-playbook ssl.yml -e "ssl_environment=staging"
+          Valores válidos: staging, production
+
+    - name: Validar que app_domain não é localhost
+      ansible.builtin.assert:
+        that:
+          - app_domain != "localhost"
+          - app_domain != "127.0.0.1"
+        fail_msg: >
+          ❌ Let's Encrypt requer um domínio real!
+          Configure 'app_domain' em group_vars/oci_servers.yml
+
+    - name: Validar que ssl_email está configurado
+      ansible.builtin.assert:
+        that:
+          - ssl_email is defined
+          - ssl_email | length > 0
+          - "'@' in ssl_email"
+        fail_msg: >
+          ❌ Email obrigatório para Let's Encrypt!
+          Configure 'ssl_email' em group_vars/oci_servers.yml
+
+    - name: Verificar que Nginx está instalado
+      ansible.builtin.command: nginx -v
+      register: nginx_check
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Falhar se Nginx não está instalado
+      ansible.builtin.fail:
+        msg: >
+          ❌ Nginx não encontrado! Execute primeiro:
+          ansible-playbook deploy.yml --tags "nginx"
+      when: nginx_check.rc != 0
+
+    - name: Informações do certificado
+      ansible.builtin.debug:
+        msg:
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - "  🔐 Let's Encrypt"
+          - "  🌍 Ambiente:  {{ ssl_environment | upper }}"
+          - "  🌐 Domínio:   {{ app_domain }}"
+          - "  📧 Email:     {{ ssl_email }}"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  roles:
+    - role: ssl
+      tags: [ssl, certificate]
+
+  post_tasks:
+    - name: "✅ SSL configurado com sucesso"
+      ansible.builtin.debug:
+        msg:
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - "  ✅ SSL ativo!"
+          - "  🌍 Ambiente: {{ ssl_environment | upper }}"
+          - "  🔒 https://{{ app_domain }}"
+          - "  🔄 Renovação automática: ativa"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - ""
+          - "{% if ssl_environment == 'staging' %}  ⚠️  STAGING: o certificado NÃO é confiável pelos navegadores.{% endif %}"
+          - "{% if ssl_environment == 'staging' %}  Para certificado real: ansible-playbook ssl.yml -e \"ssl_environment=production\"{% endif %}"

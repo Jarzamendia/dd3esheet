@@ -1,0 +1,31 @@
+---
+# ============================================================
+# DD3ESheet — Playbook de Sincronização
+# Apenas sincroniza os arquivos locais para o servidor via rsync
+# ============================================================
+#
+# Uso:
+#   .\ansible.ps1 ansible-playbook sync.yml
+#
+# ============================================================
+
+- name: "🔄 Sincronizar arquivos → OCI Server"
+  hosts: oci_servers
+  become: yes
+
+  pre_tasks:
+    - name: Mostrar informações
+      ansible.builtin.debug:
+        msg: "Iniciando sincronização para {{ app_dir }} em {{ inventory_hostname }}..."
+
+  roles:
+    - role: sync
+
+  post_tasks:
+    - name: "✅ Sincronização concluída"
+      ansible.builtin.debug:
+        msg:
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - "  ✅ Arquivos sincronizados com sucesso!"
+          - "  📁 Destino: {{ app_dir }}"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

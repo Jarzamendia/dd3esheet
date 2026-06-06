@@ -1,0 +1,22 @@
+# ============================================================
+# Nginx — Headers de Segurança
+# Gerado pelo Ansible — NÃO editar manualmente
+# ============================================================
+
+# Prevenir clickjacking
+add_header X-Frame-Options "SAMEORIGIN" always;
+
+# Prevenir MIME-type sniffing
+add_header X-Content-Type-Options "nosniff" always;
+
+# Habilitar filtro XSS do navegador
+add_header X-XSS-Protection "1; mode=block" always;
+
+# Controlar informações de referrer
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+# Prevenir abertura em contextos inseguros
+add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+
+# Remover versão do Nginx do header Server
+server_tokens off;

@@ -1,0 +1,49 @@
+---
+# ============================================================
+# Role: sync — Sincronizar arquivos do projeto para o servidor
+# ============================================================
+
+- name: Criar diretório da aplicação
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: Montar lista de excludes para rsync
+  ansible.builtin.set_fact:
+    rsync_exclude_opts: "{{ rsync_excludes | map('regex_replace', '^(.*)$', '--exclude=\\1') | list }}"
+
+- name: Sincronizar arquivos do projeto via rsync
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../dd3esheet/"
+    dest: "{{ app_dir }}/"
+    rsync_opts: "{{ rsync_exclude_opts }}"
+    delete: yes
+    recursive: yes
+    compress: yes
+
+- name: Ajustar dono dos arquivos sincronizados
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+
+- name: Garantir que .env existe no servidor
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ app_dir }}/.env"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0600"
+
+- name: Verificar arquivos sincronizados
+  ansible.builtin.command: ls -la {{ app_dir }}
+  register: app_files
+  changed_when: false
+
+- name: Mostrar arquivos no servidor
+  ansible.builtin.debug:
+    var: app_files.stdout_lines

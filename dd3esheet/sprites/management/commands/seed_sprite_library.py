@@ -4,7 +4,7 @@ from sprites.seeds import seed_sprite_library
 
 
 class Command(BaseCommand):
-    help = 'Cria/atualiza placeholders SpriteAsset dos 496 assets do manifesto.'
+    help = 'Cria/atualiza placeholders SpriteAsset dos assets do manifesto.'
 
     def handle(self, *args, **options):
         summary = seed_sprite_library()

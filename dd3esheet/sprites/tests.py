@@ -5,12 +5,18 @@ from django.urls import reverse
 
 from character.models import Character
 from character.services import _bootstrap_character_siblings
-from character.tests import setup_sdr_class_table
+from character.tests import setup_sdr_class_table, setup_sdr_monster_table
 from initiative.models import Combatant, Encounter
+from sdr.models import SDR_Monster
 
 from .models import SpriteAsset, SpriteBinding, SpriteVariant
-from .seeds import seed_sprites
-from .services import attach_sprites_to_combatants, sprite_for_class, sprite_for_monster
+from .seeds import footprint_for_size, seed_monster_tokens, seed_sprites
+from .services import (
+    attach_sprites_to_combatants,
+    monster_id_for_asset,
+    sprite_for_class,
+    sprite_for_monster,
+)
 
 
 def uploaded_png(name='token.png', content=b'\x89PNG\r\n\x1a\nsprite'):
@@ -435,3 +441,142 @@ class LibraryTerrainSplitTests(TestCase):
         self.assertIn('river_segment', detail_slugs)
         self.assertEqual(base_slugs & detail_slugs, set())
         self.assertEqual(groups['map_pieces_base']['visible_count'], len(base_slugs))
+
+
+class FootprintForSizeTests(SimpleTestCase):
+    def test_size_bands_map_to_grid(self):
+        self.assertEqual(footprint_for_size('Fine'), (1, 1))
+        self.assertEqual(footprint_for_size('Diminutive'), (1, 1))
+        self.assertEqual(footprint_for_size('Tiny'), (1, 1))
+        self.assertEqual(footprint_for_size('Small'), (1, 1))
+        self.assertEqual(footprint_for_size('Medium'), (1, 1))
+        self.assertEqual(footprint_for_size('Large'), (2, 2))
+        self.assertEqual(footprint_for_size('Huge'), (3, 3))
+        self.assertEqual(footprint_for_size('Gargantuan'), (4, 4))
+        self.assertEqual(footprint_for_size('Colossal'), (6, 6))
+        self.assertEqual(footprint_for_size('Colossal+'), (6, 6))
+
+    def test_unknown_or_empty_size_defaults_to_1x1(self):
+        self.assertEqual(footprint_for_size(''), (1, 1))
+        self.assertEqual(footprint_for_size(None), (1, 1))
+        self.assertEqual(footprint_for_size('Bogus'), (1, 1))
+
+
+@override_settings(MEDIA_ROOT='/tmp/dd3esheet-test-media')
+class SeedMonsterTokensTests(TestCase):
+    databases = {'default', 'sdr'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_monster_table()
+
+    def setUp(self):
+        SDR_Monster.objects.using('sdr').all().delete()
+        SpriteAsset.objects.all().delete()
+        self.wolf = SDR_Monster.objects.using('sdr').create(name='Wolf', size='Medium')
+        self.ogre = SDR_Monster.objects.using('sdr').create(name='Ogre', size='Large')
+        self.frog = SDR_Monster.objects.using('sdr').create(name='Giant Frog', size='Medium')
+        # Arte pré-existente: o asset 'wolf' (Slug do token) já tem imagem.
+        self.wolf_art = SpriteAsset.objects.create(
+            Slug='wolf', Name='Lobo', Category=SpriteAsset.MAP_TOKEN,
+            OriginalImage=uploaded_png('wolf.png'),
+        )
+
+    def test_reuses_existing_art_asset_via_casamento(self):
+        seed_monster_tokens()
+
+        bound = sprite_for_monster(monster_id=self.wolf.pk)
+        self.assertEqual(bound, self.wolf_art)
+        self.assertTrue(bound.OriginalImage)
+        # Não cria um placeholder 'monster-<id>' para quem já tem arte.
+        self.assertFalse(SpriteAsset.objects.filter(Slug=f'monster-{self.wolf.pk}').exists())
+
+    def test_casamento_art_wins_over_legacy_placeholder_binding(self):
+        # Placeholder antigo do seed_sprites ja vinculado ao Wolf por nome.
+        legacy = SpriteAsset.objects.create(
+            Slug='monster-wolf', Name='Lobo', Category=SpriteAsset.MONSTER)
+        SpriteBinding.objects.create(
+            TargetType=SpriteBinding.SDR_MONSTER, TargetKey='Wolf',
+            Purpose=SpriteBinding.MONSTER_TOKEN, SpriteAsset=legacy)
+
+        seed_monster_tokens()
+
+        self.assertEqual(sprite_for_monster(monster_id=self.wolf.pk), self.wolf_art)
+        self.assertEqual(sprite_for_monster(monster_name='Wolf'), self.wolf_art)
+
+    def test_creates_imageless_placeholder_for_monster_without_art(self):
+        seed_monster_tokens()
+
+        asset = SpriteAsset.objects.get(Slug=f'monster-{self.frog.pk}')
+        self.assertEqual(asset.Category, SpriteAsset.MONSTER)
+        self.assertFalse(asset.OriginalImage)
+        self.assertEqual(asset.Name, 'Giant Frog')
+
+    def test_placeholder_footprint_follows_size(self):
+        seed_monster_tokens()
+
+        ogre_asset = SpriteAsset.objects.get(Slug=f'monster-{self.ogre.pk}')
+        self.assertEqual((ogre_asset.DefaultGridWidth, ogre_asset.DefaultGridHeight), (2, 2))
+
+    def test_token_resolves_by_id_and_by_name(self):
+        seed_monster_tokens()
+
+        self.assertEqual(sprite_for_monster(monster_id=self.ogre.pk).Slug, f'monster-{self.ogre.pk}')
+        self.assertEqual(sprite_for_monster(monster_name='Ogre').Slug, f'monster-{self.ogre.pk}')
+
+    def test_is_idempotent(self):
+        seed_monster_tokens()
+        assets_after_first = SpriteAsset.objects.count()
+        bindings_after_first = SpriteBinding.objects.count()
+
+        seed_monster_tokens()
+
+        self.assertEqual(SpriteAsset.objects.count(), assets_after_first)
+        self.assertEqual(SpriteBinding.objects.count(), bindings_after_first)
+
+    def test_binds_each_monster_four_ways(self):
+        seed_monster_tokens()
+
+        for purpose in (SpriteBinding.MONSTER_TOKEN, SpriteBinding.MAP_TOKEN):
+            self.assertTrue(SpriteBinding.objects.filter(
+                TargetType=SpriteBinding.SDR_MONSTER, TargetKey=str(self.wolf.pk), Purpose=purpose).exists())
+            self.assertTrue(SpriteBinding.objects.filter(
+                TargetType=SpriteBinding.SDR_MONSTER, TargetKey='Wolf', Purpose=purpose).exists())
+
+    def test_management_command_runs_and_reports_summary(self):
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        out = StringIO()
+        call_command('seed_monster_tokens', stdout=out)
+
+        self.assertIn('monstros', out.getvalue().lower())
+        self.assertTrue(SpriteBinding.objects.filter(
+            TargetType=SpriteBinding.SDR_MONSTER).exists())
+
+
+@override_settings(MEDIA_ROOT='/tmp/dd3esheet-test-media')
+class MonsterIdForAssetTests(TestCase):
+    databases = {'default', 'sdr'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        setup_sdr_monster_table()
+
+    def setUp(self):
+        SDR_Monster.objects.using('sdr').all().delete()
+        SpriteAsset.objects.all().delete()
+        self.monster = SDR_Monster.objects.using('sdr').create(name='Aboleth', size='Huge')
+
+    def test_returns_monster_id_for_bound_token(self):
+        seed_monster_tokens()
+
+        asset = sprite_for_monster(monster_id=self.monster.pk)
+        self.assertEqual(monster_id_for_asset(asset), self.monster.pk)
+
+    def test_returns_none_for_non_monster_asset(self):
+        asset = SpriteAsset.objects.create(Name='Druid Icon', Category=SpriteAsset.CLASS)
+        self.assertIsNone(monster_id_for_asset(asset))

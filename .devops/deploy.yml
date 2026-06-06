@@ -1,0 +1,65 @@
+---
+# ============================================================
+# DD3ESheet — Playbook de Deploy Completo
+# Servidor: Ubuntu (OCI)  |  Destino: /opt/d3d
+# ============================================================
+#
+# Uso:
+#   ansible-playbook deploy.yml
+#   ansible-playbook deploy.yml --tags "sync,app"    (apenas sync + deploy)
+#   ansible-playbook deploy.yml --tags "update"       (apenas atualização)
+#
+# ============================================================
+
+- name: "🎲 Deploy DD3ESheet → OCI Server"
+  hosts: oci_servers
+  become: yes
+
+  pre_tasks:
+    - name: Validar variáveis obrigatórias
+      ansible.builtin.assert:
+        that:
+          - django_secret_key != "TROCAR-POR-UMA-CHAVE-SEGURA"
+          - app_domain != "localhost" or app_domain == "localhost"
+        fail_msg: >
+          ⚠️  Variáveis obrigatórias não configuradas!
+          Edite group_vars/oci_servers.yml antes de executar.
+
+    - name: Mostrar informações do deploy
+      ansible.builtin.debug:
+        msg:
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - "  App:     {{ app_name }}"
+          - "  Destino: {{ app_dir }}"
+          - "  Host:    {{ inventory_hostname }}"
+          - "  Porta:   {{ app_port }}"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  roles:
+    - role: update
+      tags: [update, full]
+
+    - role: firewall
+      tags: [firewall, security, full]
+
+    - role: docker
+      tags: [docker, full]
+
+    - role: nginx
+      tags: [nginx, full]
+
+    - role: sync
+      tags: [sync, deploy, full]
+
+    - role: app
+      tags: [app, deploy, full]
+
+  post_tasks:
+    - name: "✅ Deploy finalizado com sucesso"
+      ansible.builtin.debug:
+        msg:
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - "  ✅ DD3ESheet rodando!"
+          - "  🌐 http://{{ app_domain }}"
+          - "  📁 {{ app_dir }}"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

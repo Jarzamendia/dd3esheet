@@ -1,0 +1,55 @@
+---
+# ============================================================
+# Variáveis do grupo oci_servers
+# ============================================================
+
+# --- Aplicação ---
+app_name: dd3esheet
+app_dir: /opt/d3d
+app_port: 8000
+
+# --- Domínio / Hosts permitidos ---
+# Substituir pelo domínio ou IP público do servidor
+app_domain: "d3d.jarza.dev.br"
+csrf_trusted_origins: "https://{{ app_domain }}"
+
+# --- Django ---
+django_secret_key: "1TROCAR-POR-UMA-CHAVE-SEGURA1"
+django_debug: "False"
+django_allowed_hosts: "{{ app_domain }},localhost,127.0.0.1"
+
+# --- Firewall ---
+firewall_allowed_tcp_ports:
+  - "22"    # SSH
+  - "80"    # HTTP (Nginx)
+  - "443"   # HTTPS (Nginx)
+
+# --- Nginx ---
+nginx_client_max_body_size: "10M"
+
+# --- SSL / Let's Encrypt ---
+# ssl_environment NÃO é definido aqui propositalmente.
+# Deve ser passado via -e para forçar escolha explícita:
+#   ansible-playbook ssl.yml -e "ssl_environment=staging"
+#   ansible-playbook ssl.yml -e "ssl_environment=production"
+ssl_email: "jearzamendia@gmail.com"
+
+# --- Docker ---
+docker_compose_version: "v2.29.1"
+
+# --- Sincronização ---
+# Arquivos/diretórios a excluir do rsync
+rsync_excludes:
+  - ".venv"
+  - ".antigravitycli"
+  - "__pycache__"
+  - "*.pyc"
+  - ".git"
+  - "db.sqlite3"
+  - "db.sqlite3-journal"
+  - "db.sqlite3-wal"
+  - "db.sqlite3-shm"
+  - "tmp"
+  - ".env"
+  - "node_modules"
+  - ".devops"
